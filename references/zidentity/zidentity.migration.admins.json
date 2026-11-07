@@ -1,0 +1,560 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.migration.admins",
+  "title": "How Zscaler admins are migrated to Authentication Service, and the automatic upgrade to the Zscaler Admin Console",
+  "aliases": [
+    "Migrating Zscaler Service Admins to Authentication Service",
+    "admin migration",
+    "Automatic Upgrade to Zscaler Admin Console",
+    "break-glass super admin"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.authentication-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.migration.end-users"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{customer-driven}} End user migration follows admin migration: [[zidentity.migration.end-users]]."
+    },
+    {
+      "label": "Process.",
+      "text": "{{zscaler-email-and-provision}} {{super-admin-steps}} {{tiles-disabled}} {{admin-data-transfer}}"
+    },
+    {
+      "label": "Rollout.",
+      "text": "{{rollout-timeline}}"
+    },
+    {
+      "label": "Roles.",
+      "text": "{{unified-rbac-roles}} Admin roles are in [[zidentity.admin-rbac]]."
+    },
+    {
+      "label": "Break-glass account.",
+      "text": "{{break-glass-super-admin}}"
+    },
+    {
+      "label": "MFA.",
+      "text": "{{admin-mfa-required}} {{admin-mfa-options}} The factors are in [[zidentity.authentication-methods]]; the MFA enrollment timing differs from [[zidentity.authentication-methods:skip-mfa-grace]] {{divergence:mfa-enrollment-timing}}."
+    },
+    {
+      "label": "Logging in.",
+      "text": "{{login-two-step-portals}} {{login-paths}} {{eusa-access}}"
+    },
+    {
+      "label": "Passwords and API authentication.",
+      "text": "{{api-auth-flow}} {{password-and-idp-mapping}} {{password-copy-from-downstream}} {{password-change-paths}} {{password-mgmt-scim-jit}}"
+    },
+    {
+      "label": "Force sync.",
+      "text": "{{force-sync-ticket}}"
+    },
+    {
+      "label": "Automatic upgrade.",
+      "text": "{{auto-upgrade-schedule}} {{auto-upgrade-options}} {{auto-upgrade-end-users}} {{auto-upgrade-idp}} {{auto-upgrade-mfa}} {{auto-upgrade-api-password}} {{auto-upgrade-redirects}} What admins must do after the upgrade differs from [[unified.admin-console.sign-in:upgrade-prerequisites]] {{divergence:upgrade-admin-action}}. The legacy service admin portals are not defined {{gap:legacy-portals-undefined}}."
+    },
+    {
+      "label": "Console names.",
+      "text": "What the Authentication Service Admin Portal, the Zscaler Admin Console and the legacy Authentication Service Admin Portal each refer to is open {{gap:admin-portal-names}}. What happens to API clients, Terraform or SDK-driven identities during admin migration is open {{gap:api-identities-during-migration}}."
+    }
+  ],
+  "claims": {
+    "customer-driven": {
+      "statement": "Authentication Service migration includes customer-driven migration: customers that authenticate their Zscaler administrators with an external IdP can request it, by contacting their Zscaler Account team to provision an Authentication Service tenant linked to all their Zscaler tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Authentication Service (formerly ZIdentity) migration includes customer-driven migration.",
+            "Customers that authenticate their Zscaler administrators with an external IdP can request for Authentication Service migration.",
+            "Customers must contact their Zscaler Account team to provision an Authentication Service tenant and have it linked to all their Zscaler tenants."
+          ]
+        }
+      ]
+    },
+    "zscaler-email-and-provision": {
+      "statement": "Zscaler emails the customer to specify the service tenants to link and the new Authentication Service super admin's name and email ID, then provisions the Authentication Service tenant and links the customer's service tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Zscaler sends an email to the customer to specify the Zscaler service tenants that must be linked to the Authentication Service tenant and the new Authentication Service super admin’s name and email ID.",
+            "Zscaler provisions the Authentication Service tenant and links the customer’s Zscaler service tenants"
+          ]
+        }
+      ]
+    },
+    "super-admin-steps": {
+      "statement": "The new Authentication Service super admin follows the registration email's instructions, connects the external IdP and provisions admins, has the other admins test Authentication Service from their IdP tile, and, once all admins confirm access, uses the link in the Zscaler Admin Console banner to proceed with the admin migration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "When you receive the email about the new Authentication Service tenant registration, follow the instructions provided in the email and complete the registration.",
+            "Connect your organization's external IdP to Authentication Service and provision your admins (users) to Authentication Service.",
+            "Inform the other admins to test Authentication Service by clicking the tile at their IdP to confirm they see the Authentication Service SSO and the assigned Zscaler service tiles.",
+            "When all the admins confirm they can access Authentication Service and see the Zscaler service tiles, go to the Zscaler Admin Console and click the link in the banner to proceed with the admin migration."
+          ]
+        }
+      ]
+    },
+    "tiles-disabled": {
+      "statement": "The Zscaler service tiles are disabled until the migration is completed; if admins do not see the assigned tiles, the super admin can review entitlements on the Entitlements tab in the Authentication Service Admin Portal and adjust them on the Administrative Entitlements page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "The service tiles are disabled until you complete the migration.",
+            "If the admins don't see the assigned tiles, the super admin can review the entitlements assigned to the admins",
+            "the super admin can review the entitlements assigned to the admins on the Entitlements tab in the Authentication Service Admin Portal. They can also make adjustments to the entitlements on the Administrative Entitlements page."
+          ]
+        }
+      ]
+    },
+    "rollout-timeline": {
+      "statement": "The help says Authentication Service has been provisioned for all new customers since January 2024, existing customers began upgrading in June 2024, and the majority of customers are upgraded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Authentication Service is being provisioned for all new customers since January 2024. Existing customers began upgrading to Authentication Service in June 2024.",
+            "At this time, the majority of Zscaler customers are upgraded to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "unified-rbac-roles": {
+      "statement": "Administrator roles for Authentication Service and some Zscaler services are managed on a different Role Management page for an organization that uses Unified RBAC, a feature in limited availability available by contacting the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service and some Zscaler services are managed on a different Role Management page.",
+            "Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "admin-data-transfer": {
+      "statement": "With admin migration, administrator data and role assignments are transferred from the Zscaler services and synced to Authentication Service, and admins can access all service admin portals with a single set of credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "administrator data and their role assignments are transferred from various Zscaler services and synced to Authentication Service.",
+            "Administrators can authenticate and access all Zscaler service admin portals with a single set of credentials"
+          ]
+        }
+      ]
+    },
+    "break-glass-super-admin": {
+      "statement": "Authentication Service creates a default super admin account for tenant recoverability that cannot be deleted or disabled and is intended only for emergency (break-glass) use; named admin accounts are for daily operations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Authentication Service creates a default super admin account for tenant recoverability. This account cannot be deleted or disabled and is intended only for emergency (break-glass) use. Use named admin accounts for daily operations."
+          ]
+        }
+      ]
+    },
+    "admin-mfa-required": {
+      "statement": "All administrators must use MFA, either Zscaler's MFA or MFA enforced at the external IdP, or both; administrators hosted in Authentication Service must use Zscaler's MFA because they do not use SSO with an external IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "All administrators must use multi-factor authentication (MFA). You can either use Zscaler's MFA or enforce MFA with your external IdP, or both.",
+            "Administrators hosted in Authentication Service are required to use Zscaler's MFA, as they are not using single sign-on (SSO) with an external IdP."
+          ]
+        }
+      ]
+    },
+    "admin-mfa-options": {
+      "statement": "After migration, admins with credentials hosted at Zscaler must use MFA for admin login, with the supported MFA options including security key or biometric, Google Authenticator, and email OTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "all admins with credentials hosted at Zscaler must use MFA for admin login.",
+            "The MFA options supported include security key or biometric, Google Authenticator, and email OTP."
+          ]
+        }
+      ]
+    },
+    "login-two-step-portals": {
+      "statement": "Admins can log in through any of the Internet & SaaS, Private Access, ZDX, Branch Connector, Cloud Connector or Deception admin portals after entering their login ID, and on first login after migration the Internet & SaaS or Private Access admin's password stored in that portal is synced to the Authentication Service Admin Portal, which then validates it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Access a Zscaler admin portal (Internet & SaaS, Private Access, ZDX, Branch Connector, Cloud Connector, or Deception).",
+            "Enter the login ID that you have been using.",
+            "When Internet & SaaS or Private Access admins log in for the first time post migration, their password stored in the respective admin-portal is synced with the Authentication Service Admin Portal, and the validation is handled by Authentication Service."
+          ]
+        }
+      ]
+    },
+    "login-paths": {
+      "statement": "The page lists ways for admins to authenticate after migration, including the Zscaler tile at the external IdP (for example Okta) and the Zscaler-assigned vanity domain (for example https://acme.zslogin.net), and recommends using a vanity domain for simplicity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Admins can authenticate in any of the following ways:",
+            "Zscaler recommends using a vanity domain (e.g., https://acme.zslogin.net) for simplicity and directly accessing Authentication Service via SSO URL.",
+            "Go to your organization's external IdP (e.g., Okta).",
+            "Click the Zscaler tile.",
+            "Access the Zscaler assigned vanity domain (e.g., https://acme.zslogin.net)."
+          ]
+        }
+      ]
+    },
+    "eusa-access": {
+      "statement": "In both the external IdP login path and the Authentication Service vanity domain login path, the Authentication Service page can be accessed only if someone from the service tenant accepts the EUSA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "You can access the Authentication Service page only if someone from your service tenant accepts the EUSA."
+          ],
+          "after": "Access Authentication Service through Your Organization's External IdP"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "You can access the Authentication Service page only if someone from your service tenant accepts the EUSA."
+          ],
+          "after": "Use the Authentication Service Vanity Domain"
+        }
+      ]
+    },
+    "api-auth-flow": {
+      "statement": "When Cloud & Branch Connector attempts to authenticate to the Internet & SaaS admin API and Internet & SaaS is linked to Authentication Service, Internet & SaaS attempts to validate the credentials with Authentication Service, which succeeds if it has a hosted user with that username and password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "When Cloud & Branch Connector attempts to authenticate to Internet & SaaS's admin API and Internet & SaaS is linked to Authentication Service",
+            "Internet & SaaS receives the request and then attempts to validate the credentials with Authentication Service.",
+            "If Authentication Service has a hosted user with that username and password, it validates the credentials and provides a successful response to Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "password-and-idp-mapping": {
+      "statement": "Authentication Service does not support users with both IdP mapping and passwords, but Internet & SaaS passwords are still synced even when the user's domain is mapped to an IdP, retaining some password-managed functions; the page recommends that customers with users holding both a password and an IdP mapping migrate away from that configuration, and says those customers must make necessary changes to use user identities under a vanity domain that cannot be mapped against an IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Authentication Service does not support users with both IdP mapping and passwords.",
+            "passwords from Internet & SaaS are still synced to Authentication Service even if the user's domain is mapped to an IdP, retaining some password-managed functions.",
+            "Additionally, Zscaler recommends that customers migrate away from such configurations where users with both password and IdP mapping are present. Customers must make necessary changes to use user identities under a vanity domain (e.g., <your_domain>.zslogin.net) that cannot be mapped against an IdP."
+          ]
+        }
+      ]
+    },
+    "password-copy-from-downstream": {
+      "statement": "For admins originally synced from Internet & SaaS or Cloud & Branch Connector where an admin API authentication attempt used their old passwords, Authentication Service requests the local password from that service and copies it to validate current and subsequent API authentication calls, and enables changing passwords for admins even if their login ID domain is mapped to an external IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "If admins were originally synced from Internet & SaaS or Cloud & Branch Connector and an admin API authentication attempt was performed using their old passwords",
+            "Authentication Service requests Internet & SaaS or Cloud & Branch Connector services to look for the local password and copies it to Authentication Service to validate the current and subsequent API authentication calls.",
+            "Authentication Service enables the option to change passwords for admins even if their login ID domain is mapped to an external IdP."
+          ]
+        }
+      ]
+    },
+    "password-change-paths": {
+      "statement": "Admins synced through external IdPs can change their password from My Profile in the Authentication Service Admin Portal, and admins with the Users and Groups permission can change it by editing the user entry; if Authentication Service holds no local password from an API authentication event, this is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "Admins synced to Authentication Service through external IdPs can change their passwords directly from the My Profile page in the Authentication Service Admin Portal.",
+            "Admins with the Users and Groups permission in Authentication Service roles can change passwords for users and admins synced from an external IdP by editing the corresponding user entry in the directory.",
+            "If Authentication Service does not maintain a local password for admins based on the API authentication event, then this option to change local passwords is not supported."
+          ]
+        }
+      ]
+    },
+    "password-mgmt-scim-jit": {
+      "statement": "Password management for users and admins synced via external IdPs works only when the identities were synced from downstream services (for example Cloud & Branch Connector), and is not supported for identities provisioned from external IdPs via SCIM or JIT provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "only work when the identities are synced to Authentication Service from downstream services (e.g., Cloud & Branch Connector).",
+            "For identities provisioned from external IdPs via SCIM or JIT provisioning, the password management functions are not supported."
+          ]
+        }
+      ]
+    },
+    "force-sync-ticket": {
+      "statement": "For existing customers, identities might not sync if removed from Authentication Service during migration, which needs a support ticket to force sync the users from the downstream service; the scenario is Authentication Service in the provisioned state, an IdP configured for it, a user deleted manually from the Authentication Service Admin Portal, and admin migration completed with the Zscaler services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-migrating-zscaler-service-admins-authentication-service.json",
+          "quotes": [
+            "identities might not get synced if they are removed from Authentication Service during the migration process.",
+            "A support ticket must be raised to force sync the users from the downstream service.",
+            "Authentication Service is in the provisioned state.",
+            "An IdP is configured for Authentication Service.",
+            "A user is deleted from Authentication Service Admin Portal manually.",
+            "Admin migration is completed with Zscaler services."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-schedule": {
+      "statement": "The help says that starting September 6, 2026 some organizations are scheduled for an automatic upgrade to the Zscaler Admin Console, and Zscaler emails the organization's admin accounts the schedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "Starting September 6, 2026, some organizations are scheduled for an automatic upgrade to Zscaler Admin Console.",
+            "Zscaler will send email notifications to your organization's admin accounts about the upgrade schedules."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-options": {
+      "statement": "Organizations can do a self-managed upgrade ahead of the scheduled date (recommended; contact the Zscaler Account team) or take no action, in which case Zscaler performs the upgrade automatically on the scheduled date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "Self-Managed Upgrade (Recommended): You can choose to upgrade ahead of the scheduled date, to align with your organization’s preferred maintenance window. To begin this process, contact your Zscaler Account team.",
+            "Automatic Upgrade: If no action is taken, Zscaler performs the upgrade automatically on the scheduled date."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-end-users": {
+      "statement": "End-user authentication and access to Internet & SaaS and Private Access are stated to be uninterrupted throughout the automatic upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "There will be no impact to end-user authentication and their access to Internet & SaaS (ZIA) and Private Access (ZPA) remains uninterrupted throughout this upgrade."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-idp": {
+      "statement": "After the automatic upgrade, admin access via the external IdP to the legacy service admin portals is discontinued, admins are directed only to the Zscaler Admin Console and registered as hosted admins on Authentication Service (which \"can be removed when you reconfigure the IdP\"), and the IdP must be reconfigured in the Authentication Service tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "Discontinuation of Legacy IdP Access: Admin access via your organization's external identity provider (IdP) to the legacy service admin portals will be discontinued.",
+            "Admins will only be directed to Zscaler Admin Console. Admins will be registered as hosted admins on Authentication Service. This can be removed when you reconfigure the IdP.",
+            "Admins must reconfigure the IdP within the new Authentication Service tenant provisioned for your organization."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-mfa": {
+      "statement": "After the automatic upgrade all admins must enroll in Zscaler MFA at initial login to the Zscaler Admin Console, as a one-time requirement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "all admins are required to enroll in the Zscaler multi-factor authentication (MFA) to gain initial access to Zscaler Admin Console. This is a one-time requirement that must be completed during the initial login after the upgrade."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-api-password": {
+      "statement": "If Internet & SaaS API authentication is configured in the legacy Authentication Service Admin Portal (the page's wording), the same password must be used at first login after the automatic upgrade, because creating a new password loses access to the legacy APIs; without Internet & SaaS API authentication a new password can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "If you have Internet & SaaS API authentication configured in the legacy Authentication Service Admin Portal",
+            "you must use the same password during the first login, as creating a new password results in loss of access to your legacy APIs.",
+            "If you do not have Internet & SaaS API authentication, you can create a new password."
+          ]
+        }
+      ]
+    },
+    "auto-upgrade-redirects": {
+      "statement": "After the automatic upgrade: if the IdP is configured in Authentication Service and the admin starts an IdP-initiated login from Authentication Service, the admin goes to the IdP and then MFA; if the password is already configured in Authentication Service and the login starts from the Internet & SaaS or Private Access tile in the IdP, the admin goes to the Zscaler Admin Console login page and logs in with the password, then MFA; if neither an IdP nor a password is set up and the login starts from the Internet & SaaS or Private Access tile in the IdP, the admin logs in with the existing Internet & SaaS or Private Access password (which is migrated) or creates a new password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+          "quotes": [
+            "If the IdP is configured in Authentication Service and the admin starts an IdP-initiated login from Authentication Service",
+            "If the password is already configured in Authentication Service, and the admin starts an IdP-initiated login from the Internet & SaaS or Private Access tile in the IdP",
+            "If the admin does not have an IdP and password set up in Authentication Service and starts an IdP-initiated login from the Internet & SaaS or Private Access tile in the IdP",
+            "the admin is redirected to the IdP (e.g., Okta) for verification. The IdP uses the existing valid session and redirects the admin to MFA.",
+            "the admin is redirected to the Zscaler Admin Console login page, where the admin can log in using the configured password and then proceed to MFA verification.",
+            "the admin can either log in using the existing Internet & SaaS or Private Access password or create a new password. If the admin logs in using the Internet & SaaS or Private Access password, that password is migrated to Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "upgrade-admin-action": {
+      "summary": "The automatic upgrade page has admins reconfigure the IdP and enroll in MFA, while the Experience Center upgrade page has already-migrated admins take no further action.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+            "quotes": [
+              "Admins must reconfigure the IdP within the new Authentication Service tenant provisioned for your organization.",
+              "all admins are required to enroll in the Zscaler multi-factor authentication (MFA) to gain initial access to Zscaler Admin Console."
+            ]
+          },
+          "says": "After the automatic upgrade admins must reconfigure the IdP in the new Authentication Service tenant and enroll in Zscaler MFA at initial access."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-upgrading-zscaler-experience-center.json",
+            "quotes": [
+              "Admins do not need to take any further action in order to upgrade to Experience Center.",
+              "Upon receiving the migration notification, admins can log in to the Zscaler Admin Console using their existing Authentication Service authentication credentials."
+            ]
+          },
+          "says": "Admins who have already migrated to Authentication Service take no further action and log in with their existing credentials."
+        }
+      ],
+      "impact": "An admin cannot tell from the pages whether they must reconfigure the IdP and enroll in MFA; the pages may address admins in different states, which neither says."
+    },
+    "mfa-enrollment-timing": {
+      "summary": "The admin migration pages require MFA enrollment at initial access, while the Multi-Factor Authentication page lets an admin skip MFA for 7 days and lets IdP-MFA admins disable Enforce Zscaler Admin MFA.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-automatic-upgrade-to-zscaler-admin-console.json",
+            "quotes": [
+              "This is a one-time requirement that must be completed during the initial login after the upgrade."
+            ]
+          },
+          "says": "Admins must enroll in Zscaler MFA during the initial login after the automatic upgrade."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-configuring-multi-factor-authentication.json",
+            "quotes": [
+              "As an admin, you can skip the MFA for a grace period of 7 days. After the grace period is over, you need to configure MFA in Authentication Service.",
+              "Admins using MFA through their external IdP can disable Enforce Zscaler Admin MFA option to prevent additional authentication verification from Authentication Service."
+            ]
+          },
+          "says": "An admin can skip MFA for 7 days, and admins using MFA through their external IdP can disable the Enforce Zscaler Admin MFA option."
+        }
+      ],
+      "impact": "Whether an admin can reach the Zscaler Admin Console before enrolling in Zscaler MFA is not settled by the pages; the migration pages' enrollment requirement and the 7-day skip cannot both apply at initial access."
+    }
+  },
+  "gaps": {
+    "legacy-portals-undefined": {
+      "kind": "semantic",
+      "title": "What the legacy service admin portals are, and the upgrade dates beyond September 6, 2026",
+      "status": "open",
+      "detail": "The upgrade page says the self-managed upgrade is recommended but does not define the legacy service admin portals or give a date range beyond starting September 6, 2026.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "admin-portal-names": {
+      "kind": "semantic",
+      "title": "Which consoles the Authentication Service Admin Portal, the Zscaler Admin Console and the legacy Authentication Service Admin Portal name",
+      "status": "open",
+      "detail": "The pages use the three names for what looks like several UIs, and the upgrade page says legacy Authentication Service Admin Portal for Internet & SaaS API authentication without defining it. Other subjects describe the Zscaler Admin Console sign-in (unified.admin-console.sign-in) and the external IdP configuration page (zidentity.overview.external-idps.configuration), but none maps the three names here.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "api-identities-during-migration": {
+      "kind": "semantic",
+      "title": "What happens to API clients, Terraform or SDK-driven identities during admin migration",
+      "status": "open",
+      "detail": "The pages cover admin API authentication for Cloud & Branch Connector (api-auth-flow) and the same-password requirement for Internet & SaaS API authentication at the automatic upgrade (auto-upgrade-api-password), but do not say what happens to OneAPI clients, Terraform or SDK-driven identities. Whether the OneAPI spec, the Go and Python SDKs and the Terraform provider carry migration state has not been checked.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -40,7 +40,7 @@
     },
     {
       "label": "Transaction details.",
-      "text": "{{transaction-details}} {{performance-stats}}"
+      "text": "{{transaction-details}} {{performance-stats}} {{detection-summary-users-overview}} {{detection-summary-users-actions}} The detection summary lists the prompt and response actions as blocked, allowed or just detected, while the Users dashboard lists them as Allowed or Blocked {{divergence:action-values}}. {{detection-summary-users-stats}}"
     },
     {
       "label": "Latency.",
@@ -56,7 +56,7 @@
     },
     {
       "label": "Topology.",
-      "text": "{{topology}}"
+      "text": "{{topology}} {{topology-users}} {{topology-users-search}}"
     },
     {
       "label": "Audit log.",
@@ -454,6 +454,101 @@
         }
       ]
     },
+    "topology-users": {
+      "statement": "The AI Guard for Users Topology page gives a system overview of the data flow between all user groups and the LLM providers managed by AI Guard in Proxy mode; users or user groups are green circles, LLM providers purple hexagons, and data flow lines connecting them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-application-topology.json",
+          "quotes": [
+            "The AI Guard for Users Topology page provides a system overview of the data flow between all user groups and LLM providers managed by AI Guard in Proxy mode.",
+            "Users or User Groups: Formatted as green circles.",
+            "LLM Providers: Formatted as purple hexagons.",
+            "Data Flow: Represented as lines connecting the user groups and LLM providers."
+          ]
+        }
+      ]
+    },
+    "topology-users-search": {
+      "statement": "On the Users tab of the Topology page the view can be searched by a specific user group or LLM provider and limited to Users, LLM providers or All Types, and clicking a node highlights the direct connections to and from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-application-topology.json",
+          "quotes": [
+            "Select the Users tab.",
+            "Search by a specific User Group or LLM Provider.",
+            "Select whether you want to search by Users, LLM Providers, or All Types.",
+            "Click on a node to highlight the direct connections to and from it."
+          ]
+        }
+      ]
+    },
+    "detection-summary-users-overview": {
+      "statement": "In the AI Guard detection summary found in the transaction details window, a transaction's Transaction Details window opens from the dashboard's Details column with View Details, and its Overview shows date, user (who submitted the prompt or received the response), severity (Info > Low > Medium > High > Critical), policy, LLM, LLM model and user agent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "you need to view the detection summary found in the transaction details window.",
+            "In the dashboard, find the transaction you want to view, go to the Details column, and click View Details.",
+            "LLM: Name of the LLM used for analyzing the prompt or sending the response.",
+            "Date: Date and time of the transaction.",
+            "User: The user who submitted the prompt or who received the response.",
+            "Severity: Strength of the prompt's triggering of the policy detector: Info > Low > Medium > High > Critical.",
+            "Policy: Name of the policy that was triggered.",
+            "LLM Model: Specific LLM model used for this transaction (such as: claude-sonnet-4-6).",
+            "User Agent: Information about the user's agent where the prompt was written or the response was sent to."
+          ]
+        }
+      ]
+    },
+    "detection-summary-users-actions": {
+      "statement": "In the AI Guard detection summary's Detection Summary section, Prompt Detections and Response Detections show which detectors were triggered, and Prompt Action and Response Action show whether the prompt or response was blocked, allowed, or just detected, alongside prompt and response tags. The same page also gives the Transaction ID, the prompt and response text and, with the proper permissions, Add to Allowlist for a revealed blocked prompt or response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "Prompt Detections: Shows which detectors were triggered by the prompt.",
+            "Response Detections: Shows which detectors were triggered by the response.",
+            "Prompt Action: Shows whether the prompt was blocked, allowed, or just detected.",
+            "Response Action:Shows whether the response was blocked, allowed, or just detected.",
+            "Prompt Tags: Shows an tags associated with the prompt.",
+            "Response Tags: Shows an tags associated with the response.",
+            "View or copy the Transaction ID.",
+            "Prompt and Response Details: In this section you can read the specific prompt sent by the user and the response sent by the GenAI app.",
+            "Add to Allowlist: If you have the proper permissions, when you reveal a prompt or response that was blocked, you can click this option to add the prompt or response to your allowlist."
+          ]
+        }
+      ]
+    },
+    "detection-summary-users-stats": {
+      "statement": "In the AI Guard detection summary, Performance & Network Stats list prompt size, response size, total time taken by the LLM, the LLM provider's HTTP status code, detection time on request and on response, the region of the user's server, and the protocol; Custom Request Headers shows headers set up in the AI Guard tenant settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-detection-summary.json",
+          "quotes": [
+            "Prompt Size: File size of the prompt.",
+            "Response Size: File size of the response.",
+            "Total Time Taken by LLM: Length of time the LLM took to process the prompt and send a response",
+            "LLM Provider Status Code: An HTTP status code that corresponds to the status of the request.",
+            "Detection Time On Request: Time it took to analyze the prompt.",
+            "Detection Time On Response: Time it took to analyze the response.",
+            "Region: Region of the user's server.",
+            "Protocol: Protocol used by the transaction.",
+            "Custom Request Headers: This section will show any custom headers that were set up in the AI Guard tenant settings page."
+          ]
+        }
+      ]
+    },
     "audit-log": {
       "statement": "The Audit Log page tracks changes users make inside AI Guard, from updating a policy control to signing in; over a selected date range it lists each action's initiator (the email address of the user that triggered it), action (such as Update, View or Create) and entity type (more granular detail about the action), and Export CSV downloads the filtered audit log.",
       "tier": "A",
@@ -609,6 +704,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "action-values": {
+      "summary": "The detection summary says a prompt or response action can be blocked, allowed or just detected; the Users dashboard column gives only Allowed or Blocked.",
+      "positions": [
+        {
+          "says": "The detection summary's Prompt Action and Response Action show whether the prompt or response was blocked, allowed, or just detected.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-about-ai-guard-detection-summary.json",
+            "quotes": [
+              "Prompt Action: Shows whether the prompt was blocked, allowed, or just detected."
+            ]
+          }
+        },
+        {
+          "says": "The Users dashboard's Prompt Action column displays whether the transaction resulted in the prompt being Allowed or Blocked.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-dashboard.json",
+            "quotes": [
+              "Prompt Action: Displays whether the AI Guard policy transaction resulted in the prompt being Allowed or Blocked."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a detect-only policy appears as Allowed on the dashboard or as a third value is not established; the Apps detection summary and Apps dashboard differ the same way, so read the action from the detection summary when a policy only detects."
     }
   },
   "gaps": {

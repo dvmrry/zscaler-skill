@@ -91,6 +91,14 @@
     {
       "label": "Testing.",
       "text": "{{testing}}"
+    },
+    {
+      "label": "Configuration actions.",
+      "text": "{{config-view-details}} {{config-edit-copy-delete}} What deleting a configuration that a policy control references does in the portal is open {{gap:config-delete-referenced}}; the API's answer is in [[ai-security.ai-guard.admin-api:delete-409]]."
+    },
+    {
+      "label": "Quick start example.",
+      "text": "{{quickstart-example-policy}}"
     }
   ],
   "checks": [
@@ -363,6 +371,64 @@
         }
       ]
     },
+    "quickstart-example-policy": {
+      "statement": "The ChatGPT and Microsoft 365 Copilot quick starts' example policy configuration enables the Toxicity prompt detector and skips response detectors, then, if everything looks correct, clicks Submit Policy; the Review tab shows a summary of the policy configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-chatgpt.json",
+          "quotes": [
+            "On the Prompt Detectors tab, click on the Toxicity detector and then click on Save Changes.",
+            "Skip the configuration of response detectors.",
+            "The Review tab shows you a summary of the policy configuration you created.",
+            "Click Submit Policy if everything looks correct."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-microsoft-365-copilot.json",
+          "quotes": [
+            "On the Prompt Detectors tab, click on the Toxicity detector and then click on Save Changes.",
+            "Skip the configuration of response detectors.",
+            "The Review tab shows you a summary of the policy configuration you created.",
+            "Click Submit Policy if everything looks correct."
+          ]
+        }
+      ]
+    },
+    "config-view-details": {
+      "statement": "A policy configuration's View Details button under Action opens the View Configuration Details window, which shows, among other things, its description, controls, prompt detectors and response detectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-adding-and-managing-ai-guard-policy-configurations.json",
+          "quotes": [
+            "To view details of a policy configuration, under Action, click the View Details button. The View Configuration Details window appears and shows you the following information:",
+            "- Description",
+            "- Controls",
+            "- Prompt Detectors",
+            "- Response Detectors"
+          ]
+        }
+      ]
+    },
+    "config-edit-copy-delete": {
+      "statement": "A policy configuration can be edited or copied from the Action column, each opening an Edit Policy or Copy Configuration page; deleting one requires typing Delete into a text field and then clicking Delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-adding-and-managing-ai-guard-policy-configurations.json",
+          "quotes": [
+            "Under the Action column, click the Edit Configuration icon. The Edit Policy page opens.",
+            "Under the Action column, click the Copy Configuration icon. The Copy Configuration page opens.",
+            "Type Delete into the text field to confirm the deletion of the policy, and then click the Delete button."
+          ]
+        }
+      ]
+    },
     "app-control-criteria": {
       "statement": "On the AI Guard for Apps page, a policy configuration is attached to an application by adding policy control, on the AI Applications tab in Proxy mode (for DAS mode the page says to skip to the next step); the rule takes a rule name, a policy configuration, a rule order and a rule status (enabled or disabled), and at least one match criterion defined among LLM Provider & Models (Proxy Only), Applications & Credentials, Application Groups, Custom Request Headers and their values, and source IPv4 addresses; the new policy control appears at the Rule Order number entered.",
       "tier": "A",
@@ -623,6 +689,13 @@
     }
   },
   "gaps": {
+    "config-delete-referenced": {
+      "kind": "semantic",
+      "title": "Is deleting a policy configuration that a policy control still references blocked, and what happens to those controls?",
+      "status": "partial",
+      "detail": "For the API, [[ai-security.ai-guard.admin-api:delete-409]] answers: a referenced delete returns 409. The portal page for managing policy configurations does not say whether deleting a configuration that a policy control still references is blocked, or what happens to those controls, so the portal behavior is open.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
     "no-match-default": {
       "kind": "semantic",
       "title": "What AI Guard does with traffic that no policy control matches",

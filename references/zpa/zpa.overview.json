@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "id": "zpa.overview",
+  "title": "What Private Access is, its components, how a connection is made and the documented configuration order",
+  "aliases": [
+    "what is private access",
+    "what is zpa",
+    "zpa components",
+    "zpa connection flow",
+    "zpa step-by-step configuration",
+    "zpa setup order",
+    "zpa vs vpn",
+    "universal ZTNA"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{zia-contrast}}"
+    },
+    {
+      "label": "What it offers.",
+      "text": "{{discovery-and-visibility}} {{no-extra-hardware}} {{login-sso}}"
+    },
+    {
+      "label": "Components.",
+      "text": "{{components}} The connectors are in [[zpa.app-connectors]] and the edges in [[zpa.private-service-edges]]."
+    },
+    {
+      "label": "How a connection is made.",
+      "text": "{{connection-flow}} The closest edge is not always the one used: see [[zpa.private-service-edges.client-selection:trusted-network-priority]], [[zpa.private-service-edges.client-selection:grace-distance]] and [[zpa.private-service-edges.client-selection:outside-users-excluded]]. {{traffic-isolation}} Standard traffic's in-memory handling at the Service Edge is in [[zpa.app-segments.double-encryption:default-tls-and-in-memory]]."
+    },
+    {
+      "label": "Reference architectures.",
+      "text": "{{vpn-vs-zpa-segmentation}} {{ztna-definition}} The architecture pages hold no configuration values {{gap:architecture-detail}}."
+    },
+    {
+      "label": "Configuration order.",
+      "text": "{{config-order-1-5}} {{config-order-6-10}} Why the guide orders the steps this way is open {{gap:config-order-reason}}. The detail for steps 2, 3, 5, 6, 8 and 9 is in [[zpa.certificates]], [[zpa.authentication]], [[zpa.app-connectors]], [[zpa.app-segments]], [[zpa.policy]] and [[zpa.log-receivers]]; steps 1, 4, 7 and 10 have no linked subject here."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a user who cannot reach an application has a policy configured for it, since users cannot access applications until policies are configured.",
+      "uses": [
+        "config-order-6-10"
+      ]
+    },
+    {
+      "do": "Whether the connection path involves a Public or a Private Service Edge; the page says Client Connector locates the closest of either, but trusted-network mapping and grace distance can change which is used.",
+      "uses": [
+        "connection-flow",
+        "components"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Private Access (ZPA) gives users policy-based access only to the internal apps they need, as an alternative to VPNs; per the page, application access does not require network access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "Private Access allows you to give users policy-based secure access only to the internal apps they need to get their work done.",
+            "With Private Access, application access does not require network access.",
+            "Private Access is an easier-to-deploy, more cost-effective, and more secure alternative to VPNs."
+          ]
+        }
+      ]
+    },
+    "zia-contrast": {
+      "statement": "Private Access connects users to an enterprise's internal applications, while Internet & SaaS (ZIA) connects users to public applications on the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "While Private Access is for connecting users to an enterprise's internal applications, Internet & SaaS (ZIA) is for connecting users to public applications on the internet."
+          ]
+        }
+      ]
+    },
+    "discovery-and-visibility": {
+      "statement": "Servers and applications can be discovered automatically when users request them or configured manually; the central Admin Console holds settings, policies and dashboards of users, apps and server health.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "You can configure Private Access to automatically discover servers and applications when users request them, or you can configure them manually as well.",
+            "You can configure settings and policies in a central Zscaler Admin Console, which also features dashboards where you can see your users and the apps they access, and monitor the health of your servers and resources."
+          ]
+        }
+      ]
+    },
+    "no-extra-hardware": {
+      "statement": "Private Access is based on the Zero Trust Exchange, so no additional hardware or upgrades to existing hardware are required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "Like all Zscaler offerings, the Private Access service is based on the Zero Trust Exchange (ZTE), so there is no requirement for additional hardware or upgrades to existing hardware."
+          ]
+        }
+      ]
+    },
+    "components": {
+      "statement": "Key components: Zscaler Client Connector on user devices; App Connectors (lightweight VMs in the data centers hosting the apps; the step-by-step guide also names virtual private clouds) that connect to Public or Private Service Edges and accept no inbound connections; and the global Zscaler cloud, which stitches all components together. The Central Authority provides a central location for software updates and policy and configuration settings; the Public or Private Service Edges enforce user policies and provide secure transport to the App Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "Zscaler Client Connector: Installed on your users' devices",
+            "Global Zscaler cloud: Stitches all components together.",
+            "App Connectors: Lightweight virtual machines (VM) that are installed in the data centers that host your servers and applications.",
+            "They connect to Public Service Edges or Private Service Edges only to provide users access to applications in your data center, and do not accept inbound connections.",
+            "The Central Authority (CA) provides a central location for software updates as well as policy and configuration settings.",
+            "The Public Service Edges or Private Service Edges enforce user policies and provide secure transport to the App Connectors."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-private-access.json",
+          "quotes": [
+            "App Connectors are lightweight virtual machines (VM) that you must configure in the data centers or virtual private clouds (VPC) that host your application servers."
+          ]
+        }
+      ],
+      "conditions": "Other deployment forms (Docker, Kubernetes, OpenShift) are in zpa.app-connectors.deployment."
+    },
+    "connection-flow": {
+      "statement": "When a user requests an internal application, Client Connector uses geolocation to find the closest Public or Private Service Edge, presents its certificate and establishes a tunnel; the Service Edge retrieves the user's policies from the CA and contacts the appropriate App Connector, which presents its certificate before the Service Edge lets it connect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "When users request access to an internal application",
+            "Zscaler Client Connector uses geolocation technology to locate the Public Service Edge or Private Service Edge closest to them.",
+            "Zscaler Client Connector presents its certificate to the Public Service Edge or Private Service Edge to confirm its identity, and then establishes a secure tunnel",
+            "then retrieves the user's policies from the CA, and depending on the internal application requested by the user, the Public Service Edge or Private Service Edge contacts the appropriate App Connector.",
+            "The App Connector presents its certificate to the Public Service Edge or Private Service Edge, and when the Public Service Edge or Private Service Edge confirms the App Connector's identity, it allows the App Connector to connect to it."
+          ]
+        }
+      ]
+    },
+    "login-sso": {
+      "statement": "Users install Client Connector and log into an application using SAML 2.0-based SSO credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "Users install Zscaler Client Connector on their devices and can then log into an application using SAML 2.0-based SSO credentials."
+          ]
+        }
+      ]
+    },
+    "traffic-isolation": {
+      "statement": "Per this page, once the connection between the user's device and the application is established, traffic traversing the solution remains completely isolated, including from Zscaler, because Private Access is built on Zero Trust for private applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-what-zscaler-private-access.json",
+          "quotes": [
+            "When the connection is established between the user's device and the application,",
+            "the traffic traversing the solution remains completely isolated.",
+            "Because Private Access is built on the premise of Zero Trust for your private applications, the traffic is isolated from Zscaler as well."
+          ]
+        }
+      ]
+    },
+    "vpn-vs-zpa-segmentation": {
+      "statement": "Per the user-to-app segmentation reference architecture, VPNs assign a user an IP address and place the user on the network, while ZPA lets users connect only to allowed applications, with no access to adjacent applications or systems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zero-trust-user-to-app-segmentation-zpa.json",
+          "quotes": [
+            "Where VPNs assign a user an IP address and place the user on the network, ZPA enables users to connect only to allowed applications, with no access to adjacent applications or systems."
+          ]
+        }
+      ]
+    },
+    "ztna-definition": {
+      "statement": "The Universal ZTNA reference architecture describes ZTNA, also known as the software-defined perimeter (SDP), as operating on an adaptive trust model in which trust is never implicit and access is granted on a least-privileged basis defined by granular policies; ZPA delivers ZTNA for internal applications in public clouds, private clouds and data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-universal-ztna-zscaler-private-access-private-service-edge.json",
+          "quotes": [
+            "Zero trust network access (ZTNA), also known as the software-defined perimeter (SDP)",
+            "It operates on an adaptive trust model, where trust is never implicit, and access is granted on a least privileged basis defined by granular policies.",
+            "Zscaler Private Access (ZPA) delivers ZTNA to organizations that need to access internal applications in public clouds, private clouds, and in the organization's data centers"
+          ]
+        }
+      ]
+    },
+    "config-order-1-5": {
+      "statement": "The step-by-step guide orders configuration as: (1) company and administrator information, (2) certificates, (3) SAML single sign-on, (4) Zscaler Client Connector, (5) App Connectors; certificates authenticate the App Connector and the user's device before each connection and provide access to web applications via internet browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-private-access.json",
+          "quotes": [
+            "Step 1: Update Company and Administrator Information",
+            "Step 2: Configure Your Certificates",
+            "Private Access uses certificates to authenticate the App Connector and the user's device before each connection, as well as provide access to web applications via internet browser.",
+            "Step 3: Configure Single Sign-On Authentication",
+            "Private Access supports single sign-on (SSO) via SAML so that your remote users can access enterprise applications without having to log in separately to Private Access.",
+            "Step 4: Configure the Zscaler Client Connector",
+            "Step 5: Configure Your App Connectors"
+          ]
+        }
+      ]
+    },
+    "config-order-6-10": {
+      "statement": "The guide continues: (6) applications, (7) SAML attributes, (8) policies (access, timeout, client forwarding), (9) log streaming (LSS), (10) user portals; users cannot access applications until policies are configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-private-access.json",
+          "quotes": [
+            "Step 6: Configure Your Applications",
+            "Step 7: Configure Your SAML Attributes",
+            "Step 8: Configure Your Policies",
+            "Your users cannot access applications until you configure policies for them.",
+            "To configure access and timeout policies, see the following articles:",
+            "Configuring Client Forwarding Policies",
+            "Step 9: Configure Log Streaming",
+            "The Log Streaming Service (LSS) provides a better understanding of the information coming from the Private Access service",
+            "Step 10: Configure Your User Portals"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "architecture-detail": {
+      "kind": "semantic",
+      "title": "What the reference architecture pages configure",
+      "status": "open",
+      "detail": "The segmentation and Universal ZTNA pages give no configuration values, and the Zero Trust Access to Private Apps in AWS and Microsoft Azure captures hold only an intro and PDF links; the architecture detail lives in the PDFs.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "config-order-reason": {
+      "kind": "semantic",
+      "title": "Why the configuration guide orders its steps as it does",
+      "status": "open",
+      "detail": "The guide names the order but not why, for example whether certificates must precede App Connectors.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.migration.end-users.private-access",
+  "title": "The Private Access guidelines for end user migration to Authentication Service: test users, SCIM, policies, backup and restore, and rollback",
+  "aliases": [
+    "Migrating Private Access End Users to Authentication Service",
+    "Private Access end user migration",
+    "ZPA migration to ZIdentity"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.migration.end-users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-migration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning.scim"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{cc-versions}} The general end user migration is in [[zidentity.migration.end-users]], with the Linux minimum in [[zidentity.migration.end-users:linux-minimum-version]], reauthentication in [[zidentity.migration.end-users:reauth-after-migration]] and the rollback sync in [[zidentity.migration.end-users:rollback-sync-requirement]]; moving a Private Access IdP is in [[zpa.authentication.idp-migration]]."
+    },
+    {
+      "label": "Test users.",
+      "text": "{{test-users-identity}} {{test-users-scim}} {{test-users-idps}} {{test-users-reauth}} {{test-policies}} {{partner-logins}} {{one-test-user-required}}"
+    },
+    {
+      "label": "Complete migration.",
+      "text": "{{complete-migration-restrictions}} {{post-migration-policies}} {{console-read-only}} {{session-and-reauth}} What the staggered period after 7 days means in hours is open {{gap:staggered-period-hours}}."
+    },
+    {
+      "label": "SCIM.",
+      "text": "{{scim-sync-blocked}} {{stop-scim-before}} {{scim-caveats}} The SCIM server and its setup are in [[zpa.scim.setup]]; the SCIM provisioning to Authentication Service needed before selecting test users is in [[zidentity.migration.end-users:test-users-prereq-scim]]."
+    },
+    {
+      "label": "Backup and restore.",
+      "text": "{{backup-restore}}"
+    },
+    {
+      "label": "Rollback.",
+      "text": "{{rollback-requirements}} {{rollback-caveats}} {{new-migration-blocked}}"
+    }
+  ],
+  "claims": {
+    "cc-versions": {
+      "statement": "The Private Access migration page lists the Client Connector versions end user machines must run before migration: Windows 4.8 or later, macOS 4.8 or later, Android 4.1 or later, iOS 4.4.4 or later, and Linux 4.2.1 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "end users' machines must be running the following Zscaler Client Connector versions:",
+            "Windows 4.8 or later",
+            "MacOS 4.8 or later",
+            "Android 4.1 or later",
+            "iOS 4.4.4 or later",
+            "Linux 4.2.1 or later"
+          ]
+        }
+      ]
+    },
+    "test-users-identity": {
+      "statement": "During test user migration, test users appear under the Authentication Service IdP instead of the external IdP, and authentication for them is handled by Authentication Service; only existing users from the external IdP can be designated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Only existing users from the external IdP can be designated as test users.",
+            "Test users appear under the Authentication Service IdP instead of the external IdP.",
+            "Authentication is handled via Authentication Service."
+          ]
+        }
+      ]
+    },
+    "test-users-scim": {
+      "statement": "For test users, SCIM profile assignment fails for users associated with any Private Access application; SCIM group mappings must match the existing external IdP groups or they prevent migration eligibility; and test users migrated from Okta are not displayed through SCIM group mappings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "SCIM profile assignment fails for test users that are associated with any Private Access (ZPA) application.",
+            "SCIM group mappings for test users must match existing groups in the external IdP. Any group mappings that do not match the existing groups in the external IdP prevent migration eligibility.",
+            "Test users that are migrated from Okta to the Authentication Service IdP are not displayed through SCIM group mappings."
+          ]
+        }
+      ]
+    },
+    "test-users-idps": {
+      "statement": "During test user migration, any new IdP added in the Zscaler Admin Console must first be configured in Authentication Service, and all existing IdPs, including disabled ones, must be configured in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Any new IdPs added in the Zscaler Admin Console during the test user migration workflow must be first configured in the Authentication Service.",
+            "All existing IdPs, including disabled IdPs, must be configured in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "test-users-reauth": {
+      "statement": "Zscaler Client Connector triggers a mandatory reauthentication period for test users based on the configured timeout policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Zscaler Client Connector triggers a mandatory reauthentication period based on the configured timeout policy."
+          ]
+        }
+      ]
+    },
+    "test-policies": {
+      "statement": "During test user migration, policies referencing the Authentication Service IdP cannot be created; the Authentication Service IdP is visible in the IdP drop-down on the Access Policy page but cannot be edited; policies for external IdPs remain valid and usable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Policies referencing the Authentication Service IdP cannot be created during the test user migration workflow.",
+            "The Authentication Service IdP is visible in the IdP drop-down menu on the Access Policy page, but cannot be edited.",
+            "Policies for external IdPs are valid and usable."
+          ]
+        }
+      ]
+    },
+    "partner-logins": {
+      "statement": "Customers using Private Access Partner Logins are ineligible for test user migration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Customers using Private Access Partner Logins are ineligible for test user migration."
+          ]
+        }
+      ]
+    },
+    "one-test-user-required": {
+      "statement": "At least one user must be designated as a test user before a complete migration is initiated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "At least one user must be designated as a test user before initiating a complete migration."
+          ]
+        }
+      ]
+    },
+    "backup-restore": {
+      "statement": "Backup and restore is supported between systems in the same migration stage (not started, test user migration, or completed); restoring a backup from a system that has not started migration onto one that has completed it, or a backup from a system with an incomplete rollback onto one that completed rollback after complete migration, leads to data inconsistencies and is unsupported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Creating a backup on a system that hasn't started the migration process, and then restoring it on a system that hasn't started the migration.",
+            "Creating a backup on a system that is in the test user migration stage, and then restoring it on a system that is in the test user migration stage.",
+            "Creating a backup on a system that has completed the migration process, and then restoring it on a system that has completed the migration process.",
+            "The following backup and restore operations lead to data inconsistencies and are unsupported:",
+            "Creating a backup on a system that hasn't started the migration process, and then restoring it on a system that has completed the migration process.",
+            "Creating a backup on a system that has completed the initial migration process but hasn't completed the rollback process, and then restoring it on a system that has completed the rollback after complete migration stage."
+          ]
+        }
+      ]
+    },
+    "complete-migration-restrictions": {
+      "statement": "Policy creation, IdP configuration and SCIM sync updates are restricted during complete migration or rollback; after a successful migration the external IdP and its attributes cannot be edited and new rules cannot use external IdPs, and the Authentication Service IdP and its attributes can be changed only in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Policy creation, IdP configuration, and SCIM sync updates are restricted during complete migration or rollback.",
+            "A Authentication Service IdP and its attributes cannot be edited via the Zscaler Admin Console. Any modifications must be made directly through Authentication Service.",
+            "After a successful migration, the external IdP and its attributes cannot be edited, and new rules cannot be created using external IdPs."
+          ]
+        }
+      ]
+    },
+    "new-migration-blocked": {
+      "statement": "Starting a new migration is not possible if Authentication Service-associated policies are still present after a successful rollback.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Starting a new migration is not possible if the Authentication Service-associated policies are still present after a successful rollback."
+          ]
+        }
+      ]
+    },
+    "scim-sync-blocked": {
+      "statement": "After migration, SCIM Sync requests from external IdPs to Private Access are blocked, so users or groups provisioned via SCIM fail with errors such as HTTP 429 (Too Many Requests), and existing SCIM applications enter an error state; a forced sync is required if a rollback occurs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "After migration, SCIM Sync requests from external IdPs to Private Access are blocked.",
+            "Any entities (e.g., users or groups) provisioned via SCIM will fail and see errors (e.g., HTTP 429 error code for Too Many Requests).",
+            "Existing SCIM applications enter an error state as Private Access blocks syncs from the external applications. A forced sync is required if a rollback occurs."
+          ]
+        }
+      ]
+    },
+    "stop-scim-before": {
+      "statement": "In the page's Complete Migration section on user identity and SCIM behavior for Private Access SCIM applications, Zscaler recommends stopping SCIM sync or provisioning from the IdP before starting the migration process to avoid sync errors, token regeneration and unnecessary operational overhead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Existing SCIM applications enter an error state as Private Access blocks syncs from the external applications.",
+            "Zscaler recommends stopping the SCIM sync or SCIM provisioning from the IdP before starting the migration process to avoid sync errors, token regeneration, and unnecessary operational overhead."
+          ],
+          "after": "The following details provide user identity and SCIM behavior:"
+        }
+      ]
+    },
+    "scim-caveats": {
+      "statement": "Each IdP (Okta, Azure AD, Ping given as examples) has different retry mechanisms and thresholds on SCIM errors like HTTP 429; for Okta a new SCIM authentication token must be generated after SCIM provisioning is disabled; admins might need to remove and reassign users or groups to the Private Access SCIM application or provision impacted objects manually if SCIM sync errors continue to occur.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Each IdP (e.g., Okta, Azure AD, Ping) has different retry mechanisms and thresholds when encountering SCIM errors like HTTP 429.",
+            "For the Okta IdP, after SCIM provisioning is disabled, you must generate a new SCIM authentication token to enable the IdP.",
+            "Admins might need to remove and reassign users or groups to the Private Access SCIM application, or manually configure and provision impacted objects if SCIM sync errors continue to occur."
+          ]
+        }
+      ]
+    },
+    "session-and-reauth": {
+      "statement": "All users must be assigned to Private Access services in Authentication Service to avoid session termination; after migration all users and devices are forced to reauthenticate at a staggered period after 7 days; new users created during migration are logged out if a rollback occurs and must log in again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "All users must be assigned to Private Access services in Authentication Service to avoid session termination.",
+            "After migration, all users and devices are forced to reauthenticate at a staggered period after 7 days.",
+            "New users created during migration are automatically logged out if a rollback occurs, and must log in again."
+          ]
+        }
+      ]
+    },
+    "post-migration-policies": {
+      "statement": "After complete migration only Authentication Service-specific policies can be created and policies referencing an external IdP are unsupported; a rollback does not cover policies created or updated after migration, which are deleted manually by filtering them on the Access Policy page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Only Authentication Service-specific policies can be created. Policies referencing an external IdP are unsupported.",
+            "A rollback does not occur for policies created or updated after migration. To manually delete these policies, filter them on the Access Policy page, and then delete them."
+          ]
+        }
+      ]
+    },
+    "console-read-only": {
+      "statement": "After migration certain Zscaler Admin Console pages are read only, and labels for certain pages and fields are updated to Authentication Service terminology.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Certain pages within the Zscaler Admin Console are read only after migration. Labels for certain pages and labels for fields throughout the Zscaler Admin Console are updated to reflect Authentication Service terminology after migration."
+          ]
+        }
+      ]
+    },
+    "rollback-requirements": {
+      "statement": "To be eligible for rollback after complete migration, configurations of Authentication Service-specific features (Adaptive Access and Step-Up Authentication) must be deleted, because rollback is unsupported when they are used after migration without clearing them; policies associated with Authentication Service must be removed before reattempting migration, and a complete IdP sync is required after migration or rollback.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "Prior to reattempting to migrate after a rollback, you must remove any policies associated with Authentication Service.",
+            "You must delete any configurations for Authentication Service-specific features (i.e., Adaptive Access and Step-Up Authentication) to be eligible for rollback. Rollback is unsupported if these features are used after migration without clearing configurations.",
+            "A complete sync of the IdP is required after migration or rollback."
+          ]
+        }
+      ]
+    },
+    "rollback-caveats": {
+      "statement": "After a successful rollback the external IdP and its attributes can be edited but new rules cannot use Authentication Service; users synced from new IdPs added in Authentication Service appear as ZID IDP users on the IdP Configuration page and are deleted after rollback; users assigned the Authentication Service application at the external IdP must be assigned the Private Access application to complete the rollback.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-migrating-private-access-end-users-authentication-service.json",
+          "quotes": [
+            "After successful rollback, the external IdP and its attributes can be edited, but new rules cannot be created using Authentication Service.",
+            "Synced users from new IdPs added in Authentication Service appear on the IdP Configuration page within the Zscaler Admin Console as ZID IDP users. After a successful rollback, these users are deleted since they were never created in the Zscaler Admin Console.",
+            "The same users assigned the Authentication Service application at the external IdP need to be assigned the Private Access application in order to complete a successful rollback."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "staggered-period-hours": {
+      "kind": "semantic",
+      "title": "What the staggered period after 7 days means in hours",
+      "status": "open",
+      "detail": "The page says all users and devices are forced to reauthenticate at a staggered period after 7 days; it does not say how long the stagger runs or how users are ordered within it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

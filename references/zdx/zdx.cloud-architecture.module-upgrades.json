@@ -15,6 +15,14 @@
     {
       "rel": "see-also",
       "to": "zdx.cloud-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.compatibility.supported-versions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.interoperability.security-software"
     }
   ],
   "prose": [
@@ -36,6 +44,10 @@
     {
       "label": "Deploying it yourself.",
       "text": "{{manual-package}}"
+    },
+    {
+      "label": "Processes to allowlist.",
+      "text": "{{module-process-usage}} {{module-upgrade-allowlist}} Whether ZSUpmInstaller and ZSAUpmInstaller are one process is open {{gap:installer-name}}. {{macos-rum-allowlist}} {{windows-env-vars}} The minimum Client Connector and ZDX Module versions per feature are in [[zdx.compatibility.supported-versions]]."
     },
     {
       "label": "Open.",
@@ -146,6 +158,66 @@
         }
       ]
     },
+    "module-process-usage": {
+      "statement": "The ZDX Module process-usage table lists ZSAUpm (runs the ZDX service), ZSAUpmInstaller (runs the ZDX service installer for ZDX Module upgrades), ZSAScript (runs remote scripts on the device) and ZUpmApplication (gathers RUM metrics).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-module-processes-allowlist.json",
+          "quotes": [
+            "| ZSAUpm | Runs the ZDX service. |",
+            "| ZSAUpmInstaller | Runs the ZDX service installer for ZDX Module upgrades. |",
+            "| ZSAScript | Runs remote scripts on the device. |",
+            "| ZUpmApplication | Gathers RUM metrics. |"
+          ]
+        }
+      ]
+    },
+    "module-upgrade-allowlist": {
+      "statement": "The page says ZSUpmInstaller must be allowlisted to allow the ZDX Module to upgrade to the latest version; its process-usage table spells the name ZSAUpmInstaller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-module-processes-allowlist.json",
+          "quotes": [
+            "You must allowlist ZSUpmInstaller to allow ZDX Module to upgrade to the latest version.",
+            "| ZSAUpmInstaller | Runs the ZDX service installer for ZDX Module upgrades. |"
+          ]
+        }
+      ]
+    },
+    "macos-rum-allowlist": {
+      "statement": "On macOS, the allowlist entry for Real User Monitoring is the entire path /Library/Application Support/Zscaler/UPM/ZUpmApplication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-module-processes-allowlist.json",
+          "quotes": [
+            "| Real User Monitoring (RUM) | /Library/Application Support/Zscaler/UPM/ZUpmApplication |"
+          ],
+          "after": "- macOS\n- Allowlist the entire path of the following files:"
+        }
+      ]
+    },
+    "windows-env-vars": {
+      "statement": "%ProgramFiles(x86)% and %ProgramFiles% represent the drive where Windows program files are located, typically the C drive, with exceptions such as Amazon WorkSpaces, where program files are on the D drive; the ZDX Module allowlist paths depend on the ZDX Module version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-module-processes-allowlist.json",
+          "quotes": [
+            "Typically, program files are located on the C drive.",
+            "%ProgramFiles(x86)% and %ProgramFiles% are environmental variables that represent the drive where the Windows program files are located.",
+            "For example, on Amazon WorkSpaces, program files are on the D drive.",
+            "The location of files to allowlist depends on your version of ZDX Module."
+          ]
+        }
+      ]
+    },
     "manual-package": {
       "statement": "An upgrade package can be downloaded (32-bit or 64-bit ZIP, Windows) and deployed with the organization's MDM, a Group Policy Object or the CLI; this is available only with Client Connector 4.7 and later for Windows.",
       "tier": "A",
@@ -163,6 +235,15 @@
     }
   },
   "gaps": {
+    "installer-name": {
+      "kind": "semantic",
+      "title": "Whether ZSUpmInstaller and ZSAUpmInstaller name the same process",
+      "status": "open",
+      "detail": "The processes-allowlist page tells you to allowlist ZSUpmInstaller for module upgrades, while its process-usage table lists ZSAUpmInstaller as the upgrade installer; no other captured page names either, so which name the device shows is unconfirmed.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
     "rollout-orchestration": {
       "kind": "semantic",
       "title": "Which ZDX cloud component targets delayed module versions",

@@ -58,7 +58,7 @@
   ],
   "prose": [
     {
-      "text": "AI Guard for Users inspects people's traffic to public AI apps by having ZIA forward that traffic to AI Guard as a chained proxy. This subject is the Help article's configuration and its stated conditions."
+      "text": "AI Guard for Users inspects people's traffic to public AI apps by having ZIA forward that traffic to AI Guard as a chained proxy. This subject holds the proxy-chaining article's configuration and stated conditions, the AI Guard for Users architecture page, and the ChatGPT and Microsoft 365 Copilot quick starts."
     },
     {
       "label": "Before starting.",
@@ -86,7 +86,15 @@
     },
     {
       "label": "Conditions for it to work.",
-      "text": "{{sign-in-required}} {{users-appear}} How users and groups sync in AI Guard is in [[ai-security.ai-guard.tenant-settings:zia-sync]]."
+      "text": "{{sign-in-required}} {{users-appear}} Whether to enable user and group sync first is disputed {{divergence:sync-enable}}. How users and groups sync in AI Guard is in [[ai-security.ai-guard.tenant-settings:zia-sync]]."
+    },
+    {
+      "label": "Users architecture.",
+      "text": "{{users-purpose}} {{users-flow-request}} {{users-flow-block}} {{users-flow-return}} What the page leaves out is open {{gap:users-architecture-order}}."
+    },
+    {
+      "label": "Quick starts.",
+      "text": "{{quickstart-tenant-prep}} {{quickstart-description-limits}} {{quickstart-chatgpt-domains}} {{quickstart-m365-domains}} The domain list for Microsoft 365 Copilot differs between the quick start and the supported-applications table {{divergence:m365-domain-list}}. What the quick starts leave out is open {{gap:quickstart-domain-limits}}."
     },
     {
       "label": "Claude apps through Client Connector.",
@@ -269,7 +277,7 @@
       ]
     },
     "quic-block": {
-      "statement": "A Firewall Filtering rule on the QUIC network service with action Block/ICMP drops QUIC, created in the Experience Center under Zero Trust Cloud > Policy > Firewall Filtering; for ZIA Tunnel 1.0 the page says to disable the QUIC protocol in the browser.",
+      "statement": "A Firewall Filtering rule on the QUIC network service with action Block/ICMP drops QUIC; the proxy-chaining article creates it in the Experience Center under Zero Trust Cloud > Policy > Firewall Filtering, while the ChatGPT quick start gives the Zscaler Admin Console path Policies > Access Control > Firewall > Firewall Filtering Policy; for ZIA Tunnel 1.0 the article says to disable the QUIC protocol in the browser.",
       "tier": "A",
       "evidence": [
         {
@@ -281,6 +289,13 @@
             "Network Services: Select QUIC from the dropdown menu.",
             "Network Traffic: From the drop-down menu, select Block/ICMP.",
             "If you have ZIA Tunnel 1.0, disable the QUIC protocol from your browser."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-chatgpt.json",
+          "quotes": [
+            "In the Zscaler Admin Console, go to Policies > Access Control > Firewall > Firewall Filtering Policy."
           ]
         }
       ]
@@ -486,9 +501,248 @@
           ]
         }
       ]
+    },
+    "users-purpose": {
+      "statement": "AI Guard for Users provides run-time protection for GenAI applications on a per-user or user-group basis by enforcing enterprise policies, using intent-based detectors on both prompts and responses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-understanding-ai-guard-users-architecture.json",
+          "quotes": [
+            "run-time protection for your generative AI (GenAI) applications on a per-user or user group basis",
+            "AI Guard enforces intent-based detectors on both prompts and responses.",
+            "by enforcing enterprise policies that prevent prompt injections, block jailbreak attempts, and stop personal information leakage"
+          ]
+        }
+      ]
+    },
+    "users-flow-request": {
+      "statement": "In the AI Guard for Users architecture, Zscaler Client Connector authenticated users connect to ZIA, which forwards traffic to the public GenAI apps by proxy chaining to the AI Guard infrastructure within the Zscaler cloud, with a parenthetical that traditional Cloud App Controls, Web DLP and Threat Protection \"still occur here\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-understanding-ai-guard-users-architecture.json",
+          "quotes": [
+            "Zscaler Client Connector authenticated users connect to ZIA in order to send traffic to it.",
+            "ZIA forwards traffic to the public GenAI apps using proxy chaining to the AI Guard infrastructure within Zscaler cloud (traditional Cloud App Controls, Web DLP, Threat Protection still occur here)."
+          ]
+        }
+      ]
+    },
+    "users-flow-block": {
+      "statement": "In the AI Guard for Users architecture, if an AI Guard policy blocks the prompt, the traffic does not go to the GenAI apps; a prompt that is not blocked is proxied by AI Guard to the GenAI apps, and the response is analyzed with policy response detectors if configured, the user receiving a blocked message from AI Guard if it is blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-understanding-ai-guard-users-architecture.json",
+          "quotes": [
+            "If an AI Guard policy blocks the prompt, the traffic will not go to the GenAI apps.",
+            "If the prompt isn't blocked, AI Guard initiates (proxies) the traffic to the Gen AI apps.",
+            "The public GenAI apps return their response to AI Guard, where it is analyzed with policy response detectors if configured.",
+            "If blocked, the user will instead receive a blocked message from AI Guard."
+          ]
+        }
+      ]
+    },
+    "users-flow-return": {
+      "statement": "In the AI Guard for Users architecture the response is sent back through ZIA, which returns it to the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-understanding-ai-guard-users-architecture.json",
+          "quotes": [
+            "Response sent through ZIA: The response is sent back to ZIA.",
+            "User receives response: ZIA returns the response to the user."
+          ]
+        }
+      ]
+    },
+    "quickstart-tenant-prep": {
+      "statement": "The ChatGPT and Microsoft 365 Copilot quick starts enable Store Prompts/Responses under Tenant Settings > Security (otherwise all Prompt/Response fields show No Data), enable ZIA User and Group Sync and ZIA Domain Sync under Tenant Settings > Integrations, and download the AI Guard Proxy Chain Certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-chatgpt.json",
+          "quotes": [
+            "In the AI Security Admin Portal left navigation menu, go to AI Guard > Tenant Settings > Security.",
+            "Go to Tenant Settings > Integrations.",
+            "Under Security Settings, enable Store Prompts/Responses to be able to view the data in AI Guard, otherwise all Prompt/Response fields will show No Data.",
+            "Enable ZIA User and Group Sync",
+            "Enable ZIA Domain Sync",
+            "Download the Zscaler AI Guard Proxy Chain Certificate (CA certificate) for use later."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-microsoft-365-copilot.json",
+          "quotes": [
+            "In the AI Security Admin Portal left navigation menu, go to AI Guard > Tenant Settings > Security.",
+            "Go to Tenant Settings > Integrations.",
+            "Under Security Settings, enable Store Prompts/Responses to be able to view the data in AI Guard, otherwise all Prompt/Response fields will show No Data.",
+            "Enable ZIA User and Group Sync",
+            "Enable ZIA Domain Sync",
+            "Download the Zscaler AI Guard Proxy Chain Certificate (CA certificate) for use later."
+          ]
+        }
+      ]
+    },
+    "quickstart-description-limits": {
+      "statement": "In the quick starts and the proxy-chaining article, the Description of the third-party proxy being defined cannot exceed 256 characters, and the Description of the destination IPv4 group cannot exceed 10240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "Description (Optional): Enter additional notes or information. The description cannot exceed 256 characters.",
+            "Description (Optional): Enter additional information not exceeding 10240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-chatgpt.json",
+          "quotes": [
+            "Proxy Name: Enter a user-friendly name for the third-party proxy that you are defining.",
+            "Description (Optional): Enter additional notes or information. The description cannot exceed 256 characters.",
+            "Description (Optional): Enter additional information not exceeding 10240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-microsoft-365-copilot.json",
+          "quotes": [
+            "Proxy Name: Enter a user-friendly name for the third-party proxy that you are defining.",
+            "Description (Optional): Enter additional notes or information. The description cannot exceed 256 characters.",
+            "Description (Optional): Enter additional information not exceeding 10240 characters."
+          ]
+        }
+      ]
+    },
+    "quickstart-chatgpt-domains": {
+      "statement": "The ChatGPT quick start's Wildcard FQDN destination IPv4 group holds .chatgpt.com and .chat.openai.com, and a Forwarding Control rule on that group uses the Proxy Chaining forwarding method to the proxy gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-chatgpt.json",
+          "quotes": [
+            "Type: Select Wildcard FQDN.",
+            ".chatgpt.com",
+            ".chat.openai.com",
+            "Destination IPv4 Groups: Select the wildcard FQDN destination group you previously created.",
+            "Forwarding Method: Select Proxy Chaining.",
+            "Forward to Proxy Gateway: Select the proxy gateway you previously created."
+          ]
+        }
+      ]
+    },
+    "quickstart-m365-domains": {
+      "statement": "The Microsoft 365 Copilot quick start's Wildcard FQDN destination IPv4 group holds .substrate.office.com, .substrate.svc.cloud.microsoft, .copilot.microsoft.com and the .api.business, .api.enterprise and .api.individual githubcopilot.com domains, forwarded with the Proxy Chaining method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-quick-start-guide-microsoft-365-copilot.json",
+          "quotes": [
+            "Type: Select Wildcard FQDN.",
+            ".substrate.office.com",
+            ".substrate.svc.cloud.microsoft",
+            ".copilot.microsoft.com",
+            ".api.business.githubcopilot.com",
+            ".api.enterprise.githubcopilot.com",
+            ".api.individual.githubcopilot.com",
+            "Destination IPv4 Groups: Select the wildcard FQDN destination group you previously created.",
+            "Forwarding Method: Select Proxy Chaining."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "m365-domain-list": {
+      "summary": "The Microsoft 365 Copilot quick start forwards six domains; the supported-applications table lists nine for the same application.",
+      "positions": [
+        {
+          "says": "The quick start's wildcard FQDN group holds six domains: .substrate.office.com, .substrate.svc.cloud.microsoft, .copilot.microsoft.com and the three githubcopilot.com api domains.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-quick-start-guide-microsoft-365-copilot.json",
+            "quotes": [
+              ".substrate.office.com",
+              ".substrate.svc.cloud.microsoft",
+              ".copilot.microsoft.com",
+              ".api.individual.githubcopilot.com"
+            ]
+          }
+        },
+        {
+          "says": "The supported-applications table's Microsoft 365 Copilot row also lists augloop.office.com, www.copilot.com and .cloud.microsoft.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+            "quotes": [
+              "augloop.office.com www.copilot.com .cloud.microsoft"
+            ]
+          }
+        }
+      ],
+      "impact": "The forwarding-rule step sends readers to the table for the required domains, so the quick start's six alone may leave some Microsoft 365 Copilot traffic unforwarded; the pages do not say which list is current."
+    },
+    "sync-enable": {
+      "summary": "The quick starts have you enable ZIA User and Group Sync; the proxy-chaining article says users appear automatically and groups are not populated.",
+      "positions": [
+        {
+          "says": "The quick starts enable ZIA User and Group Sync and ZIA Domain Sync under Tenant Settings > Integrations before configuring ZIA.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-quick-start-guide-chatgpt.json",
+            "quotes": [
+              "Enable ZIA User and Group Sync",
+              "Enable ZIA Domain Sync"
+            ]
+          }
+        },
+        {
+          "says": "The proxy-chaining article says users defined in Authentication Service appear automatically after ZIA is configured, and groups are not yet populated automatically.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+            "quotes": [
+              "AI users defined in Authentication Service show up automatically in AI Guard after you have configured ZIA successfully.",
+              "Groups are not yet automatically populated."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether the toggles are needed for users to appear, or only for groups and domains, is not established; [[ai-security.ai-guard.tenant-settings:zia-sync]] says sync is needed for policies by user or group."
     }
   },
   "gaps": {
+    "users-architecture-order": {
+      "kind": "semantic",
+      "title": "Where AI Guard sits among ZIA Cloud App Control, Web DLP and Threat Protection, and whether DAS/API mode has a Users path",
+      "status": "open",
+      "detail": "The Users architecture page gives no step for DAS/API mode and does not say what Zscaler cloud infrastructure hosts AI Guard or which ZIA policy fires first among Cloud App Control, Web DLP and Threat Protection relative to AI Guard; it states only that they \"still occur here\", and \"here\" is ambiguous between ZIA and the AI Guard infrastructure.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "quickstart-domain-limits": {
+      "kind": "semantic",
+      "title": "How many domains a wildcard FQDN group may hold, and why GitHub Copilot domains are listed for Microsoft 365 Copilot",
+      "status": "partial",
+      "detail": "The ChatGPT and Microsoft 365 Copilot quick starts do not say how many domains a wildcard FQDN group may hold, or why GitHub Copilot domains appear in the Microsoft 365 Copilot group. Group-wide caps are in [[zia.firewall.limits:group-entry-caps]] (8,000 FQDN or IP entries per group) and [[zia.firewall.limits:dest-group-org-caps]] (5,000 destination-group FQDNs per organization, 16,000 with Advanced Firewall); those rows do not name Wildcard FQDN groups specifically, so whether the cap applies to them is open.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "ssl-inspection": {
       "kind": "semantic",
       "title": "Whether ZIA SSL inspection settings affect the AI Guard proxy-chaining path",

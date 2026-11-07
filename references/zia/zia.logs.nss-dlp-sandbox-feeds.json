@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-dlp-sandbox-feeds",
+  "title": "Cloud and HTTP NSS feeds for Email DLP, Endpoint DLP and Sandbox Verdict logs: settings, certificates and filters",
+  "aliases": [
+    "email dlp nss feed",
+    "endpoint dlp nss feed",
+    "sandbox verdict nss feed",
+    "http nss feed email dlp",
+    "cloud nss feed sandbox verdict"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-filters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.cloud-nss-feeds"
+    }
+  ],
+  "prose": [
+    {
+      "label": "HTTP feeds.",
+      "text": "{{http-dlp-prerequisite}} {{http-dlp-self-signed}} {{endpoint-dlp-nss-server}} Whether the HTTP Email DLP article omits that field is open {{gap:email-dlp-nss-server}}. The same prerequisite and certificate steps for the HTTP Sandbox Verdict article are in [[shared.nss.feed-settings:http-prerequisite]] and [[shared.nss.feed-settings:http-self-signed-command]]."
+    },
+    {
+      "label": "Cloud and HTTP feeds.",
+      "text": "{{cloud-cert-oauth}} {{cloud-endpoint-dlp}} {{cloud-defaults}} {{cloud-siem-rate}} {{email-dlp-json-escaping}} The SIEM type list and the rate limit range are open {{gap:cloud-siem-type}}."
+    },
+    {
+      "label": "Filters.",
+      "text": "{{email-dlp-filters}} {{endpoint-dlp-filters}} {{sandbox-filters-cloud}} {{sandbox-item-lists}}"
+    }
+  ],
+  "claims": {
+    "http-dlp-self-signed": {
+      "statement": "In the HTTP NSS feed articles for Email DLP and for Endpoint DLP, a self-signed or internally issued certificate that passes the SIEM connectivity test can be used only after it is configured in the VM instance with `nss add-cert-to-trust <self-signed certificate>`, giving the path of the certificate from the NSS node.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "Self-signed or internally issued certificates that pass the SIEM connectivity test can also be used only after you configure them in your VM instance.",
+            "nss add-cert-to-trust <self-signed certificate>",
+            "Replace <self-signed certificate> with the path of your self-signed certificate from the NSS node in the command."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "Self-signed or internally issued certificates that pass the SIEM connectivity test can also be used only after you configure them in your VM instance.",
+            "nss add-cert-to-trust <self-signed certificate>",
+            "Replace <self-signed certificate> with the path of your self-signed certificate from the NSS node in the command."
+          ]
+        }
+      ]
+    },
+    "http-dlp-prerequisite": {
+      "statement": "The HTTP NSS feed articles for Email DLP and Endpoint DLP each say that, before configuring HTTP NSS feeds, the tasks for the virtual appliance in the NSS Deployment Guides for the platform must be completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "Before you start configuring HTTP NSS feeds, complete the tasks for your virtual appliance using the NSS Deployment Guides for your platform."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "Before you start configuring HTTP NSS feeds, complete the tasks for your virtual appliance using the NSS Deployment Guides for your platform."
+          ]
+        }
+      ]
+    },
+    "endpoint-dlp-nss-server": {
+      "statement": "The HTTP Endpoint DLP and HTTP Sandbox Verdict feed articles list an NSS Server field and say a configured NSS server is required to add an NSS feed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "NSS Server: Select an NSS server from the list. A configured NSS server is required to add an NSS feed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "NSS Server: Select an NSS server from the list. A configured NSS server is required to add an NSS feed."
+          ]
+        }
+      ],
+      "conditions": "The HTTP Email DLP article, diffed against it, has no NSS Server line; recorded as a gap, not a claim."
+    },
+    "cloud-cert-oauth": {
+      "statement": "In the Cloud NSS feed articles for Email DLP, Endpoint DLP and Sandbox Verdict logs, the HTTPS URL must carry a publicly trusted SSL certificate because self-signed or internally issued certificates do not pass the SIEM connectivity test, and OAuth 2.0 Authentication is enabled by default if applicable to the SIEM type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "The HTTPS URL must be configured with a publicly trusted SSL certificate. Self-signed or internally issued certificates do not pass the SIEM connectivity test.",
+            "OAuth 2.0 Authentication: This setting is enabled by default if it is applicable to the SIEM type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "The HTTPS URL must be configured with a publicly trusted SSL certificate. Self-signed or internally issued certificates do not pass the SIEM connectivity test.",
+            "OAuth 2.0 Authentication: This setting is enabled by default if it is applicable to the SIEM type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "The HTTPS URL must be configured with a publicly trusted SSL certificate. Self-signed or internally issued certificates do not pass the SIEM connectivity test.",
+            "OAuth 2.0 Authentication: This setting is enabled by default if it is applicable to the SIEM type."
+          ]
+        }
+      ]
+    },
+    "cloud-endpoint-dlp": {
+      "statement": "The Cloud NSS feed article for Endpoint DLP logs has Log Type set by selecting Endpoint DLP, and offers filters by users, departments, File Type Category, File Type, DLP Engines, DLP Dictionaries, Severity and Record Type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "Log Type: Select Endpoint DLP.",
+            "Users: Use this filter to limit the logs to specific users who generated transactions.",
+            "Departments: Use this filter to limit the logs to specific departments that generated transactions.",
+            "File Type Category: Use this filter to limit the logs based on the file type categories that were detected from the content. Multiple selections are allowed.",
+            "File Type: Use this filter to limit the logs based on the file types that were detected from the content. Multiple selections are allowed.",
+            "DLP Engines: Use this filter to limit the logs to transactions in which data leakage was detected based on specific DLP engines. Multiple selections are allowed.",
+            "DLP Dictionaries: Use this filter to limit the logs to transactions in which data leakage was detected based on specific DLP dictionaries. Multiple selections are allowed.",
+            "Severity: Use this filter to limit the logs based on the severity of the incidents detected by the Endpoint DLP policy. Multiple selections are allowed.",
+            "Record Type: Use this filter to limit the logs based on record type."
+          ]
+        }
+      ]
+    },
+    "cloud-defaults": {
+      "statement": "The Cloud NSS feed articles for Email DLP (Log Type Email DLP), Endpoint DLP (Log Type Endpoint DLP) and Sandbox Verdict (Log Type Sandbox Verdict) show NSS Type as NSS for Web by default, Status Enabled by default, and JSON output by default with Tab-separated and Custom as alternatives; the HTTP Sandbox Verdict article carries the same NSS Type line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default.",
+            "Log Type: Select Endpoint DLP.",
+            "Status: The Cloud NSS feed is Enabled by default. Select Disabled if you want to activate it at a later time.",
+            "Feed Output Type: The output is JSON by default. Select Tab-separated to create a tab-separated list.",
+            "Select Custom to use a different delimiter, such as a dash, and enter the delimiter when you specify the Feed Output Format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default.",
+            "Status: The Cloud NSS feed is Enabled by default. Select Disabled if you want to activate it at a later time.",
+            "Log Type: Select Email DLP.",
+            "Feed Output Type: The output is JSON by default. Select Tab-separated to create a tab-separated list.",
+            "Select Custom to use a different delimiter, such as a dash, and enter the delimiter when you specify the Feed Output Format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default.",
+            "Status: The Cloud NSS feed is Enabled by default. Select Disabled if you want to activate it at a later time.",
+            "Log Type: Select Sandbox Verdict.",
+            "Feed Output Type: The output is JSON by default. Select Tab-separated to create a tab-separated list.",
+            "Select Custom to use a different delimiter, such as a dash, and enter the delimiter when you specify the Feed Output Format."
+          ]
+        }
+      ]
+    },
+    "cloud-siem-rate": {
+      "statement": "In the Cloud NSS feed articles for Email DLP, Endpoint DLP and Sandbox Verdict logs and in the HTTP Sandbox Verdict article, SIEM Rate stays Unlimited unless the output must be throttled; SIEM Rate Limit (Events per Second) is available only when Limited is selected, and a limit too low for the traffic volume causes log loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to SIEM licensing or other constraints.",
+            "A limit that is too low for the traffic volume causes log loss. This field is available only if you select Limited in the SIEM Rate field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to SIEM licensing or other constraints.",
+            "A limit that is too low for the traffic volume causes log loss. This field is available only if you select Limited in the SIEM Rate field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to SIEM licensing or other constraints.",
+            "SIEM Rate Limit (Events per Second): Enter an appropriate rate limit for the events per second that you want to be streamed to your SIEM.",
+            "A limit that is too low for the traffic volume causes log loss. This field is available only if you select Limited in the SIEM Rate field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to SIEM licensing or other constraints.",
+            "SIEM Rate Limit (Events per Second): Enter an appropriate rate limit for the events per second that you want to be streamed to your SIEM.",
+            "A limit that is too low for the traffic volume causes log loss. This field is available only if you select Limited in the SIEM Rate field."
+          ]
+        }
+      ],
+      "conditions": "Neither article states a minimum or maximum for the rate limit."
+    },
+    "email-dlp-json-escaping": {
+      "statement": "In the Cloud NSS Email DLP, Endpoint DLP and Sandbox Verdict feed articles and the HTTP Email DLP, Endpoint DLP and Sandbox Verdict feed articles, if JSON is the Feed Output Type, special characters such as a backslash in string fields might cause a SIEM parsing issue, and the fix is to enter a comma, backslash and quotation marks as the Feed Escape Character and use hex-encoded fields such as elogin in the Feed Output Format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character",
+            "use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character",
+            "use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character",
+            "use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character",
+            "use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character",
+            "use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "If you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM.",
+            "To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character",
+            "use hex encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format"
+          ]
+        }
+      ]
+    },
+    "email-dlp-filters": {
+      "statement": "The Email DLP feed filters (Cloud and HTTP articles) include Users and Departments under Who, DLP Engines and DLP Dictionaries (transactions where data leakage was detected based on those engines or dictionaries), Record Type (DLP Incident, Scan, Sensitive Activity), Policy Action (allowed, blocked or Custom Header Insertion) and Severity as configured in the Outbound Email Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "Users: Use this filter to limit the logs to specific users who generated transactions.",
+            "Departments: Use this filter to limit the logs to specific departments that generated transactions.",
+            "DLP Engines: Use this filter to limit the logs to transactions in which data leakage was detected based on specific DLP engines. Multiple selections are allowed.",
+            "DLP Dictionaries: Use this filter to limit the logs to transactions in which data leakage was detected based on specific DLP dictionaries. Multiple selections are allowed.",
+            "Record Type: Use this filter to limit the logs based on record type. Multiple selections are allowed:",
+            "DLP Incident: A violation of a DLP rule was detected.",
+            "Scan: The scan is normal (i.e., no DLP rule violation or movement of sensitive data was detected.)",
+            "Sensitive Activity: Movement of sensitive data was detected.",
+            "Policy Action: Use this filter to limit the logs to transactions that were either allowed or blocked by the Zscaler service.",
+            "Select Custom Header Insertion to limit the logs to transactions that resulted in a different action (e.g., quarantine) taken by the email application",
+            "Severity: Use this filter to limit the logs to transactions associated with a specific DLP rule severity as configured in the Outbound Email Policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "Users: Use this filter to limit the logs to specific users who generated transactions.",
+            "Departments: Use this filter to limit the logs to specific departments that generated transactions.",
+            "DLP Engines: Use this filter to limit the logs to transactions in which data leakage was detected based on specific DLP engines. Multiple selections are allowed.",
+            "DLP Dictionaries: Use this filter to limit the logs to transactions in which data leakage was detected based on specific DLP dictionaries. Multiple selections are allowed.",
+            "DLP Incident: A violation of a DLP rule was detected.",
+            "Scan: The scan is normal (i.e., no DLP rule violation or movement of sensitive data was detected.)",
+            "Sensitive Activity: Movement of sensitive data was detected.",
+            "Policy Action: Use this filter to limit the logs to transactions that were either allowed or blocked by the Zscaler service.",
+            "Select Custom Header Insertion to limit the logs to transactions that resulted in a different action (e.g., quarantine) taken by the email application",
+            "Severity: Use this filter to limit the logs transactions associated with a specific DLP rule severity as configured in the Outbound Email Policy."
+          ]
+        }
+      ]
+    },
+    "endpoint-dlp-filters": {
+      "statement": "The HTTP Endpoint DLP feed filters include File Type Category and File Type (detected from the content) and Severity (of the incidents detected by the Endpoint DLP policy), each allowing multiple selections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "File Type Category: Use this filter to limit the logs based on the file type categories that were detected from the content. Multiple selections are allowed.",
+            "File Type: Use this filter to limit the logs based on the file types that were detected from the content. Multiple selections are allowed.",
+            "Severity: Use this filter to limit the logs based on the severity of the incidents detected by the Endpoint DLP policy. Multiple selections are allowed."
+          ]
+        }
+      ]
+    },
+    "sandbox-filters-cloud": {
+      "statement": "The Cloud Sandbox Verdict feed filters include Threat Names, Download File Type, MD5 hash, SHA-256 hash and, under Sandbox Verdict, Sandbox Verdicts (with an optional Benign selection) and MITRE ATT&CK tactic (for example TAC028) and technique (for example T1005); with no tactics or no techniques specified, verdicts for any MITRE ATT&CK tactic or technique are displayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "Download File Type: Use this filter to limit the logs based on the type of file downloaded in the transaction. Multiple selections are allowed.",
+            "Sandbox Verdicts: Use this filter to limit the logs based on the verdict of the Sandbox analysis.",
+            "Optionally, select Benign to limit the logs to non-malicious verdicts.",
+            "Threat Names: Use this filter to limit the logs based on specific threats detected in the transaction. You can enter multiple threat names.",
+            "MD5: Use this filter to limit the logs based on the MD5 hash of a file. You can enter multiple hashes.",
+            "SHA: Use this filter to limit the logs based on the SHA-256 hash of a file. You can enter multiple hashes.",
+            "Tactic: Use this filter to limit the logs based on the MITRE ATT&CK tactic (e.g., TAC028).",
+            "Technique: Use this filter to limit the logs based on the MITRE ATT&CK technique (e.g., T1005).",
+            "If you do not specify tactics in this filter, verdicts associated with any possible MITRE ATT&CK tactic are displayed.",
+            "If you do not specify techniques in this filter, verdicts associated with any possible MITRE ATT&CK technique are displayed."
+          ]
+        }
+      ]
+    },
+    "sandbox-item-lists": {
+      "statement": "Under the Cloud Sandbox Verdict feed's Threat Names filter, an item list shows up to 500 items on a page, can be searched, and can be cleared with Remove All or per page with Remove Page, with a confirmation window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-sandbox-verdict-logs.json",
+          "after": "Threat Names: Use this filter to limit the logs based on specific threats detected in the transaction.",
+          "quotes": [
+            "For item lists, you can view up to 500 items on a page; filter the list by searching for a word, phrase, or number contained in an item; and remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "email-dlp-nss-server": {
+      "kind": "semantic",
+      "title": "Whether the HTTP Email DLP feed offers an NSS Server field",
+      "status": "open",
+      "detail": "The HTTP Endpoint DLP and HTTP Sandbox Verdict articles list an NSS Server field; the HTTP Email DLP article, diffed against them, has none, and nothing says whether the article omits it or the field is not offered. The HTTP articles word Feed Output Type as \"The output is JSON.\" where the Cloud articles say JSON by default; whether that is a difference in behavior is not stated.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "cloud-siem-type": {
+      "kind": "semantic",
+      "title": "Which SIEM types the Cloud Email DLP and Sandbox Verdict feeds offer, and the SIEM Rate Limit range",
+      "status": "open",
+      "detail": "The Cloud articles say to select a SIEM type from the list without listing the types or saying which use OAuth 2.0, and give no minimum or maximum for the SIEM Rate Limit; the shared gaps [[shared.nss.feed-settings:siem-types]], [[shared.nss.feed-settings:siem-rate-range-other-logs]] and [[shared.nss.feed-settings:max-batch-size]] hold the same question for the other log types.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.splunk",
+  "title": "Sending Private Access logs to Splunk with LSS: the TA and App, source types, index and TCP input",
+  "aliases": [
+    "splunk",
+    "zscaler splunk app",
+    "zscaler technical add-on",
+    "splunk TA",
+    "zscalerlss-zpa-app",
+    "zscalerlss source types",
+    "splunk CIM",
+    "private access and splunk deployment guide"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.formats"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{lss-vs-nss}} How the App Connector forwards the stream to the receiver is in [[zpa.log-receivers.architecture:two-components]], and NSS is in [[zpa.log-receivers.architecture:not-nss]]. {{two-parts}}"
+    },
+    {
+      "label": "What the App expects.",
+      "text": "{{source-types}} {{index-and-fields}} {{cim-dependency}}"
+    },
+    {
+      "label": "Adding the source.",
+      "text": "{{tcp-input}} Which receiver settings or LSS format produce each source type, and which TCP port to use, are not stated {{gap:source-type-mapping}}. The log types are in [[zpa.log-receivers.log-types]] and the output formats in [[zpa.log-receivers.formats]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the data is in the index named zscaler, or the base macros were edited for another index.",
+      "uses": [
+        "index-and-fields"
+      ]
+    },
+    {
+      "do": "Whether the Web and Network Sessions data models are accelerated.",
+      "uses": [
+        "cim-dependency"
+      ]
+    },
+    {
+      "do": "Whether a TCP input exists for each Zscaler source type the deployment adds in Splunk, with the zscaler index.",
+      "uses": [
+        "tcp-input",
+        "source-types"
+      ]
+    }
+  ],
+  "claims": {
+    "lss-vs-nss": {
+      "statement": "In Private Access, LSS uses a log receiver and an App Connector to stream traffic logs in real time from the log receiver to a SIEM such as Splunk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-access-and-splunk-deployment-guide.json",
+          "quotes": [
+            "In Private Access, the Log Streaming Service (LSS) uses a log receiver and an App Connector to stream traffic logs in real time from the log receiver to your security information and event management (SIEM), such as Splunk"
+          ]
+        }
+      ]
+    },
+    "two-parts": {
+      "statement": "Zscaler on Splunk has two parts, the Zscaler Technical Add-On (TA) and the Zscaler Splunk App, and the TA is required for the App.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-access-and-splunk-deployment-guide.json",
+          "quotes": [
+            "Zscaler on Splunk comes in two parts: Zscaler Technical Add-On (TA) for Splunk and the Zscaler Splunk App.",
+            "The Zscaler TA for Splunk is a required component for the Zscaler Splunk App."
+          ]
+        }
+      ]
+    },
+    "source-types": {
+      "statement": "The Zscaler Splunk App expects data bound to source types: zscalerlss-zpa-app (User Activity), zscalerlss-zpa-web-inspection (AppProtection), zscalerlss-zpa-audit (Audit), zscalerlss-zpa-auth (User Status), zscalerlss-zpa-bba (Browser Access), zscalerlss-zpa-connector (listed as App Connector Logs) and zscalerlss-zpa-pse (Private Service Edge Status).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-access-and-splunk-deployment-guide.json",
+          "quotes": [
+            "The Zscaler Splunk App expects to find data bound to the following source types:",
+            "| zscalerlss-zpa-app | User Activity Logs (LSS) |",
+            "| zscalerlss-zpa-web-inspection | AppProtection Logs (LSS) |",
+            "| zscalerlss-zpa-audit | Audit Logs (LSS) |",
+            "| zscalerlss-zpa-auth | User Status Logs (LSS) |",
+            "| zscalerlss-zpa-bba | Browser Access Logs (LSS) |",
+            "| zscalerlss-zpa-connector | App Connector Logs (LSS) |",
+            "| zscalerlss-zpa-pse | Private Service Edge for Private Access Status Logs (LSS) |"
+          ]
+        }
+      ]
+    },
+    "index-and-fields": {
+      "statement": "The Splunk App requires data in the index named zscaler (base macros can be edited for another index), expects field names as seen in Private Access LSS with JSON output, and a Splunk administrator might need to create aliases in these fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-access-and-splunk-deployment-guide.json",
+          "quotes": [
+            "Your Splunk administrator might need to create aliases in these fields for data to be presented into the Zscaler Splunk App.",
+            "The Zscaler Splunk App requires data to be in the Zscaler Index named zscaler.",
+            "If your organization places Zscaler data in a different index, you can edit the base macros to reflect your setup.",
+            "Zscaler requires all field names to use those that are seen in the Private Access LSS using JSON as the expected output format."
+          ]
+        }
+      ]
+    },
+    "cim-dependency": {
+      "statement": "The Splunk App depends on the Splunk Common Information Model (CIM); the Web and Network Sessions data models must be accelerated for some of its functions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-access-and-splunk-deployment-guide.json",
+          "quotes": [
+            "The Zscaler Splunk App has a dependency to the Splunk Common Information Model (CIM).",
+            "Ensure that the Web and Network Sessions data models are accelerated.",
+            "This is necessary for some functions within the Zscaler Splunk App."
+          ]
+        }
+      ]
+    },
+    "tcp-input": {
+      "statement": "To add LSS as a Splunk log source, add a TCP data input for each Zscaler source type you add in Splunk, specifying the receiving TCP port, the Zscaler source type, Set host = DNS and the zscaler index.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-access-and-splunk-deployment-guide.json",
+          "quotes": [
+            "Click Add new next to TCP.",
+            "repeat this for each Zscaler source type you'll add in Splunk:",
+            "Specify the TCP port where the logs are received.",
+            "For Source Type, choose the Zscaler source type from the source type list.",
+            "For Set host, click DNS.",
+            "From the Index list, choose zscaler."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "source-type-mapping": {
+      "kind": "semantic",
+      "title": "Which log receiver settings produce each Splunk source type, and which TCP port to use",
+      "status": "open",
+      "detail": "The Splunk guide lists the source types, expects LSS JSON output, and says to specify the TCP port where the logs are received, but does not say which log receiver settings produce each source type, nor which Splunk TCP port to use. It lists one \"App Connector Logs\" source type while LSS has both App Connector Status and App Connector Metrics log types, so which of them zscalerlss-zpa-connector carries is open.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

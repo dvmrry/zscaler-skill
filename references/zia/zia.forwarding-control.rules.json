@@ -69,6 +69,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.getting-started"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.url-filtering.rule-order"
     }
   ],
@@ -90,6 +94,10 @@
     },
     {
       "text": "For anchored traffic, the Private Access side is in [[zia.forwarding-control.sipa]]."
+    },
+    {
+      "label": "Add Forwarding Rule.",
+      "text": "{{name-description-limits}} The ZPA and Direct methods are also in [[zia.forwarding-control.methods:console-methods]] and [[zia.forwarding-control.methods:direct-meaning]]. {{method-zpa-direct}} For the Private Access page: {{device-groups}} {{source-ip-formats}} {{admin-rank-bounds}} {{unauthenticated-and-app-criteria}} {{app-service-groups}} The gateway field's dependency on application segments is in [[zia.forwarding-control.zpa-gateway:rule-needs-common-gateway]]. The Application Segment criterion and the page's wording of the ZPA method are open {{gap:sipa-page-details}}."
     }
   ],
   "checks": [
@@ -114,6 +122,117 @@
     }
   ],
   "claims": {
+    "name-description-limits": {
+      "statement": "In the Add Forwarding Rule pages, the rule name cannot exceed 63 characters and the optional description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "after": "Forward to Gateway: Choose the appropriate proxy gateway. To configure a proxy gateway, see Configuring Gateways for Proxies.",
+          "quotes": [
+            "The name cannot exceed 63 characters.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "The name cannot exceed 63 characters.",
+            "Description: (Optional) Click Add Description and enter additional notes or information about the rule in the text field.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "method-zpa-direct": {
+      "statement": "For a Forwarding rule, the ZPA forwarding method sends traffic to a Private Access App Connector through the Private Access gateway, and Direct sends it straight to the destination server using the Zscaler service IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "choose ZPA to forward the traffic to a Private Access App Connector through the Private Access gateway.oxy service.",
+            "Select Direct to directly forward the traffic to the destination server using the Zscaler service IP address."
+          ]
+        }
+      ]
+    },
+    "device-groups": {
+      "statement": "The Device Groups criterion takes a group by device platform for Zscaler Client Connector traffic, or Cloud Browser Isolation, IoT or No Client Connector for isolation traffic, IoT traffic or traffic not tunneled through Zscaler Client Connector; the Cloud Browser Isolation and IoT groups exist only if Zero Trust Browser and IoT discovery are enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "Device Groups: Select the device groups to which the rule applies.",
+            "For Zscaler Client Connector traffic, select the appropriate group based on the device platform.",
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or traffic that is not tunneled through Zscaler Client Connector, respectively.",
+            "The Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "source-ip-formats": {
+      "statement": "The Source IP Addresses criterion takes IPv4 only, as an individual address (192.0.2.1), a subnet (192.0.2.0/24) or an address range (192.0.2.1 - 192.0.2.5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "IP Addresses: Enter the source IP address (IPv4 only) in any of the following formats:",
+            "An individual address, such as 192.0.2.1",
+            "A subnet, such as 192.0.2.0/24",
+            "An address range, such as 192.0.2.1 - 192.0.2.5"
+          ]
+        }
+      ]
+    },
+    "admin-rank-bounds": {
+      "statement": "The Admin Rank option appears if Admin Ranking is enabled on the Advanced Settings page, and the admin's own rank determines the values selectable (a rank higher than the admin's own cannot be chosen).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "This option appears if you enable Admin Ranking on the Advanced Settings page.",
+            "Your assigned admin rank determines the values you can select (e.g., you cannot select a rank higher than your own)."
+          ]
+        }
+      ]
+    },
+    "unauthenticated-and-app-criteria": {
+      "statement": "To apply a Forwarding rule to unauthenticated traffic the rule must apply to all locations, and, when the policy for unauthenticated users is enabled under Advanced Settings, selections in the Users and Departments fields can target it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "To apply this rule to unauthenticated traffic, the rule must apply to all locations.",
+            "If you've enabled the policy for unauthenticated users under Advanced Settings and want to apply this rule to unauthenticated traffic, you can do so by making selections accordingly in the Users and Departments fields."
+          ]
+        }
+      ]
+    },
+    "app-service-groups": {
+      "statement": "The Application Service Groups criterion accepts any number of application service groups, and the service provides predefined and custom application services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policies-source-ip-anchoring-using-zpa.json",
+          "quotes": [
+            "Application Service Groups: Select any number of application service groups to which the rule applies. The service provides predefined and custom application services."
+          ]
+        }
+      ]
+    },
     "subscription": {
       "statement": "Any Forwarding Control policy, including Source IP Anchoring, that uses user conditions (users, groups, departments or device groups) requires an Advanced Firewall subscription.",
       "tier": "A",
@@ -438,6 +557,16 @@
     }
   },
   "gaps": {
+    "sipa-page-details": {
+      "kind": "semantic",
+      "title": "Application Segment criterion and the ZPA method wording on the Private Access Forwarding rule page",
+      "status": "open",
+      "detail": "The page does not say whether Source IP Anchoring is required of every selected Application Segment or how many segments can be selected. It words the ZPA method as going \"through the Private Access gateway.oxy service\" without defining gateway.oxy, and gives no limit on the number of rule labels.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "first-match": {
       "kind": "semantic",
       "title": "Whether Forwarding Control stops at the first matching rule",
