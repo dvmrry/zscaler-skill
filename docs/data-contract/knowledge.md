@@ -33,7 +33,7 @@ file name must equal the record's `id`, which starts `company.`.
   "schema_version": 1,
   "iac": [
     { "id": "zia-terraform", "path": "../iac/zia-terraform", "kind": "terraform" },
-    { "id": "infrawright", "path": "../iac/infrawright", "kind": "infrawright" }
+    { "id": "iac-json", "path": "../iac/iac-json", "kind": "json" }
   ],
   "live": { "tool": "zscalerctl" }
 }

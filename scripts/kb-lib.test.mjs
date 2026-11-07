@@ -430,7 +430,7 @@ test("the synthetic overlay validates, and the relation table is enforced", () =
   assert.ok(errs.some((m) => /IaC pointer does not resolve/.test(m)));
 });
 
-test("overlay IaC is a list of repos: JSON pointers into infrawright repos, addresses into terraform repos", () => {
+test("overlay IaC is a list of repos: JSON pointers into json repos, addresses into terraform repos", () => {
   const g = graphOf(ROOT);
   const bad = fs.mkdtempSync(path.join(os.tmpdir(), "kb-ov-"));
   fs.cpSync(OVERLAY, bad, { recursive: true });
@@ -449,7 +449,7 @@ test("overlay IaC is a list of repos: JSON pointers into infrawright repos, addr
   assert.ok(errs.some((m) => /zia-tf is a terraform repo: name a resource address/.test(m)));
   assert.ok(errs.some((m) => /IaC repo "nowhere", which overlay.json iac does not declare/.test(m)));
   assert.ok(errs.some((m) => /a claim needs validated/.test(m)));
-  // The committed fixture resolves: the terraform pointer is a location, the infrawright pointer a value.
+  // The committed fixture resolves: the terraform pointer is a location, the json pointer a value.
   const bundle = resolve(g, "zia/url-filtering-rules", { overlay: loadOverlay(g, OVERLAY) });
   const facet = bundle.company.find((f) => f.id === "company.zia.url-filtering-iac") || bundle.types?.flatMap((t) => t.company || []).find((f) => f.id === "company.zia.url-filtering-iac");
   assert.ok(facet, "the IaC record reaches the type bundle");

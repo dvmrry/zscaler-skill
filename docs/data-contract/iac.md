@@ -14,7 +14,7 @@ default) and declare it in the overlay's `overlay.json`, with its path relative 
   "iac": [
     { "id": "zia-terraform", "path": "../iac/zia-terraform", "kind": "terraform" },
     { "id": "zpa-terraform", "path": "../iac/zpa-terraform", "kind": "terraform" },
-    { "id": "infrawright", "path": "../iac/infrawright", "kind": "infrawright" }
+    { "id": "iac-json", "path": "../iac/iac-json", "kind": "json" }
   ]
 }
 ```
@@ -23,7 +23,7 @@ Any number of repositories may be declared; `id` is how records point at one.
 
 | `kind` | Holds | A pointer names |
 |---|---|---|
-| `infrawright` | infrawright's JSON | a file and a JSON Pointer into it; the resolver reads the value and merges it into the answer |
+| `json` | JSON files (generated config exports, coverage records) | a file and a JSON Pointer into it; the resolver reads the value and merges it into the answer |
 | `terraform` | Terraform HCL | a file and, optionally, a resource address (`zia_url_filtering_rules.block_gambling`); HCL is never parsed, so the resolver reports the location for the reader to open |
 
 An `iac-coverage` company record ([`knowledge.md`](knowledge.md)) attaches pointers to the public types they
@@ -35,7 +35,7 @@ cover:
 ```
 
 `scripts/check-data-contract.mjs` checks that every pointer's repository is declared, its file exists inside the
-repository, and an infrawright pointer resolves.
+repository, and a json pointer resolves.
 
 ## Why this exists
 

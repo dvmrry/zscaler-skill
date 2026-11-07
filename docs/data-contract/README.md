@@ -142,7 +142,7 @@ committed runtime config.
 
 ### `_data/iac/`
 
-**Where a company checks out its IaC repositories**, one per directory (`_data/iac/<repo>/`), each declared in `overlay.json` `iac` with its kind (`terraform` or `infrawright`). Empty in the public upstream skill.
+**Where a company checks out its IaC repositories**, one per directory (`_data/iac/<repo>/`), each declared in `overlay.json` `iac` with its kind (`terraform` or `json`). Empty in the public upstream skill.
 
 The skill's vendored provider source lives separately at `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-zcc/`, and `vendor/terraform-provider-ztc/`; vendored deployment examples or modules live separately under `vendor/terraform-*-modules/` when present. When `_data/iac/` is populated, agents treat it as **production truth** for "how is X actually deployed in our environment" while vendor source stays useful for "what's possible / what fields exist."
 

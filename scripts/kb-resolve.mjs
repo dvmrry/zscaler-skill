@@ -141,7 +141,7 @@ function iacRepos(root, ov) {
 }
 
 /**
- * Resolve a pointer into the overlay repo it names. An infrawright repo is JSON: the pointer's value is read
+ * Resolve a pointer into the overlay repo it names. A json repo is JSON: the pointer's value is read
  * and returned. A terraform repo is HCL, which is never parsed: the file must exist, and the pointer is a
  * location (file and resource address) for the reader to open.
  */
@@ -156,8 +156,8 @@ function resolveOverlayPointer(ov, p) {
     if (p.pointer !== undefined) return { error: `${p.repo} is a terraform repo: name a resource address, not a JSON pointer` };
     return { location: `${p.repo}:${p.file}${p.address ? ` ${p.address}` : ""}` };
   }
-  if (p.pointer === undefined) return { error: `${p.repo} is an infrawright repo: the pointer needs a JSON pointer` };
-  if (p.address !== undefined) return { error: `${p.repo} is an infrawright repo: address is for terraform repos` };
+  if (p.pointer === undefined) return { error: `${p.repo} is a json repo: the pointer needs a JSON pointer` };
+  if (p.address !== undefined) return { error: `${p.repo} is a json repo: address is for terraform repos` };
   const value = resolvePointer(readJson(file), p.pointer);
   if (value === undefined) return { error: `IaC pointer does not resolve: ${p.repo}:${p.file}#${p.pointer}` };
   return { value };
