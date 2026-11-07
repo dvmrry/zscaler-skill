@@ -573,6 +573,22 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   assert.match(activation, /^- \[zia\.api\.activation:active-means-nothing-pending\] Tier B: /m);
   assert.match(run("--no-overlay", "--no-links", "zia.saas-apps.tenant-restriction-order"), /\(data gap\): filled by live; run `zscalerctl /);
   // A subject that binds only some of a type's fields still gets the records about the whole type, mapped to its fields.
+  // An area too large to read whole reads as its hub and an index of its subjects; a small one reads whole.
+  const big = run("--no-overlay", "--no-links", "zia.dlp");
+  assert.match(big, /^# .*\(zia\.dlp\)$/m);
+  assert.match(big, /^## zia\.dlp: \d+ more subjects, about \d+ tokens in all, too many to read at once; read the ones the question needs by ID$/m);
+  assert.doesNotMatch(big, /^# .*\(zia\.dlp\.[a-z-]+\)$/m, "no child subject is read in full");
+  assert.match(run("--no-overlay", "--no-links", "zia.api"), /^# .*\(zia\.api\.activation\)$/m);
+  // A config type names its read-only live command and Terraform names; the header says the overlay declares live.
+  const type = run("--overlay", OVERLAY, "--no-links", "zia/url-filtering-rules");
+  assert.match(type, /^- Live read \(read-only\): `zscalerctl zia url-filtering-rules list`$/m);
+  assert.match(type, /^- Names: .*terraform `zia_url_filtering_rules`/m);
+  assert.match(type, /^Live tier: zscalerctl is declared/m);
+  // A company record shows its evidence, and an IaC repo's date is its own directory's last commit.
+  const pipeline = run("--overlay", OVERLAY, "--no-links", "zia.ssl-inspection.pipeline");
+  assert.match(pipeline, /^ {2}- Evidence: case cases\/2026-01-01-synthetic\/journal\.md \(synthetic\)$/m);
+  const iacDate = execFileSync("git", ["-C", path.join(OVERLAY, "iac"), "log", "-1", "--format=%cs", "--", "."], { encoding: "utf8" }).trim();
+  assert.match(pipeline, new RegExp(`iac = scripts/fixtures/kb-overlay/iac/ \\(last commit ${iacDate}\\)`));
   const fieldsOnly = run("--overlay", OVERLAY, "--no-links", "zia.logs.web-rule-attribution");
   assert.match(fieldsOnly, /^ {2}- zia\/web-log#urlfilterrulelabel is zs_url_rule$/m);
   // A cited item reads as its subject; a whole product is refused with a pointer to its spine.

@@ -68,7 +68,8 @@ needs).
 3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6 arguments:
    for example `read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`. An area reads every
    subject under it; take whole areas for the mechanisms the question turns on, and single subjects from areas over
-   about 10k tokens (each area's `tokens` in the product spine). For log evidence, name the fields
+   about 10k tokens (each area's `tokens` in the product spine). An area over about 20k tokens reads as its hub and
+   an index of its subjects with their sizes: read the ones the question needs by ID next. For log evidence, name the fields
    (`zia/web-log#ssldecrypted`) or the log type; each product's spine file lists its log types. A ZPA LSS status code
    from a log (`AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`) reads by name. Claims arrive inline
    with their citable ID in brackets (`[zia.url-filtering.rule-order:first-match]`), then further facts, inferred

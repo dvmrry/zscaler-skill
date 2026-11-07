@@ -126,15 +126,17 @@ function committedDate(repoRoot, file) {
 }
 
 /**
- * The overlay's IaC repos as a reader needs them: where each is (relative to the skill root, so a read goes there
- * and nowhere else), whether it is checked out, and its last commit date.
+ * The overlay's IaC repos as a reader needs them: where each is, whether it is checked out, and its last commit date.
  */
 function iacRepos(root, ov) {
   return (ov?.config.iac || []).map((r) => {
     const abs = path.resolve(ov.root, r.path);
     const available = fs.existsSync(abs) && fs.statSync(abs).isDirectory() && fs.readdirSync(abs).length > 0;
-    const committed = available ? committedDate(abs) : null;
-    return { id: r.id, kind: r.kind, path: path.relative(root, abs) || ".", available, ...(committed ? { committed } : {}) };
+    // `-- .`: when the IaC directory sits inside a larger git repo (one cloned data repo), its own last commit.
+    const committed = available ? committedDate(abs, ".") : null;
+    // Inside the skill root, relative (so a read goes there and nowhere else); outside it, absolute.
+    const rel = path.relative(root, abs);
+    return { id: r.id, kind: r.kind, path: rel.startsWith("..") || path.isAbsolute(rel) ? abs : rel || ".", available, ...(committed ? { committed } : {}) };
   });
 }
 
@@ -883,13 +885,18 @@ function readSubject(g, id) {
 /** A type as reading text: one line per field, or per field in `paths`. */
 function readType(g, id, paths = null) {
   const t = g.nodes.get(id).data;
+  const head = [];
+  const names = Object.entries(t.names || {}).map(([k, v]) => `${k} \`${v}\``);
+  if (names.length) head.push(`- Names: ${names.join("; ")}`);
+  if (t.live?.command) head.push(`- Live read (read-only): \`${t.live.command}\``);
+  for (const u of t.iac?.unsupported_if || []) head.push(`- IaC cannot carry records matching ${JSON.stringify(u.match)} (${u.provider}): ${u.reason}`);
   const lines = Object.entries(t.fields).filter(([p]) => !paths || paths.includes(p)).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
   // A log type's status codes are too many to print with its fields; each reads by name.
   const codes = Object.keys(t.status_codes || {});
   if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; read one by its code (\`read ${codes[0]}\`)`);
   const reasons = Object.keys(t.policy_reasons || {});
   if (reasons.length) lines.push(`- Policy reasons: ${reasons.length} reason strings from the Policy Reasons help article, which the reason field points to; read one by its text (\`read "${reasons[0]}"\`)`);
-  return [`# ${t.title || id} (${id})`, ...lines].join("\n");
+  return [`# ${t.title || id} (${id})`, ...head, ...lines].join("\n");
 }
 
 /** One status code as each log type that lists it gives it: its LSS API attributes, the help article's rows, and where each says so. */
@@ -937,6 +944,7 @@ function readCompany(ov, ids, shown = new Set()) {
     const asked = entries.filter(([k]) => ids.has(k));
     const map = (asked.length ? asked : entries).map(([k, v]) => `  - ${k} is ${v}`);
     const dropped = (f.dropped_fields || []).filter((d) => !asked.length || ids.has(d));
+    const evidence = (f.evidence || []).map((e) => `  - Evidence: ${e.kind}${e.ref ? ` ${e.ref}` : ""}${e.note ? ` (${e.note})` : ""}`);
     const iac = (f.iac || []).map((p) => `  - IaC ${p.label ? `${p.label}: ` : ""}${p.location || p.source}${p.value !== undefined ? ` = ${JSON.stringify(p.value)}` : ""}${p.committed ? ` (committed ${p.committed})` : ""}${p.error ? ` (unresolved: ${p.error})` : ""}`);
     return [
       head,
@@ -946,10 +954,14 @@ function readCompany(ov, ids, shown = new Set()) {
       ...map,
       ...(dropped.length ? [`  Not stored: ${dropped.join(", ")}`] : []),
       ...(f.do_not_infer ? [`  Do not infer: ${f.do_not_infer}`] : []),
+      ...evidence,
       ...iac,
     ].join("\n");
   }).join("\n");
 }
+
+// The most tokens one area ID reads whole; a larger area reads as its hub and the index of its subjects.
+const AREA_TOKENS = 20000;
 
 // How strongly `read` follows each edge type: the mechanisms that settle an outcome first, prose links next.
 // see-also and configured-via are listed by title, not read; so is any type (a log's field list is long).
@@ -991,6 +1003,9 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
   if (repos.length) out.push(`IaC repos: ${repos.map((r) => `${r.id} = ${r.path}/${r.committed ? ` (last commit ${r.committed})` : ""}`).join("; ")}`);
+  const missing = (ov?.iacRepos || []).filter((r) => !r.available);
+  if (missing.length) out.push(`IaC repos not checked out: ${missing.map((r) => `${r.id} (${r.path})`).join("; ")}`);
+  if (ov?.config.live) out.push(`Live tier: ${ov.config.live.tool} is declared; each config type below names its read-only command`);
   const seen = new Set();
   const shown = new Set(); // company records already printed in this read
   const emit = (id) => {
@@ -1027,13 +1042,25 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
       fields.set(node.type, [...(fields.get(node.type) || []), node.path]);
       continue;
     }
-    // A subject reads with everything under it, so an area's ID (also its hub subject) reads the whole area.
+    // A subject reads with everything under it, so an area's ID (also its hub subject) reads the whole area, up to
+    // AREA_TOKENS: past that it reads as its hub and the index of its subjects, so one ID cannot pull in 70k tokens.
     const ids = node?.kind === "type" ? [arg]
       : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
     if (!ids.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
+    const cost = new Map(ids.map((id) => [id, g.nodes.get(id).kind === "subject" ? Math.round(readSubject(g, id).length / 4) : 0]));
+    const total = [...cost.values()].reduce((a, b) => a + b, 0);
+    if (ids.length > 1 && total > AREA_TOKENS) {
+      if (g.nodes.get(arg)?.kind === "subject" && !seen.has(arg)) emit(arg);
+      const rest = ids.filter((id) => id !== arg);
+      out.push([`## ${arg}: ${rest.length} more subjects, about ${total} tokens in all, too many to read at once; read the ones the question needs by ID`,
+        ...rest.map((id) => `- ${id} (${titleOf(g, id)}, about ${cost.get(id)} tokens)`)].join("\n"));
+      continue;
+    }
     for (const id of ids) if (!seen.has(id)) emit(id);
   }
   for (const [type, paths] of fields) {
+    // A type already read whole holds the fields named with it.
+    if (seen.has(type)) continue;
     out.push(readType(g, type, paths));
     const company = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
     if (company) out.push(`Company records:\n${company}`);
