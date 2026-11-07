@@ -54,8 +54,11 @@ needs).
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared` for cross-product material and log
-   correlation; the smaller products by their ID prefix). One line per area: its summary and the areas it connects
-   to by typed edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in). Then open
+   correlation; the smaller products by their ID prefix). "Connector" alone names four products: Cloud Connector
+   (VMs that forward cloud workloads' traffic in AWS, Azure or GCP) and Branch Connector are `cloud-connector`, App
+   Connector (beside the private apps ZPA reaches) is `zpa`, and Client Connector (on endpoints) is `zcc`; decide by
+   where it runs and whose traffic it carries. One line per area: its summary and the areas it connects to by typed
+   edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in). Then open
    `references/_meta/spine/<product>/<area id>.json` (for example `references/_meta/spine/zia/zia.url-filtering.json`)
    for the 3 to 6 areas that bear on the question, following the edges: one line per subject with its title, its
    opening fact and its typed edges. File reads need no approval.
