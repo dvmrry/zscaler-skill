@@ -497,7 +497,28 @@ function ranked(g, query, { limit = 8, among = null, overlay = null } = {}) {
   if (limit == null) return order;
   // Subjects hold the reasoning; a type only lists fields, so types follow the subjects and take at most two places.
   const isType = (id) => g.nodes.get(id)?.kind === "type";
-  return [...order.filter((id) => !isType(id)).slice(0, limit), ...order.filter(isType).slice(0, 2)];
+  const subjects = order.filter((id) => !isType(id));
+  const top = subjects.slice(0, limit);
+  // A question naming several products gets each one's best subject, even below the cut: otherwise the products
+  // whose subjects share the most words with it take every place ("AI Guard, ZMS, EASM and Business Insights").
+  const named = among ? [] : namedProducts(g, query);
+  for (const p of named.length > 1 ? named : []) {
+    const best = top.some((id) => id.split(".")[0] === p) ? null : subjects.find((id) => id.split(".")[0] === p);
+    if (best) top.push(best);
+  }
+  return [...top, ...order.filter(isType).slice(0, 2)];
+}
+
+// Product keys that are ordinary words or name no product of their own; they never count as a product named.
+const NOT_NAMED = new Set(["portfolio", "unified"]);
+
+/** The products a query names, by key, title (without its parenthesis) or alias, each as whole words. */
+function namedProducts(g, query) {
+  const flat = (s) => ` ${normalizeText(s).replace(/[^a-z0-9]+/g, " ").trim()} `;
+  const q = flat(query);
+  return Object.entries(g.products.products)
+    .filter(([id, p]) => !NOT_NAMED.has(id) && [id, p.title?.replace(/\s*\([^)]*\)/g, ""), ...(p.aliases || [])].some((n) => n && q.includes(flat(n))))
+    .map(([id]) => id);
 }
 
 /**

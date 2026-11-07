@@ -650,6 +650,16 @@ test("a question with no alias match returns ranked candidates, deterministicall
   assert.equal(resolve(g, "the of and").candidates.length, 0, "stop words alone rank nothing");
 });
 
+test("a question naming several products ranks at least one subject from each", () => {
+  const g = graphOf(ROOT);
+  const q = "A teammate says AI Guard, ZMS, EASM, Zscaler Cellular, and Business Insights are all portal-only products. Correct that.";
+  const products = resolve(g, q).candidates.filter((c) => c.kind === "subject").map((c) => c.id.split(".")[0]);
+  for (const p of ["ai-security", "zms", "easm", "zscaler-cellular", "business-insights"]) assert.ok(products.includes(p), `${p} has a candidate`);
+  // One product named: the cut stays at eight subjects.
+  const one = resolve(g, "Which Business Insights reports show SaaS application usage?").candidates.filter((c) => c.kind === "subject");
+  assert.ok(one.length <= 8);
+});
+
 test("ranked resolve counts company records against the subject they are about", () => {
   const g = graphOf(ROOT);
   const ov = loadOverlay(g, OVERLAY);
