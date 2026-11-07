@@ -47,7 +47,7 @@ test("real CLI entrypoints execute through encoded and symlinked paths; imports 
   for (const root of [plain, encoded]) {
     fs.cpSync(scriptsDir, path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "agents"));
-    for (const name of ["VERSION", ".release-please-manifest.json", "pyproject.toml", "uv.lock", "CHANGELOG.md"]) {
+    for (const name of ["VERSION", "pyproject.toml", "uv.lock"]) {
       fs.copyFileSync(path.join(scriptsDir, "..", name), path.join(root, name));
     }
   }

@@ -87,7 +87,7 @@ jobs:
           git commit -q -m "chore(kb): weekly knowledge-graph refresh $(date -u +%F)"
           git push --force origin "$BRANCH"
           gh pr create --base main --head "$BRANCH" \
-            --title "chore(kb): weekly knowledge-graph refresh $(date -u +%F)" \
+            --title "chore(kb): weekly knowledge-graph refresh $(date -u +%F)" --label no-release \
             --body-file "$RUNNER_TEMP/kb-refresh/body.md"
           for wf in check-hygiene.yml lint-js.yml lint-py.yml; do gh workflow run "$wf" --ref "$BRANCH"; done
           cat "$RUNNER_TEMP/kb-refresh/body.md" >> "$GITHUB_STEP_SUMMARY"

@@ -1,8 +1,9 @@
 # Changelog
 
-All notable changes to this skill are recorded here. Format follows
+All notable changes to this skill up to v0.18.3 are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
-the skill as a whole, not any single script.
+the skill as a whole, not any single script. From v0.19.0 each release's notes
+are in [`docs/releases/`](docs/releases/); see [`docs/release.md`](docs/release.md).
 
 ## [0.18.3](https://github.com/dvmrry/zscaler-skill/compare/v0.18.2...v0.18.3) (2026-09-09)
 
