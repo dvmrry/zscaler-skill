@@ -24,6 +24,7 @@ const cases = [
   { script: "check-worktree-whitespace.mjs", args: [], code: 1, output: /check-worktree-whitespace:/ },
   { script: "kb-drift.mjs", args: [], code: 2, output: /usage: node scripts\/kb-drift\.mjs/ },
   { script: "kb-refresh.mjs", args: [], code: 2, output: /usage: node scripts\/kb-refresh\.mjs/ },
+  { script: "kb-reanchor.mjs", args: [], code: 2, output: /usage: KB_MODEL_ENDPOINT=.*node scripts\/kb-reanchor\.mjs/ },
   { script: "capture-queue.mjs", args: ["--limit", "0"], code: 2, output: /usage: capture-queue\.mjs/ },
   { script: "kb-eval.mjs", args: [], code: 2, output: /usage: kb-eval\.mjs/ },
   { script: "bump-pins.mjs", args: ["--bogus"], code: 2, output: /usage: node scripts\/bump-pins\.mjs/ },
