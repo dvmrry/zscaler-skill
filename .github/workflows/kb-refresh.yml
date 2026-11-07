@@ -1,20 +1,30 @@
 name: KB refresh
 
-# The knowledge-graph refresh loop (docs/maintenance.md) run weekly by `node scripts/kb-refresh.mjs`:
-# refetch every help and issue capture and rewrite what moved, re-quote spacing-only breaks, regenerate
-# the log-type layer and the records, then open a pull request whose description is the drift review.
-# Broken evidence is what the pull request is for: the gate fails on it until a maintainer re-anchors it.
-# Nothing merges itself, and the model-graded claim audit stays local (it calls a model API).
-#
-# While a refresh pull request is open the job only reports, so a maintainer's fixes on the branch are
-# never overwritten. A pull request opened with GITHUB_TOKEN starts no pull_request workflows, so the job
-# dispatches the required checks on the branch itself.
+# The knowledge-graph refresh loop (docs/maintenance.md), run by `node scripts/kb-refresh.mjs`:
+#   - Daily, after each successful Refresh discovery run, the cheap pass: only the captures whose page discovery saw
+#     change or leave the help sitemap are refetched, new pages in sections already captured are captured, and the
+#     Automate reference is recaptured when its assets changed.
+#   - Mondays, the full pass: every help and issue capture is refetched (a page can change without a new sitemap
+#     date), plus the same discovery work.
+# Either way the result is one pull request whose description is the drift review. While it is open, later runs
+# commit on top of its branch and add their review as a comment, so a maintainer's fixes on the branch are kept.
+# Broken evidence fails the gate on that pull request until it is re-anchored; nothing merges itself, and the
+# model-graded claim audit stays local (it calls a model API). A pull request opened with GITHUB_TOKEN starts no
+# pull_request workflows, so the job dispatches the required checks on the branch itself.
 
 on:
+  workflow_run:
+    workflows: ["Refresh discovery"]
+    types: [completed]
   schedule:
     # Mondays 12:00 UTC: after Renovate (before 9am), before the hygiene and digest runs.
     - cron: '0 12 * * 1'
   workflow_dispatch:
+    inputs:
+      full:
+        description: "Refetch every capture (the Monday pass), not only what discovery saw change"
+        type: boolean
+        default: false
 
 concurrency:
   group: kb-refresh
@@ -22,6 +32,7 @@ concurrency:
 
 jobs:
   refresh:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -31,51 +42,84 @@ jobs:
     env:
       BRANCH: kb-refresh
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FULL: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
-      - name: Skip while a refresh pull request is open
+      - name: Continue an open refresh pull request
         id: open
         run: |
-          pr=$(gh pr list --head "$BRANCH" --state open --json number,url --jq '.[0].url // ""')
-          echo "url=$pr" >> "$GITHUB_OUTPUT"
+          pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // ""')
+          echo "number=$pr" >> "$GITHUB_OUTPUT"
           if [ -n "$pr" ]; then
-            echo "A refresh pull request is still open: $pr. Merge or close it before the next refresh." >> "$GITHUB_STEP_SUMMARY"
+            git switch -C "$BRANCH" "origin/$BRANCH"
+            echo "Continuing refresh pull request #$pr on its branch." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Get the discovery report
+        id: discovery
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          run_id="$RUN_ID"
+          if [ -z "$run_id" ]; then
+            run_id=$(gh run list --workflow refresh-discovery.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId // ""')
+          fi
+          if [ -n "$run_id" ] && gh run download "$run_id" --name refresh-discovery --dir "$RUNNER_TEMP/discovery" && [ -f "$RUNNER_TEMP/discovery/report.json" ]; then
+            echo "report=$RUNNER_TEMP/discovery/report.json" >> "$GITHUB_OUTPUT"
+          elif [ "$FULL" != "true" ]; then
+            echo "No discovery report was available, so the daily pass has nothing to act on." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Initialize submodules
-        if: steps.open.outputs.url == ''
+        if: steps.discovery.outputs.report != '' || env.FULL == 'true'
         run: git submodule update --init --recursive
 
+      - name: Set up uv
+        # The Automate recapture needs pydantic. setup-uv does not publish floating major tags.
+        if: steps.discovery.outputs.report != '' || env.FULL == 'true'
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          prune-cache: false
+
       - name: Set up Node.js
-        if: steps.open.outputs.url == ''
+        if: steps.discovery.outputs.report != '' || env.FULL == 'true'
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
 
       - name: Refresh
-        if: steps.open.outputs.url == ''
+        if: steps.discovery.outputs.report != '' || env.FULL == 'true'
         env:
           # issue_capture.py sends it for the higher GitHub API rate limit.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/kb-refresh.mjs --out "$RUNNER_TEMP/kb-refresh"
+          REPORT: ${{ steps.discovery.outputs.report }}
+        run: |
+          args=(--out "$RUNNER_TEMP/kb-refresh")
+          if [ -n "$REPORT" ]; then args+=(--discovery "$REPORT"); fi
+          if [ "$FULL" != "true" ]; then args+=(--changed-only); fi
+          node scripts/kb-refresh.mjs "${args[@]}"
 
       - name: Upload the review
-        if: always() && steps.open.outputs.url == ''
+        if: always() && (steps.discovery.outputs.report != '' || env.FULL == 'true')
         uses: actions/upload-artifact@v7
         with:
           name: kb-refresh
           path: ${{ runner.temp }}/kb-refresh
           if-no-files-found: ignore
 
-      - name: Open the pull request
-        if: steps.open.outputs.url == ''
+      - name: Open or update the pull request
+        if: steps.discovery.outputs.report != '' || env.FULL == 'true'
+        env:
+          PR: ${{ steps.open.outputs.number }}
         run: |
           if [ -z "$(git status --porcelain)" ]; then
-            echo "No capture moved." >> "$GITHUB_STEP_SUMMARY"
+            echo "No capture moved and no new page was captured." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          git add -A references vendor/zscaler-help vendor/github-issues
+          git add -A references vendor/zscaler-help vendor/github-issues vendor/zscaler-api-specs
           if git status --porcelain | grep -qv '^[MADR] '; then
             echo "The refresh changed files outside references/ and the capture directories:" >&2
             git status --porcelain | grep -v '^[MADR] ' >&2
@@ -83,11 +127,18 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -C "$BRANCH"
-          git commit -q -m "chore(kb): weekly knowledge-graph refresh $(date -u +%F)"
-          git push --force origin "$BRANCH"
-          gh pr create --base main --head "$BRANCH" \
-            --title "chore(kb): weekly knowledge-graph refresh $(date -u +%F)" --label no-release \
-            --body-file "$RUNNER_TEMP/kb-refresh/body.md"
+          pass=$([ "$FULL" = "true" ] && echo "weekly" || echo "daily")
+          if [ -n "$PR" ]; then
+            git commit -q -m "chore(kb): $pass knowledge-graph refresh $(date -u +%F)"
+            git push origin "$BRANCH"
+            gh pr comment "$PR" --body-file "$RUNNER_TEMP/kb-refresh/body.md"
+          else
+            git switch -C "$BRANCH"
+            git commit -q -m "chore(kb): $pass knowledge-graph refresh $(date -u +%F)"
+            git push --force origin "$BRANCH"
+            gh pr create --base main --head "$BRANCH" \
+              --title "chore(kb): knowledge-graph refresh $(date -u +%F)" --label no-release \
+              --body-file "$RUNNER_TEMP/kb-refresh/body.md"
+          fi
           for wf in check-hygiene.yml lint-js.yml lint-py.yml; do gh workflow run "$wf" --ref "$BRANCH"; done
           cat "$RUNNER_TEMP/kb-refresh/body.md" >> "$GITHUB_STEP_SUMMARY"

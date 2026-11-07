@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   release-notes:
@@ -28,9 +29,13 @@ jobs:
 
       - name: Verify the release decision
         env:
-          NO_RELEASE: ${{ contains(github.event.pull_request.labels.*.name, 'no-release') }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          # Read the labels now, not from the event: a bot opens its pull request and labels it a moment later, so
+          # the "opened" event never carries the label.
+          NO_RELEASE="$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json labels --jq 'any(.labels[]; .name == "no-release")')"
           version="$(bash scripts/release-version.sh HEAD^1 HEAD)"
           if [[ "$version" == "none" && "$NO_RELEASE" != "true" ]]; then
             echo "::error::add docs/releases/vX.Y.Z.md (the next version's notes) or the no-release label"

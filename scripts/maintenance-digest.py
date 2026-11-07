@@ -168,7 +168,7 @@ def render(args: argparse.Namespace) -> str:
     out += [
         "## Suggested Triage",
         "",
-        "1. Merge or review the open weekly knowledge-graph refresh pull request first.",
+        "1. Merge or review the open knowledge-graph refresh pull request first.",
         "2. Recapture stale help scrapes the weekly refresh does not cover (static captures).",
         "3. Promote scaffolds only after live-tenant response shapes are confirmed.",
         "4. Add eval coverage for docs that keep changing or drive real investigations.",
