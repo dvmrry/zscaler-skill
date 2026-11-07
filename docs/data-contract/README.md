@@ -47,9 +47,9 @@ Expected top-level directories:
 - `_data/audits/`
 - `_data/soc-reviews/`
 
-Company knowledge records live in the overlay (`_data/overlay/knowledge/`); see
-[`./knowledge.md`](./knowledge.md). The former `_data/knowledge/` Markdown records
-are retired: the contract check warns while any remain.
+Company knowledge records live in the company overlay, a directory of its own that can sit anywhere:
+`--overlay <dir>`, else `$ZSCALER_KB_OVERLAY`, else `_data/overlay/` here; see [`./knowledge.md`](./knowledge.md).
+The former `_data/knowledge/` Markdown records are retired: the contract check warns while any remain.
 
 Run the public contract check after creating or replacing `_data`:
 

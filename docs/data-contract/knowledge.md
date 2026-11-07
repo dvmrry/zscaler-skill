@@ -11,8 +11,9 @@ fixture (`scripts/fixtures/kb-overlay/`), never company records.
 
 ## Layout
 
-The overlay is a directory, usually its own private git repo, at `$ZSCALER_KB_OVERLAY` or
-`<mount>/overlay/` (`<mount>` is the runtime-data mount, `_data` by default):
+The overlay is a directory, usually its own private git repo, anywhere on disk. `kb.mjs` uses `--overlay <dir>`,
+else `$ZSCALER_KB_OVERLAY`, else `<mount>/overlay/` when it holds an `overlay.json` (`<mount>` is the runtime-data
+mount, `_data` by default):
 
 ```text
 <mount>/overlay/
