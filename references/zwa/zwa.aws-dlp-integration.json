@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "id": "zwa.aws-dlp-integration",
+  "title": "The AWS DLP application integration for Workflow Automation: the two forwarding methods, the three AWS resources, regions, support role and validation",
+  "aliases": [
+    "aws dlp integration",
+    "dlp aws application integration",
+    "zir aws",
+    "zscaler incident receiver aws",
+    "cloud-to-cloud incident forwarding aws",
+    "workflow automation s3 bucket",
+    "iam cross-account role external id"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-receiver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.cloudformation-parameters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.manual-setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.privacy-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration.management"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ir-method}} {{c2c-method}} {{recommend-s3-for-zir}}"
+    },
+    {
+      "label": "Resources.",
+      "text": "{{three-resources}} {{bucket-names}} {{notification-flow}}"
+    },
+    {
+      "label": "Access and regions.",
+      "text": "{{data-bucket-read-optional}} {{same-region}} {{external-id}}"
+    },
+    {
+      "label": "Support role.",
+      "text": "{{support-role}} {{manual-support-role-policy}}"
+    },
+    {
+      "label": "Validation.",
+      "text": "{{validate-before-add}} What a Validate failure reports is open {{gap:validation-failure-detail}}. Whether the Cloud-to-Cloud method needs an EC2 instance is unsettled {{divergence:c2c-ec2-appliances}}. Limits on integrations and the queue polling interval are open {{gap:integration-limits}}. The API and Terraform pages are unread {{gap:other-sources-unchecked}}. The ZIR EC2 setup is in [[zia.dlp.incident-receiver]] and the Cloud-to-Cloud forwarding setup in [[zia.dlp.cloud-to-cloud-forwarding]]. The stack parameters are in [[zwa.aws-dlp-integration.cloudformation-parameters]], the manual IAM, SNS and KMS setup in [[zwa.aws-dlp-integration.manual-setup]], the per-role privacy checkboxes in [[zwa.aws-dlp-integration.privacy-settings]] and the integration lifecycle in [[zwa.aws-dlp-integration.management]]. Where the incidents then appear is [[zwa.incidents]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which method the integration uses: the Zscaler Incident Receiver method deploys a ZIR AWS EC2 instance, and the Cloud-to-Cloud page is inconsistent on whether that method needs an EC2 instance.",
+      "uses": [
+        "ir-method",
+        "c2c-method"
+      ]
+    },
+    {
+      "do": "Whether the metadata bucket and SNS topic are in the same region, and the data buckets too when presigned links are wanted.",
+      "uses": [
+        "same-region"
+      ]
+    },
+    {
+      "do": "Whether Validate passed, and whether the integration was disabled and enabled after the values were corrected.",
+      "uses": [
+        "validate-before-add"
+      ]
+    }
+  ],
+  "claims": {
+    "ir-method": {
+      "statement": "Configuring the AWS DLP application integration through Zscaler Incident Receiver means deploying a Zscaler Incident Receiver (ZIR) AWS EC2 instance, so that the organization can receive incident metadata files and the evidence file from ZIR and upload them to its S3 buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "you must deploy a Zscaler Incident Receiver (ZIR) Amazon Web Services (AWS) EC2 instance",
+            "receive Data Loss Prevention (DLP) incident metadata files and the evidence file from ZIR and upload them to your organization's AWS Simple Storage Service (S3) buckets"
+          ]
+        }
+      ]
+    },
+    "c2c-method": {
+      "statement": "The Cloud-to-Cloud Incident Forwarding page introduces the AWS DLP application integration with an AWS EC2 instance using Cloud-to-Cloud Incident Forwarding as enabling the organization to send DLP incident metadata and evidence files to its S3 buckets in its AWS account without deploying appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Workflow Automation DLP application integration with an Amazon Web Services (AWS) EC2 instance using Zscaler Cloud-to-Cloud Incident Forwarding",
+            "send Data Loss Prevention (DLP) incident metadata and evidence files to your organization's AWS Simple Storage Service (S3) buckets in your AWS account without deploying appliances"
+          ]
+        }
+      ]
+    },
+    "recommend-s3-for-zir": {
+      "statement": "Zscaler recommends the AWS S3 storage bucket when configuring the ZIR for Workflow Automation; the Cloud-to-Cloud page gives the same recommendation for Cloud-to-Cloud Incident Forwarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Zscaler recommends that you use the AWS S3 storage bucket when configuring the ZIR for Workflow Automation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Zscaler recommends that you use the AWS S3 storage bucket when configuring Cloud-to-Cloud Incident Forwarding in AWS."
+          ]
+        }
+      ]
+    },
+    "three-resources": {
+      "statement": "The AWS integration requires three AWS resources: S3 buckets, an SNS topic that the metadata bucket pushes notifications to (subscribed by the Workflow Automation SQS queue), and an IAM cross-account role for the Workflow Automation AWS account's access to the data and metadata buckets, which the page describes as read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "AWS integration requires three AWS resources:",
+            "S3 Bucket: The S3 bucket names share a common prefix.",
+            "SNS Topic: The metadata S3 bucket pushes notifications to the SNS topic which is subscribed to the Workflow Automation SQS Queue.",
+            "IAM Cross-Account Role: The IAM cross-account role allows read-only access to the Workflow Automation AWS account to the data and metadata buckets."
+          ]
+        }
+      ]
+    },
+    "bucket-names": {
+      "statement": "The data and metadata buckets are named <bucketNamePrefix>-data and <bucketNamePrefix>-metadata; the service reads and stores the incident metadata file (trigger data stripped) but never reads and stores the incident data files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "The names of the data and metadata bucket are set to <bucketNamePrefix>-data and <bucketNamePrefix>-metadata, respectively.",
+            "needs to read and store the incident metadata file (with trigger data stripped), but it never reads and stores the incident data files"
+          ]
+        }
+      ]
+    },
+    "notification-flow": {
+      "statement": "The metadata S3 bucket publishes ObjectCreated notifications to the SNS topic, and the Zscaler service subscribes an SQS queue in the Zscaler AWS account to that topic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "The metadata S3 bucket is configured to publish ObjectCreated notifications to the SNS topic.",
+            "The Zscaler service subscribes an SQS queue housed in the Zscaler AWS account to the SNS topic."
+          ]
+        }
+      ]
+    },
+    "data-bucket-read-optional": {
+      "statement": "Read permission on the data S3 bucket is only required if users who respond to incidents are to view incident data files through short-lived presigned S3 URL links.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "The read permission for the data S3 bucket is only required if you want users who respond to incidents to be able to view incident data files through short-lived presigned S3 URL links."
+          ]
+        }
+      ]
+    },
+    "same-region": {
+      "statement": "Zscaler recommends the metadata bucket and the SNS topic always be in the same region; if Workflow Automation is to generate presigned links, the data buckets must also be in that region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Zscaler recommends that the metadata bucket and SNS topic are always in the same region.",
+            "If you want to grant S3 data bucket access so that Workflow Automation can generate presigned links, the data buckets must also be in the same region."
+          ]
+        }
+      ]
+    },
+    "support-role": {
+      "statement": "The CloudFormation createSupportRole option creates an additional support role that Zscaler Support can assume and use to assist with troubleshooting; the role is restricted and cannot access incidents or their data, and creating it is optional (default true).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "createSupportRole: Select true to enable the CloudFormation stack script to create an additional support role for your account.",
+            "After this role is created, Zscaler Support can assume this role and assist you with troubleshooting",
+            "This role is restricted and cannot access any of the incidents or the data associated with those incidents in your account. By default, true appears. Creating a support role is optional."
+          ]
+        }
+      ]
+    },
+    "external-id": {
+      "statement": "On the add integration page the IAM Cross-Account Role External ID is automatically populated and cannot be changed; it is the same value as the Customer GUID on the Account Settings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "IAM Cross-Account Role External ID: The IAM cross-account role external ID is automatically populated for you, and you cannot change it.",
+            "This same ID also appears as the Customer GUID on the Account Settings page in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "validate-before-add": {
+      "statement": "Validate checks that the IAM cross-account role ARN entry is valid and the SNS topic ARN format is correct, and the integration can only be added if it passes; after a validation failure or wrong values the integration must be disabled and enabled once corrected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "It verifies that the IAM cross-account role ARN entry is valid, and it also checks whether the format is correct for the SNS topic ARN. You can only add the integration if it passes validation.",
+            "If the validation fails for any reason, or if the configuration has been created or updated with the wrong values, you must disable and enable the integration after you correct the values for the integration."
+          ]
+        }
+      ]
+    },
+    "manual-support-role-policy": {
+      "statement": "For a manually created support role, the documented policy lists six S3 actions (s3:GetBucketPolicyStatus, s3:GetBucketOwnershipControls, s3:GetBucketAcl, s3:GetBucketNotification, s3:GetBucketLocation, s3:GetBucketPolicy), three SNS actions (sns:ListSubscriptionsByTopic, sns:GetTopicAttributes, sns:GetSubscriptionAttributes) and four IAM actions (iam:GetRole, iam:GetRolePolicy, iam:ListRolePolicies, iam:ListAttachedRolePolicies).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "\"s3:GetBucketPolicyStatus\", \"s3:GetBucketOwnershipControls\", \"s3:GetBucketAcl\", \"s3:GetBucketNotification\", \"s3:GetBucketLocation\", \"s3:GetBucketPolicy\"",
+            "\"sns:ListSubscriptionsByTopic\", \"sns:GetTopicAttributes\", \"sns:GetSubscriptionAttributes\"",
+            "\"iam:GetRole\", \"iam:GetRolePolicy\", \"iam:ListRolePolicies\", \"iam:ListAttachedRolePolicies\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "c2c-ec2-appliances": {
+      "summary": "The Cloud-to-Cloud page ties the AWS integration to an EC2 instance and also says it deploys no appliances.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+            "quotes": [
+              "Workflow Automation DLP application integration with an Amazon Web Services (AWS) EC2 instance using Zscaler Cloud-to-Cloud Incident Forwarding",
+              "Configure the DLP Cloud-to-Cloud Incident Forwarding on an AWS EC2 instance for Workflow Automation."
+            ]
+          },
+          "says": "The introduction and step 3 place the Cloud-to-Cloud integration on an AWS EC2 instance."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+            "quotes": [
+              "without deploying appliances"
+            ]
+          },
+          "says": "The same introductory sentence says the files are sent to the S3 buckets without deploying appliances."
+        }
+      ],
+      "impact": "Whether the Cloud-to-Cloud method needs an EC2 instance is not settled by the page; the ZIA Cloud-to-Cloud forwarding subject does not mention EC2."
+    }
+  },
+  "gaps": {
+    "validation-failure-detail": {
+      "kind": "semantic",
+      "title": "What does a Failed status or a Validate failure mean, and what does it report?",
+      "status": "open",
+      "detail": "The pages list the statuses Enabled, Disabled and Failed and say to disable and enable the integration after correcting values, but give no error text for Validate failures and do not define Failed.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "integration-limits": {
+      "kind": "semantic",
+      "title": "How many integrations or accounts per tenant are allowed, and how often is the SQS queue polled?",
+      "status": "open",
+      "detail": "The captured AWS integration pages state neither a limit on integrations per tenant nor the polling frequency of the SQS queue.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "other-sources-unchecked": {
+      "kind": "semantic",
+      "title": "What do the Workflow Automation API and any Terraform provider say about this integration?",
+      "status": "open",
+      "detail": "This subject covers the Incident Receiver, Cloud-to-Cloud and Workflow Automation management pages only; the API surface (zwa.api) and any Terraform provider for the DLP integration were not read. The ZIR EC2 setup and Cloud-to-Cloud forwarding pages are in zia.dlp.incident-receiver and zia.dlp.cloud-to-cloud-forwarding.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

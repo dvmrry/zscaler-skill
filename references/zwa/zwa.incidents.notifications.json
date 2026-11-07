@@ -1,0 +1,548 @@
+{
+  "schema_version": 1,
+  "id": "zwa.incidents.notifications",
+  "title": "User, escalation and digest notifications and reminders as the recipient sees them: contents, link lifetime, privacy gates, quarantine release and policy exceptions",
+  "aliases": [
+    "zwa user notification",
+    "zwa escalation notification",
+    "zwa digest notification",
+    "notification reminders",
+    "incident detail link",
+    "justification survey",
+    "dlp admin digest"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.details"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{notification-contents}} {{link-24h}} The link lifetime differs between pages {{divergence:link-lifetime}}. {{spam-folder}} The admin actions that send them are in [[zwa.incidents.details]]."
+    },
+    {
+      "label": "Escalation.",
+      "text": "{{escalation-trigger}} {{response-history}}"
+    },
+    {
+      "label": "Survey.",
+      "text": "{{survey-types}} {{survey-policy-exception}} The source DLP types the policy exception covers differ between pages {{divergence:policy-exception-source-types}}."
+    },
+    {
+      "label": "Privacy and Email incidents.",
+      "text": "{{end-user-privacy-flags}} Which flags gate a manager's or approver's evidence link and trigger data in an escalation notification differs between pages {{divergence:escalation-privacy-flags}}. {{digest-approver-privacy-flags}} {{email-quarantine-release}} {{email-na-fields}} The settings behind these flags are in [[zwa.incidents.integrations]]. Which flag gates the approver's trigger data in the digest is not settled {{gap:approver-trigger-gate}}."
+    },
+    {
+      "label": "Reminders.",
+      "text": "{{reminders-config}} {{reminders-stop-log}} The interval and maximum ranges are in [[zwa.settings]]. The default frequency and maximum are not stated {{gap:reminder-defaults}}."
+    },
+    {
+      "label": "Digests.",
+      "text": "{{user-digest}} The digest frequency differs between pages {{divergence:user-digest-frequency}}. {{user-digest-incidents}} {{admin-digest}} The DLP admin digest default frequency and the send time are not stated {{gap:digest-defaults}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a notification link that has expired is the reason a recipient cannot open the incident, against both the 24 hours the notification pages state and the expiration period set on Account Settings.",
+      "uses": [
+        "link-24h",
+        "link-lifetime"
+      ]
+    },
+    {
+      "do": "Whether a missing notification email is in the recipient's spam folder.",
+      "uses": [
+        "spam-folder"
+      ]
+    },
+    {
+      "do": "Whether an end user's missing evidence link or trigger data follows from the Hide Evidence Data - End User and Hide Trigger Data - End User settings.",
+      "uses": [
+        "end-user-privacy-flags"
+      ]
+    },
+    {
+      "do": "Whether a manager's or approver's missing evidence link or trigger data follows from the Manager/Approver or the End User flags, which the pages disagree on.",
+      "uses": [
+        "digest-approver-privacy-flags",
+        "escalation-privacy-flags"
+      ]
+    }
+  ],
+  "claims": {
+    "reminders-config": {
+      "statement": "Notification reminders must be configured on the Account Settings page (enable, frequency, maximum number) before they are sent, and are identical to the original notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-understanding-notification-reminders.json",
+          "quotes": [
+            "You must configure these notification reminders for your organization on the Account Settings page before they are sent.",
+            "Enable or disable notification reminders for end users, managers, and approvers.",
+            "Configure the frequency at which Workflow Automation sends these notification reminders.",
+            "Configure the maximum number of notification reminders that the system sends.",
+            "These notification reminders are identical to the notifications the end users, managers, and approvers previously received but have not yet responded to."
+          ]
+        }
+      ]
+    },
+    "reminders-stop-log": {
+      "statement": "Reminders stop after a response to the original or a reminder notification or once the configured maximum has been sent; when reminders are sent the system updates the Number of Attempts information and logs the reminder activity on the State Changes tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-understanding-notification-reminders.json",
+          "quotes": [
+            "The system stops sending notification reminders after the end users, managers, or approvers respond to the original notification or a reminder notification, or after the maximum number of reminder notifications that you configured have been sent.",
+            "it logs the reminder activity for the incident in the State Changes tab for the incident on the Incident Details drawer.",
+            "the system updates the information (i.e., Number of Attempts) that appears for the incident in the User Notifications section on the Incident Details drawer"
+          ]
+        }
+      ]
+    },
+    "link-24h": {
+      "statement": "The end user, escalation, user digest and DLP admin digest notification pages each say the incident link is only valid for 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "This link is only valid for 24 hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "This link is only valid for 24 hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "This link is only valid for 24 hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-dlp-admin-digest-notification.json",
+          "quotes": [
+            "This link is only valid for 24 hours."
+          ]
+        }
+      ]
+    },
+    "notification-contents": {
+      "statement": "A user or escalation notification carries the incident time, an Incident Detail Link, the incident ID, hostname or application, priority, and the admin's note only if one was entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "The date and time when the incident occurred.",
+            "The incident ID.",
+            "The hostname or the application of the incident.",
+            "The priority of the incident.",
+            "The note to the user from the admin who initiated the notification. This note appears only if the admin enters a note.",
+            "The Incident Detail Link, where you can view the incident details and also take a survey to justify the incident."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "The date and time when the incident occurred.",
+            "The incident ID.",
+            "The hostname or the application of the incident.",
+            "The priority of the incident.",
+            "The note to the user from the admin who initiated the notification. This note appears only if the admin enters a note.",
+            "The Incident Detail Link, where you can view the incident details and also take a survey to justify the incident."
+          ]
+        }
+      ]
+    },
+    "spam-folder": {
+      "statement": "Notification emails might be tagged as spam and land in the recipient's spam folder, depending on their email settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "Depending on your email settings, notification emails might be tagged as spam and sent to your spam folder."
+          ]
+        }
+      ]
+    },
+    "escalation-trigger": {
+      "statement": "An escalation notification goes to a manager or approver; an incident can be escalated when the end user's justification is not acceptable or the incident is of high severity and priority, and if the organization accepts the justification the manager or approver is not notified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "An incident can be escalated when the justification submitted by the end user is not acceptable or when the incident is of high severity and priority. If the organization accepts the justification that the end user submits, then you are not notified about that incident.",
+            "If you are a manager or an approver, the Zscaler Admin Console sends you an alert notification (e.g., email, Slack message, or Microsoft Teams message)"
+          ]
+        }
+      ]
+    },
+    "response-history": {
+      "statement": "In an escalation notification, the Notification Response History table logs notifications to the originating user and escalations to the manager or approver, with roles Originating User, Manager or Approver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "The Notification Response History table displays a detailed log of the incident's end user notifications and escalations sent to the originating user and the user's manager or approver, respectively.",
+            "Role: The role of the user. The roles are Originating User, Manager, or Approver."
+          ]
+        }
+      ]
+    },
+    "survey-types": {
+      "statement": "The notification survey's Justification Type is False Positive, Manager Approved or Others, with a free-text Justification Reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "Justification types are False Positive, Manager Approved, and Others.",
+            "Justification Reason: Enter a justification reason in detail for the incident."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "Justification types are False Positive, Manager Approved, and Others."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "Justification types are False Positive, Manager Approved, and Others."
+          ]
+        }
+      ]
+    },
+    "end-user-privacy-flags": {
+      "statement": "In an end user notification the presigned evidence link needs Hide Evidence Data - End User unselected, and the field that displays the trigger data needs Hide Trigger Data - End User unselected, on the AWS, Azure and GCP DLP integration pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "This field enables you to automatically download the actual data for the incident only if the Hide Evidence Data - End User field is not selected on the Zscaler AWS DLP Integration page, the Zscaler DLP Azure Integration page, or the Zscaler DLP GCP Integration page in the Zscaler Admin Console.",
+            "This field is available only if the Hide Trigger Data - End User field is not selected on the Zscaler AWS DLP Integration page, the Zscaler DLP Azure Integration page, or Zscaler DLP GCP Integration page in the Zscaler Admin Console.",
+            "This field displays the data that triggered the incident. It displays the prefix and suffix for the trigger data, along with the trigger data itself."
+          ]
+        }
+      ]
+    },
+    "digest-approver-privacy-flags": {
+      "statement": "In the user digest justify flow the evidence link depends on Hide Evidence Data - End User, and in the approve flow on Hide Evidence Data - Manager/Approver being unselected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "When justifying an incident, this field enables users to automatically download the actual data that triggered an incident only if the Hide Evidence Data - End User field is not selected for the DLP integration.",
+            "When approving an incident, this field enables approvers to automatically download the actual data that triggered an incident only if the Hide Evidence Data - Manager/Approver field is not selected for the DLP integration."
+          ]
+        }
+      ]
+    },
+    "email-quarantine-release": {
+      "statement": "The Release Email to Recipients section in user and escalation notifications appears only for Email incidents with a quarantine action when the option these pages name Enable Email Quarantine Release for End Users is on; Do not release is selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "This section is only available for incidents with a Source DLP type of Email that have a quarantine action, and if you have enabled the Enable Email Quarantine Release for End Users option on the Account Settings page.",
+            "If you do not want to release the email to any recipients, select Do not release. This option is selected by default.",
+            "you can choose to release the email to one or more of its recipients by selecting one of the options that appears in the Release Email to Recipients section."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "This section is only available for incidents with a Source DLP type of Email that have a quarantine action, and if you have enabled the Enable Email Quarantine Release for End Users option on the Account Settings page.",
+            "If you do not want to release the email to any recipients, select Do not release. This option is selected by default.",
+            "you can choose to release the email to one or more of its recipients by selecting one of the options that appears in the Release Email to Recipients section."
+          ]
+        }
+      ]
+    },
+    "survey-policy-exception": {
+      "statement": "A policy exception section appears in end user and escalation notifications only when generated through a custom workflow with a policy exception tile, and only for incidents of Source DLP type Inline; approving takes a duration in minutes and creates a subrule that applies only to the incident's user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "This section only appears for the end user notifications that are generated for an incident through a custom workflow where a policy exception tile has been configured.",
+            "This section is only available for incidents of Source DLP type Inline.",
+            "In the Duration in Minutes field, enter the duration for the policy exception in minutes.",
+            "The subrule applies only to the user associated with the incident.",
+            "Select Approve. The Duration in Minutes field appears below the Approve option.",
+            "After you submit the survey for the notification, the system creates a policy exception. Workflow Automation creates a subrule for the rule associated with the incident in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "This section only appears for the escalation notifications that are generated for an incident through a custom workflow where a policy exception tile has been configured.",
+            "This section is only available for incidents of Source DLP types Inline."
+          ]
+        }
+      ]
+    },
+    "user-digest": {
+      "statement": "The user digest page says that when a channel is enabled for the User Digest notification flags on Account Settings, a digest template is used to send a user digest daily to all users with assigned incidents; default templates are Digest - Email, Slack and Teams, and the default digests list the number of open incidents and of open high-priority incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "If a channel (e.g., Email, Slack, or Teams) is enabled for the User Digest notification flags on the Account Settings page, Workflow Automation uses a digest notification template to generate and send a user digest notification daily via that channel to all users who have incidents assigned to them.",
+            "Workflow Automation provides default user digest notification templates (Digest - Email Template, Digest - Slack Template, and Digest - Teams Template) that you can clone and use for these notifications.",
+            "These default digest notifications list the number of all open incidents and the number of open incidents that have a high priority."
+          ]
+        }
+      ]
+    },
+    "user-digest-incidents": {
+      "statement": "The user digest page's incident list shows New, Investigating, Validating with User, Justification Response Received (the label this page uses) and Escalated incidents with Justify or Approve actions; the counts are accurate only as of generation time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "Justify: When you click this action, you are redirected to the Justify page, where you can view the incident details and complete the justification survey for the incident.",
+            "Approve: When you click this action, you are redirected to the Approve page, where you can view the incident details and complete the approval survey for the incident.",
+            "The incident count provided in the message is accurate as of the date and time the notification is generated. However, the count is subject to change as new incidents are created, reassigned, or resolved.",
+            "To view only the incidents where you are the owner, select the My Incidents checkbox at the top-left of the page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "- New - Investigating - Validating with User - Justification Response Received - Escalated"
+          ],
+          "after": "Status: The status of the incident. Statuses are:"
+        }
+      ]
+    },
+    "admin-digest": {
+      "statement": "A DLP admin digest needs DLP Admin Digest Notification Flags enabled on Account Settings and the admin's digest frequency, channel and priority set on what this page calls the Admins page; default templates are DLP Admin Digest - Email, Slack and Teams, and the default digests list the number of new incidents, of open incidents and of state changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-dlp-admin-digest-notification.json",
+          "quotes": [
+            "Before a DLP admin digest notification can be sent to an admin, the DLP Admin Digest Notification Flags field must be enabled on the Account Settings page, and the admin's DLP admin digest settings (digest frequency, channel, and priority) must be configured for the admin on the Admins page.",
+            "Workflow Automation provides default DLP admin digest notification templates (DLP Admin Digest - Email Template, DLP Admin Digest - Slack Template, and DLP Admin Digest - Teams Template) that you can clone and use for these notifications.",
+            "These default digest notifications list the number of all new incidents for the admin, the number of all open incidents for the admin, and the number of state changes"
+          ]
+        }
+      ]
+    },
+    "email-na-fields": {
+      "statement": "On the end user notification page the Overview Severity field is not available for Email incidents and the Policy section is only available for Email incidents, and the user digest page says the Generate Presigned Link field is not available for Email incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "Severity: The severity of the incident. This field is not available for incidents with a Source DLP type of Email.",
+            "This section is only available for incidents of Source DLP type Email. For the other types of incidents, the policy information for the incident appears in the Violation Details section."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-user-digest-notification.json",
+          "quotes": [
+            "The Generate Presigned Link field is not available for incidents of Source DLP type Email."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "approver-trigger-gate": {
+      "kind": "semantic",
+      "title": "Which flag gates the approver's View Trigger Data in the user digest approve flow",
+      "status": "open",
+      "detail": "The user digest page's approving flow ties View Trigger Data to Hide Evidence Data - Manager/Approver, while the GCP integration page defines a separate Hide Trigger Data - Manager/Approver setting. The digest page's trigger-data text was not captured as a claim; which setting applies is not settled.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "reminder-defaults": {
+      "kind": "semantic",
+      "title": "Default frequency and maximum for notification reminders",
+      "status": "open",
+      "detail": "The reminders page says frequency and maximum number are configured on Account Settings but gives no default for either; the allowed range of 1 to 99 is on the Account Settings page.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "digest-defaults": {
+      "kind": "semantic",
+      "title": "Default frequency of the DLP admin digest and send time of the daily user digest",
+      "status": "open",
+      "detail": "The digest pages give no default digest frequency for the DLP admin digest and no send time for the daily user digest; the Account Settings page gives Hourly, Daily and Weekly with a daily default for the user digest.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "link-lifetime": {
+      "summary": "The notification pages say the incident link is only valid for 24 hours, while Account Settings sets a justification link expiration period in days that defaults to one day and has a maximum of 30.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-end-user-notification.json",
+            "quotes": [
+              "This link is only valid for 24 hours."
+            ]
+          },
+          "says": "The link is only valid for 24 hours."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-account-settings.json",
+            "quotes": [
+              "(manager and approver) notifications. If you do not enter an expiration period, one day appears by default. The maximum number of days for an expiration period is 30 days. If you enter a value greater than 30 days, the system automatically changes it to 30 days."
+            ]
+          },
+          "says": "The expiration period defaults to one day and can be set up to 30 days."
+        }
+      ],
+      "impact": "A tenant with an expiration period longer than one day may have links that stay valid past 24 hours, so 24 hours is not a safe test of an expired link."
+    },
+    "policy-exception-source-types": {
+      "summary": "The end user notification page says the policy exception section is only available for Source DLP type Inline, while the custom workflow page supports Policy Exception tiles for Inline and Email.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-end-user-notification.json",
+            "quotes": [
+              "This section is only available for incidents of Source DLP type Inline."
+            ]
+          },
+          "says": "The policy exception section is only available for incidents of Source DLP type Inline."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflows.json",
+            "quotes": [
+              "Workflow Automation supports custom workflows with Policy Exceptions tiles only for incidents of Source DLP type Inline and Email."
+            ]
+          },
+          "says": "Policy Exception tiles are supported for Source DLP types Inline and Email."
+        }
+      ],
+      "impact": "Whether an Email incident's notification carries the policy exception section is not settled between the pages."
+    },
+    "escalation-privacy-flags": {
+      "summary": "The escalation notification page gates the evidence link on Hide Evidence Data - End User, while the AWS integration page assigns approvers and managers responding to an escalation notification the Manager/Approver flags.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-escalation-notification.json",
+            "quotes": [
+              "This field enables you to automatically download the actual data for the incident only if the Hide Evidence Data - End User field is not selected on the Zscaler AWS DLP Integration page, the Zscaler DLP Azure Integration page, or the Zscaler DLP GCP Integration page in the Zscaler Admin Console."
+            ]
+          },
+          "says": "In an escalation notification the evidence link depends on Hide Evidence Data - End User; the trigger data field likewise depends on Hide Trigger Data - End User."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-amazon-web-services-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "Hide Evidence Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to generate presigned evidence links for the incident."
+            ]
+          },
+          "says": "Hide Evidence Data - Manager/Approver governs presigned evidence links for approvers and managers responding to an escalation notification."
+        }
+      ],
+      "impact": "For a manager or approver, which Hide flag (End User or Manager/Approver) explains a missing evidence link or trigger data is not settled."
+    },
+    "user-digest-frequency": {
+      "summary": "The user digest page says the digest is sent daily, while Account Settings offers Hourly, Daily and Weekly frequencies with daily as the default.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-user-digest-notification.json",
+            "quotes": [
+              "send a user digest notification daily via that channel to all users who have incidents assigned to them."
+            ]
+          },
+          "says": "The user digest is sent daily."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-account-settings.json",
+            "quotes": [
+              "Frequencies are Hourly, Daily, and Weekly. If you do not enter a digest frequency, the default is daily."
+            ]
+          },
+          "says": "The digest frequency is Hourly, Daily or Weekly, and daily if none is entered."
+        }
+      ],
+      "impact": "A user digest that arrives hourly or weekly is consistent with Account Settings but not with the digest page's daily wording."
+    }
+  }
+}

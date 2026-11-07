@@ -1,0 +1,719 @@
+{
+  "schema_version": 1,
+  "id": "zwa.incidents.details",
+  "title": "The Incident Details drawer: fields by Source DLP type, actions and status changes, quarantine release errors, tickets and privacy gates",
+  "aliases": [
+    "incident details drawer",
+    "zwa incident drawer",
+    "release email quarantine",
+    "quarantine release failed",
+    "state changes tab",
+    "zwa ticket action"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.filters-summary"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.group-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incident-analytics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{severity-values}} The severity list differs between pages {{divergence:severity-list}}. {{default-tab}} The Incidents page that opens the drawer is in [[zwa.incidents]]."
+    },
+    {
+      "label": "Fields by Source DLP type.",
+      "text": "{{source-scoped-fields}} {{originating-user-source}} {{duplicates-dialog}}"
+    },
+    {
+      "label": "Actions and status.",
+      "text": "{{status-transitions}} {{reopen}} {{action-order-logging}} {{false-positive-widgets}}"
+    },
+    {
+      "label": "Assigning and updating groups.",
+      "text": "{{assign-admin-scope}} {{update-groups}}"
+    },
+    {
+      "label": "Notify User and Escalate.",
+      "text": "{{escalate-options}} Where the manager comes from when the user data is not mapped in Azure SCIM is open {{gap:escalate-user-type-sources}}. {{channel-type}} {{slack-teams-addresses}} {{time-zone-precedence}} The notifications as the recipient sees them are in [[zwa.incidents.notifications]]."
+    },
+    {
+      "label": "Policy exception.",
+      "text": "{{policy-exception-action}}"
+    },
+    {
+      "label": "Quarantined email.",
+      "text": "{{release-quarantine-limits}} {{quarantine-release-end-user}} {{quarantine-status}} {{quarantine-errors}} {{quarantine-error-permissions}}"
+    },
+    {
+      "label": "Tickets.",
+      "text": "{{ticket-section}} Which status the Ticket section shows differs between pages {{divergence:ticket-status-shown}}. {{ticket-action}} The integrations behind tickets are in [[zwa.incidents.integrations]]."
+    },
+    {
+      "label": "Privacy and sections.",
+      "text": "{{evidence-privacy-admin}} The manual path for GCP is not stated {{gap:gcp-manual-evidence-path}}. {{trigger-privacy-admin}} {{saas-email-sections}} {{email-recipient-values}} {{endpoint-saas-values}} {{trigger-data-tabs}} The privacy settings on the integration are in [[zwa.incidents.integrations]]."
+    },
+    {
+      "label": "User notifications.",
+      "text": "{{user-notifications-table}} What the table's Status values are is open {{gap:notification-status-values}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the incident's Source DLP type scopes the field or section being looked for: Client IP is Inline only, the device fields are Endpoint only, and the Action field is not shown for Email.",
+      "uses": [
+        "source-scoped-fields"
+      ]
+    },
+    {
+      "do": "For a failed quarantine release, the reason in the Message column against the documented error list.",
+      "uses": [
+        "quarantine-status",
+        "quarantine-errors",
+        "quarantine-error-permissions"
+      ]
+    },
+    {
+      "do": "Whether Channel Type is missing from the Notify User or Escalate window because Slack or Microsoft Teams is not integrated, in which case the notification is by email.",
+      "uses": [
+        "channel-type"
+      ]
+    }
+  ],
+  "claims": {
+    "severity-values": {
+      "statement": "On the Incident Details drawer, severities are Critical, High, Low, Medium and Info; priorities are Critical, High, Medium and Low.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Severity: The severity of the incident. Severities are Critical, High, Low, Medium, and Info.",
+            "Priority: The priority of the incident. Priorities are Critical, High, Medium, and Low."
+          ],
+          "after": "At the top of the Overview tab, you can see:"
+        }
+      ]
+    },
+    "status-transitions": {
+      "statement": "Notify User moves the status to Validating with User and Escalate to Escalated; a user, manager or approver response then moves it to the status this page names Received Justification Response; Investigating sets Investigating; Reopen moves a Resolved incident to Investigating.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The status of the incident changes to Validating with User. After the user reviews and responds to the user notification, the status of the incident changes to Received Justification Response.",
+            "The status of the incident changes to Escalated. After the manager or approver reviews and responds to the escalation notification, the status of the incident changes to Received Justification Response.",
+            "The status of the incident changes to Investigating.",
+            "The incident is reopened, and the status of the incident changes from Resolved to Investigating."
+          ]
+        }
+      ]
+    },
+    "reopen": {
+      "statement": "A closed (Resolved) incident gets a Reopen action in the Incident Details drawer, and an incident can be reopened only from that drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "After an incident is closed (Status is Resolved), the Reopen action appears in the Actions drop-down menu in the drawer for that incident.",
+            "You can reopen an incident only from the Incident Details drawer."
+          ]
+        }
+      ]
+    },
+    "action-order-logging": {
+      "statement": "Actions need not be performed in menu order, and all actions except Delete are logged on the State Changes tab, which acts as an audit log of the incident.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "When managing an incident, you are not required to follow the order of the actions as they appear in the Actions drop-down menu.",
+            "All the actions you perform, except for the Delete action, are logged on the State Changes tab.",
+            "The State Changes tab acts as an audit log for the incident."
+          ]
+        }
+      ]
+    },
+    "false-positive-widgets": {
+      "statement": "When an incident is marked as a false positive and closed, it is shown in the False Positive Incidents By Rule and False Positive Incidents By Dictionary widgets on the Incident Analytics dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "When you mark an incident as a false positive, after the incident is closed, Workflow Automation categorizes the incident to be shown in the False Positive Incidents By Rule widget and the False Positive Incidents By Dictionary widget on the Incident Analytics dashboard."
+          ]
+        }
+      ]
+    },
+    "assign-admin-scope": {
+      "statement": "The Assign DLP Admin menu lists only DLP admins with edit access to the incident group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The drop-down menu displays only the DLP admins who have edit access to the incident group."
+          ]
+        }
+      ]
+    },
+    "update-groups": {
+      "statement": "In Update Incident Group, all incident groups assigned to at least one admin appear in alphabetical order; at least one group must stay assigned; and deleting the group used for admin assignment warns that the assigned admin will be removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "all the incident groups that have been assigned to at least one admin appear in alphabetical order.",
+            "You must have at least one incident group assigned to the incident.",
+            "If you delete an incident group that is being used for admin assignment, a warning message appears stating that the current assigned admin will be removed and instructing you to update the admin assignment to select a new incident group for admin mapping."
+          ]
+        }
+      ]
+    },
+    "escalate-options": {
+      "statement": "The Escalate User Type field appears only when additional Workflow Automation user attributes are mapped in Azure SCIM provisioning, otherwise escalation is to an Approver only; Manager appears only when a manager exists; the approver must exist on the Approvers page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The Manager option is visible only when a manager is available to the end user.",
+            "Otherwise, the User Type field is not available, and you can only escalate the incident to an Approver.",
+            "The approver must exist on the Approvers page.",
+            "The User Type field, where you can select the type of user (i.e., Approver or Manager), is only available if you map the additional Workflow Automation user attributes when configuring SCIM provisioning in Azure."
+          ]
+        }
+      ]
+    },
+    "channel-type": {
+      "statement": "Channel Type (Email, Slack, Teams) appears in the Notify User and Escalate windows only when Workflow Automation is integrated with Slack or Microsoft Teams; otherwise notification is by email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "If the Channel Type field is not available in the window, the escalation notification is by email.",
+            "Channel types are Email, Slack, and Teams.",
+            "This field is only available in the window if you have integrated Workflow Automation with Slack or Microsoft Teams."
+          ],
+          "after": "select Escalate. The Escalate window appears."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "If the Channel Type field is not available in the window, the user notification is by email.",
+            "Channel types are Email, Slack, and Teams.",
+            "This field is only available in the window if you have integrated Workflow Automation with Slack or Microsoft Teams."
+          ],
+          "after": "select Notify User. The Notify User window appears."
+        }
+      ]
+    },
+    "slack-teams-addresses": {
+      "statement": "With the Slack channel type, the address entered for the approver (Escalate) or the user (Notify User) must be associated with a Slack user of the organization; with the Teams channel type in the Notify User and Escalate windows, it must be associated with a Microsoft Teams user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "If you have integrated Workflow Automation with Slack and you select the Slack channel type, the email address that you enter for the approver must be associated with a user for your organization in Slack.",
+            "If you have integrated Workflow Automation with Slack and you select the Slack channel type, the email address that you enter must be associated with a user for your organization in Slack."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "If you have integrated Workflow Automation with Microsoft Teams and you select the Teams channel type, the email address that you enter must be associated with a user for your organization in Microsoft Teams."
+          ],
+          "after": "select Notify User. The Notify User window appears."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "If you have integrated Workflow Automation with Microsoft Teams and you select the Teams channel type, the email address that you enter must be associated with a user for your organization in Microsoft Teams."
+          ],
+          "after": "select Escalate. The Escalate window appears."
+        }
+      ]
+    },
+    "time-zone-precedence": {
+      "statement": "For time-related merge tags in a manually created notification, the system uses the time zone chosen in the drawer, else the notification template's, else the admin's on the Admin Assignment page, else UTC+00:00 by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "If you select the time zone when you manually create a user notification or escalation notification in the Incident Details drawer, then the system uses that time zone.",
+            "If you did not select the time zone, then the system uses the time zone configured for the notification template on the Notification Template page.",
+            "If you did not configure the time zone for the notification template, then the system uses the time zone assigned to the admin on the Admin Assignment page.",
+            "If you did not assign a time zone to the admin, then the system uses the UTC+00:00 time zone, by default.",
+            "If the notification template you are using for user notifications is configured with one or more time-related merge tags, you can select the time zone in which those merge tags are represented in the user notification."
+          ],
+          "after": "select Escalate. The Escalate window appears."
+        }
+      ]
+    },
+    "policy-exception-action": {
+      "statement": "The Create Policy Exception action is limited to Inline and Email incidents, takes a duration in days, hours and minutes, and creates a subrule of the incident's rule that applies only to the associated user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "You can create a policy exception only for incidents of Source DLP type Inline and Email.",
+            "Policy Exception duration: Enter the number of days, hours, and minutes for the duration of the policy exception.",
+            "Workflow Automation creates a subrule for the rule associated with the incident in the Zscaler Admin Console. The subrule applies only to the user associated with the incident."
+          ]
+        }
+      ]
+    },
+    "release-quarantine-limits": {
+      "statement": "Release Email Quarantine takes a justification of at most 250 characters, can mark the incident False Positive (adding a False Positive label), and its per-recipient option is unavailable when Recipient Email is obfuscated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The reason can contain a maximum of 250 characters.",
+            "If you selected the False Positive checkbox, a False Positive label is added to the incident."
+          ],
+          "after": "Release the Quarantined Email to All Recipients"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "On the Account Settings page, if you have chosen to obfuscate the Recipient Email attribute in the Privacy and Security section, this option is not available."
+          ]
+        }
+      ]
+    },
+    "quarantine-release-end-user": {
+      "statement": "An end user or approver/manager can be allowed to release a quarantined email from their notification; for an end user notification this page says it is enabled with the option it names Enable Email Quarantine Release for End Users in the Incident Management section of Account Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "To enable this feature for an end user notification, select Enable Email Quarantine Release for End Users in the Incident Management section on the Account Settings page.",
+            "You also have the option to allow the end user or approver/manager of a quarantined email incident to release the email to one or more of its recipients from an end user notification or an escalation notification."
+          ]
+        }
+      ]
+    },
+    "quarantine-status": {
+      "statement": "For Email incidents, Quarantined Email Status shows per-recipient statuses Quarantined, Quarantine Release Failed, Quarantine Release In Progress and Quarantine Release Success, with a Message giving the reason a release failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Statuses are Quarantined, Quarantine Release Failed, Quarantine Release In Progress, and Quarantine Release Success.",
+            "Message: The reason why the release email quarantine process failed for the recipient.",
+            "Quarantined Email Status: The status of the quarantined email release process for the recipients of the quarantined email."
+          ]
+        }
+      ]
+    },
+    "quarantine-errors": {
+      "statement": "For failed quarantine release, the Message column reason is documented with a cause for each error: No recipients matched for release (recipient not in the message's list), No messages matched the MessageId, MessageId is null or whitespace (missing required parameter), Error getting quarantined messages (permission or Exchange Online service problems), No quarantine messages found, Exchange Online connection failure (authentication or connectivity), Error releasing message to a specific recipient or to all recipients, General error in message processing, and Something went wrong.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "No recipients matched for release | The specified recipient is not in the message's recipient list",
+            "No messages matched the MessageId | MessageId doesn't match any quarantined message",
+            "MessageId is null or whitespace | Missing the required MessageId input parameter",
+            "Error getting quarantined messages | Permission issues or Exchange Online service problems",
+            "No quarantine messages found | Message doesn't exist in the quarantine system",
+            "Exchange Online connection failure | Authentication or connectivity problems with Microsoft 365 services",
+            "Error releasing message to specific recipient | Cannot release the message to the specified recipient",
+            "Error releasing message to all recipients | Cannot release the message to all original recipients",
+            "General error in message processing | Unexpected system error during processing",
+            "Something went wrong | Error while processing the action (i.e., generic error) | Try again",
+            "Message: The reason why the release email quarantine process failed for the recipient."
+          ]
+        }
+      ]
+    },
+    "quarantine-error-permissions": {
+      "statement": "Troubleshooting tips for release failures name the Exchange.ManageAsApp permission for Error getting quarantined messages and Exchange.ManageAsApp and Directory.Read.All for Exchange Online connection failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Error getting quarantined messages | Permission issues or Exchange Online service problems | Verify that the app has Exchange.ManageAsApp permission",
+            "Exchange Online connection failure | Authentication or connectivity problems with Microsoft 365 services | Verify that the certificate file exists and the password is correct Check that AppId and TenantId are valid Ensure that the app has the required permissions (Exchange.ManageAsApp, Directory.Read.All)"
+          ]
+        }
+      ]
+    },
+    "ticket-section": {
+      "statement": "The Ticket section appears only after a ticketing integration exists and the Ticket action has run; on the Incident Details page Ticket Status displays the status of Closed (after the ticket is closed and synced), and Project shows only for Jira tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The Ticket section appears in the drawer only after you have integrated Workflow Automation with a ticketing integration application (e.g., ServiceNow or Jira Software) and you have executed the Ticket action for the data protection incident in the Incident Details drawer.",
+            "Ticket Status: The status of Closed displays in this field. This field does not appear in this drawer until after the ticket is closed in the ticketing integration application (e.g., ServiceNow or Jira Software) and synced with Workflow Automation.",
+            "Project: The project associated with the ticket in Jira Software. This field only displays for tickets created by the Jira Software application.",
+            "Only the Closed status displays for these types of tickets."
+          ]
+        }
+      ]
+    },
+    "ticket-action": {
+      "statement": "The Ticket action cannot associate multiple incidents with one ticket through the Incidents page; only users on the Integration Users page for the application are selectable; notes appear as a comment in the ticket; adding a ticket does not change the incident status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "You cannot associate multiple incidents with a ticketing integration application ticket through the Incidents page.",
+            "Only users who appear on the Integration Users page for that ticketing integration application are available for selection.",
+            "These notes appear as a comment in the ticket in the ticketing integration application.",
+            "Adding a ticket to the incident does not change the status of the incident."
+          ]
+        }
+      ]
+    },
+    "evidence-privacy-admin": {
+      "statement": "The evidence link lets admins automatically download the actual data only if Hide Evidence Data - Admin is not selected on the DLP integration and Evidence Data Privacy is not enabled for the admin on Admin Assignment; otherwise the admin can copy the link and paste it after logging in to AWS or Azure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "This field enables admins to automatically download the actual data that triggered an incident only if the Hide Evidence Data - Admin field is not selected for the DLP integration, and the Evidence Data Privacy field is not enabled for the admin on the Admin Assignment page in the Zscaler Admin Console.",
+            "Otherwise, to view the actual data, the admin can copy the evidence link and then access and log in to either Amazon Web Services (AWS) or Azure and paste the link."
+          ]
+        }
+      ]
+    },
+    "trigger-privacy-admin": {
+      "statement": "View Trigger Data is available only if Hide Trigger Data - Admin is not selected on the DLP integration and Trigger Data Privacy is not enabled for the admin; the Policy section is available only if Hide Policy Details - Admin is not selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "This field is available only if the Hide Trigger Data - Admin field is not selected for the DLP integration, and the Trigger Data Privacy field is not enabled on the Admin Assignment page for the admin in the Zscaler Admin Console.",
+            "This section is available only if the Hide Policy Details - Admin field is not selected for the DLP application integration in the Zscaler Admin Console.",
+            "In the View Trigger Data section, you can see:",
+            "In the Policy section, you can see:"
+          ]
+        }
+      ]
+    },
+    "originating-user-source": {
+      "statement": "Originating User attributes depend on how information was imported through the primary user data source (SCIM or CSV); the additional information shown for an incident does not change if the source is changed, which affects only new incidents; Retrieve User Email from Primary Data Source can override the shown email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The attributes that appear under the Originating User subsection can vary, depending on how and what information was imported to Workflow Automation through the primary user data source of System for Cross-domain Identity Management (SCIM) or a CSV file.",
+            "The additional information displayed for an incident does not change if you alter the primary user data source. The change of the primary user data source settings impacts only new incidents.",
+            "You can override the email address that appears for the end user with the email address for that user from your primary user data source—i.e., SCIM or CSV attributes.",
+            "enable the Retrieve User Email from Primary Data Source option."
+          ]
+        }
+      ]
+    },
+    "source-scoped-fields": {
+      "statement": "Several drawer fields are limited by Source DLP type: Client IP to Inline; Device Name, Device OS and Device Trust Level to Endpoint; the Action field is not shown for Email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Client IP: The client IP address of the end user. This field is only available for incidents with a Source DLP type of Inline.",
+            "Device Name: The name of the user's device. This field is only available for incidents with a Source DLP type of Endpoint.",
+            "Device OS: The operating system of the user's device. This field is only available for incidents with a Source DLP type of Endpoint.",
+            "Device Trust Level: The trust level of the user's device. This field is only available for incidents with a Source DLP type of Endpoint.",
+            "Action: The action associated with the incident. This field is not available for incidents with a Source DLP type of Email."
+          ],
+          "after": "At the top of the Overview tab, you can see:"
+        }
+      ]
+    },
+    "saas-email-sections": {
+      "statement": "For SaaS Security incidents the Recipients section appears only when the application category is Email, and the Attachments section is only for SaaS incidents with the Email category; an Other Recipients section is available for Email incidents; the presigned-link section is not available for Email incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "This section only appears when the application category for the incident is Email.",
+            "This section is only available for incidents of Source DLP type SaaS Security with an application category of Email.",
+            "The Other Recipients section displays the recipients associated with the incident who are not covered under the rule mapping configurations.",
+            "The Generate Presigned Link section is not available for incidents of Source DLP type Email.",
+            "The Recipients section displays the internal and external recipients for the incident.",
+            "The Attachments section displays the files sent to the recipients of the incident.",
+            "This section is only available for incidents of Source DLP Type Email.",
+            "Recipients (Source DLP type SaaS Security)"
+          ]
+        }
+      ]
+    },
+    "email-recipient-values": {
+      "statement": "In the Recipients section for Email incidents, Action Taken is Allow, Block, Quarantine or Custom Header Insertion, Content Location is Email Attachments or Email Body, and severity per recipient can be Critical, High, Low, Medium or Info.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Actions are Allow, Block, Quarantine, or Custom Header Insertion.",
+            "Content locations are Email Attachments and Email Body.",
+            "Severity: The severity by recipient and rule that was violated. Severity can be Critical, High, Low, Medium, or Info."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Recipients (Source DLP type Email) - This section is only available for incidents of Source DLP type Email."
+          ],
+          "after": "The Other Recipients section displays the recipients associated with the incident who are not covered under the rule mapping configurations."
+        }
+      ]
+    },
+    "endpoint-saas-values": {
+      "statement": "In the User Activity section, ZDP modes can be Block or Exemption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "ZDP modes can be Block or Exemption.",
+            "In the User Activity section, you can see:"
+          ]
+        }
+      ]
+    },
+    "trigger-data-tabs": {
+      "statement": "Under View Trigger Data, the Inline Source DLP Type shows File Content, File Metadata, File Name and HTML Location tabs, and the Email Source DLP Type shows Email Subject, Email Body and Email Attachments tabs, with a subtab for each attachment that caused a violation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Inline Source DLP Type - Expand the heading to display the data that triggered the incident. One or more tabs (File Content, File Metadata, File Name, and HTML Location) appear."
+          ],
+          "after": "In the View Trigger Data section, you can see:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "Email Source DLP Type - Expand the heading to display the data that triggered the incident. One or more tabs (Email Subject, Email Body, and Email Attachments) appear.",
+            "then subtabs appear under the Email Attachments tab, one for each attachment that caused a violation."
+          ],
+          "after": "In the View Trigger Data section, you can see:"
+        }
+      ]
+    },
+    "user-notifications-table": {
+      "statement": "The User Notifications section logs the incident's notifications to the originating user and escalations to the user's manager or approver; its table has Role (Originating User, Manager or Approver), Channel, Status, No. of Attempts and User Response columns, and is sorted by initial notification date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "The roles are Originating User, Manager, or Approver.",
+            "No. of Attempts: The number of times the notification was sent to the user.",
+            "The User Notification table is sorted by the initial notification date.",
+            "The User Notifications section provides a table that records and displays a detailed log of the incident's notifications sent to the originating user. This section includes the incident's escalations that have been sent to the user's manager or approver.",
+            "Channel: The communication medium used for notification.",
+            "Status: The status of the notification.",
+            "User Response: The actual response received from the user."
+          ]
+        }
+      ]
+    },
+    "default-tab": {
+      "statement": "The default Incident Details tab is set with a star icon and stored in the browser's local storage, so it is lost if the cache is cleared or another browser is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "This tab setting is stored in your browser's local storage so that your change is preserved for the next time you log on. If you clear your cache or use a different browser, this setting is lost.",
+            "To change the tab that first appears when you open the Incident Details drawer, click the star icon next to one of the tab headings."
+          ]
+        }
+      ]
+    },
+    "duplicates-dialog": {
+      "statement": "The Overview tab shows a duplicate-incidents message and a Duplicate Incidents dialog listing each duplicate's Transaction ID and Transaction Time (local time zone of the user); the first incident is the one that appears on the Incidents page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "In this case, the first incident appears on the Incidents page, and you can view all the duplicate incidents in that incident's detail drawer.",
+            "Transaction ID: The transaction IDs of the duplicate incidents.",
+            "Transaction Time: The dates and times of the transactions. The dates and times display in the local time zone of the user."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "notification-status-values": {
+      "kind": "semantic",
+      "title": "What the User Notifications Status values are",
+      "status": "open",
+      "detail": "The Incident Details page describes the Status column only as \"The status of the notification\" and lists Channel values (Email, Slack, Teams) only for the Notify User and Escalate windows; no captured source defines the Status values.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "escalate-user-type-sources": {
+      "kind": "semantic",
+      "title": "Whether the Escalate User Type field appears when manager names come from a CSV file or a non-Azure source",
+      "status": "open",
+      "detail": "The Incident Details page ties the User Type field to mapping the additional Workflow Automation user attributes in Azure SCIM provisioning; the user attributes settings also source manager names from a CSV file, and the page does not say whether the field appears for CSV or non-Azure user data.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "gcp-manual-evidence-path": {
+      "kind": "semantic",
+      "title": "How an admin views evidence data manually for a GCP DLP integration",
+      "status": "open",
+      "detail": "The evidence link description names the manual path only as logging in to Amazon Web Services (AWS) or Azure and pasting the link; it does not say what the admin does for a GCP DLP integration.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "severity-list": {
+      "summary": "The Incident Details page lists Critical, High, Low, Medium and Info as severities, while the Incidents page lists High, Medium and Low and the Incident Summary page's severity grouping lists High, Medium, Low and Info.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-viewing-managing-incident-details.json",
+            "quotes": [
+              "Severity: The severity of the incident. Severities are Critical, High, Low, Medium, and Info."
+            ],
+            "after": "At the top of the Overview tab, you can see:"
+          },
+          "says": "Severities are Critical, High, Low, Medium and Info."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-incidents.json",
+            "quotes": [
+              "Severities are High, Medium, and Low."
+            ]
+          },
+          "says": "Severities are High, Medium and Low."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-incident-summaries.json",
+            "quotes": [
+              "If you want to break out the incident counts by incident priority (e.g., Critical, High, Medium, and Low), select Priority. If you want to break out the incident counts by incident severity (e.g., High, Medium, Low, and Info), select Severity."
+            ]
+          },
+          "says": "Grouping by severity breaks out High, Medium, Low and Info."
+        }
+      ],
+      "impact": "Whether Critical is a severity value, and whether Info is one on the Incidents page, is not settled between the pages."
+    },
+    "ticket-status-shown": {
+      "summary": "The Incident Details page says only the Closed status displays in the Ticket section, while the Jira Software page says the project's chosen complete status appears there.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-viewing-managing-incident-details.json",
+            "quotes": [
+              "Only the Closed status displays for these types of tickets."
+            ]
+          },
+          "says": "Only the Closed status displays for tickets."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflow-automation-integration-jira-software.json",
+            "quotes": [
+              "only the complete status that you specified for a project appears in the Ticket section for an incident."
+            ]
+          },
+          "says": "Only the complete status specified for the Jira project appears in the Ticket section."
+        }
+      ],
+      "impact": "For a Jira ticket whose project complete status is not Closed, the status the Ticket section shows is not settled; the ServiceNow page does say only Closed appears."
+    }
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "id": "zwa.notifications.merge-tags",
+  "title": "Merge tags in Workflow Automation notification templates: tag group names, example digest tags, per-notification caps and the special links",
+  "aliases": [
+    "merge tags",
+    "magic link",
+    "incident justification magic link",
+    "partial list of recipients",
+    "notification maximum files"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.notifications.survey-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{tag-groups-slack}} {{tag-groups-email}} {{teams-same-as-slack}} The templates themselves are in [[zwa.notifications]]."
+    },
+    {
+      "label": "Digest tags.",
+      "text": "{{end-user-digest-tags}} {{admin-digest-tags}}"
+    },
+    {
+      "label": "Caps.",
+      "text": "{{matched-files-cap}} {{recipient-email-cap}} {{collaborator-cap}} {{recipient-cap}} {{rules-and-recipients}}"
+    },
+    {
+      "label": "Special links.",
+      "text": "{{special-links}} {{email-special-link-url}} The survey templates are in [[zwa.notifications.survey-templates]]. Which tags the email table tool offers is open {{gap:email-table-tags}}, so are definitions of most tags {{gap:tag-definitions}}, and so are the full tag name lists {{gap:tag-name-lists}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Digest Type the template has, since it determines which merge tags are available.",
+      "uses": [
+        "tag-groups-slack",
+        "tag-groups-email"
+      ]
+    },
+    {
+      "do": "Whether a missing file, recipient, collaborator or rule in a notification is one of the stated maximums, with the full list in the Incident Details drawer.",
+      "uses": [
+        "matched-files-cap",
+        "recipient-email-cap",
+        "collaborator-cap",
+        "recipient-cap",
+        "rules-and-recipients"
+      ]
+    }
+  ],
+  "claims": {
+    "tag-groups-slack": {
+      "statement": "The Slack notification template builder offers separate merge-tag groups for End User and Escalation templates, End User Digest templates, DLP Admin Digest templates and digest templates of unspecified type; the Digest Type selection determines which merge tags are available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "End User and Escalation Notification Templates",
+            "End User Digest Notification Templates",
+            "DLP Admin Digest Notification Templates",
+            "Digest Notification Templates (Type Not Specified)",
+            "Digest Type: (Optional) From the drop-down menu, select the type of digest notification template you want to add. Digest types are End User and Admin. The selection you make in this field determines the merge tags that are available when configuring the template."
+          ]
+        }
+      ]
+    },
+    "tag-groups-email": {
+      "statement": "For button text, the email template builder lists the merge-tag groups End User and Escalation, End User Digest, DLP Admin Digest, and Digest (Type Not Specified); the Digest Type field selection determines which merge tags are available for buttons, headings, paragraphs and tables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "End User and Escalation Notification Templates",
+            "End User Digest Notification Templates",
+            "DLP Admin Digest Notification Templates",
+            "Digest Notification Templates (Type Not Specified)"
+          ],
+          "after": "Add merge tags to the button text"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "Digest Type: (Optional) From the drop-down menu, select the type of digest notification template you want to add.",
+            "The selection you make in this field determines which merge tags are available when configuring buttons, headings, paragraphs, and tables for the template."
+          ]
+        }
+      ]
+    },
+    "end-user-digest-tags": {
+      "statement": "The End User Digest Notification Templates group of Slack merge tags includes All Incidents Waiting For Feedback Count and High Priority Incidents Waiting For Feedback Count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "All Incidents Waiting For Feedback Count",
+            "High Priority Incidents Waiting For Feedback Count"
+          ],
+          "after": "End User Digest Notification Templates"
+        }
+      ]
+    },
+    "admin-digest-tags": {
+      "statement": "The DLP Admin Digest Notification Templates group of Slack merge tags includes New Incidents Count, Open Incidents Count and State Changes Count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "New Incidents Count",
+            "Open Incidents Count",
+            "State Changes Count"
+          ],
+          "after": "DLP Admin Digest Notification Templates"
+        }
+      ]
+    },
+    "teams-same-as-slack": {
+      "statement": "The Microsoft Teams template page lists the merge-tag groups End User and Escalation, End User Digest, DLP Admin Digest, and Digest (Type Not Specified).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-microsoft-teams-notification-templates.json",
+          "quotes": [
+            "End User and Escalation Notification Templates",
+            "End User Digest Notification Templates",
+            "DLP Admin Digest Notification Templates",
+            "Digest Notification Templates (Type Not Specified)"
+          ]
+        }
+      ]
+    },
+    "matched-files-cap": {
+      "statement": "In the End User and Escalation merge tags, Matched Files is a combination of file name and file size, and a notification can contain at most 10 files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "Matched Files",
+            "A combination of file name and file size.",
+            "A notification can contain a maximum of 10 files. You can view the full list of files for an incident in the Incident Details drawer."
+          ]
+        }
+      ]
+    },
+    "recipient-email-cap": {
+      "statement": "In the End User and Escalation merge tags, a notification can contain at most 10 recipient emails (Recipient Email tag); the full list is in the Incident Details drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "Recipient Email",
+            "A notification can contain a maximum of 10 recipient emails. You can view the full list of recipient emails for an incident in the Incident Details drawer."
+          ]
+        }
+      ]
+    },
+    "collaborator-cap": {
+      "statement": "The help states that a notification can contain at most 10 collaborators (listed under the External Collaborators and Internal Collaborators merge tags), with the full list in the Incident Details drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "External Collaborators",
+            "Internal Collaborators"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "A notification can contain a maximum of 10 collaborators. You can view the full list of collaborators for an incident in the Incident Details drawer."
+          ],
+          "after": "External Collaborators"
+        }
+      ]
+    },
+    "recipient-cap": {
+      "statement": "The help states that a notification can contain at most 10 recipients (listed under the External Recipients and Internal Recipients merge tags), with the full list in the Incident Details drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "External Recipients",
+            "Internal Recipients"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "A notification can contain a maximum of 10 recipients. You can view the full list of recipients for an incident in the Incident Details drawer."
+          ],
+          "after": "External Recipients"
+        }
+      ]
+    },
+    "rules-and-recipients": {
+      "statement": "The Rules and Recipients merge tag is shown for incidents of Source DLP type Email; a notification can contain at most 5 rules, each with at most 10 recipients, more than 5 rules adds a \"Partial list of rules and recipients\" statement and more than 10 recipients for a rule adds a \"Partial list of recipients\" statement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "Rules and Recipients",
+            "A combination of rules and recipients is displayed together in the notification for incidents of Source DLP type Email.",
+            "A notification can contain a maximum of 5 rules. Each rule can contain a maximum of 10 recipients.",
+            "If there are more than 5 rules associated with the incident, after the rules and recipients are displayed in the notification, the Partial list of rules and recipients statement is displayed.",
+            "If there are more than 10 recipients for any rule in the notification, after the recipients are displayed, the Partial list of recipients statement is displayed."
+          ]
+        }
+      ]
+    },
+    "special-links": {
+      "statement": "The Slack template builder's special links are Incident Justification Magic Link (user views and enters justification on the Incident page), Incident Escalation Magic Link (manager or approver does so), and Incident List Page Magic Link (user or DLP admin views incidents needing attention).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-slack-notification-templates.json",
+          "quotes": [
+            "The following are special links:",
+            "Incident Justification Magic Link: Redirects the user to the Incident page, where they can view and enter justification details for an incident.",
+            "Incident Escalation Magic Link: Redirects the manager or approver to the Incident page, where they can view and enter justification details for an incident.",
+            "Incident List Page Magic Link: Redirects the user or the DLP admin to the Incident page, where they can view the incidents that require their attention."
+          ]
+        }
+      ]
+    },
+    "email-special-link-url": {
+      "statement": "In an email template button's Open Website action, choosing a special link replaces the value in the URL field; the Target is New Tab or Same Tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-adding-email-notification-templates.json",
+          "quotes": [
+            "It replaces the value in the URL field.",
+            "select where the website opens when the button is clicked. The targets are New Tab and Same Tab."
+          ],
+          "after": "configure one of the following actions for the button:"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "email-table-tags": {
+      "kind": "semantic",
+      "title": "Which merge tags does the email table tool offer under each group?",
+      "status": "open",
+      "detail": "The email page's table tool lists only the four group headings with no tag names under them, and the paragraph tool's merge-tag list ends with a repeat of the tag lists that has no group headings, so whether the table tool carries the same tags as the button, heading and paragraph tools is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "tag-name-lists": {
+      "kind": "semantic",
+      "title": "What are the full tag name lists per group, and do the Teams and email pages match the Slack page?",
+      "status": "open",
+      "detail": "The End User and Escalation tag names (about 60) and the Digest (Type Not Specified) list are in no claim, and the digest tag, cap and special-link claims are quoted from the Slack page only; whether the Teams and email pages give identical lists is not recorded as a claim.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "tag-definitions": {
+      "kind": "semantic",
+      "title": "What do the individual merge tags mean?",
+      "status": "open",
+      "detail": "The pages list tag names (such as Severity, Priority and Violated Policy) but define none beyond Time, Matched Files, Rules and Recipients and the cap notes.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

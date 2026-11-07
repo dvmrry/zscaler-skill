@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "zwa.incidents.filters-summary",
+  "title": "Incidents-page filters, the Incident Summary page and duplicate incidents",
+  "aliases": [
+    "zwa incident filters",
+    "incident summary",
+    "duplicate incidents",
+    "summary criteria",
+    "zwa saved criteria"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.details"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incident-analytics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{filter-kinds}} {{filter-text-ops}} {{filter-match-count}} {{filter-obfuscation}} Search and date range on the Incidents page are in [[zwa.incidents]]."
+    },
+    {
+      "label": "Duplicate incidents.",
+      "text": "{{duplicate-window}} {{duplicate-attributes}} {{duplicate-lookback}} {{duplicate-ui}} Whether the window rolls from the first or latest duplicate is open {{gap:duplicate-window-rolling}}. The drawer's duplicate dialog is in [[zwa.incidents.details]]."
+    },
+    {
+      "label": "Incident Summary page.",
+      "text": "{{summary-criteria-limit}} {{summary-criteria-values}} {{summary-table}} {{summary-time-range}} {{summary-export-saved}} {{summary-paging}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an incident that seems not to have a duplicate is outside the Inline Source DLP type or missing one of the attributes duplicates are judged on.",
+      "uses": [
+        "duplicate-window",
+        "duplicate-attributes"
+      ]
+    },
+    {
+      "do": "Whether a filter that cannot be used is on an attribute chosen for obfuscation.",
+      "uses": [
+        "filter-obfuscation"
+      ]
+    }
+  ],
+  "claims": {
+    "filter-text-ops": {
+      "statement": "Text-string filters are not case sensitive; commas separate multiple values, several words in one value are ANDed, and the URL and Referrer URL filters take a complete URL or host name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-using-incident-filters-workflow-automation.json",
+          "quotes": [
+            "The text string values are not case sensitive.",
+            "Enter multiple values for these filters by entering a comma between the text string values.",
+            "If you enter multiple strings within a text string value, each string is treated with an AND operation.",
+            "For the Referrer URL filter and the URL filter, enter a complete URL (e.g., https://www.jumpshare.com/https-post) or enter a complete host name (e.g., www.jumpshare.com) for the URL."
+          ]
+        }
+      ]
+    },
+    "filter-match-count": {
+      "statement": "Triggered Dictionary Matches and Total Dictionary Matches take an operator (>, ≥, <, ≤ or =) and a number of matches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-using-incident-filters-workflow-automation.json",
+          "quotes": [
+            "You must enter an operator and the number of matches for the following filters:",
+            "Triggered Dictionary Matches",
+            "Total Dictionary Matches",
+            "to include or exclude a range of matches by selecting an operator (>, ≥, <, ≤, or =) and the number of matches (e.g., > 20, ≥ 20, < 100, ≤ 100, or = 25)."
+          ]
+        }
+      ]
+    },
+    "filter-obfuscation": {
+      "statement": "If User Name, Client IP or Recipient Email is chosen for obfuscation, incidents cannot be filtered using those obfuscated attributes, and obfuscating Recipient Email disables the External Recipients, Internal Recipients and Triggered Recipients filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-using-incident-filters-workflow-automation.json",
+          "quotes": [
+            "If you choose the User Name attribute, the Client IP attribute, or the Recipient Email attribute for obfuscation, you cannot filter incidents using these obfuscated user attributes.",
+            "Obfuscating the Recipient Email attribute disables the External Recipients filter, the Internal Recipients filter, and the Triggered Recipients filter."
+          ]
+        }
+      ]
+    },
+    "filter-kinds": {
+      "statement": "On the Incidents page, some filters take predefined values (for example Duplicated Incidents) and others require a text string (for example Remediation Owner Email and Hostname or Application).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-using-incident-filters-workflow-automation.json",
+          "quotes": [
+            "The following filters have predefined values:",
+            "Duplicated Incidents",
+            "You must enter a text string for the following filters:",
+            "Remediation Owner Email",
+            "Hostname or Application"
+          ]
+        }
+      ]
+    },
+    "duplicate-window": {
+      "statement": "A duplicate incident occurs when a user violates the same DLP rule multiple times within two hours, and only Inline incidents are tracked for duplicates, not SaaS Security, Email or Endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-understanding-duplicate-incidents-workflow-automation.json",
+          "quotes": [
+            "Duplicate incidents can occur in Workflow Automation when a user violates the same Data Loss Prevention (DLP) rule multiple times during a two-hour time frame.",
+            "Duplicate incidents are only applicable to Inline source DLP type incidents. Workflow Automation does not track duplicate incidents for SaaS Security, Email, or Endpoint source DLP type incidents."
+          ]
+        }
+      ]
+    },
+    "duplicate-attributes": {
+      "statement": "Duplicates are judged on host name from URL, end user email, MD5 hash of the content and file name, all of which must be present; for DLP rules without content inspection (Engines attribute External DLP) the MD5 need not be present.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-understanding-duplicate-incidents-workflow-automation.json",
+          "quotes": [
+            "All of these attributes must be present in the incident:",
+            "Host name from URL",
+            "End user email",
+            "MD5 hash of the content",
+            "File name",
+            "For incidents resulting from DLP rules without content inspection (i.e., the Engines attribute value is External DLP), the MD5 value does not need to be present for Workflow Automation to determine duplicate incidents."
+          ]
+        }
+      ]
+    },
+    "duplicate-lookback": {
+      "statement": "Workflow Automation looks back only two hours, so a site such as Gmail that keeps sending duplicates until the page is refreshed or the tab closed produces a new duplicate incident every two hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-understanding-duplicate-incidents-workflow-automation.json",
+          "quotes": [
+            "It is possible that sites such as Gmail can indefinitely send duplicate incidents until the page is refreshed or the tab is closed.",
+            "Because Workflow Automation cannot look back indefinitely in time, it only looks back two hours. In this case, Workflow Automation creates a duplicate incident every two hours."
+          ]
+        }
+      ]
+    },
+    "duplicate-ui": {
+      "statement": "The Incidents page shows the total count of duplicate incidents for an incident and can filter by duplicate incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-understanding-duplicate-incidents-workflow-automation.json",
+          "quotes": [
+            "On the Incidents page in the Zscaler Admin Console, you can see the total count of duplicate incidents that have occurred for an incident, and you can also filter the incidents by duplicate incidents."
+          ]
+        }
+      ]
+    },
+    "summary-criteria-limit": {
+      "statement": "The Incident Summary page starts empty, takes the same filters as the Incidents page, allows at most two summary criteria, and can group counts by Priority or Severity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incident-summaries.json",
+          "quotes": [
+            "The Incident Summary page appears, with no information displayed.",
+            "The filter options are the same as those on the Incidents page.",
+            "You can select a maximum of two criteria.",
+            "If you want to break out the incident counts by incident priority (e.g., Critical, High, Medium, and Low), select Priority. If you want to break out the incident counts by incident severity (e.g., High, Medium, Low, and Info), select Severity."
+          ]
+        }
+      ]
+    },
+    "summary-table": {
+      "statement": "The summary table shows up to 10,000 rows with a Total column and priority or severity columns: Critical appears only when grouped by priority and Info only when grouped by severity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incident-summaries.json",
+          "quotes": [
+            "This table can display up to 10,000 rows.",
+            "Critical: The total number of incidents with a critical priority that match the given summary criteria. If you selected to group by severity, this column does not appear.",
+            "Info: The total number of incidents with an info severity that match the given summary criteria. If you selected to group by priority, this column does not appear."
+          ]
+        }
+      ]
+    },
+    "summary-criteria-values": {
+      "statement": "The Attachments summary criterion has values Yes and No; Source DLP Type values are Inline, Email, Endpoint and SaaS Security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incident-summaries.json",
+          "quotes": [
+            "Attachments: Whether the incident has attachments or not. Values are Yes and No.",
+            "Source DLP Type: The type of DLP policy that the incident violated. Source DLP types are Inline, Email, Endpoint, and SaaS Security."
+          ]
+        }
+      ]
+    },
+    "summary-time-range": {
+      "statement": "The Incident Summary page defaults to the current calendar week (Sunday through Saturday) and offers hour, day, week, month and custom ranges; the custom range supports incidents up to 6 months old within a three-month window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incident-summaries.json",
+          "quotes": [
+            "By default, this page summarizes information about the incidents that occurred in the current calendar week (Sunday through Saturday).",
+            "Current Hour",
+            "Last Hour",
+            "Last 2 Hours",
+            "Last 6 Hours",
+            "Last 12 Hours",
+            "Current Day",
+            "Last Day",
+            "Current Week",
+            "Last Week",
+            "Current Month",
+            "Last Month",
+            "The Custom Date Range option only supports incidents that are up to 6 months old, and you can only search for a maximum of a three-month window."
+          ]
+        }
+      ]
+    },
+    "summary-export-saved": {
+      "statement": "The summary table exports to CSV; saved summary criteria can be set as default, and a second criterion can be added to a saved set only if one criterion is already saved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incident-summaries.json",
+          "quotes": [
+            "A CSV file is created and downloaded to your local system. The CSV file lists the information that is in the incident summary table.",
+            "If you set it as the default criteria, the system automatically selects it in the Saved Criteria drop-down menu when you access the page at a later date.",
+            "You can only add another criterion if there is already one criterion saved."
+          ]
+        }
+      ]
+    },
+    "summary-paging": {
+      "statement": "The Incident Summary page offers 10, 20, 25, 50 or 100 items per page, defaulting to 10; the Selected Criteria page opened from a count is similar to the Incidents page except that no action can be taken on an incident.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incident-summaries.json",
+          "quotes": [
+            "Options are 10, 20, 25, 50, and 100. The default display is 10.",
+            "This page is similar to the Incidents page except that no action can be taken on an incident.",
+            "When you click any of these links, a new tab opens, displaying the Selected Criteria page.",
+            "To modify the number of items displayed per page, click the Items per page drop-down menu and select the number of items."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "duplicate-window-rolling": {
+      "kind": "semantic",
+      "title": "Whether the two-hour duplicate window rolls from the first or the latest duplicate",
+      "status": "open",
+      "detail": "The duplicate incidents page states a two-hour time frame and a two-hour look-back; it does not say whether the window is measured from the first duplicate or the latest one.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

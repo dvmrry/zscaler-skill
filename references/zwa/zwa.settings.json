@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "id": "zwa.settings",
+  "title": "Workflow Automation account settings: notification expiry, digests and reminders, approver domains, user data source, obfuscation and quarantine release",
+  "aliases": [
+    "zwa account settings",
+    "workflow automation account settings",
+    "digest notifications",
+    "notification reminders",
+    "user data obfuscation",
+    "primary user data source"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.email-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.user-attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.activity-and-alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.api-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{digest-channels}} The settings around it are in [[zwa.settings.email-domains]], [[zwa.settings.access]], [[zwa.settings.user-attributes]], [[zwa.settings.activity-and-alerts]] and [[zwa.settings.api-keys]]."
+    },
+    {
+      "label": "Justification link expiry.",
+      "text": "{{expiry-end-user-notifications}} {{expiry-user-digest}} {{expiry-admin-digest}} The notification pages state a 24-hour link validity {{divergence:link-expiry}}."
+    },
+    {
+      "label": "Digests.",
+      "text": "{{digest-frequency-user}} {{digest-templates}} {{digest-content}} {{digest-admin-config}} The default DLP admin digest frequency is not given {{gap:admin-digest-defaults}}. The user digest frequency is described two ways {{divergence:user-digest-frequency}}. The per-admin digest settings are in [[zwa.settings.access]]."
+    },
+    {
+      "label": "Reminders.",
+      "text": "{{reminders-scope}} {{reminders-interval-end-user}} {{reminders-max-count}}"
+    },
+    {
+      "label": "Approver domains.",
+      "text": "{{approver-domains}}"
+    },
+    {
+      "label": "User data source.",
+      "text": "{{primary-data-source}} {{unique-identifier}} {{retrieve-user-email}}"
+    },
+    {
+      "label": "Obfuscation.",
+      "text": "{{obfuscation-attributes}} {{obfuscation-effects}}"
+    },
+    {
+      "label": "Email quarantine release.",
+      "text": "{{quarantine-settings}} {{quarantine-release-recipients}} The setting that gates release for escalation notifications is described two ways {{divergence:quarantine-setting-scope}}."
+    },
+    {
+      "label": "Customer information.",
+      "text": "{{customer-information}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the digest channel the notification needs is enabled, since the Slack and Teams channels are available only with those integrations.",
+      "uses": [
+        "digest-channels"
+      ]
+    },
+    {
+      "do": "Which user data source is primary and which unique identifier is selected before looking for a missing user attribute.",
+      "uses": [
+        "primary-data-source",
+        "unique-identifier"
+      ]
+    }
+  ],
+  "claims": {
+    "expiry-end-user-notifications": {
+      "statement": "The expiration period of the justification links on user and escalation notifications is set in days for the End User, Manager and Approver; if none is entered it is one day, the maximum is 30 days, and a larger value is changed to 30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Expiration Period field for the End User, Manager, and Approver",
+            "(manager and approver) notifications. If you do not enter an expiration period, one day appears by default. The maximum number of days for an expiration period is 30 days. If you enter a value greater than 30 days, the system automatically changes it to 30 days."
+          ]
+        }
+      ]
+    },
+    "expiry-user-digest": {
+      "statement": "For the user digest notification the justification link expiration period defaults to one day when none is entered, has a maximum of 30 days, and a larger value is changed to 30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "enter the number of days before the justification link expires in the user digest notifications.",
+            "in the user digest notifications. If you do not enter an expiration period, the default is one day. The maximum number of days for an expiration period is 30 days. If you enter a value greater than 30 days, the system automatically changes it to 30 days."
+          ]
+        }
+      ]
+    },
+    "expiry-admin-digest": {
+      "statement": "For the DLP admin digest notification the justification link expiration period defaults to one day when none is entered, has a maximum of 30 days, and a larger value is changed to 30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "enter the number of days before the justification link expires for recipients in the DLP admin digest notifications.",
+            "for recipients in the DLP admin digest notifications. If you do not enter an expiration period, one day appears by default. The maximum number of days for an expiration period is 30 days. If you enter a value greater than 30 days, the system automatically changes it to 30 days."
+          ]
+        }
+      ]
+    },
+    "digest-channels": {
+      "statement": "User digest and DLP admin digest notifications are enabled or disabled by channel (email, Slack or Microsoft Teams); the Slack and Teams channels are available only if Workflow Automation is integrated with Slack and Microsoft Teams respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "enable or disable digest notifications by channel (i.e., email, Slack, or Microsoft Teams) for the end users and the DLP admins",
+            "The Slack channel and the Teams channel are only available if you have integrated Workflow Automation with Slack and Microsoft Teams, respectively."
+          ]
+        }
+      ]
+    },
+    "digest-frequency-user": {
+      "statement": "The user digest frequency is selected from Hourly, Daily and Weekly, and is daily if none is entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Frequencies are Hourly, Daily, and Weekly. If you do not enter a digest frequency, the default is daily."
+          ]
+        }
+      ]
+    },
+    "digest-templates": {
+      "statement": "System default digest templates exist for users (Digest - Email, Digest - Slack, Digest - Teams) and for DLP admins (DLP Admin Digest - Email, Slack and Teams); admins can clone them or create custom ones, and the Slack and Teams templates exist only when Workflow Automation is integrated with Slack or Microsoft Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "system default digest notification templates that admins can clone for these notifications, or they can create custom digest notification templates",
+            "- Digest - Email Template",
+            "- Digest - Slack Template: This template is only available if you integrate Workflow Automation with Slack.",
+            "- Digest - Teams Template: This template is only available if you integrate Workflow Automation with Microsoft Teams.",
+            "- DLP Admin Digest - Email Template",
+            "- DLP Admin Digest - Slack Template: This template is only available if you integrate Workflow Automation with Slack.",
+            "- DLP Admin Digest - Teams Template: This template is only available if you integrate Workflow Automation with Microsoft Teams."
+          ]
+        }
+      ]
+    },
+    "digest-content": {
+      "statement": "The system default user digest gives the number of all open incidents and of open high-priority incidents plus a justification link to an Incidents page; the system default DLP admin digest gives the number of all new incidents, all open incidents and state changes plus a justification link to the Incident page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "All system default user digest notifications provide the number of all open incidents and the number of open incidents that have a high priority.",
+            "They also provide a justification link to an Incidents page where the user can manage these incidents.",
+            "All system default DLP admin digest notifications provide the number of all new incidents, the number of all open incidents, and the number of state changes.",
+            "They also provide a justification link to the Incident page where the admins can view and manage these incidents."
+          ]
+        }
+      ]
+    },
+    "digest-admin-config": {
+      "statement": "Admins with full access configure the DLP admin digest frequency and the incident priorities included for each admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "admins with full access can configure the DLP admin digest notification frequency and the incident priorities to be included in the digest notification for each admin"
+          ]
+        }
+      ]
+    },
+    "reminders-scope": {
+      "statement": "Notification reminders can be enabled or disabled, with a frequency, separately for end users, managers and approvers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "enable or disable notification reminders and specify their frequency for end users, managers, and approvers"
+          ]
+        }
+      ]
+    },
+    "reminders-interval-end-user": {
+      "statement": "For end user, manager and approver reminders the interval is a number from 1 to 99 and the frequency unit is Hours, Days or Weeks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "In the Interval field, enter the interval number for the reminders. The minimum number you can enter is 1, and 99 is the maximum number.",
+            "Frequencies are Hours, Days, and Weeks."
+          ],
+          "after": "Click the Notification Reminders tab and do the following:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "In the Interval field, enter the interval number for the reminders. The minimum number you can enter is 1, and 99 is the maximum number.",
+            "Frequencies are Hours, Days, and Weeks."
+          ],
+          "after": "Manager:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "In the Interval field, enter the interval number for the reminders. The minimum number you can enter is 1, and 99 is the maximum number.",
+            "Frequencies are Hours, Days, and Weeks."
+          ],
+          "after": "Approver:"
+        }
+      ]
+    },
+    "reminders-max-count": {
+      "statement": "The Max Reminder Count, the maximum number of reminders sent, accepts 1 to 99 for each of the end user, the manager and the approver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "In the Max Reminder Count field, enter the maximum number of reminders to be sent to an end user. The minimum number you can enter is 1, and 99 is the maximum number.",
+            "In the Max Reminder Count field, enter the maximum number of reminders to be sent to a manager. The minimum number you can enter is 1, and 99 is the maximum number.",
+            "In the Max Reminder Count field, enter the maximum number of reminders to be sent to an approver. The minimum number you can enter is 1, and 99 is the maximum number."
+          ]
+        }
+      ]
+    },
+    "approver-domains": {
+      "statement": "Enabling Restrict Approver Email Domains in Approvers Domain Management limits approver email addresses on the Approvers page to the trusted domains, and up to 10 trusted email domains can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Enable Restrict Approver Email Domains.",
+            "This ensures that only authorized email addresses that belong to one of the trusted domains can be added as approver emails on the Approvers page.",
+            "You can add up to 10 trusted email domains for the approvers."
+          ]
+        }
+      ]
+    },
+    "customer-information": {
+      "statement": "The Customer Information section of Account Settings holds the Customer GUID and AWS environment information fields, which are required parameters of the CloudFormation stack created when the DLP application integration is configured in AWS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "When you configure the DLP application integration in Amazon Web Services (AWS), you create a CloudFormation stack in AWS.",
+            "the required parameters include the Customer GUID and the AWS environment information fields under the Customer Information section"
+          ]
+        }
+      ]
+    },
+    "primary-data-source": {
+      "statement": "The primary user data source is SCIM or CSV; Workflow Automation then shows only the user attributes available in that source and does not populate a missing attribute; the SCIM option is available only if SCIM provisioning is enabled in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Workflow Automation fetches user attributes from two user data sources, the System for Cross-domain Identity Management (SCIM) protocol and the data imported from a CSV file.",
+            "After you select your primary user data source, Workflow Automation displays only the user attributes available in that source. If a user attribute is missing, Workflow Automation does not populate that data.",
+            "This option is only available if you have enabled SCIM provisioning in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "unique-identifier": {
+      "statement": "The unique identifier is either Email Address or Employee ID; if the selected one is unavailable in the primary user data source the other is used, and if neither is available the user information is fetched from the unselected user data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Workflow Automation allows you to select either the user's email address or the employee ID as the unique identifier.",
+            "If the selected unique identifier is not available in the primary user data source, Workflow Automation uses the other (unselected) unique identifier to identify the user.",
+            "If neither of the unique identifiers, email address or employee ID, are available in the primary user data source",
+            "Workflow Automation fetches that user information from the unselected user data source."
+          ]
+        }
+      ]
+    },
+    "obfuscation-attributes": {
+      "statement": "The attributes that can be obfuscated are User Name, User Email, Recipient Email, Manager Name, Client IP, Manager Email, Device Name, Phone Number and Trigger Data; selecting Recipient Email covers the External, Internal and Triggered Recipients attributes, Obfuscate All selects all of them, and by default none is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "The user attributes you can choose for obfuscation are User Name, User Email, Recipient Email, Manager Name, Client IP, Manager Email, Device Name, Phone Number, and Trigger Data.",
+            "If you select the Recipient Email attribute, the obfuscation applies to the External Recipients attribute, the Internal Recipients attribute, and the Triggered Recipients attribute.",
+            "If you want to obfuscate all the user attributes, select the Obfuscate All checkbox.",
+            "By default, no attributes are selected for obfuscation."
+          ]
+        }
+      ]
+    },
+    "obfuscation-effects": {
+      "statement": "For obfuscated user attributes, admins cannot see the values on the Incidents, Incident Details and workflow pages, the values appear as asterisks, and they cannot be searched or filtered; the organization setting can be overridden for individual admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "the admin cannot see the values of those user attributes associated with incidents on the Incidents, Incident Details, and workflow pages.",
+            "The obfuscated user attributes appear as several asterisks instead of the actual value for the attribute.",
+            "You cannot search or filter for obfuscated user attributes.",
+            "for individual admins, you can override the user attribute obfuscation settings that you specified for your organization."
+          ]
+        }
+      ]
+    },
+    "retrieve-user-email": {
+      "statement": "The Retrieve User Email from Primary Data Source setting, in the Incident Management section, makes Workflow Automation retrieve and display the incident user's email address on Incident Details from the primary user data source (SCIM or CSV attributes).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Workflow Automation displays the email address of the user associated with an incident on the Incident Details page.",
+            "retrieve and display the user email address from the primary user data source—i.e., SCIM or CSV attributes.",
+            "In the Incident Management section, enable Retrieve User Email from Primary Data Source."
+          ]
+        }
+      ]
+    },
+    "quarantine-settings": {
+      "statement": "Three Incident Management settings configure email quarantine release: Enable Email Quarantine for End User Notification, Mark Incident as False Positive for All Recipients, and Mark Incident as False Positive for One or More Recipients, which becomes available only after the all-recipients option is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "enable Enable Email Quarantine for End User Notification.",
+            "enable Mark Incident as False Positive for All Recipients. After you enable this option, the Mark Incident as False Positive for One or More Recipients option becomes available.",
+            "enable Mark Incident as False Positive for One or More Recipients.",
+            "the False Positive checkbox to be automatically selected for the incident by default when the user releases the email to all recipients"
+          ]
+        }
+      ]
+    },
+    "quarantine-release-recipients": {
+      "statement": "For incidents of Source DLP type Email, the Release Email Quarantine action on Incident Details can release the quarantined email to all its recipients or to only certain recipients, and users can do the same when responding to an end user or escalation notification; the end user notification and escalation notification pages say the Release Email to Recipients section is available only for Email incidents with a quarantine action and if the Enable Email Quarantine Release for End Users option is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-end-user-notification.json",
+          "quotes": [
+            "selecting one of the options that appears in the Release Email to Recipients section.",
+            "This section is only available for incidents with a Source DLP type of Email that have a quarantine action, and if you have enabled the Enable Email Quarantine Release for End Users option on the Account Settings page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-responding-escalation-notification.json",
+          "quotes": [
+            "selecting one of the options that appears in the Release Email to Recipients section.",
+            "This section is only available for incidents with a Source DLP type of Email that have a quarantine action, and if you have enabled the Enable Email Quarantine Release for End Users option on the Account Settings page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-account-settings.json",
+          "quotes": [
+            "Workflow Automation enables you to release quarantined emails to their recipients for incidents of Source DLP type Email.",
+            "On the Incident Details page, using the Release Email Quarantine action, you can release the quarantined email to all its recipients or to only certain recipients of the email.",
+            "Users can also release the quarantined email to all its recipients or to only certain recipients of the email when responding to an end user notification or an escalation notification for the incident."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "admin-digest-defaults": {
+      "kind": "semantic",
+      "title": "What the default DLP admin digest frequency is",
+      "status": "open",
+      "detail": "The Account Settings page states the user digest frequency default (daily) but gives no default for the DLP admin digest, which is configured per admin on the Admin Assignments page. The captured digest pages give no default frequency either.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "link-expiry": {
+      "summary": "Account Settings says the justification link expiration period is configurable up to 30 days, and the end user notification page says its link is only valid for 24 hours.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-account-settings.json",
+            "quotes": [
+              "(manager and approver) notifications. If you do not enter an expiration period, one day appears by default. The maximum number of days for an expiration period is 30 days. If you enter a value greater than 30 days, the system automatically changes it to 30 days."
+            ]
+          },
+          "says": "The expiration period is configured in days, with a one-day default and a 30-day maximum."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-end-user-notification.json",
+            "quotes": [
+              "This link is only valid for 24 hours."
+            ]
+          },
+          "says": "The link is only valid for 24 hours."
+        }
+      ],
+      "impact": "The pages do not say whether the 24-hour statement is the one-day default or a different link from the configurable justification link."
+    },
+    "user-digest-frequency": {
+      "summary": "Account Settings says the user digest frequency is Hourly, Daily or Weekly, and the user digest page says the digest is sent daily.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-account-settings.json",
+            "quotes": [
+              "Frequencies are Hourly, Daily, and Weekly. If you do not enter a digest frequency, the default is daily."
+            ]
+          },
+          "says": "The frequency is Hourly, Daily or Weekly, with daily as the default."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-user-digest-notification.json",
+            "quotes": [
+              "Workflow Automation uses a digest notification template to generate and send a user digest notification daily via that channel to all users who have incidents assigned to them."
+            ]
+          },
+          "says": "The user digest is sent daily."
+        }
+      ],
+      "impact": "The user digest page does not say whether daily is the default or the only frequency."
+    },
+    "quarantine-setting-scope": {
+      "summary": "Account Settings describes Enable Email Quarantine for End User Notification as covering release through an end user notification, and the escalation notification page makes release in an escalation notification depend on Enable Email Quarantine Release for End Users.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-account-settings.json",
+            "quotes": [
+              "If you want the end user of a quarantined email incident to be able to release one or more of its recipients from quarantine through an end user notification, enable Enable Email Quarantine for End User Notification."
+            ]
+          },
+          "says": "The setting enables release through an end user notification."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-responding-escalation-notification.json",
+            "quotes": [
+              "This section is only available for incidents with a Source DLP type of Email that have a quarantine action, and if you have enabled the Enable Email Quarantine Release for End Users option on the Account Settings page."
+            ]
+          },
+          "says": "The Release Email to Recipients section of an escalation notification requires the Enable Email Quarantine Release for End Users option."
+        }
+      ],
+      "impact": "The pages name the setting differently and do not say whether it also gates release from escalation notifications, or whether the two names are one setting."
+    }
+  }
+}

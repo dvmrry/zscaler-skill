@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "id": "zwa.settings.user-attributes",
+  "title": "Workflow Automation user attributes: SCIM and CSV data sources, the unique identifier and the CSV import",
+  "aliases": [
+    "zwa user attributes",
+    "CSV user attributes import",
+    "SCIM user attributes",
+    "CSV template instructions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows.mappings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{data-sources}} The default primary data source is described two ways {{divergence:default-primary-source}}. The primary data source and unique identifier are chosen in [[zwa.settings]]."
+    },
+    {
+      "label": "CSV as the primary source.",
+      "text": "{{csv-primary-source}} {{unique-identifier-fallback}} {{unique-identifier-locked}}"
+    },
+    {
+      "label": "Importing.",
+      "text": "{{csv-validation}} {{import-status}} {{import-restart}} The attribute list, template versions and file-size limit are not in the captured page {{gap:csv-import-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which user data source is primary and whether the unique identifier is present in the CSV file before expecting an attribute.",
+      "uses": [
+        "csv-primary-source",
+        "unique-identifier-fallback"
+      ]
+    }
+  ],
+  "claims": {
+    "data-sources": {
+      "statement": "Workflow Automation fetches end user attributes (such as employee ID, email address and manager's name) from two data sources, SCIM and CSV imports; this page says CSV must be selected as the primary data source with a unique identifier on Account Settings and otherwise SCIM is selected as the default primary data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "Workflow Automation fetches the end user information (i.e., user attributes) that is displayed in the Zscaler Admin Console, such as the employee ID, email address, and manager's name, from the following two data sources:",
+            "SCIM: The System for Cross-domain Identity Management is a standard protocol",
+            "CSV: Comma Separated Value (CSV) is used to manually import user attributes as a .csv file",
+            "you must select CSV as the primary data source and select a unique identifier on the Account Settings page.",
+            "Otherwise, SCIM protocol is selected as the default primary data source."
+          ]
+        }
+      ]
+    },
+    "csv-primary-source": {
+      "statement": "With CSV as the primary user data source, Workflow Automation displays only the attributes in the CSV file and does not populate an attribute missing from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "After you select CSV as the primary user data source, Workflow Automation displays only the user attributes available in the CSV file. If a user attribute is missing from the CSV file, Workflow Automation does not populate that data."
+          ]
+        }
+      ]
+    },
+    "unique-identifier-fallback": {
+      "statement": "The unique identifiers are email address and employee ID; if the selected identifier is not in the CSV file the other one locates the user, and if neither is in the file the user information is fetched from SCIM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "The unique identifiers (email address and employee ID) are used to identify a specific user in the CSV file.",
+            "If the selected unique identifier is not available in the CSV file, Workflow Automation uses the other (unselected) unique identifier to locate the user in the CSV file.",
+            "When neither unique identifier is available in the imported CSV file, Workflow Automation fetches that user information from the SCIM protocol."
+          ]
+        }
+      ]
+    },
+    "unique-identifier-locked": {
+      "statement": "After the first CSV file is imported the selected Unique Identifier cannot be changed, and changing it requires contacting Zscaler Support; the first import requires setting the primary user data source and a unique identifier.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "If you are importing a CSV file for the first time, you must set the primary user data source and a unique identifier for your users.",
+            "After you import your first CSV file to the User Attributes page, you cannot change the selected Unique Identifier. To update your unique identifier settings, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "csv-validation": {
+      "statement": "Only a valid CSV file built from one of the CSV template versions and the template instructions can be imported; the CSV Template Instruction download (a .pdf file) gives the attributes, formats, maximum character limits (for example User Name 50 and User Email 320) and example values, and an empty or incorrect file fails validation with a link to download the list of errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "Only a valid CSV file that is constructed based on one of the CSV template versions and the CSV template instructions can be imported into Workflow Automation.",
+            "download the instructions on how to construct the user attributes CSV as a .pdf file.",
+            "This file provides the actual user attributes, the format of the attributes, the maximum character limitations (e.g., User Name (50 maximum characters) and User Email (320 maximum characters)), and example values for the CSV file.",
+            "If the file is empty or has incorrect data, the CSV file fails validation. You receive a link to download the list of the errors in your file.",
+            "Select the version type of the file and then click Validate."
+          ]
+        }
+      ]
+    },
+    "import-status": {
+      "statement": "A CSV import takes time for many attributes and ends as complete, partially complete or failed, with an email notification of each outcome.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "You receive an email notification when your CSV file import into Workflow Automation is completed, partially completed, or has failed.",
+            "The statuses are complete, partially complete, and failed.",
+            "Importing a CSV file with numerous user attributes takes time to complete."
+          ]
+        }
+      ]
+    },
+    "import-restart": {
+      "statement": "A partially complete CSV import can be resumed and a failed one retried, at most three times, after which the file must be imported again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-user-attributes.json",
+          "quotes": [
+            "For a partially complete CSV file import, in the Actions column, click the Resume icon to restart the action.",
+            "For a failed CSV file import, in the Actions column, click the Retry icon to restart the action.",
+            "You can only restart an import action a maximum of three times. If you reach the maximum number of attempts, import the CSV file again on the User Attributes page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "csv-import-limits": {
+      "kind": "semantic",
+      "title": "What the full CSV attribute list, template versions and file-size limit are",
+      "status": "open",
+      "detail": "The help page states only the examples User Name (50 characters) and User Email (320 characters); the complete attribute list, template versions and any file-size limit are in the downloadable CSV Template Instruction PDF and templates, which are not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "default-primary-source": {
+      "summary": "The User Attributes page says SCIM is selected as the default primary data source unless CSV is selected, and Account Settings says you must select a primary user data source and offers SCIM only if SCIM provisioning is enabled.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-user-attributes.json",
+            "quotes": [
+              "Otherwise, SCIM protocol is selected as the default primary data source."
+            ]
+          },
+          "says": "SCIM is selected as the default primary data source."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-account-settings.json",
+            "quotes": [
+              "You must select a primary user data source, from which Workflow Automation fetches the user attributes that display in the Zscaler Admin Console.",
+              "This option is only available if you have enabled SCIM provisioning in the Zscaler Admin Console."
+            ]
+          },
+          "says": "A primary user data source must be selected, and SCIM is available only if SCIM provisioning is enabled."
+        }
+      ],
+      "impact": "The pages do not say what the primary data source is for a tenant with no SCIM provisioning that has not selected CSV."
+    }
+  }
+}

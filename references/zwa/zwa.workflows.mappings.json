@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "id": "zwa.workflows.mappings",
+  "title": "Workflow Automation workflow mappings: statement order, Source DLP types, properties, operations and predicates",
+  "aliases": [
+    "workflow mapping statements",
+    "mapping rules",
+    "CONTAINS_EXACT",
+    "IN_IPv4_SUBNET",
+    "mapping predicates"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows.custom-builder"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.user-attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{permission-and-prereq}} The workflows themselves are in [[zwa.workflows]] and [[zwa.workflows.custom-builder]]."
+    },
+    {
+      "label": "Evaluation.",
+      "text": "{{evaluation-order}} {{source-dlp-types}} {{predicate-limit}} {{predicate-functions}}"
+    },
+    {
+      "label": "Properties.",
+      "text": "{{property-types}} {{obfuscated-properties}} {{property-availability-by-type}} {{property-availability-csv}} {{property-list-by-type}} The full per-type property table is not restated {{gap:property-list}}."
+    },
+    {
+      "label": "Operations.",
+      "text": "{{op-equals-like-exists}} {{op-contains-exact}} {{op-date-number-ip}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an incident matches an earlier mapping statement, since the first matching statement is used and processing stops there.",
+      "uses": [
+        "evaluation-order"
+      ]
+    },
+    {
+      "do": "Which Source DLP type the statement is scoped to before relying on a property that exists only for some types.",
+      "uses": [
+        "source-dlp-types",
+        "property-availability-by-type"
+      ]
+    }
+  ],
+  "claims": {
+    "permission-and-prereq": {
+      "statement": "Only admins with full access to Workflow Automation can map workflows, and workflows must have been added before they can be mapped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "Only admins with full access to Workflow Automation can map the workflows.",
+            "ensure that workflows have been added on the Workflows page."
+          ]
+        }
+      ]
+    },
+    "evaluation-order": {
+      "statement": "Mapping statements are evaluated in the order configured and the first matching statement is used; if none matches an incident no workflow is triggered automatically, and statements can be reordered with the up and down arrows, processing stopping at the first match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "The mapping statements are evaluated in the order in which you configure them. Workflow Automation uses the first statement that matches with an incident.",
+            "If no statements match an incident, then a workflow is not automatically triggered for the incident.",
+            "Workflow Automation stops processing an incident after it finds its first rule match for the incident.",
+            "click the down arrow or up arrow next to a workflow to arrange the order in which the rules are processed.",
+            "Rules equate to statements in Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "source-dlp-types": {
+      "statement": "A mapping statement is scoped to a Source DLP type of Any, Email, Endpoint, Inline or SaaS Security, with Any selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "Source DLP types are Any, Email, Endpoint, Inline, and SaaS Security. Any appears by default."
+          ],
+          "after": "To configure a basic workflow mapping:"
+        }
+      ]
+    },
+    "predicate-limit": {
+      "statement": "A statement can have up to 100 predicates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "You can add up to 100 predicates for a statement."
+          ],
+          "after": "To configure a basic workflow mapping:"
+        }
+      ]
+    },
+    "property-types": {
+      "statement": "All attributes in an incident transaction are available as properties, varying with the selected DLP type; a property can be a number, string, date or Boolean, though the operations table also uses Array of strings and IP Address property types, and some properties offer values for the organization filtered by DLP type (for example Severity, Source Actions, Matching Policies.Rules[*].name).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "| CONTAINS_EXACT It can be used for the following types of property fields: Array of strings Number Boolean",
+            "IN_IPv4_SUBNET It can be used for an IP Address type property field.",
+            "All the attributes in an incident transaction are available as properties. The properties available for selection vary depending on the DLP type you select.",
+            "A property can be a number, a string, a date, or a Boolean field (True or False).",
+            "Some of the properties display values for your organization filtered by the source DLP type that you can select (e.g., Severity, Source Actions, and Matching Policies.Rules[*].name)."
+          ]
+        }
+      ]
+    },
+    "obfuscated-properties": {
+      "statement": "A workflow cannot be mapped to obfuscated attributes, and a user with workflow mapping permissions who has obfuscation enabled cannot edit existing mappings that were created with an obfuscated field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "If you choose user attributes for obfuscation, you cannot map a workflow to these obfuscated attributes (properties).",
+            "if a user with permissions to workflow mappings has obfuscation enabled and a workflow was previously mapped using an obfuscation field, then the user cannot edit those existing workflow mappings."
+          ]
+        }
+      ]
+    },
+    "property-availability-by-type": {
+      "statement": "Some mapping properties exist only for particular Source DLP types: Application Info for Inline, SaaS Security and Email; Endpoint Info for Endpoint; Protocol for Inline; Severity not for Email; Client IP for Inline; Device Name, Device OS and Device Trust Level for Endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "The Application Info properties are available only for Source DLP types of Inline, SaaS Security, and Email.",
+            "The Endpoint Info properties are available only for Source DLP type Endpoint.",
+            "Protocol (only available for Source DLP type Inline)",
+            "Severity (not available for Source DLP type Email)",
+            "Client IP (only available for Source DLP type Inline)",
+            "Device Name (only available for Source DLP type Endpoint)",
+            "Device OS (only available for Source DLP type Endpoint)",
+            "Device Trust Level (only available for Source DLP type Endpoint)"
+          ]
+        }
+      ]
+    },
+    "property-list-by-type": {
+      "statement": "The property list shows Is Copilot Accessible under the SaaS Security Source DLP Type group and ZDP Mode under the Endpoint Source DLP Type group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "SaaS Security Source DLP Type",
+            "Is Copilot Accessible"
+          ],
+          "after": "The Application Info properties are available only for Source DLP types of Inline, SaaS Security, and Email."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "Endpoint Source DLP Type",
+            "ZDP Mode"
+          ],
+          "after": "Inline and Any Source DLP Types"
+        }
+      ]
+    },
+    "property-availability-csv": {
+      "statement": "These user properties are available for mapping only if CSV is the primary user data source on Account Settings: Home Country, Job Title, Location, Organization Hierarchy, Phone Number, Project IDs, Termination Date, User Role, Worker Type and the Skip Level Managers properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "Home Country (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Job Title (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Location (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Organization Hierarchy (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Phone Number (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Project IDs (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Termination Date (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "User Role (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "Worker Type (only available if you select CSV as the primary user data source on the Account Settings page)",
+            "The Skip Level Managers properties are only available if you select CSV as your primary user data source on the Account Settings page."
+          ]
+        }
+      ]
+    },
+    "op-contains-exact": {
+      "statement": "CONTAINS_EXACT (for array of strings, number and Boolean properties) matches when the property contains the exact full value entered, with no partial comparison and without case sensitivity, and suits multi-valued properties such as matchingPolicies.rules[*].name; NOT_CONTAINS_EXACT is its negation for the same property types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "| CONTAINS_EXACT It can be used for the following types of property fields: Array of strings Number Boolean",
+            "incidents contains the exact value that you entered in the property value field. You must enter the full value for the property because no partial comparisons are performed.",
+            "The property field value is not case sensitive. You can use this operation for properties that might include multiple values (e.g., matchingPolicies.rules[*].name, matchingPolicies.engines[*].name, and matchingPolicies.dictionaries[*].name). For example, let's say you want",
+            "NOT_CONTAINS_EXACT It can be used for the following types of property fields: Array of strings Number Boolean",
+            "does not contain the exact value that you entered in the property value field. You must enter the full value for the property because no partial comparisons are performed."
+          ]
+        }
+      ]
+    },
+    "op-equals-like-exists": {
+      "statement": "EQUALS and NOT_EQUALS apply to string, number and date properties and are not case sensitive; LIKE applies to string properties and does a partial substring comparison; EXISTS applies to all property types and takes no property value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "| EQUALS It can be used for the following types of property fields: String Number Date",
+            "NOT_EQUALS It can be used for the following types of property fields: String Number Date",
+            "This operation tests whether the property selected for these types of incidents equals the value that you entered in the property value field. The property field value is not case sensitive.",
+            "LIKE It can be used for a String type property field.",
+            "This operation does a partial comparison of the substring.",
+            "EXISTS It can be used for all types of property fields.",
+            "For this type of operation, you do not enter a property value."
+          ]
+        }
+      ]
+    },
+    "op-date-number-ip": {
+      "statement": "AFTER and BEFORE apply to date properties, LESS_THAN and GREATER_THAN to number properties, and IN_IPv4_SUBNET and IN_IPv6_SUBNET to IP address properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "AFTER It can be used for a Date type property field.",
+            "BEFORE It can be used for a Date type property field.",
+            "LESS_THAN It can be used for a Number type property field.",
+            "GREATER_THAN It can be used for a Number type property field.",
+            "IN_IPv4_SUBNET It can be used for an IP Address type property field.",
+            "IN_IPv6_SUBNET It can be used for an IP Address type property field."
+          ]
+        }
+      ]
+    },
+    "predicate-functions": {
+      "statement": "Adding a predicate to a condition selects the AND function automatically, and the functions are NOT, OR and AND; an advanced mapping shows multiple nested conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflow-mappings.json",
+          "quotes": [
+            "Another predicate row appears under the first predicate row, and the AND function is automatically selected for the condition.",
+            "Functions are NOT, OR, and AND.",
+            "The statement section reappears, displaying multiple nested conditions."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "property-list": {
+      "kind": "semantic",
+      "title": "Which mapping properties exist for each Source DLP type",
+      "status": "open",
+      "detail": "The captured mapping page nests its property list by property group and Source DLP type, but the availability of most properties is shown only by that nesting. Only the properties with an availability note in their own text, and the two named in the property list claim, are claimed; the rest of the per-type table is not restated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "id": "zwa.workflows.custom-builder",
+  "title": "The Workflow Automation custom workflow builder (Beta): tiles, connection rules, time zones, justification conditions and publishing",
+  "aliases": [
+    "custom workflow builder",
+    "add custom workflow",
+    "notify tile",
+    "policy exception tile",
+    "close incident tile",
+    "justification conditions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows.mappings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{beta}} The workflow types and mapping are in [[zwa.workflows]] and [[zwa.workflows.mappings]]."
+    },
+    {
+      "label": "Tiles.",
+      "text": "{{tiles}} {{close-incident-limits}} No maximum number of branches is stated {{gap:builder-limits}}."
+    },
+    {
+      "label": "Notify tiles.",
+      "text": "{{notify-wait}} {{notify-escalation-targets}} {{survey-template-default}} {{time-zone-precedence}}"
+    },
+    {
+      "label": "Connections and policy exceptions.",
+      "text": "{{justification-conditions}} The dialog for a source tile with no survey template is described two ways {{divergence:justification-dialog-no-template}}. {{policy-exception}} The Policy Exception action context on a user notification tile is described two ways {{divergence:policy-exception-action-context}}."
+    },
+    {
+      "label": "Saving and editing.",
+      "text": "{{validate-and-publish}} {{edit-published}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Close Incident tile follows another Close Incident tile in the same branch, or an escalation-to-manager Notify tile follows a Close Incident tile.",
+      "uses": [
+        "close-incident-limits"
+      ]
+    },
+    {
+      "do": "Which time zone applies to a notification a workflow creates: the Notify tile, the notification template, the admin assignment, or the UTC+00:00 default.",
+      "uses": [
+        "time-zone-precedence"
+      ]
+    }
+  ],
+  "claims": {
+    "beta": {
+      "statement": "The custom workflow feature is a preview version, shown by the Beta label on the Add Custom Workflow button.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "The custom workflow functionality in Workflow Automation is currently a preview version, as indicated by the Beta label on the Add Custom Workflow button."
+          ]
+        }
+      ]
+    },
+    "tiles": {
+      "statement": "A custom workflow is built from the Notify, Close Incident and Policy Exception tiles starting from the Start tile, with as many tiles as required; any tile except the Start tile can be duplicated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "You can add as many tiles as required for the custom workflow.",
+            "The Tile pane, which contains the Notify tile, the Close Incident tile, and the Policy Exception tile.",
+            "A custom workflow must start with the Start tile, and then you can add one or more Notify tiles, Close Incident tiles, and Policy Exception tiles.",
+            "You can duplicate any tile in the custom workflow design area, except for the Start tile."
+          ]
+        }
+      ]
+    },
+    "close-incident-limits": {
+      "statement": "A Close Incident tile cannot be connected immediately to another Close Incident tile, two Close Incident tiles cannot be in the same branch, and an escalation-to-manager Notify tile cannot follow a Close Incident tile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "you cannot connect a Close Incident tile immediately to another Close Incident tile, have two Close Incident tiles in the same branch of the workflow, or have an escalation to manager Notify tile after a Close Incident tile."
+          ]
+        }
+      ]
+    },
+    "notify-wait": {
+      "statement": "On a user Notify tile the wait time for a response is entered in days, hours and minutes and is optional; if no wait time is entered the workflow immediately performs the action without waiting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "enter the number of days, hours, and minutes that the workflow waits to receive a response from the user.",
+            "If you don't enter a wait time, the workflow immediately performs the action without waiting."
+          ]
+        }
+      ]
+    },
+    "notify-escalation-targets": {
+      "statement": "An escalation Notify tile can target a manager, an approver, or someone other than a manager or approver identified by an entered email address; each waits a timeout entered in days, hours and minutes and uses a channel of Email, Slack or Teams, and for a manager the workflow can send the escalation to a fallback approver if the manager does not exist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "For the statement that appears, from the drop-down menu, select the approver's email address.",
+            "enter the number of days, hours, and minutes that the workflow waits to receive a response from the manager or approver before timing out."
+          ],
+          "after": "To add a Notify tile for an escalation notification to an approver:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "For the statement that appears, from the drop-down menu, enter the email address of the person to receive the escalation notification.",
+            "enter the number of days, hours, and minutes that the workflow waits to receive a response from the person before timing out.",
+            "click one of the buttons to select the channel (Email, Slack, or Teams) by which the person receives the notification."
+          ],
+          "after": "To add a Notify tile for an escalation notification to someone other than a manager or approver:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "If the manager doesn't exist, and you want to send the escalation notification to another approver, click Yes.",
+            "Statement: Please select the approver email address to use as the fallback."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "enter the number of days, hours, and minutes that the workflow waits to receive a response from the manager or approver before timing out.",
+            "click one of the buttons to select the channel (Email, Slack, or Teams) by which the manager or approver receives the notification."
+          ],
+          "after": "To add a Notify tile for an escalation notification to a manager:"
+        }
+      ]
+    },
+    "survey-template-default": {
+      "statement": "On a user Notify tile, a survey template is optional; the user notification still contains the system default survey template content when none is selected, and when none is selected the workflow does not depend on a justification the user may provide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "If you don't require a user response, do not select a survey template.",
+            "Even if you do not select a survey template, the user notification still contains the content for the system default survey template.",
+            "If the user wants, they can provide a justification for the incident, but the workflow doesn't depend on it."
+          ]
+        }
+      ]
+    },
+    "time-zone-precedence": {
+      "statement": "The time zone used for time-related merge tags in a notification a workflow creates is, in order: the one set on the Notify tile, the one on the notification template, the one assigned to the admin on the Admin Assignment page, else UTC+00:00 by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "If you select the time zone when you configure a notify tile for a workflow on the custom workflow builder page, then the system uses that time zone.",
+            "If you did not select the time zone, then the system uses the time zone configured for the notification template on the Notification Template page.",
+            "If you did not configure the time zone for the notification template, then the system uses the time zone assigned to the admin on the Admin Assignment page.",
+            "If you did not assign the time zone to the admin, then the system uses the UTC+00:00 time zone, by default.",
+            "the time zones the system uses for these merge tags when it creates a notification from a workflow is based on the following priority."
+          ],
+          "after": "To add a Notify tile for a user notification:"
+        }
+      ]
+    },
+    "justification-conditions": {
+      "statement": "A connection line from a configured tile can carry a justification condition: a justification type taken from the survey template of the source tile, Any Response or No Response; in the Notify tile procedure, if the source tile has no templates the dialog does not appear.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "select one of the justification types, or select Any Response or No Response. The justification types that appear in this field are based on the survey template that you selected when configuring the tile you are connecting from."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "If the from tile was not configured with templates, then the Justification Conditions dialog window does not appear."
+          ],
+          "after": "To add a Notify tile for a user notification:"
+        }
+      ]
+    },
+    "policy-exception": {
+      "statement": "Custom workflows with Policy Exception tiles are supported only for incidents of Source DLP type Inline and Email; a Policy Exception tile is connected only to Notify tiles configured with the Policy Exception action context, the default exception duration is entered in days, hours and minutes, and a Policy Exception tile can be added either by dragging it from the Tile pane or by configuring a Notify tile with an Action Context of Policy Exception, which adds the tile automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Workflow Automation supports custom workflows with Policy Exceptions tiles only for incidents of Source DLP type Inline and Email.",
+            "You only connect Policy Exception tiles to Notify tiles that have been configured with an Action Context of Policy Exception.",
+            "You can add Policy Exception tiles to a workflow using two different methods.",
+            "or you can configure a Notify tile with an Action Context of Policy Exception. In this case, the Policy Exception tile is automatically added for you in the custom workflow design area.",
+            "enter the number of days, hours, and minutes for the default duration for the policy exception."
+          ]
+        }
+      ]
+    },
+    "validate-and-publish": {
+      "statement": "Validate checks the structure and configuration of a custom workflow and highlights tiles with errors in red; Save as Draft keeps it in Draft status; Publish Workflow publishes it and then asks whether to create a workflow mapping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Click Validate to have the system validate the overall structure and configuration details of the workflow.",
+            "the tiles where there are errors are highlighted in red.",
+            "The custom workflow is published, and a message dialog window appears asking whether you want to create a workflow mapping now."
+          ],
+          "after": "The custom workflow functionality in Workflow Automation is currently a preview version"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Click Save as Draft. The Workflows page appears, listing the workflow. You can come back later and continue to work on the custom workflow configuration. The status of the custom workflow is Draft."
+          ]
+        }
+      ]
+    },
+    "edit-published": {
+      "statement": "When editing a custom workflow its name cannot be changed; for a published one Update Workflow keeps the status Published and the changes apply only to future incidents, not to current custom workflow executions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "You cannot change the name of the custom workflow."
+          ],
+          "after": "To edit a draft custom workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "You cannot change the name of the custom workflow."
+          ],
+          "after": "To edit a published custom workflow:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-workflows.json",
+          "quotes": [
+            "Click Update Workflow. The workflow is updated, and its status remains Published.",
+            "The changes apply to future incidents mapped to the custom workflow. The changes do not affect current custom workflow executions."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "builder-limits": {
+      "kind": "semantic",
+      "title": "Whether the custom builder limits the number of branches, and what the Notify wait and exception durations default to",
+      "status": "open",
+      "detail": "The captured builder page says you can add as many tiles as required, and the only quantity the captured pages state is the 100-predicate limit on a mapping statement. They give no maximum number of branches or mapping statements, no default wait time for a custom Notify tile, no default policy exception duration, and no validity window for the Policy Exception allowed and denied responses.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "justification-dialog-no-template": {
+      "summary": "The Notify tile procedure says the Justification Conditions dialog does not appear when the source tile has no templates, and the Policy Exception tile procedure says it then shows only policy exception types and Any or No Response.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflows.json",
+            "quotes": [
+              "If the from tile was not configured with templates, then the Justification Conditions dialog window does not appear."
+            ],
+            "after": "To add a Notify tile for a user notification:"
+          },
+          "says": "The dialog does not appear when the source tile was not configured with templates."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflows.json",
+            "quotes": [
+              "If the from tile was not configured with a survey template, then the Justification Conditions dialog window displays only policy exception types (Policy Exception Allowed or Policy Exception Denied) and Any Response or No Response."
+            ]
+          },
+          "says": "The dialog displays only Policy Exception Allowed, Policy Exception Denied, Any Response and No Response."
+        }
+      ],
+      "impact": "The page does not say whether the dialog appears for a connection from a tile with no survey template in general, or only in one procedure."
+    },
+    "policy-exception-action-context": {
+      "summary": "The user Notify tile procedure says the Policy Exception action context is not allowed unless a Policy Exception tile precedes it, and the Policy Exception tile section says configuring a Notify tile with that action context adds the tile automatically.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflows.json",
+            "quotes": [
+              "The Policy Exception action context is not allowed for a user notification tile unless it is preceded by a Policy Exception tile."
+            ]
+          },
+          "says": "A user notification tile cannot use the Policy Exception action context unless a Policy Exception tile precedes it."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-workflows.json",
+            "quotes": [
+              "or you can configure a Notify tile with an Action Context of Policy Exception. In this case, the Policy Exception tile is automatically added for you in the custom workflow design area."
+            ]
+          },
+          "says": "Configuring a Notify tile with the Policy Exception action context adds the Policy Exception tile automatically."
+        }
+      ],
+      "impact": "The page does not say whether a user Notify tile can be created first with the Policy Exception action context."
+    }
+  }
+}

@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "id": "zwa.settings.access",
+  "title": "Workflow Automation access: roles and permissions, admin assignments, approvers and integration users",
+  "aliases": [
+    "zwa roles",
+    "admin assignment",
+    "restricted workflow access",
+    "DLP Super Admin",
+    "DLP Incident Manager",
+    "integration users"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.settings.api-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{full-vs-restricted}} What full access means across the roles and assignments pages is open {{gap:full-access-meaning}}. The account-wide settings are in [[zwa.settings]]."
+    },
+    {
+      "label": "Roles.",
+      "text": "{{permission-levels}} {{default-roles}} {{role-assignment-rules}} {{permission-categories}} Which admin role gets API Management by default is open {{gap:admin-role-api-management}}."
+    },
+    {
+      "label": "Admin assignments.",
+      "text": "{{assignment-prerequisites}} {{assignment-settings}} {{assignment-incident-groups}} {{assignment-auto-assign}} {{assignment-digest-fields}}"
+    },
+    {
+      "label": "Privacy overrides.",
+      "text": "{{assignment-data-privacy}} {{assignment-obfuscation-override}} {{assignment-time-zone-and-visibility}}"
+    },
+    {
+      "label": "Approvers.",
+      "text": "{{approvers}}"
+    },
+    {
+      "label": "Integration users.",
+      "text": "{{integration-users-purpose}} {{integration-users-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the restricted admin has an assignment, since assignments must be added before the admin can manage incidents on the Incidents page.",
+      "uses": [
+        "full-vs-restricted",
+        "assignment-time-zone-and-visibility"
+      ]
+    }
+  ],
+  "claims": {
+    "permission-levels": {
+      "statement": "A role sets, per Workflow Automation feature, one of Delete, Edit, View or None; Delete is available only for the Incidents feature, is the highest permission and includes edit and delete, and View gives no ability to edit data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-roles-and-permissions.json",
+          "quotes": [
+            "Delete: This role allows admins to delete the feature. This permission is only available for the Incidents feature.",
+            "View: This role only allows admins to view the feature. Admins cannot edit the data.",
+            "None: This role provides admins with no access to the feature.",
+            "The delete access permission is the highest permission and includes full access to the feature (i.e., permission to both edit and delete).",
+            "Edit: This role allows admins to edit the feature."
+          ]
+        }
+      ]
+    },
+    "default-roles": {
+      "statement": "The Roles page provides the default roles DLP Super Admin, DLP Admin and DLP Incident Manager, which cannot be edited or deleted; admins with full access can create more roles. DLP Super Admin has full access (i.e., edit access) to all DLP incident features and can also delete incidents; DLP Admin has full access to all DLP incident-related features except Audit Logs, API Management and Integrations; DLP Incident Manager has full access to incident-management features such as viewing incident details and notifying users, as well as adding approvers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-roles-and-permissions.json",
+          "quotes": [
+            "The Roles page provides the following default roles for the admins. You cannot edit or delete these roles. Admins with full access to Workflow Automation can create additional roles.",
+            "DLP Super Admin: This role provides users with full access (i.e., edit access) to all features related to Data Loss Prevention (DLP) incidents. It can also delete incidents.",
+            "DLP Admin: This role provides users with full access to all DLP incident-related features except Audit Logs, API Management, and Integrations.",
+            "DLP Incident Manager: This role provides users with full access to incident-management features, such as viewing incident details and notifying users, as well as adding approvers."
+          ]
+        }
+      ]
+    },
+    "role-assignment-rules": {
+      "statement": "Only admins with full access to Workflow Automation can configure roles and assign them to restricted-workflow-access admins; multiple roles can be assigned to one admin; with an Authentication Service subscription roles are assigned only from Authentication Service; the Product of a role is DLP by default and cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-roles-and-permissions.json",
+          "quotes": [
+            "only admins with full access to Workflow Automation can configure roles and assign them to admins who have restricted workflow access. You can assign multiple roles to an admin.",
+            "If you are subscribed to Authentication Service, you can assign the configured roles to a user only from Authentication Service.",
+            "Product: The product is DLP by default, and you cannot change it."
+          ]
+        }
+      ]
+    },
+    "permission-categories": {
+      "statement": "A role sets permissions for these categories: Analytics, Incidents, Workflows and Mappings, Workflow Templates, Incident Group and Mappings, Priorities, Notification Templates, Survey Templates, Template Mappings, API Management, Audit Logs, Labels, Integrations, Account Settings, Notification Center and Approvers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-roles-and-permissions.json",
+          "quotes": [
+            "Analytics: Enables you to manage the Incidents Analytics page",
+            "Incidents: Enables you to manage the Incidents and Incident Details pages",
+            "Workflows and Mappings: Enables you to add workflows",
+            "Workflow Templates: Enables you to manage workflow templates",
+            "Incident Group and Mappings: Enables you to group individual incidents",
+            "Priorities: Enables you to assign a priority of critical, high, medium, or low",
+            "Notification Templates: Enables you to add and map the notification templates",
+            "Survey Templates: Enables you to configure the survey template format",
+            "Template Mappings: Enables you to configure template mappings for incident and digest templates.",
+            "API Management: Enables you to manage the API Keys page",
+            "Audit Logs: Enables you to filter and view records of all the admin actions",
+            "Labels: Enables you to add and assign labels to the incidents",
+            "Integrations: Enables you to add integration users",
+            "Account Settings: Enables you to manage user digest notifications, DLP admin digest notifications, and globally unique identifiers (GUIDs) for your organization.",
+            "Notification Center: Enables you to access the Notification Center page",
+            "Approvers: Enables you to configure the approvers."
+          ]
+        }
+      ]
+    },
+    "full-vs-restricted": {
+      "statement": "Admins are provisioned in the Zscaler Admin Console with full or restricted workflow access; an admin assignment defines the incident group permissions of a restricted-access admin, only full-access admins can add assignments, and a restricted admin must have an assignment before managing incidents on the Incidents page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "You provision admins in the Zscaler Admin Console with either full or restricted workflow access permission to Workflow Automation.",
+            "An admin with restricted workflow access is restricted to certain incident groups in Workflow Automation.",
+            "Admin assignments define which incident group permissions an admin with restricted workflow access has. Only admins with full access to Workflow Automation can add assignments for the restricted workflow access admins.",
+            "Assignments must be added to a restricted workflow access admin before they can manage any incidents on the Incidents page in Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "assignment-settings": {
+      "statement": "Admin assignments also define the DLP admin digest notification settings and the user data obfuscation settings for both full and restricted admins, and the data privacy settings (generate presigned links, see trigger data) for restricted admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Data Loss Prevention (DLP) admin digest notification settings and privacy and security (user data obfuscation) settings for both full and restricted workflow access admins.",
+            "Data privacy (generate presigned links and see trigger data) settings for restricted workflow access admins."
+          ]
+        }
+      ]
+    },
+    "assignment-prerequisites": {
+      "statement": "Before adding an admin assignment, the restricted admins must be provisioned in the Zscaler Admin Console, incident groups configured and mapped, DLP admin digest templates configured and mapped, the digest flags and obfuscation settings configured, and roles and permissions configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Provision restricted workflow access admins in the Zscaler Admin Console.",
+            "Configure and map incident groups.",
+            "Configure and map DLP admin digest notification templates.",
+            "Configure the DLP admin digest notification flags and privacy and security (user data obfuscation) settings for your organization.",
+            "Configure roles and permissions for your organization."
+          ]
+        }
+      ]
+    },
+    "assignment-digest-fields": {
+      "statement": "In an admin assignment the digest channels are Email, Slack and Teams, limited to the channels enabled on Account Settings; priorities are Critical, High, Medium and Low; frequencies are Hourly, Daily and Weekly; and if the digest is enabled, channel, priority and frequency must all be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Digest notification channels are Email, Slack, and Teams. Only the channels enabled for your organization on the Account Settings page are displayed.",
+            "Priorities are Critical, High, Medium, and Low.",
+            "Frequencies are Hourly, Daily, and Weekly.",
+            "If you do not enable this setting, the admin does not receive DLP admin digest notifications. If you enable digest notification, you must select values for the Digest Notification Channel, Incident Priority for Digest, and Digest Frequency fields."
+          ]
+        }
+      ]
+    },
+    "assignment-auto-assign": {
+      "statement": "The Auto Assign Incidents setting of an admin assignment is enabled by default; when it is not enabled the admin is not automatically assigned incidents, and incidents of an incident group are automatically assigned to the restricted admins with edit access to that group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Auto Assign Incidents: Enable this setting",
+            "Enable this setting to have Workflow Automation automatically assign incidents to this admin as they occur. Otherwise, the admin is not automatically assigned to incidents. By default, it is enabled.",
+            "Workflow Automation automatically assigns incidents belonging to a specific incident group to the restricted workflow access admins who have edit access to that incident group."
+          ]
+        }
+      ]
+    },
+    "assignment-incident-groups": {
+      "statement": "A restricted admin is given edit access (can act on incidents) and view access (can only view) per incident group; a full-access admin can have edit access to specific groups or All and has no View field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Incident Groups (Edit): From the drop-down menu, select one or more incident groups to which you want the restricted workflow access admin to have edit access.",
+            "Incident Groups (View): From the drop-down menu, select one or more incident groups to which you want the restricted workflow access admin to have view access.",
+            "With edit access, the admin can perform various actions on the incidents. For full workflow access admins, you can give them edit access to either specific incident groups or All (all incident groups).",
+            "In view-only mode, the admin can only view the incidents. This field is not available for full workflow access admins."
+          ]
+        }
+      ]
+    },
+    "assignment-data-privacy": {
+      "statement": "Data privacy overrides, available only for restricted admins and defaulting to the organization settings, are Hide Evidence Data (blocks generating presigned links to violation content on Incident Details) and Hide Trigger Data (blocks seeing trigger data); Hide Evidence Data takes precedence over the DLP application integration Hide Evidence Data - Admin setting and Hide Trigger Data over the Hide Trigger Data - Admin setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Enable or disable the Hide Evidence Data setting.",
+            "Enable or disable the Hide Trigger Data setting.",
+            "These settings are not available for full workflow access admins. By default, the organization's data privacy settings appear.",
+            "Enable this setting if you do not want the restricted workflow access admin to be able to generate presigned links related to the violation content for incidents on the Incident Details page.",
+            "This setting takes precedence over the DLP application integration Hide Evidence Data - Admin setting.",
+            "Enable this setting if you do not want the restricted workflow access admin to be able to see trigger data related to the violation content for incidents on the Incident Details page.",
+            "This setting takes precedence over the DLP application integration Hide Trigger Data - Admin setting."
+          ]
+        }
+      ]
+    },
+    "assignment-obfuscation-override": {
+      "statement": "An admin assignment can override the organization's obfuscation settings for that admin, choosing from User Name, User Email, Recipient Email, Manager Name, Client IP, Manager Email, Device Name, Phone Number and Trigger Data, or Obfuscate All, and Recipient Email covers the External, Internal and Triggered Recipients attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Obfuscation Settings: (Optional) Override the organization's obfuscation settings for the admin.",
+            "The user attributes you can choose for obfuscation are User Name, User Email, Recipient Email, Manager Name, Client IP, Manager Email, Device Name, Phone Number, and Trigger Data.",
+            "If you select the Recipient Email attribute, the obfuscation applies to the External Recipients attribute, the Internal Recipients attribute, and the Triggered Recipients attribute.",
+            "If you want to obfuscate all the user attributes, select the Obfuscate All checkbox."
+          ]
+        }
+      ]
+    },
+    "assignment-time-zone-and-visibility": {
+      "statement": "The Notification Time Zone of an admin assignment is optional and sets the time zone for time-related merge tags in that admin's notifications, where the Time merge tag is the time the incident occurred; a restricted admin must log out and log in again to see added assignments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-admin-assignments.json",
+          "quotes": [
+            "Notification Time Zone: (Optional) From the drop-down menu, select the time zone in which you want the time-related merge tags to appear in the notifications for this admin.",
+            "The Time merge tag represents the time when the incident occurred.",
+            "To see the assignments that were added to a restricted workflow access admin, the restricted admin must log out and log in again to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "approvers": {
+      "statement": "Approvers, each with a Name and an Email, are configured by admins with access to Workflow Automation; an incident can be escalated to an approver for review and response, and an approver can be anyone, such as the end user's manager.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-approvers.json",
+          "quotes": [
+            "Admins with access to Workflow Automation need to configure the approvers for their organization.",
+            "admins can escalate the incident to an approver for their review and response. Approvers can be anyone that you choose.",
+            "For example, an approver could be the manager of the end user who generated the incident.",
+            "Name: Enter the name of the approver.",
+            "Email: Enter the email address of the approver."
+          ]
+        }
+      ]
+    },
+    "integration-users-purpose": {
+      "statement": "Integration users are required to integrate with a ticketing application such as ServiceNow or Jira Software: the ticket action on Incident Details creates and assigns a ticket in that application to a user chosen from those already on the Integration Users page, and the ticket information then shows in the Ticket section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-integration-users.json",
+          "quotes": [
+            "Adding integration users on the Integration Users page is required if you are integrating Workflow Automation with a ticketing integration application (e.g., ServiceNow or Jira Software).",
+            "During the remediation of an incident on the Incident Details page in Workflow Automation, admins can perform a ticket action against an incident. This action creates and assigns a ticket in the ticketing integration application to a user",
+            "the admin must select a user who already exists on the Integration Users page.",
+            "the ticket information displays in the Ticket section on the Incident Details page.",
+            "The user assigned to the ticket can manage that ticket within the ticketing integration application itself."
+          ]
+        }
+      ]
+    },
+    "integration-users-fields": {
+      "statement": "An integration user is added by selecting the tenant ID of the ticketing integration and entering an email address, and only users available in the selected ticketing integration application can be added; the integration types are ServiceNow and JiraCloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-integration-users.json",
+          "quotes": [
+            "Integration: From the drop-down menu, select the tenant ID associated with the ticketing integration application",
+            "Email: Enter the email address for the user whom you want to associate with the ticketing integration application.",
+            "You can only add users who are available in the ticketing integration application selected.",
+            "Integration types are ServiceNow and JiraCloud."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "full-access-meaning": {
+      "kind": "semantic",
+      "title": "What full access to Workflow Automation means across the roles page and the admin assignments page",
+      "status": "open",
+      "detail": "The roles page defines full access as edit access for the default roles, while the admin assignments page provisions admins with full or restricted workflow access in the Zscaler Admin Console and uses it to decide who can add assignments. The captured pages do not say whether the two are the same, and the assignments page says auto-assignment goes to restricted admins with edit access to an incident group, where the Incidents page says an admin with edit access.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "admin-role-api-management": {
+      "kind": "semantic",
+      "title": "Which admin role gets API Management automatically",
+      "status": "open",
+      "detail": "The roles page says the default DLP Admin role has full access except Audit Logs, API Management and Integrations, while the API key pages say API Management is automatically accessible to an admin role with a Workflow Automation subscription. The captured pages do not define which role that is.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

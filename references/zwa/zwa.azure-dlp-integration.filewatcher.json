@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "id": "zwa.azure-dlp-integration.filewatcher",
+  "title": "The Filewatcher VM and container for the Zscaler Incident Receiver path to Azure: template parameters, recommendations, prerequisites, prompt defaults, upgrade and SFTP settings",
+  "aliases": [
+    "filewatcher",
+    "FileWatcherVM.json",
+    "run-filewatcher.sh"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration.resources"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{role-of-filewatcher}} {{zir-sftp-settings}}"
+    },
+    {
+      "label": "VM.",
+      "text": "{{vm-template-parameters}} The required VM size is open {{gap:vm-size}}. {{storage-recommendations}} {{security-recommendations}} The recommendation of no public IPs conflicts with the page's own public-IP parameter and default {{divergence:public-ip}}. {{filewatcher-role}}"
+    },
+    {
+      "label": "Installing.",
+      "text": "{{install-prerequisites}} {{script-prompt-defaults}} What the government-cloud prompt covers is open {{gap:gov-cloud}}."
+    },
+    {
+      "label": "Upgrading.",
+      "text": "{{install-vs-upgrade}} {{upgrade-behavior}}"
+    },
+    {
+      "text": "The integration object is in [[zwa.azure-dlp-integration]] and the Azure resources in [[zwa.azure-dlp-integration.resources]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Filewatcher container image version is earlier than 1.80.0, which decides between the install and the upgrade procedure.",
+      "uses": [
+        "install-vs-upgrade"
+      ]
+    },
+    {
+      "do": "Whether the firewall allows the two registry hosts and all nine Microsoft identity-service domains the page lists for the Filewatcher VM.",
+      "uses": [
+        "install-prerequisites"
+      ]
+    },
+    {
+      "do": "Whether envfile.txt sits outside the zscaler-files folder after an upgrade.",
+      "uses": [
+        "upgrade-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "role-of-filewatcher": {
+      "statement": "On the ZIR path, the Incident Receiver sends incidents by SFTP to the zscaler-files folder and the Filewatcher container uploads the files from that folder to the Azure Blob containers; when installing, the script run with bash run-filewatcher.sh creates envfile.txt and the zscaler-files folder in the current directory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "azure-user@filewatcher-vm:~$ bash run-filewatcher.sh",
+            "The script does the following:",
+            "Creates the envfile.txt file in the current directory.",
+            "Creates the zscaler-files folder in the current directory where the Incident Receiver sends the incidents by Secure File Transfer Protocol (SFTP).",
+            "The Filewatcher container uploads the files from the zscaler-files folder to the Azure Blob containers."
+          ],
+          "after": "To install a new container:"
+        }
+      ]
+    },
+    "vm-template-parameters": {
+      "statement": "In the FileWatcherVM.json deployment, OS Version offers Ubuntu-22-04 and Redhat-9.2 (Ubuntu-22-04 by default), and Vm Size is entered as Standard_D2ads_v6 (Gen2) while Standard_D2s_v3 appears by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "On the Edit template page, click the Load file icon at the top of the page and select the Filewatcher template (FileWatcherVM.json) you previously downloaded from Workflow Automation.",
+            "Vm Size: Enter Standard_D2ads_v6 (Gen2) as the size of the virtual machine (VM). Standard_D2s_v3 appears by default.",
+            "OS Version: From the drop-down menu, select the operating system version. The OS versions are Ubuntu-22-04 and Redhat-9.2. Ubuntu-22-04 appears by default."
+          ]
+        }
+      ]
+    },
+    "filewatcher-role": {
+      "statement": "On the ZIR path the custom role for the Filewatcher application grants container read and write actions and, in its dataActions list, blobs read, write, move and add.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "\"actions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/read\", \"Microsoft.Storage/storageAccounts/blobServices/containers/write\" ],",
+            "\"dataActions: [ \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\", \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write\",",
+            "\"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/move/action\", \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action\" ]"
+          ]
+        }
+      ]
+    },
+    "security-recommendations": {
+      "statement": "Zscaler recommends running the Filewatcher container with Podman (daemonless), giving the VM no public IPs, restricting NSG inbound 22/TCP to known corporate CIDRs (using a bastion or jump host if SSH is needed), restricting sudo and applying regular OS updates; for Docker only, an iptables rule in DOCKER-USER can block container access to Azure IMDS (169.254.169.254).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Podman is recommended for running the Filewatcher container. Podman is daemonless and because of this, containers run directly as the invoking user with no privileged intermediary and with no daemon socket to exploit.",
+            "Do not expose the Filewatcher VM publicly. The VM must have no public IPs. Restrict the NSG inbound rule 22/TCP to known corporate CIDR's only. If SSH is required, use a bastion or jump host.",
+            "Restrict sudo privileges on the Filewatcher host.",
+            "The Filewatcher VM must receive regular OS updates.",
+            "For Docker only, you have the option to block container access to Azure IMDS.",
+            "$ iptables -I DOCKER-USER 1 -d 169.254.169.254/32 -j DROP"
+          ]
+        }
+      ]
+    },
+    "storage-recommendations": {
+      "statement": "For the Filewatcher VM, Zscaler recommends at least 200 GB for a single disk, or with multiple disks 100 GB for the root and other partitions and at least 100 GB for the SFTP folder (zscaler-files).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "If you have a single disk, Zscaler recommends that you allocate at least 200 GB for the Filewatcher VM.",
+            "If you have multiple disks, Zscaler recommends allocating 100 GB to the root and other partitions and allocating a minimum of 100 GB to the SFTP folder (zscaler-files)."
+          ]
+        }
+      ]
+    },
+    "install-prerequisites": {
+      "statement": "Before installing the Filewatcher container, the script must not be run as root and the firewall must allow public.ecr.aws:443 and gallery.ecr.aws:443 for the image download and nine Microsoft identity-service domains for the Filewatcher's outbound connection: login.microsoftonline.com, *.aadcdn.msftauth.net, *.aadcdn.msftauthimages.net, *.aadcdn.msauthimages.net, *.logincdn.msftauth.net, login.live.com, *.msauth.net, *.aadcdn.microsoftonline-p.com and *.microsoftonline-p.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Do not run this script with root.",
+            "public.ecr.aws:443",
+            "gallery.ecr.aws:443",
+            "Allow the following domains on the Filewatcher outbound connection to the MSFT Identity Services:",
+            "login.microsoftonline.com",
+            "*.aadcdn.msftauth.net",
+            "*.aadcdn.msftauthimages.net",
+            "*.aadcdn.msauthimages.net",
+            "*.logincdn.msftauth.net",
+            "login.live.com",
+            "*.msauth.net",
+            "*.aadcdn.microsoftonline-p.com",
+            "*.microsoftonline-p.com"
+          ],
+          "after": "Installing a New Container"
+        }
+      ]
+    },
+    "install-vs-upgrade": {
+      "statement": "A new VM follows the install procedure; for an existing Filewatcher container whose image version is earlier than 1.80.0 the upgrade procedure applies, and 1.80.0 is the image-version the script prompt gives as the latest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "If the VM to which you are adding a container is a new VM, then follow the steps for installing a new container. Otherwise, if the existing container image version is earlier than 1.80.0, then follow the steps for upgrading a container."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "image-version=1.80.0: The latest image version for the Filewatcher container."
+          ],
+          "after": "To install a new container:"
+        }
+      ]
+    },
+    "script-prompt-defaults": {
+      "statement": "In the install procedure, run-filewatcher.sh prompts with defaults of source_folder=/var/data, file_processor_thread_pool_size=8 (files uploaded at a time), file_process_wait_time_in_millis=5000, delete_folders_older_than=7, health_check_interval_in_sec=300, podman as the container platform and is_gov_cloud=no, and the page says to use the default value for each of those except the platform and is_gov_cloud prompts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "azure-user@filewatcher-vm:~$ bash run-filewatcher.sh",
+            "6. The script asks you for the following information:",
+            "source_folder=/var/data: Use the default value.",
+            "file_processor_thread_pool_size=8: The number of files that can be uploaded at a time. Use the default value.",
+            "file_process_wait_time_in_millis=5000: The time to wait after the file event is received in the Filewatcher. It might take some time for the Incident Receiver to copy the content of the file. Use the default value.",
+            "delete_folders_older_than=7: Use the default value.",
+            "health_check_interval_in_sec=300: The interval in which the Filewatcher sends the message (\"I am alive\") to the Zscaler Admin Console. Use the default value.",
+            "Are you using docker or podman=docker or podman. The default value is podman.",
+            "is_gov_cloud=no or yes. The default value is no. For commercial clouds, select no."
+          ],
+          "after": "To install a new container:"
+        }
+      ]
+    },
+    "upgrade-behavior": {
+      "statement": "When upgrading, the script updates the envfile.txt file in the current directory and uses the existing folder where the Incident Receiver sends incidents by SFTP; envfile.txt must not be inside the zscaler-files folder.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "This script does the following:",
+            "Updates the envfile.txt file in the current directory.",
+            "Uses the existing folder in the current directory where the Incident Receiver sends the incidents by SFTP. The envfile.txt file must not be inside the zscaler-files folder."
+          ]
+        }
+      ]
+    },
+    "zir-sftp-settings": {
+      "statement": "When configuring the SFTP storage of the ZIR VM on Azure, storage_sftp_fqdn is the Filewatcher VM's IP address, storage_sftp_port is the upload port (22 shown by default), and storage_dir is the storage directory on the Filewatcher VM, for example /home/<username>/zscaler-files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "For storage_sftp_fqdn, enter the IP address of the Filewatcher VM.",
+            "For storage_sftp_port, enter the upload port of the SFTP server/Filewatcher VM. By default, 22 appears.",
+            "For storage_dir, enter the storage directory (e.g., /home/<username>/zscaler-files) that is set up on the Filewatcher VM."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "public-ip": {
+      "summary": "The Incident Receiver page's security recommendation says the Filewatcher VM must have no public IPs, but the same page's template parameter and manual VM steps provide a public IP.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "Do not expose the Filewatcher VM publicly. The VM must have no public IPs."
+            ]
+          },
+          "says": "The VM must have no public IPs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "Require Public IP: To create a public IP address, select true. To not create a public IP address, select false.",
+              "Public IP: From the drop-down menu, select a public IP address. The default public IP address automatically populates. If you want to use private IP addresses, select None."
+            ]
+          },
+          "says": "The template offers a Require Public IP choice, and the manual VM steps default to a public IP address (None gives private IP addresses)."
+        }
+      ],
+      "impact": "Whether a public IP is permitted is not settled: the recommendation reads as a requirement, while the defaults and parameters create one."
+    }
+  },
+  "gaps": {
+    "vm-size": {
+      "kind": "semantic",
+      "title": "Which Filewatcher VM size is required: Standard_D2ads_v6 (Gen2) or the default Standard_D2s_v3?",
+      "status": "open",
+      "detail": "The Vm Size parameter says to enter Standard_D2ads_v6 (Gen2) while stating that Standard_D2s_v3 appears by default; no captured page says which is required.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "gov-cloud": {
+      "kind": "semantic",
+      "title": "Which clouds does the is_gov_cloud prompt cover, and what do file_process_wait_time_in_millis and delete_folders_older_than mean beyond the quoted lines?",
+      "status": "open",
+      "detail": "The is_gov_cloud prompt is described only by its values (no, or yes; no for commercial clouds). The page gives delete_folders_older_than=7 with no unit and no description of what it deletes, and says nothing more about file_process_wait_time_in_millis beyond the quoted lines.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

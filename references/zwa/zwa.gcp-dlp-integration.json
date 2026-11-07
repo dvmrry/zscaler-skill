@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "id": "zwa.gcp-dlp-integration",
+  "title": "The GCP DLP application integration for Workflow Automation: Cloud-to-Cloud only, fields, validation and privacy settings",
+  "aliases": [
+    "gcp dlp integration",
+    "google cloud dlp integration",
+    "dlp gcp application integration",
+    "cloud-to-cloud incident forwarding gcp"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.aws-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.gcp-dlp-integration.resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration.management"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{cloud-to-cloud-only}} {{nat-gateway-ips}} The pages give different example login URLs for the same cloud {{divergence:cloud-url-example}}."
+    },
+    {
+      "label": "Adding the integration.",
+      "text": "{{integration-fields}} {{validate-before-add}} The two GCP pages word the correct-and-re-enable step in a different order {{divergence:reenable-order}}. {{verify-in-google-console}}"
+    },
+    {
+      "label": "Privacy settings.",
+      "text": "{{privacy-hide-defaults}} {{privacy-non-triggered}} The defaults of the End User and Manager/Approver non-triggered checkboxes are open {{gap:non-triggered-defaults}}. {{privacy-read-access-dependency}} How read access is enabled when the resources are created is open {{gap:read-access-creation-option}}."
+    },
+    {
+      "label": "Managing.",
+      "text": "{{managing-lifecycle}}"
+    },
+    {
+      "text": "The Google Cloud resources are in [[zwa.gcp-dlp-integration.resources]]. Where the incidents then appear is [[zwa.incidents]]. The ZIA-side Google Cloud forwarding page is covered in [[zia.dlp.cloud-to-cloud-forwarding]]. The API, SDKs and Terraform are unread {{gap:other-sources-unchecked}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the NAT Gateway IPs of the Workflow Automation cloud are allowed on the storage account.",
+      "uses": [
+        "nat-gateway-ips"
+      ]
+    },
+    {
+      "do": "Whether Validate passed, and whether the integration was disabled and re-enabled after the values were corrected (the pages differ on whether to correct first).",
+      "uses": [
+        "validate-before-add",
+        "reenable-order"
+      ]
+    },
+    {
+      "do": "Whether read access to the storage accounts was enabled when the cloud resources were created, if Hide Evidence Data or Hide Trigger Data is disabled; the GCP page names no creation-time option to test.",
+      "uses": [
+        "privacy-read-access-dependency",
+        "read-access-creation-option"
+      ]
+    }
+  ],
+  "claims": {
+    "cloud-to-cloud-only": {
+      "statement": "For Google Cloud Platform, only the Cloud-to-Cloud Incident Forwarding method is supported for the DLP application integration in Workflow Automation, and it sends DLP incident metadata and evidence files to the organization's GCP storage buckets without deploying appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Google Cloud Platform (GCP) only supports the Cloud-to-Cloud Incident Forwarding method for DLP application integration in Workflow Automation.",
+            "Configuring GCP with Zscaler incident forwarding enables your organization to send DLP incident metadata and evidence files to your organization's GCP storage buckets without deploying appliances."
+          ]
+        }
+      ]
+    },
+    "nat-gateway-ips": {
+      "statement": "The NAT Gateway IPs of the organization's Workflow Automation cloud must be allowed on the storage account; the cloud is identified from the admin login URL (the page's example: logging in at https://app.us1.zsworkflow.net/ gives the cloud produs1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "To view the various IP addresses of different Workflow Automation clouds associated with Zscaler, see NAT Gateway IP addresses. Ensure that these NAT Gateway IPs are allowed on the storage account.",
+            "You can find your cloud in the URL that admins use to log in to the Zscaler Admin Console.",
+            "if you log in to https://app.us1.zsworkflow.net/, then your organization's cloud is produs1."
+          ]
+        }
+      ]
+    },
+    "integration-fields": {
+      "statement": "The DLP GCP integration takes an Integration Name, the Project ID, Private Key and Client Email copied from the downloaded JSON key (project_id, private_key, client_email), and a Prefix for Bucket and Topic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Integration Name: Enter a name for the integration.",
+            "Project ID: From the JSON key downloaded from the Google Cloud console, copy the project_id for the DLP integration and enter it here.",
+            "Private Key: From the JSON key downloaded from the Google Cloud console, copy the private_key for the DLP integration and enter it here.",
+            "Client Email: From the JSON key downloaded from the Google Cloud console, copy the client_email for the DLP integration and enter it here.",
+            "Prefix for Bucket and Topic: Enter a prefix for the storage bucket and topic."
+          ]
+        }
+      ]
+    },
+    "validate-before-add": {
+      "statement": "Validate checks the account credentials entered with the GCP integration, and the integration can only be added if it passes; if validation fails or wrong values were saved, the GCP configuration page says to disable and re-enable the integration after correcting the values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "The system validates the account credentials that are entered with the GCP integration. You can only add the integration if it passes validation.",
+            "If the validation fails for any reason, or if the configuration has been created or updated with the wrong values,",
+            "you must disable and re-enable the integration after you correct the values for the integration."
+          ]
+        }
+      ]
+    },
+    "privacy-hide-defaults": {
+      "statement": "In the Privacy Settings section of the DLP GCP integration, Hide Evidence Data and Hide Trigger Data are selected by default for admins, end users and managers/approvers, and Hide Policy Details is not selected by default for admins but is selected by default for end users and managers/approvers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Hide Evidence Data - Admin: Select if you do not want admins to be able to generate presigned evidence links for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+            "Hide Trigger Data - Admin: Select if you do not want admins to be able to see the trigger data for an incident on the Violation Content tab of the Incident Details drawer. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+            "Hide Policy Details - Admin: Select if you do not want the admins to be able to view any of the policy details for the incident on the Violation Details tab of the Incident Details drawer. Otherwise, they can view the policy details for the incident. This checkbox is not selected by default.",
+            "Hide Evidence Data - End User: Select if you do not want the end users responding to an incident notification to be able to generate presigned evidence links for an incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+            "Hide Trigger Data - End User: Select if you do not want the end users responding to an incident notification to be able to see the trigger data for an incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+            "Hide Policy Details - End User: Select if you do not want the end users responding to an incident notification to be able to view any of the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default.",
+            "Hide Evidence Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to generate presigned evidence links for the incident. Otherwise, they can generate evidence links. This checkbox is selected by default.",
+            "Hide Trigger Data - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to see the trigger data for the incident. Otherwise, they can see the trigger data. This checkbox is selected by default.",
+            "Hide Policy Details - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view the policy details for the incident. Otherwise, they can view the policy details for the incident. This checkbox is selected by default."
+          ]
+        }
+      ]
+    },
+    "privacy-non-triggered": {
+      "statement": "The Hide Policy Details for Non-Triggered Matches checkboxes (Admin, End User, Manager/Approver) in the GCP integration hide the Non-Triggered Engines and Dictionaries and Other Matched Rules sections of the policy details, and each is only available when the matching Hide Policy Details checkbox is not selected; the Admin one is not selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "Hide Policy Details for Non-Triggered Matches - Admin: Select if you do not want the admins to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident on the Violation Details tab of the Incident Details drawer.",
+            "This checkbox is only available if you do not select the Hide Policy Details - Admin checkbox. This checkbox is not selected by default.",
+            "Hide Policy Details for Non-Triggered Matches - End User: Select if you do not want the end users responding to an incident notification to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident.",
+            "This checkbox is only available if you do not select the Hide Policy Details - End User checkbox.",
+            "Hide Policy Details for Non-Triggered Matches - Manager/Approver: Select if you do not want the approvers or managers responding to an incident escalation notification to be able to view the Non-Triggered Engines and Dictionaries section and the Other Matched Rules section of the policy details for the incident.",
+            "This checkbox is only available if you do not select the Hide Policy Details - Manager/Approver checkbox."
+          ]
+        }
+      ]
+    },
+    "managing-lifecycle": {
+      "statement": "On the GCP managing page, the Connected Accounts list shows the statuses Enabled, Disabled or Failed and shows deleted integrations when Show Deleted Accounts is enabled; only Enabled, Disabled or Failed accounts can be deleted, Delete Integration changes the status to Deleted, and a Deleted integration allows only its data privacy fields to be edited; the dashboard status oval counts enabled, Connected accounts and not Failed or Deleted ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+          "quotes": [
+            "along with their statuses (Enabled, Disabled, or Failed) in the Connected Accounts section. To display the deleted application integrations, enable Show Deleted Accounts in the top right of the Connected Accounts section.",
+            "Only connected accounts with a status of Enabled, Disabled, or Failed can be deleted.",
+            "click Delete Integration. The status of the integration changes to Deleted.",
+            "For integrations with a Deleted status, you can only edit the data privacy field settings.",
+            "An oval is displayed at the top of the tile listing the number of accounts that are enabled and the status of Connected. This number does not include accounts with a Failed or Deleted status."
+          ]
+        }
+      ]
+    },
+    "privacy-read-access-dependency": {
+      "statement": "If Hide Evidence Data or Hide Trigger Data is disabled in the integration but read access to the storage accounts was not enabled when creating the cloud resources, no one can generate evidence links or view trigger data in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "If you disable Hide Evidence Data or Hide Trigger Data in the integration, but you did not enable read access to the storage accounts when creating the cloud resources, no one can generate evidence links or view trigger data in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "verify-in-google-console": {
+      "statement": "After adding the integration, it can be verified in the Google Cloud console by searching for Subscriptions and filtering by the integration name or the prefix entered in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+          "quotes": [
+            "After you add the DLP GCP application integration in Zscaler Admin Console, you can verify whether the DLP application integration was successful in the Google Cloud console.",
+            "Using the Search bar, search for Subscriptions and select it.",
+            "On the Subscription page, filter the DLP integration by name or prefix you provided in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cloud-url-example": {
+      "summary": "The GCP page's example login URL for identifying the cloud differs from the Azure Incident Receiver page's example.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+            "quotes": [
+              "if you log in to https://app.us1.zsworkflow.net/, then your organization's cloud is produs1."
+            ]
+          },
+          "says": "Logging in at app.us1.zsworkflow.net gives the cloud produs1."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "For example, if you log in to https://app.produs1.zsworkflow.net/, then that organization's cloud is produs1."
+            ]
+          },
+          "says": "Logging in at app.produs1.zsworkflow.net gives the cloud produs1."
+        }
+      ],
+      "impact": "The cloud name produs1 is the same in both, but the login hostname differs (us1 versus produs1), so which hostname admins of that cloud use is not settled by the pages; read the cloud from the tenant's own login URL."
+    },
+    "reenable-order": {
+      "summary": "The GCP configuration page and the GCP managing page word the step after a failed validation differently, and the managing page has both wordings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-dlp-application-integration-using-google-cloud-platform.json",
+            "quotes": [
+              "you must disable and re-enable the integration after you correct the values for the integration."
+            ]
+          },
+          "says": "Disable and re-enable the integration after correcting the values."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-managing-dlp-gcp-application-integrations-workflow-automation.json",
+            "quotes": [
+              "you must disable the integration, correct the values for it, and re-enable the integration."
+            ]
+          },
+          "says": "In the adding steps: disable the integration, correct the values, then re-enable it (the editing steps of the same page use the configuration page's wording)."
+        }
+      ],
+      "impact": "Whether the values are corrected before or after the disable is not settled; the page's common requirement is that the integration is disabled and re-enabled once the values are right."
+    }
+  },
+  "gaps": {
+    "non-triggered-defaults": {
+      "kind": "semantic",
+      "title": "What are the defaults of the End User and Manager/Approver Hide Policy Details for Non-Triggered Matches checkboxes on the GCP integration?",
+      "status": "open",
+      "detail": "Only the Admin checkbox says 'not selected by default'; the End User and Manager/Approver ones state no default on the captured GCP page.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "read-access-creation-option": {
+      "kind": "semantic",
+      "title": "How is read access to the storage accounts enabled when the GCP cloud resources are created?",
+      "status": "open",
+      "detail": "The Privacy Settings note on the GCP page says read access to the storage accounts must be enabled when creating the cloud resources, but the page names no creation-time option for it (the phrase 'read access' appears once, in that note), unlike the Azure Enable Read Access To Data Blob template field; which step grants it is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "other-sources-unchecked": {
+      "kind": "semantic",
+      "title": "What do the Workflow Automation API, SDKs and Terraform say about the GCP integration?",
+      "status": "open",
+      "detail": "This subject covers the GCP configuration and managing pages; the Workflow Automation API reference, the Python and Go SDKs and Terraform for these integration objects were not read. The ZIA-side Google Cloud forwarding setup is in zia.dlp.cloud-to-cloud-forwarding.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

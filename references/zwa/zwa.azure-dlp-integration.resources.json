@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "zwa.azure-dlp-integration.resources",
+  "title": "Azure resources for the DLP integration: app registration, permissions, containers, Event Grid, custom role, storage networking and Front Door",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration.filewatcher"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.azure-dlp-integration.cloud-to-cloud"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Identity and permissions.",
+      "text": "{{app-registration-script}} {{manual-app-registration}} {{azure-permissions}} The secret expiry and rotation are open {{gap:secret-expiry}}."
+    },
+    {
+      "label": "Containers and notifications.",
+      "text": "{{zir-containers}} The same page calls the shared part of the names both a prefix and a suffix {{divergence:container-prefix-or-suffix}}. {{event-grid-flow}} {{data-container-read-sas}}"
+    },
+    {
+      "label": "Template and role.",
+      "text": "{{zir-template-fields}} {{dlp-custom-role}} {{dlp-output-example-missing-client-id}}"
+    },
+    {
+      "label": "Storage networking.",
+      "text": "{{storage-ip-restriction}} {{manual-storage-networking}} {{manual-private-endpoint}} {{front-door-private-endpoint}}"
+    },
+    {
+      "text": "The integration object is in [[zwa.azure-dlp-integration]], the Filewatcher VM in [[zwa.azure-dlp-integration.filewatcher]] and the Cloud-to-Cloud variant in [[zwa.azure-dlp-integration.cloud-to-cloud]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Azure permission the deploying user holds for each template on the Zscaler Incident Receiver path.",
+      "uses": [
+        "azure-permissions"
+      ]
+    },
+    {
+      "do": "Whether the Workflow Automation cloud's IP addresses are allowlisted when the storage account is restricted to selected IP addresses.",
+      "uses": [
+        "storage-ip-restriction"
+      ]
+    },
+    {
+      "do": "Whether read permission on the data container was granted, if responders should view incident data files.",
+      "uses": [
+        "data-container-read-sas"
+      ]
+    }
+  ],
+  "claims": {
+    "app-registration-script": {
+      "statement": "The create-app-registration.sh script (ZIR path) creates app registrations and client secrets for both the DLP Integration and the Filewatcher; the secret is valid for one year by default (changeable with -y), and the customer display name entered is used for the containers and storage accounts in Azure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "This script creates the app registrations for both the DLP Integration and the Filewatcher, along with the client secrets for those apps.",
+            "By default, the script creates a password/secret with one-year validity for the service principal, but you can change the number of years.",
+            "The customer display name value that you enter in the command is used for the containers and storage accounts in Azure.",
+            "bash create-app-registration.sh -d <customer display name> -y <number of years in which the secret is valid>"
+          ]
+        }
+      ]
+    },
+    "azure-permissions": {
+      "statement": "In the ZIR-path procedure the Filewatcher template is deployed by a user with Contributor permission in Azure, and the DLP Integration template is deployed by a user with Owner permission because role definitions and assignments are added during that procedure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Log in to the Azure portal as a user with Contributor permission in Azure.",
+            "Log in to the Azure portal as a user with Owner permission in Azure. Owner permission is required because you add role definitions and assignments during this procedure."
+          ]
+        }
+      ]
+    },
+    "zir-template-fields": {
+      "statement": "In the ZIR-path DLP integration resource manager template deployment, Enable Read Access To Data Blob is yes by default and gives read access to the incident violation details in the Zscaler Admin Console; the template also takes the service principal object IDs of the DLP app and the Filewatcher, and privatelink.blob.core.windows.net is the Private DNS Zone to select for the storage account's private endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Enable Read Access To Data Blob: To enable read access to the incident violation details in the Zscaler Admin Console, select yes. Yes appears by default.",
+            "App Service Principal Object Id: Enter the servicePrincipalObjectId value from the output of the create app registration DLP integration script.",
+            "File Watcher Service Principal Object Id: Enter the servicePrincipalObjectId value from the output of the create app registration Filewatcher script.",
+            "Storage Account Public DNS Zone Forwarder: Select privatelink.blob.core.windows.net as the Private DNS Zone for the private endpoint for the storage account."
+          ]
+        }
+      ]
+    },
+    "storage-ip-restriction": {
+      "statement": "In the ZIR-path DLP template deployment, restricting the storage account to selected IP addresses (the page's note says 'select true for this field' under the Create Private DNS Zone parameter) requires allowlisting the IP addresses of the organization's Workflow Automation cloud, which are listed on NAT Gateway IP addresses.",
+      "tier": "A",
+      "conditions": "Applies when the storage account is restricted to selected IP addresses, per the ZIR page.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Create Private DNS Zone: If you need to create the Private DNS Zone and link it to the virtual network, select true.",
+            "If you want to restrict the storage account to selected IP addresses (i.e., if you select true for this field), then you must allowlist the IP addresses associated with your Workflow Automation cloud to communicate with the storage account.",
+            "The IP addresses associated with your cloud are listed on NAT Gateway IP addresses."
+          ]
+        }
+      ]
+    },
+    "zir-containers": {
+      "statement": "On the Zscaler Incident Receiver path the data and metadata containers are named <containerNamePrefix>-data and <containerNamePrefix>-metadata, and the Zscaler DLP Incident Management service reads and stores the incident metadata file (with trigger data stripped) but never reads or stores the incident data files; the manual procedure also creates a third container, <containerName>-checkpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "The names of the data and metadata containers are set to <containerNamePrefix>-data and <containerNamePrefix>-metadata, respectively. The Zscaler DLP Incident Management service reads and stores the incident metadata file (with trigger data stripped), but it never reads or stores the incident data files.",
+            "After the storage account successfully deploys, you must create three containers for the storage account.",
+            "Similarly, create two new containers with unique names followed by metadata and checkpoints, respectively. For example, <containerName>-metadata and <containerName>-checkpoints."
+          ]
+        }
+      ]
+    },
+    "event-grid-flow": {
+      "statement": "On both the Zscaler Incident Receiver and the Cloud-to-Cloud pages, the metadata storage container publishes BlobCreated notifications to an Event Grid topic; the Zscaler service subscribes through its own Webhook endpoint and, on a notification, reads the associated metadata file from the storage container; a service principal created in the Azure account has permissions to read from the metadata container and, optionally, the data container.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "The metadata storage container is configured to publish BlobCreated notifications to the Event Grid topic. The Zscaler service hosts a Webhook endpoint, which is used to subscribe to the Event Grid topic.",
+            "When the Zscaler service receives a notification on the Webhook endpoint, it reads the metadata file associated with the notification from the storage container.",
+            "a service principal is created in the Azure account that has permissions to read from the metadata storage container and, optionally, the data storage container."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "The metadata storage container is configured to publish BlobCreated notifications to the Event Grid topic. The Zscaler service hosts a Webhook endpoint, which is used to subscribe to the Event Grid topic.",
+            "When the Zscaler service receives a notification on the Webhook endpoint, it reads the metadata file associated with the notification from the storage container.",
+            "a service principal is created in the Azure account that has permissions to read from the metadata storage container and, optionally, the data storage container."
+          ]
+        }
+      ]
+    },
+    "data-container-read-sas": {
+      "statement": "Read permission on the data storage container is only required if users who respond to incidents should be able to view incident data files through short-lived, pre-signed Shared Access Signature (SAS) URL links; the Incident Receiver and Cloud-to-Cloud pages both say this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "The read permission for the data storage container is only required if you want users who respond to incidents to be able to view incident data files through short-lived, pre-signed Shared Access Signature (SAS) URL links."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "The read permission for the data storage container is only required if you want users who respond to incidents to be able to view incident data files through short-lived, pre-signed Shared Access Signature (SAS) URL links."
+          ]
+        }
+      ]
+    },
+    "dlp-custom-role": {
+      "statement": "On the ZIR path the custom role for the DLP application grants container read, generateUserDelegationKey, and Event Grid system-topic eventSubscriptions write, read and delete actions, plus the blobs read data action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "\"actions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/read\", \"Microsoft.Storage/storageAccounts/blobServices/generateUserDelegationKey/action\",",
+            "\"Microsoft.EventGrid/systemTopics/eventSubscriptions/write\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/read\", \"Microsoft.EventGrid/systemTopics/eventSubscriptions/delete\" ] \"dataActions\": [ \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\" ]"
+          ]
+        }
+      ]
+    },
+    "manual-storage-networking": {
+      "statement": "In the manual storage account creation on both the Zscaler Incident Receiver and the Cloud-to-Cloud pages, Network access is set to Enable public access from selected virtual networks and IP address and the Routing preference to Microsoft network routing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "In the Network connectivity section, in the Network access field, select Enable public access from selected virtual networks and IP address.",
+            "In the Network routing section, for the Routing preference field, select Microsoft network routing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "In the Network connectivity section, in the Network access field, select Enable public access from selected virtual networks and IP address.",
+            "In the Network routing section, for the Routing preference field, select Microsoft network routing."
+          ]
+        }
+      ]
+    },
+    "manual-private-endpoint": {
+      "statement": "In the manual ZIR-path procedure, the Private DNS zone is named privatelink.blob.core.windows.net, and the storage account's private endpoint uses the target sub-resource blob with dynamic private IP allocation and integration with the private DNS zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Name: Enter privatelink.blob.core.windows.net",
+            "Target sub-resource: From the drop-down menu, select blob.",
+            "In the Private IP configuration section, select Dynamically allocate IP address.",
+            "On the DNS tab, for Integrate with private DNS zone, select Yes."
+          ]
+        }
+      ]
+    },
+    "front-door-private-endpoint": {
+      "statement": "On both the Zscaler Incident Receiver and the Cloud-to-Cloud pages, setting up Azure Front Door Premium (pricing tier Azure Front Door Premium Security optimized) is optional and only needed for Workflow Automation to access the storage account through private endpoints, and the new private endpoints must be approved before they can be used in the integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "This step is optional and only required if you want Workflow Automation to access the storage account through private endpoints.",
+            "Pricing tier: Select Azure Front Door Premium Security optimized.",
+            "You must approve the new private endpoints to use them when configuring the Zscaler Azure DLP integration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "This step is optional and only required if you want Workflow Automation to access the storage account through private endpoints.",
+            "Pricing tier: Select Azure Front Door Premium Security optimized.",
+            "You must approve the new private endpoints to use them when configuring the Zscaler Azure DLP integration."
+          ]
+        }
+      ]
+    },
+    "dlp-output-example-missing-client-id": {
+      "statement": "On the Zscaler Incident Receiver page the example output of the DLP integration app-registration script lists tenantId, appName, applicationObjectId and servicePrincipalObjectId but no applicationClientId, although a later step says to copy the applicationClientId output from that script as the Client ID; the Filewatcher example output on the same page and the Cloud-to-Cloud example include applicationClientId.",
+      "tier": "A",
+      "conditions": "A vendor documentation defect, not a tool behavior; not filed. The comparison is of the example outputs as printed on the captured pages.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "\"tenantId\": \"aa698f79-a76e-4d05-8330-xxxxxxxxxx\", \"appName\": \"zscaler-Azure-Integration\", \"applicationObjectId\": \"929cbf20-c9ce-418b-xxxx-xxxxxxxxxx\", \"servicePrincipalObjectId\": \"5c4de7fb-xxxx-4b69-xxxx-xxxxxxxxxxx\" }",
+            "Client ID: Copy the applicationClientId output from the Bash script for the DLP integration and enter it here.",
+            "\"appName\": \"zscaler-Azure-Integration-filewatcher\", \"applicationObjectId\": \"0d7e2f75-79a0-43e3-b5f9-xxxxxxxx\", \"applicationClientId\": \"28dfa6aa-3456-404f-b5da-xxxxxxxxx\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "\"appName\": \"zscaler-Azure-Integration\", \"applicationObjectId\": \"c7d48793-63c5-xxx-xxx-xxxxxx\", \"applicationClientId\": \"9092c4c9-bd8b-xxx-xxx-xxxxxx\""
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "help.zscaler.com Configuring the Azure DLP Application Integration Using Zscaler Incident Receiver: the DLP app-registration example output omits applicationClientId."
+        }
+      ]
+    },
+    "manual-app-registration": {
+      "statement": "In the manual app registration, the supported account type is Accounts in any organizational directory and personal Microsoft accounts (a multitenant application), and the client secret value must be copied on the Certificates & secrets page because it cannot be viewed again after leaving that page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+          "quotes": [
+            "Supported account types: Select Accounts in any organizational directory and personal Microsoft accounts. This option allows you to register a multitenant application that can support users who have organizational and personal Microsoft accounts.",
+            "On the Certificates & secrets page, ensure that you copy and save the client secret's value for future use.",
+            "You cannot view the secret value again after you leave this page."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "container-prefix-or-suffix": {
+      "summary": "The Incident Receiver page describes the shared part of the data and metadata container names as a name prefix in one place and a name suffix in another.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "Different storage containers that share a common name prefix are used for storing DLP incident data and metadata files."
+            ]
+          },
+          "says": "The containers share a common name prefix."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-configuring-azure-dlp-application-integration-using-zscaler-incident-receiver.json",
+            "quotes": [
+              "Different storage containers that share a common name suffix are used for storing DLP incident data and metadata files."
+            ]
+          },
+          "says": "The containers share a common name suffix (and the same sentence calls them the data bucket and the metadata bucket)."
+        }
+      ],
+      "impact": "The names given on the page, <containerNamePrefix>-data and <containerNamePrefix>-metadata, follow the prefix reading; the page does not say which wording is intended."
+    }
+  },
+  "gaps": {
+    "secret-expiry": {
+      "kind": "semantic",
+      "title": "What happens when the Azure client secret expires, and how is it rotated?",
+      "status": "open",
+      "detail": "The create-app-registration.sh script creates a secret valid for one year by default, but the pages do not say what the integration does at expiry or how the secret is rotated.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

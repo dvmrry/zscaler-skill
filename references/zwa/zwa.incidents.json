@@ -47,6 +47,26 @@
     {
       "rel": "see-also",
       "to": "zwa.incident-analytics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.details"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.group-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents.filters-summary"
     }
   ],
   "prose": [
@@ -57,13 +77,20 @@
       "heading": "Ownership"
     },
     {
-      "text": "{{incident-groups}} {{assignment}} {{restricted-admin}} {{group-priority}}"
+      "text": "{{incident-groups}} {{assignment}} {{restricted-admin}} {{group-priority}} Group mappings, rule order and priorities are in [[zwa.incidents.group-mapping]]."
     },
     {
       "heading": "Handling an incident"
     },
     {
-      "text": "{{manual-features}} {{close-semantics}} {{delete-permanent}} {{quarantine-release}}"
+      "text": "{{manual-features}} {{close-semantics}} {{delete-permanent}} {{quarantine-release}} {{resolution-label-one-value}}"
+    },
+    {
+      "label": "Labels.",
+      "text": "{{labels-optional}} {{labels-delete-leftover}}"
+    },
+    {
+      "text": "The drawer's fields, actions and quarantine errors are in [[zwa.incidents.details]]; the notifications it sends are in [[zwa.incidents.notifications]]; ticketing and chat integrations are in [[zwa.incidents.integrations]]."
     },
     {
       "text": "Automated handling is in [[zwa.workflows]]; the API equivalents are in [[zwa.api.incidents-wire]]. The organization-level dashboard of incident counts and times is in [[zwa.incident-analytics]]."
@@ -72,7 +99,7 @@
       "heading": "Finding incidents"
     },
     {
-      "text": "{{values}} {{status-widgets}} {{search}} {{date-range}} {{bulk-limit}} {{evidence-placeholder}}"
+      "text": "{{values}} {{status-widgets}} {{search}} {{date-range}} {{bulk-limit}} {{evidence-placeholder}} Filters, duplicate incidents and the Incident Summary page are in [[zwa.incidents.filters-summary]]."
     },
     {
       "label": "Getting incidents into Workflow Automation.",
@@ -348,6 +375,48 @@
           "quotes": [
             "If an evidence file for a DLP incident exceeds 100 MB in size, the Zscaler service replaces the original file with a placeholder evidence file.",
             "The placeholder file retains the original name with \".txt\" appended (e.g., attachment.pdf.txt and samplefile.xlsx.txt)"
+          ]
+        }
+      ]
+    },
+    "labels-optional": {
+      "statement": "Labels are optional in Workflow Automation: admins with access manage custom labels and their values, then assign the labels to incidents from the Incidents page and the Incident Details drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-labels.json",
+          "quotes": [
+            "Adding labels is optional when configuring Workflow Automation.",
+            "After you add labels, you can assign those labels to the different incidents that have occurred in your organization on the Incidents page and the Incident Details drawer.",
+            "Admins with access to Workflow Automation can manage custom labels and the values associated with those labels."
+          ]
+        }
+      ]
+    },
+    "labels-delete-leftover": {
+      "statement": "Deleting a label deletes its values; incidents previously assigned to the deleted label might remain and must be found and the label removed manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-labels.json",
+          "quotes": [
+            "To delete the label along with its associated values, click the Delete icon next to the label on the Labels page.",
+            "If you delete the entire label, there might still be incidents in Workflow Automation that were previously assigned to that label on the Incidents page or the Incident Details drawer. You need to manually find those incidents and remove the label that was deleted."
+          ]
+        }
+      ]
+    },
+    "resolution-label-one-value": {
+      "statement": "When closing an incident, only one label value can be associated with a resolution label.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-viewing-managing-incident-details.json",
+          "quotes": [
+            "You can only associate one label value with a resolution label."
           ]
         }
       ]
