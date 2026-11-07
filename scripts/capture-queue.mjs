@@ -62,7 +62,7 @@ export function captureQueue(root = ROOT, cited = citedFiles(buildGraph(loadPubl
     try {
       // A capture answers for its page's URL and for the old addresses that redirect to it.
       const src = JSON.parse(fs.readFileSync(f, "utf8"))?.source;
-      for (const url of [src?.url, ...(src?.aliases || [])]) if (url?.startsWith(HELP)) captured.add(helpKey(url.slice(HELP.length)) ?? url);
+      for (const url of [src?.url, ...(src?.aliases || [])]) if (url?.startsWith(`${HELP}/`)) captured.add(helpKey(url.slice(HELP.length)) ?? url);
     } catch {
       // Not a capture (or not JSON): it can still link pages, below.
     }

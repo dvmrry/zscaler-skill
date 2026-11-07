@@ -3164,7 +3164,7 @@ export function tenantRefs(root, products) {
  */
 export function staleMentions(root) {
   const names = Object.keys(MOVES).map((f) => f.replace(/^references\//, ""));
-  const pattern = new RegExp(`(?:references/|\\.\\./|\\./)?(${names.map((n) => n.replace(/[.]/g, "\\.")).join("|")})(?![\\w-])`, "g");
+  const pattern = new RegExp(`(?:references/|\\.\\./|\\./)?(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\w-])`, "g");
   const found = [];
   for (const file of markdownFiles(root)) {
     const text = fs.readFileSync(path.join(root, file), "utf8");
