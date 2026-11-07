@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const executableConsumers = [
-  "scripts/benchmark-investigator-helper.mjs",
   "scripts/bridge/run-investigation.mjs",
   ".github/workflows/maintenance-digest.yml",
   ".github/workflows/vendor-impact.yml",

@@ -79,7 +79,7 @@ async function main(argv) {
   if (cmd === "import-types") {
     const { written, unmatched } = importTypes(ROOT);
     for (const f of written) console.log(`wrote ${f}`);
-    if (unmatched.length) console.log(`${unmatched.length} types have no infrawright Terraform mapping: ${unmatched.join(", ")}`);
+    if (unmatched.length) console.log(`${unmatched.length} types have no Terraform mapping: ${unmatched.join(", ")}`);
     return 0;
   }
   if (cmd === "move-claim") {

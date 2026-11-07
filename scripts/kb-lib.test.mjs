@@ -9,7 +9,6 @@ import { fileURLToPath } from "node:url";
 import { anchorEvidence, buildGraph, captureText, idKind, loadPublic, materialDate, parseProse, validateGraph } from "./kb-lib.mjs";
 import { loadOverlay, renderSubject, resolve, updateManifest, usableOverlay, validateOverlay } from "./kb-resolve.mjs";
 import { loadSchemas, validate } from "./kb-schema.mjs";
-import { snakeToCamel } from "./kb-types.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OVERLAY = path.join(ROOT, "scripts/fixtures/kb-overlay");
@@ -767,12 +766,6 @@ test("the surface layer links a Terraform resource through its SDK package to AP
   assert.deepEqual(zpa.legacy_not_in_spec["GET /mgmtconfig/v1/admin/customers/{customerId}/apiKeys"], { sdk_go: ["api_keys"], sdk_python: ["api_keys"] });
   const [zwa] = lookupSurface(ROOT, "zwa");
   assert.equal(zwa.legacy_not_in_spec, undefined);
-});
-
-test("Terraform field paths convert to API field paths", () => {
-  assert.equal(snakeToCamel("url_categories2"), "urlCategories2");
-  assert.equal(snakeToCamel("departments.name"), "departments.name");
-  assert.equal(snakeToCamel("last_modified_by"), "lastModifiedBy");
 });
 
 test("a check of some subjects anchors only their quotes, and still reports a reference broken anywhere", () => {

@@ -127,7 +127,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 - [docs/data-contract/](./docs/data-contract/) — expected runtime-data layout
 
 **Project**
-- [CHANGELOG.md](./CHANGELOG.md) · [PLAN.md](./PLAN.md)
+- [CHANGELOG.md](./CHANGELOG.md)
 
 ## Known boundaries
 

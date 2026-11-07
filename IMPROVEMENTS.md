@@ -228,7 +228,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Cross-links
 
-- [`PLAN.md`](PLAN.md) — original skill-building plan
 - [`SKILL.md`](SKILL.md) — skill-routing entry point
 - `scripts/check-*` and `scripts/kb-*.mjs` — the check suite that some of these items extend
 - [`docs/kb-layout.md`](docs/kb-layout.md) — the knowledge-graph layout

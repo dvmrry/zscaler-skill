@@ -1,18 +1,13 @@
 // scripts/kb-types.mjs
 //
 // Generates config object types (references/_meta/types/<scope>.json) from two
-// pinned tools, never by hand. Their development repos are private and marked `update = none` in .gitmodules, so
-// clones and CI skip them and the committed output is what readers use; a maintainer fetches them with
-// `git submodule update --init --checkout vendor/zscalerctl-dev vendor/infrawright-dev` before regenerating.
-// Claims cite the public vendor/zscalerctl instead.
-//   - zscalerctl-dev: the offline, credential-free resource catalogue (names,
-//     fields, reviewed field semantics, reference edges, command paths), exported
-//     to references/_meta/imports/zscalerctl.json by exportZscalerctl().
-//   - infrawright-dev packs: Terraform names, API fetch paths, and the fields or
-//     values the adoption tooling cannot carry.
-//   - the generated surface layer (references/_meta/surfaces/<product>.json): for a type
-//     infrawright does not pack, the provider resource that imports the same Go SDK package
-//     as zscalerctl's reader (see TF_JOIN).
+// generated inputs, never by hand:
+//   - the pinned vendor/zscalerctl: the offline, credential-free resource catalogue
+//     (names, fields, reviewed field semantics, reference edges, command paths),
+//     exported to references/_meta/imports/zscalerctl.json by exportZscalerctl().
+//   - the generated surface layer (references/_meta/surfaces/<product>.json): the
+//     provider resource and data source that import the same Go SDK package as
+//     zscalerctl's reader (see TF_JOIN).
 // zscalerctl owns field shape and descriptions; the KB owns behavior (claims).
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -20,8 +15,7 @@ import os from "node:os";
 import path from "node:path";
 import { META, gitlink } from "./kb-lib.mjs";
 
-const ZSCALERCTL = "vendor/zscalerctl-dev";
-const INFRAWRIGHT = "vendor/infrawright-dev";
+const ZSCALERCTL = "vendor/zscalerctl";
 export const EXPORT_FILE = `${META}/imports/zscalerctl.json`;
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
@@ -58,7 +52,9 @@ export function handlerPackages(root) {
 }
 
 /**
- * Joining a type to a provider resource by SDK package. A package can back several resources, so a
+ * Joining a type to a provider resource: the resource named after the type (`zia/url-filtering-rules` is
+ * `zia_url_filtering_rules`; ZTW's provider prefix is `ztc`) when the provider has one, else by SDK package.
+ * A package can back several resources, so a
  * candidate must also share a name token with the type (ignoring a plural s), and the most tokens win. The
  * joins below were reviewed against the provider and reader source: `exclude` drops a join that shares a
  * package and a word but manages something else, `pick` names the resource when several fit.
@@ -104,6 +100,9 @@ export function joinTerraform(id, sdkGo, entries, kind = "resource") {
   if (pick[id]) return pick[id];
   if ((kind === "resource" ? TF_JOIN.exclude : TF_JOIN.exclude_data_source)[id]) return undefined;
   const resources = entries.filter((r) => (r.kind || "resource") === kind);
+  const [product, name] = id.split("/");
+  const named = `${product === "ztw" ? "ztc" : product}_${name.replace(/-/g, "_")}`;
+  if (resources.some((r) => r.name === named)) return named;
   const pkgs = new Set((sdkGo || []).map((p) => p.split("/").slice(1).join("/")));
   const want = tokens(id.split("/")[1]);
   const overlap = (r) => [...tokens(r.name.split("_").slice(1).join("_"))].filter((w) => want.has(w)).length;
@@ -154,19 +153,6 @@ export function exportZscalerctl(root) {
   return out;
 }
 
-export const snakeToCamel = (p) => p.split(".").map((seg) => seg.replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase())).join(".");
-
-function loadPack(root, product) {
-  const dir = path.join(root, INFRAWRIGHT, "packs", product);
-  if (!fs.existsSync(dir)) return null;
-  const overrides = {};
-  const odir = path.join(dir, "overrides");
-  if (fs.existsSync(odir)) {
-    for (const name of fs.readdirSync(odir)) if (name.endsWith(".json")) overrides[name.slice(0, -5)] = readJson(path.join(odir, name));
-  }
-  return { registry: readJson(path.join(dir, "registry.json")), pack: readJson(path.join(dir, "pack.json")), overrides };
-}
-
 /** Generate every product's types file. Returns { written: [file], unmatched: [type id without a Terraform name] }. */
 export function importTypes(root) {
   const exp = readJson(path.join(root, EXPORT_FILE));
@@ -174,16 +160,11 @@ export function importTypes(root) {
   const scopeOf = new Map(Object.entries(products).map(([id, p]) => [p.type_scope || id, id]));
   const byScope = new Map();
   const unmatched = [];
-  const packs = new Map();
   const surfaces = new Map();
 
   for (const r of exp.resources) {
     if (!scopeOf.has(r.product)) throw new Error(`kb-types: zscalerctl product "${r.product}" has no product or type_scope in products.json`);
-    if (!packs.has(r.product)) packs.set(r.product, loadPack(root, r.product === "ztw" ? "ztc" : r.product));
-    const pk = packs.get(r.product);
     const id = `${r.product}/${r.name}`;
-    const tfName = `${r.product === "ztw" ? "ztc" : r.product}_${r.name.replace(/-/g, "_")}`;
-    const reg = pk?.registry[tfName];
     const t = {
       id, kind: "config", product: scopeOf.get(r.product),
       names: { zscalerctl: `${r.product} ${r.name}` },
@@ -194,34 +175,10 @@ export function importTypes(root) {
     for (const s of exp.semantics[id] || []) {
       t.fields[s.name] = { ...t.fields[s.name], type: s.type, description: s.description, classification: s.classification };
     }
-    if (reg) {
-      t.names.terraform = tfName;
-      if (reg.fetch?.path) t.names.api = reg.fetch.path;
-      t.iac = { generate: reg.generate !== false, adopt: Boolean(reg.adopt) };
-      if (reg.fetch?.query) t.iac.fetch_query = reg.fetch.query;
-      const unsupported = (reg.adopt?.unsupported_if || []).map((u) => ({
-        ...(u.match ? { match: u.match } : {}),
-        ...(u.match_any_nonempty ? { match_any_nonempty: u.match_any_nonempty } : {}),
-        provider: `${u.provider.source}@${u.provider.version}`, reason: u.reason, evidence: u.evidence,
-      }));
-      if (unsupported.length) t.iac.unsupported_if = unsupported;
-      const ov = pk.overrides[tfName];
-      if (ov?.skip_if) t.iac.skip_if = ov.skip_if;
-      for (const drop of ov?.acknowledged_drops || []) {
-        const fpath = snakeToCamel(drop);
-        t.fields[fpath] = { ...t.fields[fpath], terraform: { status: "adoption-omitted", source: `infrawright overrides/${tfName}.json acknowledged_drops` } };
-      }
-      for (const omit of pk.pack.drift_policy?.resource_types?.[tfName]?.projection_omit || []) {
-        const fpath = snakeToCamel(omit.path);
-        t.fields[fpath] = { ...t.fields[fpath], terraform: { status: "adoption-omitted", source: "infrawright pack.json drift_policy", reason: omit.reason } };
-      }
-    } else {
-      if (!surfaces.has(r.product)) surfaces.set(r.product, surfaceTerraform(root, r.product));
-      const joined = joinTerraform(id, r.sdk_go, surfaces.get(r.product));
-      if (joined) t.names.terraform = joined;
-      else unmatched.push(id);
-    }
     if (!surfaces.has(r.product)) surfaces.set(r.product, surfaceTerraform(root, r.product));
+    const joined = joinTerraform(id, r.sdk_go, surfaces.get(r.product));
+    if (joined) t.names.terraform = joined;
+    else unmatched.push(id);
     const dataSource = joinTerraform(id, r.sdk_go, surfaces.get(r.product), "data-source");
     if (dataSource) t.names.terraform_data_source = dataSource;
     if (!byScope.has(r.product)) byScope.set(r.product, {});
@@ -243,7 +200,7 @@ export function importTypes(root) {
     fs.writeFileSync(path.join(root, file), stable({
       schema_version: 1,
       generated_by: "node scripts/kb.mjs import-types",
-      inputs: { zscalerctl: exp.zscalerctl_commit, infrawright: gitlink(root, INFRAWRIGHT) },
+      inputs: { zscalerctl: exp.zscalerctl_commit },
       types: sorted,
     }));
     written.push(file);

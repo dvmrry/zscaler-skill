@@ -57,7 +57,6 @@ fork, use these state sources:
 - [`IMPROVEMENTS.md`](../IMPROVEMENTS.md) — current improvement backlog.
 - Open gaps in the knowledge graph (`node scripts/kb.mjs resolve <subject>` lists a subject's gaps)
   — unresolved product-behavior questions and what would resolve them.
-- [`PLAN.md`](../PLAN.md) — historical build record and crash-recovery context.
 
 Run `npm run check:fast` while iterating and `npm run check:full` before merge.
 The full gate runs the mixed Node/Python suite behind one command and preserves

@@ -42,7 +42,6 @@ META_DOCS: list[str] = []
 QUICK_FILES = [
     "SKILL.md",
     "README.md",
-    "PLAN.md",
 ]
 
 FRONTMATTER_RE = re.compile(r"\A---\s*\n.*?\n---\s*\n", re.DOTALL)

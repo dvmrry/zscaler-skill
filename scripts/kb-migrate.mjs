@@ -3051,7 +3051,7 @@ export const MOVES = {
 const LEDGER = "references/_meta/clarifications.md";
 const LINK = /\[([^\]]*)\]\(([^)\s]+)\)/g;
 const SCAN_DIRS = ["references", "agents", "docs", ".agents", ".claude", ".devin"];
-const SCAN_FILES = ["SKILL.md", "README.md", "PLAN.md", "AGENTS.md", "zscaler"];
+const SCAN_FILES = ["SKILL.md", "README.md", "AGENTS.md", "zscaler"];
 
 function* markdownFiles(root) {
   for (const f of SCAN_FILES) if (fs.existsSync(path.join(root, f))) yield f;
@@ -3149,7 +3149,6 @@ export function tenantRefs(root, products) {
   const type = new RegExp(`\`((?:${[...products].join("|")})/[a-z0-9][a-z0-9-]*)(?:#([a-z0-9_.-]+))?\``, "g");
   const found = [];
   for (const file of markdownFiles(root)) {
-    if (file === "PLAN.md") continue;
     const text = fs.readFileSync(path.join(root, file), "utf8");
     for (const m of text.matchAll(type)) found.push({ file, kind: "type", id: m[2] ? `${m[1]}#${m[2]}` : m[1] });
     for (const m of text.matchAll(/zscalerctl ([a-z]+) ([a-z0-9-]+) (?:list|get)\b/g)) found.push({ file, kind: "read", product: m[1], resource: m[2] });
@@ -3161,14 +3160,13 @@ export function tenantRefs(root, products) {
 /**
  * Plain-text mentions of a converted (moved) file, such as a front-matter `sources` entry or a
  * backticked routing path. migrate-links rewrites links only, so these would silently point at a
- * deleted doc. History (design specs, PLAN.md) is exempt.
+ * deleted doc.
  */
 export function staleMentions(root) {
   const names = Object.keys(MOVES).map((f) => f.replace(/^references\//, ""));
   const pattern = new RegExp(`(?:references/|\\.\\./|\\./)?(${names.map((n) => n.replace(/[.]/g, "\\.")).join("|")})(?![\\w-])`, "g");
   const found = [];
   for (const file of markdownFiles(root)) {
-    if (file === "PLAN.md") continue;
     const text = fs.readFileSync(path.join(root, file), "utf8");
     for (const m of text.matchAll(pattern)) {
       const moved = `references/${m[1]}`;
