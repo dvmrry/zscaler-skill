@@ -1,0 +1,596 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Inbound Integrations",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/managing-inbound-integrations",
+    "node": "1547229",
+    "revision": "3253407",
+    "updated": "2026-11-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-07",
+  "blocks": [
+    {
+      "text": "With inbound integration functionality, AI Guard lets a tenant connect to third-party AI platforms that call AI Guard for a policy decision on every prompt and response. The two integrations currently available are:"
+    },
+    {
+      "item": "Anthropic: Claude sends each prompt and response to AI Guard through inference hooks.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Anthropic integration was available previously through the Tenant Settings page. Previous setups made there will keep working and will show up on the Inbound Integrations page. See the Existing Anthropic Integrations section for more information.",
+      "depth": 0
+    },
+    {
+      "item": "Databricks: The Databricks Unity AI Gateway checks every governed model against AI Guard as an external guardrail policy.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "To add or manage inbound integrations, refer to the following instructions:"
+    },
+    {
+      "item": "Anthropic",
+      "depth": 0
+    },
+    {
+      "heading": "Existing Anthropic Integrations",
+      "level": 1
+    },
+    {
+      "item": "The Anthropic Webhook card on the Tenant Settings > Integrations page is deprecated. Integrations made there keep working, and will show up on Inbound Integrations page marked as Set up on Tenant Settings. To fully move the existing integration to the Inbound Integrations page, do the following:",
+      "depth": 0,
+      "strong": [
+        [
+          34,
+          49
+        ],
+        [
+          52,
+          64
+        ],
+        [
+          143,
+          163
+        ],
+        [
+          179,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "On the Inbound Integrations page, find the existing integrations tile and click Save here.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          80,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Save Integration page, you will see your signing secrets and other information are retained. Click Save Integration.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          106,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "Older Anthropic setups use the webhook URL /v1/webhook/execute. This still works, but new setups should use the URL shown on the Save Integrations page.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Leave Run detections on the whole conversation history (Beta) off to check only the latest turn, or turn it on to check the whole conversation on every call.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          17,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "You will now manage your integration from the Inbound Integrations page instead of Tenant Settings.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          46,
+          66
+        ],
+        [
+          83,
+          98
+        ]
+      ]
+    },
+    {
+      "heading": "Adding Anthropic Integrations",
+      "level": 1
+    },
+    {
+      "item": "AI Guard can integrate with Anthropic Claude's inference hooks to inspect and evaluate prompts against a tenant's detection policy in real time. AI Guard responds with an \"allow\" or \"deny\" verdict, which determines whether Claude proceeds to generate a response or the prompt is blocked.",
+      "depth": 0
+    },
+    {
+      "item": "To set up an integration between AI Guard and Claude:",
+      "depth": 0
+    },
+    {
+      "item": "In the Claude UI, go to Organization Settings > Data and Privacy > Inference Hooks.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          24,
+          45
+        ],
+        [
+          48,
+          64
+        ],
+        [
+          67,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Under Inference hooks, enable Allow for your organization.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          30,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Inference hooks section, do the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Enforce verdicts: Enable.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Inference hooks endpoint: Set to https://api.zseclipse.net/v1/detection/anthropic",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Prompt verdict timeout (ms): 1000ms",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Signing secret: Copy this secret for use in AI Guard later. A signing secret is generated automatically on the first save and can be rotated at any time.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Custom blocked prompt message: Enter a custom block message to show users when a prompt is blocked.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Leave Claude and go to the AI Guard > Inbound Integrations.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          27,
+          35
+        ],
+        [
+          38,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Integration, then select Anthropic.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          35,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Enter the following:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Integration Name: Enter a name for the integration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Anthropic Organization ID: Enter your Anthropic Organization ID.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Signing Secret (starts with whsec_) you saved earlier.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Leave Run detections on the whole conversation history (Beta) off to check only the latest turn, or turn it on to check the whole conversation on every call.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          17,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Integration.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "With the integration completed, create a policy to the traffic and create a policy control to set the match criteria so the policy applies to the traffic you intend. To learn more, see Adding and Managing AI Guard Policy Configurations and Managing AI Guard Policy Control.",
+      "depth": 0
+    },
+    {
+      "item": "Databricks",
+      "depth": 0
+    },
+    {
+      "item": "To set up an integration between AI Guard and Databricks, do the following:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the AI Guard > Inbound Integrations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          21,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add Integration, then click Databricks. The Databricks Integration page appears.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          34,
+          44
+        ],
+        [
+          50,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the Databricks Integration page, copy down the Host, API Path, and Token Endpoint to use in configuring Databricks.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          50,
+          54
+        ],
+        [
+          56,
+          64
+        ],
+        [
+          70,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Leave Run detections on the whole conversation history (beta) off while initially setting up the integration.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Under Integration Name, enter a name for the integration.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Integration.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "A window will appear with your Client ID and Client Secret. Copy these to use in configuring Databricks and click Done.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          31,
+          40
+        ],
+        [
+          45,
+          58
+        ],
+        [
+          114,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to your Databricks admin account and create a Unity Catalog HTTP connection using the information you copied earlier: Host, API Path, Token Endpoint, Client ID, and Client Secret. Leave the OAuth scope empty.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          35
+        ],
+        [
+          49,
+          78
+        ],
+        [
+          121,
+          125
+        ],
+        [
+          127,
+          135
+        ],
+        [
+          137,
+          151
+        ],
+        [
+          153,
+          162
+        ],
+        [
+          168,
+          181
+        ],
+        [
+          193,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "Attach a policy with guardrail type External to the Model and Model Provider.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          36,
+          44
+        ],
+        [
+          52,
+          57
+        ],
+        [
+          62,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Pick the connection and the phase (input, output, or both), and leave Policy configuration empty.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          35,
+          40
+        ],
+        [
+          42,
+          48
+        ],
+        [
+          53,
+          57
+        ],
+        [
+          70,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Start in Log mode and wait 60 to 90 seconds before testing. Databricks takes that long to apply a new policy.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          9,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Databricks integration appears on the Inbound Integrations page.",
+      "depth": 0,
+      "strong": [
+        [
+          42,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "With the integration completed, create a policy to the traffic and create a policy control to set the match criteria so the policy applies to the traffic you intend. To learn more, see Adding and Managing AI Guard Policy Configurations and Managing AI Guard Policy Control.",
+      "depth": 0
+    }
+  ]
+}
