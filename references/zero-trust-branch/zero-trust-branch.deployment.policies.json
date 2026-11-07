@@ -36,7 +36,7 @@
     },
     {
       "label": "Firewall policies.",
-      "text": "{{firewall-policy-levels}} {{firewall-policy-evaluation}} {{security-policy-fields}} {{security-policy-logging}} The Ransomware Kill Switch color codes are in [[zero-trust-branch.operations.segmentation]]."
+      "text": "{{firewall-policy-levels}} {{firewall-policy-evaluation}} {{security-policy-fields}} {{security-policy-reorder}} {{gap:reorder-commit}} {{security-policy-commit-delete}} {{security-policy-logging}} The Ransomware Kill Switch color codes are in [[zero-trust-branch.operations.segmentation]]."
     }
   ],
   "checks": [
@@ -243,6 +243,38 @@
         }
       ]
     },
+    "security-policy-reorder": {
+      "statement": "Security policies can be viewed, edited, cloned, deleted or reordered at global, template or site level; when reordering, a drag icon appears for each custom policy and step 4 of reordering is to click Save Policy Order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-security-policies.json",
+          "quotes": [
+            "You can view, edit, clone, delete, or organize security policies at global, template, or site levels.",
+            "You can reorder policies to change the order of evaluation.",
+            "- A Drag icon appears for each custom policy.",
+            "4. Click Save Policy Order."
+          ]
+        }
+      ]
+    },
+    "security-policy-commit-delete": {
+      "statement": "For a security policy, edit, clone and delete changes are applied by clicking Commit, and deleting one requires entering DELETE in the confirmation window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-security-policies.json",
+          "quotes": [
+            "4. Click Save.\n- The policy changes are saved.\n5. Click Commit to apply the changes.",
+            "4. Click Clone.\n- The new policy is added.\n5. Click Commit to apply the changes.",
+            "3. In the delete confirmation window, enter DELETE and click Confirm.",
+            "4. Click Commit to apply the changes."
+          ]
+        }
+      ]
+    },
     "security-policy-logging": {
       "statement": "With log throttling enabled, the log flows once per tuple per hour; a security policy can also set a Ransomware Kill Switch color code for its threat level.",
       "tier": "A",
@@ -315,5 +347,13 @@
       "impact": "An admin choosing None for a rule or an Enhanced HA site cannot tell from the pages whether the primary interface carries the load or the system picks the path."
     }
   },
-  "gaps": {}
+  "gaps": {
+    "reorder-commit": {
+      "kind": "semantic",
+      "title": "Does reordering security policies need a Commit?",
+      "status": "open",
+      "detail": "The managing security policies page ends the reorder steps at Save Policy Order, while edit, clone and delete each end with Click Commit to apply the changes. The page does not say whether a saved order is applied without Commit.",
+      "resolves_with": ["lab-test"]
+    }
+  }
 }

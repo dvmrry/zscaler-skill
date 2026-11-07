@@ -43,6 +43,14 @@
       "text": "{{top-objects-columns}}"
     },
     {
+      "label": "AD computer details.",
+      "text": "{{computer-summary-fields}} {{computer-classification}} {{computer-summary-counts-containment}} {{computer-posture-tab}} {{computer-posture-remediation}} The computer Posture tab's severity and remediation scales are among those that differ {{divergence:severity-scale}} {{divergence:remediation-scale}}. {{computer-change-detection-tab}} {{computer-change-view-details}}"
+    },
+    {
+      "label": "On-demand scan.",
+      "text": "{{on-demand-scan-trigger}}"
+    },
+    {
       "label": "Risk Reduction Roadmap.",
       "text": "{{risk-reduction-roadmap}}"
     },
@@ -77,13 +85,162 @@
       ]
     },
     {
-      "do": "Which remediation-assessment scale the page being read shows before comparing assessments across pages.",
+      "do": "Which remediation-assessment scale (Easy, Moderate, Difficult or High, Moderate, Easy) the field being read shows before comparing assessments across pages.",
       "uses": [
         "remediation-scale"
       ]
     }
   ],
   "claims": {
+    "computer-summary-fields": {
+      "statement": "The AD computer details page, reached by clicking an AD computer on the Active Directory Posture dashboard, has a Summary tab that shows the computer's name, Created On, Identity Classification, Last Password Change and Critical Group Memberships.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "The Active Directory Posture dashboard displays a list of the top 10 user accounts and computers (AD objects) that are at highest risk in the Active Directory (AD) domain.",
+            "you can click an AD computer to view additional details, such as failed posture checks and recent suspicious changes made to the AD computer.",
+            "- Summary",
+            "View the name of the AD computer.",
+            "Created On: The date when the AD computer was created.",
+            "Identity Classification: The AD computer type, such as privileged or service.",
+            "Last Password Change: The date when the password was last changed.",
+            "Critical Group Memberships: The group membership of the critical AD group."
+          ]
+        }
+      ]
+    },
+    "computer-classification": {
+      "statement": "The AD computer details page defines a privileged AD computer as one with powerful permissions to perform nearly any action in the AD, and a service AD computer as one created to run a particular service or application on Windows with the minimum permissions required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "A privileged AD computer has powerful permissions that allow the user to perform nearly any action in the AD.",
+            "A service AD computer is created to run a particular service or application on the Microsoft Windows operating system and has the minimum permissions that are required to run the services."
+          ],
+          "after": "Identity Classification: The AD computer type, such as privileged or service."
+        }
+      ]
+    },
+    "computer-summary-counts-containment": {
+      "statement": "The AD computer Summary tab shows the total number of posture risks or misconfigurations the computer is exposed to (examples: Account control rights, Stale computer passwords) and of recent risky changes, and lets the admin forward the attack details to ZIA and ZPA for automated containment, which block according to the defined policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "View the total number of posture risks or misconfigurations the AD computer is exposed to.",
+            "For example, Account control rights, Stale computer passwords, etc.",
+            "View the total number of recent risky changes made to the AD computer that have a bad impact on the identity posture.",
+            "You can forward the attack details to ZIA and ZPA for automated containment.",
+            "ZIA and ZPA inspect the attack details and block the attacks according to the defined policy."
+          ]
+        }
+      ]
+    },
+    "computer-posture-tab": {
+      "statement": "On the AD computer Posture tab each risk shows a Type of Risk (examples: Credential Exposure, Weak Permissions), a Severity (examples: Critical, High, Moderate, Low), a Remediation assessment (examples: High, Moderate, Easy), a MITRE ATT&CK technique ID and tactic, and the Who is affected details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "On the AD computer details page, you can view the following information on each tab:",
+            "- Posture",
+            "Provides visibility into the top risks in your AD computer.",
+            "Type of Risk: The type of vulnerability risk (e.g., Credential Exposure, Weak Permissions, etc.).",
+            "Severity: The severity level of the vulnerability issue (e.g., Critical, High, Moderate, and Low).",
+            "Remediation: The remediation assessment (e.g., High, Moderate, and Easy).",
+            "MITRE ATT&CK : The MITRE ATT&CK technique ID (e.g., T1558.003, T1078.002, etc.).",
+            "MITRE ATT&CK TACTICS: The MITRE ATT&CK tactic description (e.g., Privilege Escalation, Credential Access, etc.).",
+            "Who is affected?: The details of the AD computer that is vulnerable to attack."
+          ]
+        }
+      ]
+    },
+    "computer-posture-remediation": {
+      "statement": "On the AD computer Posture tab, the remediation details give a remediation assessment of Easy, Moderate, or Difficult and include a Remediation Script that can be downloaded and run in PowerShell.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "- Posture",
+            "Provides visibility into the top risks in your AD computer.",
+            "Remediation details: The remediation description and assessment (Easy, Moderate, or Difficult).",
+            "Remediation Script: A script that you can download and run in PowerShell to remediate the issue."
+          ]
+        }
+      ]
+    },
+    "computer-change-detection-tab": {
+      "statement": "The AD computer Change Detection tab lists recent risky or bad changes detected in the computer, each with a Change Date, an Issue (examples: Privileged account delegation, Unconstrained Delegation), a Change description and an Impact that indicates the change has a bad impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "- Change Detection",
+            "Lists the recent risky or bad changes detected in the AD computer.",
+            "Issue: The issues for which the change is detected (e.g., Privileged account delegation, Unconstrained Delegation, etc.).",
+            "Change: The description of risky changes.",
+            "Impact: Indicates that the change has a bad impact."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "Change Date: The date and time when a change is detected in the AD computer."
+          ],
+          "after": "Change details:"
+        }
+      ]
+    },
+    "computer-change-view-details": {
+      "statement": "On the AD computer Change Detection tab, the View icon opens issue and remediation details that include the Issue Name, a Type of Risk (examples: Delegation Abuse, Account Management, Credential Exposure), the MITRE ID and an Investigate section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-computer-details.json",
+          "quotes": [
+            "- Change Detection",
+            "Issue and remediation details: Click the View icon to view the following details:",
+            "Issue Name: The issue name.",
+            "Type of Risk: The type of risk (e.g., Delegation Abuse, Account Management, Credential Exposure, etc.).",
+            "MITRE ID: The MITRE ATT&CK technique ID (e.g., T1558.003, T1078.002, etc.). Click the ID to view more details about the attack technique.",
+            "Investigate: Issue investigation details."
+          ]
+        }
+      ]
+    },
+    "on-demand-scan-trigger": {
+      "statement": "After an AD domain is configured for scanning, the scan is triggered at the scheduled time; an on-demand scan can also be triggered from ITDR > Manage > Active Directory Posture with the Trigger a new scan icon, and results appear on the Active Directory Posture dashboard once it completes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-triggering-demand-scan-active-directory.json",
+          "quotes": [
+            "After you configure an Active Directory (AD) domain for scanning, the scan is triggered at the scheduled time.",
+            "If you need to immediately scan an AD domain for risks and view the report, you can manually trigger an on-demand scan.",
+            "Go to ITDR > Manage > Active Directory Posture.",
+            "Locate the AD domain for which you want to manually scan, and click the Trigger a new scan icon.",
+            "After the scan is complete, you can view the results on the Active Directory Posture dashboard."
+          ]
+        }
+      ]
+    },
     "dashboard-top-lists": {
       "statement": "The AD Posture dashboard shows the domain risk severity (Critical, High, Medium or Low), the top 5 issues and the top 10 users and computers with the highest risks, and filters results by AD domain and timestamp.",
       "tier": "A",
@@ -522,7 +679,7 @@
   },
   "divergences": {
     "severity-scale": {
-      "summary": "The AD issue detail page gives severity as Critical, High, Medium, and Low; the AD user details page, Posture tab, gives Critical, High, Moderate, and Low.",
+      "summary": "The AD issue detail page gives severity as Critical, High, Medium, and Low; the AD user and computer details pages, Posture tab, give Critical, High, Moderate, and Low.",
       "positions": [
         {
           "evidence": {
@@ -544,12 +701,23 @@
             "after": "- Posture"
           },
           "says": "The user details page, Posture tab, gives severity as Critical, High, Moderate, and Low; the Credential Exposure tab of that page repeats the same list."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-computer-details.json",
+            "quotes": [
+              "Severity: The severity level of the vulnerability issue (e.g., Critical, High, Moderate, and Low)."
+            ],
+            "after": "- Posture"
+          },
+          "says": "The computer details page, Posture tab, gives severity as Critical, High, Moderate, and Low."
         }
       ],
-      "impact": "The middle severity level is named Medium on the issue and scan-report pages and Moderate on the user details page; the pages do not say whether they are the same level."
+      "impact": "The middle severity level is named Medium on the issue and scan-report pages and Moderate on the user and computer details pages; the pages do not say whether they are the same level."
     },
     "remediation-scale": {
-      "summary": "The AD issue detail page gives the remediation assessment as Easy, Moderate, Difficult; the AD user details page, Posture tab, gives High, Moderate, and Easy.",
+      "summary": "The AD issue detail page gives the remediation assessment as Easy, Moderate, Difficult; the AD user and computer details pages, Posture tab, each give both Easy, Moderate, Difficult and High, Moderate, Easy.",
       "positions": [
         {
           "evidence": {
@@ -570,10 +738,43 @@
             ],
             "after": "- Posture"
           },
-          "says": "The user details page, Posture tab, gives the remediation assessment as High, Moderate, and Easy."
+          "says": "The user details page, Posture tab, gives the remediation assessment as High, Moderate, and Easy in one field and as Easy, Moderate, or Difficult in the remediation description."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-user-account-details.json",
+            "quotes": [
+              "Remediation description and assessment (Easy, Moderate, or Difficult)."
+            ],
+            "after": "- Posture"
+          },
+          "says": "The user details page, Posture tab, also gives the remediation description and assessment as Easy, Moderate, or Difficult."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-computer-details.json",
+            "quotes": [
+              "Remediation: The remediation assessment (e.g., High, Moderate, and Easy)."
+            ],
+            "after": "- Posture"
+          },
+          "says": "The computer details page, Posture tab, gives the remediation assessment as High, Moderate, and Easy in one field."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-computer-details.json",
+            "quotes": [
+              "Remediation details: The remediation description and assessment (Easy, Moderate, or Difficult)."
+            ],
+            "after": "- Posture"
+          },
+          "says": "The computer details page, Posture tab, also gives the remediation details assessment as Easy, Moderate, or Difficult."
         }
       ],
-      "impact": "The two pages name different values for the same remediation assessment of an AD issue (Difficult on one, High on the other); the pages do not say which scale governs or whether they map onto each other."
+      "impact": "The issue, user and computer pages name different values for the same remediation assessment of an AD issue (Difficult on some, High on others), and the user and computer Posture tabs show both scales; the pages do not say which scale governs or whether they map onto each other."
     }
   },
   "gaps": {

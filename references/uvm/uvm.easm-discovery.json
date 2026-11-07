@@ -36,19 +36,19 @@
     },
     {
       "label": "Seeds.",
-      "text": "{{seed-types}} {{seed-limit}} {{exclude-needs-include}}"
+      "text": "{{seed-types}} {{seed-limit}} {{exclude-needs-include}} {{profile-per-entity}} {{divergence:profiles-per-entity}} [[easm.discovery:profile-one-per-org]]"
     },
     {
       "label": "Seed formats.",
-      "text": "{{ip-format}} {{block-format}} {{domain-org-format}}"
+      "text": "{{ip-format}} {{block-format}} {{domain-org-format}} {{csv-format}}"
     },
     {
       "label": "Scanning and profile changes.",
-      "text": "{{scan-weekly}} {{edit-profile}} {{delete-profile}}"
+      "text": "{{scan-weekly}} {{profile-list}} {{results-location}} {{edit-profile}} {{delete-profile}} Limits on the number of profiles and the aging default are open {{gap:profile-limits}}; aging rules are in [[unified.secops-platform.data.asset-aging]]."
     },
     {
       "label": "Reports.",
-      "text": "{{report-contents}}"
+      "text": "{{report-contents}} {{report-purposes}}"
     },
     {
       "label": "Related.",
@@ -56,8 +56,82 @@
     }
   ],
   "claims": {
+    "profile-list": {
+      "statement": "The EASM Settings page lists each discovery profile with its name, counts of included and excluded seeds, last scan timestamp and scan status; the Status column tracks progress, successful completion and failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "The discovery profile is saved and displayed on the EASM Settings page.",
+            "you can view your configured discovery profiles along with their name, individual counts of included and excluded seeds, last scan timestamp, and scan status.",
+            "you can track the scan status, including progress, successful completion, and failure, under the Status column."
+          ]
+        }
+      ]
+    },
+    "results-location": {
+      "statement": "After a scan completes, the ingested assets are viewed on the Assets page (the page places the unified asset inventory in AEM) and the associated risk detections on the Findings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "After scanning is completed, you can view the ingested assets on the Assets page and the associated risk detections on the Findings page.",
+            "you can view the unified asset inventory in Asset Exposure Management (AEM)"
+          ]
+        }
+      ]
+    },
+    "csv-format": {
+      "statement": "Domain, IP address and IP block seeds can be uploaded from a CSV file with each entry in a separate row and no header row required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "Ensure that the file contains valid domains, with each entry listed in a separate row. A header row is not required.",
+            "Ensure that the file contains valid IP addresses, with each entry listed in a separate row. A header row is not required.",
+            "Ensure that the file contains valid IP address blocks, with each entry listed in a separate row. A header row is not required."
+          ]
+        }
+      ]
+    },
+    "profile-per-entity": {
+      "statement": "A discovery profile groups relevant seeds by including or excluding seeds across asset types, and separate profiles can be created for different business entities such as a parent company and its subsidiaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-discovery-settings.json",
+          "quotes": [
+            "You can create a discovery profile by including or excluding specific seeds across different asset types.",
+            "Discovery profiles add a layer of granularity to tracking and managing your attack surface by grouping relevant seeds.",
+            "you can create distinct discovery profiles for different business entities (e.g., parent company, subsidiaries) to individually manage the corresponding attack surfaces."
+          ]
+        }
+      ]
+    },
+    "report-purposes": {
+      "statement": "The exported discovery profile reports are described as usable for executive- and board-level communication, for summarizing the inherited risks of a target company in mergers and acquisitions, and for auditing to demonstrate continuous monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-exporting-reports-discovery-profiles.json",
+          "quotes": [
+            "These reports can be used in executive- and board-level communication to report on the organization's external posture across dimensions",
+            "They can also be used in mergers and acquisitions to summarize the inherited risks of a target company",
+            "These reports also serve auditing purposes to demonstrate continuous monitoring and adherence to regulatory frameworks."
+          ]
+        }
+      ]
+    },
     "access": {
-      "statement": "Using EASM requires AEM or UVM or both, and configuring and managing discovery settings requires Read, Create, Edit and Delete permissions for the EASM Configuration resource.",
+      "statement": "On the SecOps platform, access to EASM capabilities requires AEM or UVM or both, and configuring and managing discovery settings requires Read, Create, Edit and Delete permissions for the EASM Configuration resource.",
       "tier": "A",
       "evidence": [
         {
@@ -65,7 +139,8 @@
           "path": "uvm-configuring-discovery-settings.json",
           "quotes": [
             "To access Zscaler's EASM capabilities, your organization must have either AEM or UVM, or both.",
-            "your assigned role must include Read, Create, Edit, and Delete permissions for the EASM Configuration resource."
+            "To configure and manage EASM Discovery Settings, your assigned role must include Read, Create, Edit, and Delete permissions for the EASM Configuration resource.",
+            "In the Zscaler Security Operations (SecOps) platform, go to Configure > EASM Settings."
           ]
         }
       ]
@@ -306,5 +381,44 @@
       ]
     }
   },
-  "gaps": {}
+  "divergences": {
+    "profiles-per-entity": {
+      "summary": "The unified portal's pages describe separate discovery profiles for different business entities, while the EASM tenant's discovery profiles page says only one profile can be configured for an organization.",
+      "positions": [
+        {
+          "says": "Distinct discovery profiles can be created for different business entities such as a parent company and subsidiaries.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "aem-configuring-discovery-settings.json",
+            "quotes": [
+              "you can create distinct discovery profiles for different business entities (e.g., parent company, subsidiaries) to individually manage the corresponding attack surfaces."
+            ]
+          }
+        },
+        {
+          "says": "Currently only one discovery profile can be configured for an organization.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-about-discovery-profiles.json",
+            "quotes": [
+              "Currently, only one discovery profile can be configured for an organization."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a second profile can be added depends on which surface the tenant uses; the EASM page ties separation to custom organizations. Not observed."
+    }
+  },
+  "gaps": {
+    "profile-limits": {
+      "kind": "semantic",
+      "title": "Limits on discovery profiles, the asset aging period and the CSV file",
+      "status": "open",
+      "detail": "The unified portal pages give no limit on the number of discovery profiles (the EASM tenant's page says one per organization), and no scan-status values beyond progress, successful completion and failure, no division of the 100 seeds among seed types, and no CSV size limit. The asset aging period is configured by aging rules, whose time-based categories and fallback default are in [[unified.secops-platform.data.asset-aging]]; no captured page here gives a default number.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
 }

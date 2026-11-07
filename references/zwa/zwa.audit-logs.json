@@ -30,8 +30,16 @@
       "text": "Workflow Automation's admin audit trail is a search API, listed with the other products' audit paths in [[shared.audit-logs]]. {{what-recorded}}"
     },
     {
+      "label": "Audit Logs page.",
+      "text": "{{page-scope}} {{page-filters}} {{page-admin-id}} {{page-change-view}}"
+    },
+    {
+      "label": "Page values.",
+      "text": "{{page-actions}} {{page-modules}} {{page-resources}} {{divergence:action-list}}"
+    },
+    {
       "label": "Records.",
-      "text": "{{record-fields}} {{action-values}}"
+      "text": "{{record-fields}} {{action-values}} {{divergence:action-list}}"
     },
     {
       "label": "Paging.",
@@ -43,7 +51,7 @@
     },
     {
       "label": "Retention and export.",
-      "text": "Retention is not documented for Workflow Automation, as for several other products: [[shared.audit-logs:other-retention]]. Whether the log can be streamed anywhere is open {{gap:retention-and-streaming}}, and so are the module and resource values {{gap:filter-values}}."
+      "text": "Retention is not documented for Workflow Automation, as for several other products: [[shared.audit-logs:other-retention]]. Whether the log can be streamed anywhere is open {{gap:retention-and-streaming}}, and so is whether the API's module and resource filters accept the strings the page lists {{gap:filter-values}}; whether the page's Admin ID is the record's `changedBy` is open too {{gap:admin-id-changed-by}}."
     }
   ],
   "checks": [
@@ -61,6 +69,108 @@
     }
   ],
   "claims": {
+    "page-scope": {
+      "statement": "The Audit Logs page (Data Explorer > Audit Logs > Workflow Automation) records the actions admins perform in Workflow Automation and the actions that occur through the Workflow Automation APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "The Audit Logs page records and displays the actions that every admin performs in Workflow Automation and the actions that occur through the Workflow Automation APIs.",
+            "On the Audit Logs page (Data Explorer > Audit Logs > Workflow Automation), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "page-filters": {
+      "statement": "The Audit Logs page takes a date range, filters by admin, action, module or resource, and offers search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "Select a date range for the audit logs displayed.",
+            "Filter the audit logs by admin, action, module, or resource.",
+            "Search for an audit log."
+          ]
+        }
+      ]
+    },
+    "page-actions": {
+      "statement": "On the Audit Logs page, the potential actions are Delete, Insert, Update and Read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "Potential actions are: - Delete - Insert - Update - Read"
+          ]
+        }
+      ]
+    },
+    "page-modules": {
+      "statement": "On the Audit Logs page, the potential modules are API Keys, CSV Upload, Customers, DLP, Incident, Incident Group, Integrations, Template Mapping and Workflow; Privacy and Security changes under Account Settings appear with the Customers module, and Generate Presigned Link clicks on the Incident Details page appear with the Incident module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "Potential modules are: - API Keys - CSV Upload - Customers - Changes made to the Privacy and Security section of the Account Settings page appear with this module. - DLP - Incident",
+            "- The action of clicking the Generate Presigned Link associated with an incident on the Incident Details page appears with this module. - Incident Group - Integrations - Template Mapping - Workflow"
+          ]
+        }
+      ]
+    },
+    "page-resources": {
+      "statement": "On the Audit Logs page, the potential resources are Admin Configuration, API Key, CSV User Data, Customer, Evidence Data, Incident Group, Incident Group Mapping, Integration Configuration, Template Mapping, Workflow Definition and Workflow Definition Mapping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "Potential resources are: - Admin Configuration - API Key - CSV User Data - Customer - Changes made to the Privacy and Security section of the Account Settings page appear with this resource. - Evidence Data",
+            "- The action of clicking the Generate Presigned Link associated with an incident on the Incident Details page appears with this resource. - Incident Group - Incident Group Mapping - Integration Configuration - Template Mapping - Workflow Definition - Workflow Definition Mapping"
+          ]
+        }
+      ]
+    },
+    "page-admin-id": {
+      "statement": "The Admin ID column holds the login ID of the admin who performed the action, and displays no value when the admin has a shared login ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "Admin ID: The login ID of the admin who performed the actions in Workflow Automation. If the admin has a shared login ID, this field displays no value."
+          ]
+        }
+      ]
+    },
+    "page-change-view": {
+      "statement": "Clicking the View icon next to an audit log entry opens a Change window highlighting the differences between the configuration before and after the change; the icon is not available for Read entries, and Insert, Update and Delete entries can be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-about-audit-logs.json",
+          "quotes": [
+            "To view the configuration changes, click the View icon next to an audit log entry.",
+            "The View icon is not available for audit logs with a Read action.",
+            "The Change window appears and the differences between the pre-changes configuration and post-changes configuration are highlighted.",
+            "There are three types of actions you can view:",
+            "Insert. The following image displays an example of a CSV upload insert:",
+            "Update. The following image displays an example of an update to an incident group:",
+            "Delete. The following image displays an example of a deleted API key:"
+          ]
+        }
+      ]
+    },
     "what-recorded": {
       "statement": "The audit log search filters by time range and field values and returns audit information for every action admins take in the Workflow Automation Admin Portal and every action made through the APIs; the supported filter fields are Action, Resource, Admin and Module.",
       "tier": "A",
@@ -240,6 +350,39 @@
     }
   },
   "divergences": {
+    "action-list": {
+      "summary": "The help page's list of potential actions has Read and no CHECKPOINT or UNDEFINED, while the contract's action enum has CHECKPOINT and UNDEFINED and no Read.",
+      "positions": [
+        {
+          "says": "The potential actions on the Audit Logs page are Delete, Insert, Update and Read.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zwa-about-audit-logs.json",
+            "quotes": [
+              "Potential actions are: - Delete - Insert - Update - Read"
+            ]
+          }
+        },
+        {
+          "says": "The contract's action is one of INSERT, UPDATE, DELETE, CHECKPOINT and UNDEFINED.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/components/schemas/ZSAuditAction/properties/action",
+            "expect": {
+              "enum": [
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "CHECKPOINT",
+                "UNDEFINED"
+              ]
+            }
+          }
+        }
+      ],
+      "impact": "A client that filters or branches on the action cannot tell whether Read entries come through the API, or what CHECKPOINT and UNDEFINED entries show as on the page. Not observed."
+    },
     "row-json-type": {
       "summary": "The contract types `oldRowJson` and `newRowJson` as objects, while Go declares them as strings.",
       "positions": [
@@ -284,11 +427,22 @@
         "support-ticket"
       ]
     },
+    "admin-id-changed-by": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the page's Admin ID and the record's changedBy are the same value",
+      "detail": "The page describes Admin ID as the admin's login ID and shows no value for a shared login ID; the contract describes changedBy only as the admin who performed the action. The captured sources do not say whether changedBy is that login ID or what it holds for a shared login ID.",
+      "blocks": "correlating API audit records with the console's Admin ID column",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
     "filter-values": {
       "kind": "semantic",
       "status": "open",
       "title": "Values accepted by the Module, Resource and Admin audit filters",
-      "detail": "Unverified legacy statement (open question): the complete module and action value sets are not documented. The action values are now in the contract; the module, resource and admin values are not.",
+      "detail": "The help page lists the potential actions, modules and resources as displayed in the console, and the contract lists a different set of action values; the contract types module and resource as free strings. The captured sources do not say whether the API's module and resource filters accept exactly the page's strings or in what case, and give no admin values.",
       "blocks": "writing an audit search filtered by module or resource",
       "resolves_with": [
         "tenant-data",

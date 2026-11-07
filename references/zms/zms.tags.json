@@ -16,7 +16,7 @@
   "prose": [
     {"text": "{{namespace-types}}"},
     {"label": "Locked objects.", "text": "{{cloud-ml-namespaces-locked}} {{cloud-ml-tags-locked}}"},
-    {"label": "Fields.", "text": "{{custom-tag-fields}} {{resource-tag-fields}}"},
+    {"label": "Fields.", "text": "{{custom-tag-fields}} {{resource-tag-fields}} {{resource-tag-delete}} {{gap:resource-tag-delete-scope}}"},
     {"label": "Prerequisite.", "text": "{{prereq-policy-enforcement}}"},
     {"label": "Related.", "text": "The Tag Management page is in [[zms.portal]] and resource groups that use tags in [[zms.resources]]."}
   ],
@@ -26,6 +26,15 @@
       "uses": ["cloud-ml-namespaces-locked", "cloud-ml-tags-locked"]
     }
   ],
+  "gaps": {
+    "resource-tag-delete-scope": {
+      "kind": "semantic",
+      "title": "Does the 'at any time' resource tag delete apply to tags in cloud and ML namespaces?",
+      "status": "open",
+      "detail": "The resource tag deletion page allows deleting individual resource tags at any time from the resource drawer (Delete Tag window), while the tag deletion page allows deletion only for custom-type tags and says admins cannot delete tags within cloud and ML namespaces. These may be different objects (Delete Tag versus Delete Tag Key) and the captured pages do not settle whether the resource drawer flow is limited by namespace type.",
+      "resolves_with": ["lab-test"]
+    }
+  },
   "claims": {
     "namespace-types": {
       "statement": "Namespaces are where tags are created; admins can create custom namespaces, while ML and cloud namespaces are generated from the organization's data.",
@@ -111,6 +120,23 @@
             "Namespace: Select a namespace for the tag.",
             "Key: Select a key name to title the tag.",
             "Value: Select value components for which the tag qualifies."
+          ]
+        }
+      ]
+    },
+    "resource-tag-delete": {
+      "statement": "The resource tag deletion page says individual resource tags can be deleted manually at any time from the Tags section in the resource drawer on the Resources VM page, and deleting one requires entering CONFIRM in the Delete Tag window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-deleting-resource-tags.json",
+          "quotes": [
+            "You can manually delete individual tags from the list at any time.",
+            "From the navigation menu, go to Zero Trust Cloud > Microsegmentation > Resources VM.",
+            "In the resource drawer, click Tags.",
+            "The Delete Tag window appears.",
+            "Enter CONFIRM."
           ]
         }
       ]
