@@ -3,7 +3,9 @@
 //
 // Each question in a question set lists its gold facts, each held by one claim. The sets are
 // references/_meta/evals/facts.json (the default, worded as the graph words it) and facts-<name>.json, chosen with
-// --set <name> (`users`: worded as people ask). A run answers
+// --set <name> (`users`: worded as people ask). --entry names the file the agent is told to start from: SKILL.md (the
+// default, the Claude Code route) or `devin`, .devin/rules/zscaler.md (the route Devin takes, which never loads
+// SKILL.md). Like the ref, the entry is what an eval compares, so it is recorded but does not break comparability. A run answers
 // every question as a headless Claude Code session in a worktree of the ref under test; `judge` asks a model
 // whether each answer states each fact; `report` prints, per rep: facts stated, holders reached (the holder
 // claim's ID entered the context), context size, and shell calls a corporate runtime would stop to approve
@@ -16,7 +18,7 @@
 // by hand, never in CI. Write results outside the checkout.
 //
 // Usage:
-//   node scripts/kb-eval.mjs run --ref <git ref> --out <dir> [--set <name>] [--reps 3] [--jobs 4] [--only q1,q2]
+//   node scripts/kb-eval.mjs run --ref <git ref> --out <dir> [--set <name>] [--entry devin] [--reps 3] [--jobs 4] [--only q1,q2]
 //   node scripts/kb-eval.mjs judge --out <dir> [--jobs 4]
 //   node scripts/kb-eval.mjs report <dir> [<dir> ...] [--allow-mismatch]
 import { execFileSync, spawn } from "node:child_process";
@@ -42,6 +44,12 @@ export const PROMPT = `A colleague asks you this about Zscaler. Answer it the wa
 retrieve what you need from the knowledge base, then answer for the colleague. Do not answer from memory.
 
 {turn}`;
+// The file each entry starts the agent from; the prompt differs only in that name, so prompt_sha stays the template's.
+export const ENTRIES = { skill: "SKILL.md", devin: ".devin/rules/zscaler.md" };
+export function promptFor(entry = "skill") {
+  if (!ENTRIES[entry]) throw new Error(`bad entry: ${entry} (one of ${Object.keys(ENTRIES).join(", ")})`);
+  return PROMPT.replaceAll("SKILL.md", ENTRIES[entry]);
+}
 const JUDGE = `Below is an answer to a Zscaler question, then a numbered list of facts. For each fact, say whether the answer
 states it (same meaning; wording may differ). Reply with only a JSON object mapping each fact number to true or false.
 
@@ -135,14 +143,15 @@ function claude(args, { cwd, stdout }) {
   });
 }
 
-async function run({ ref, out, reps, jobs, only, set }) {
+async function run({ ref, out, reps, jobs, only, set, entry = "skill" }) {
   const all = loadQuestions(setFile(set));
   const questions = all.filter((q) => !only || only.includes(q.id));
   const commit = execFileSync("git", ["-C", ROOT, "rev-parse", ref], { encoding: "utf8" }).trim();
   // The set is recorded so judge and report read the same questions; the default set records none, as before.
-  const meta = { ref, commit, ...(set ? { set } : {}), ...harness(all, claudeVersion()) };
+  const prompt = promptFor(entry);
+  const meta = { ref, commit, ...(set ? { set } : {}), ...(entry !== "skill" ? { entry } : {}), ...harness(all, claudeVersion()) };
   const prev = readMeta(out);
-  if (prev && (prev.commit !== commit || mismatch(prev, meta).length)) {
+  if (prev && (prev.commit !== commit || (prev.entry || "skill") !== entry || mismatch(prev, meta).length)) {
     throw new Error(`${out} holds runs of ${prev.commit.slice(0, 8)} under ${JSON.stringify(Object.fromEntries(mismatch(prev, meta).map((k) => [k, prev[k]])))}; use a new --out`);
   }
   fs.mkdirSync(path.join(out, "runs"), { recursive: true });
@@ -154,7 +163,7 @@ async function run({ ref, out, reps, jobs, only, set }) {
   let done = 0;
   await pool(todo, jobs, async ({ q, r }) => {
     const file = path.join(out, "runs", `${q.id}-${r}.jsonl`);
-    const text = await claude(["-p", PROMPT.replace("{turn}", q.turn), "--model", MODEL, "--effort", EFFORT,
+    const text = await claude(["-p", prompt.replace("{turn}", q.turn), "--model", MODEL, "--effort", EFFORT,
       "--output-format", "stream-json", "--verbose", "--permission-mode", "dontAsk", "--allowedTools", ...TOOLS,
       "--disallowedTools", "Agent", "Task", "--no-session-persistence"], { cwd: wt, stdout: true });
     fs.writeFileSync(file, text);
@@ -224,7 +233,7 @@ function report(dirs, { allowMismatch }) {
     const reps = summarize(dir);
     const pct = (a, b) => `${b ? Math.round((100 * a) / b) : 0}%`;
     const total = Object.values(reps).reduce((t, r) => Object.fromEntries(Object.keys(r).map((k) => [k, (t[k] || 0) + r[k]])), {});
-    console.log(`${metas[i].ref} (${metas[i].commit.slice(0, 8)}, ${metas[i].claude_version}, ${metas[i].model})`);
+    console.log(`${metas[i].ref}${metas[i].entry ? ` via ${metas[i].entry}` : ""} (${metas[i].commit.slice(0, 8)}, ${metas[i].claude_version}, ${metas[i].model})`);
     for (const [rep, r] of Object.entries(reps)) console.log(`  rep ${rep}: stated ${r.stated}/${r.facts} = ${pct(r.stated, r.facts)}, holder reached ${pct(r.reached, r.facts)}`);
     console.log(`  all: stated ${pct(total.stated, total.facts)}, reached ${pct(total.reached, total.facts)}, context ${Math.round(total.ctx_tokens / total.runs)} tokens/answer, approvals ${(total.approvals / total.runs).toFixed(1)}/answer, ${total.over_guardrail} run(s) over 8`);
   }
@@ -241,13 +250,13 @@ async function main(argv) {
   if (out && !path.relative(ROOT, out).startsWith("..")) throw new Error(`--out must be outside the checkout: ${out}`);
   const jobs = Number(option(args, "--jobs", 4));
   if (cmd === "run" && option(args, "--ref") && out) {
-    return run({ ref: option(args, "--ref"), out, reps: Number(option(args, "--reps", 3)), jobs, only: option(args, "--only")?.split(","), set: option(args, "--set") });
+    return run({ ref: option(args, "--ref"), out, reps: Number(option(args, "--reps", 3)), jobs, only: option(args, "--only")?.split(","), set: option(args, "--set"), entry: option(args, "--entry") });
   }
   if (cmd === "judge" && out) return judge({ out, jobs });
   if (cmd === "report" && args.filter((a) => !a.startsWith("--")).length) {
     return report(args.filter((a) => !a.startsWith("--")).map((d) => path.resolve(d)), { allowMismatch: args.includes("--allow-mismatch") });
   }
-  console.error("usage: kb-eval.mjs run --ref <ref> --out <dir> [--set <name>] [--reps 3] [--jobs 4] [--only q1,q2] | judge --out <dir> | report <dir> ...");
+  console.error("usage: kb-eval.mjs run --ref <ref> --out <dir> [--set <name>] [--entry devin] [--reps 3] [--jobs 4] [--only q1,q2] | judge --out <dir> | report <dir> ...");
   process.exitCode = 2;
 }
 

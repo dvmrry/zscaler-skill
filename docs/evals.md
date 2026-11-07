@@ -75,9 +75,16 @@ There are two question sets. The default, `facts.json`, is worded the way the gr
 out near 90%. `--set users` runs `facts-users.json`, which is worded the way people ask, symptom first. That is the
 set to judge a change by. `run` records the set in `meta.json`, and `judge` and `report` read it from there.
 
+`--entry devin` tells the agent to start from `.devin/rules/zscaler.md` instead of `SKILL.md`. That is the route
+Devin takes: it loads `AGENTS.md`, that rule and the `.agents/skills` loaders, which all lead to
+`agents/zscaler/prompt.md` and never to `SKILL.md`. The run is still Claude Code and the same model, so it measures
+the files on that route, not Devin's own harness. Like the ref, the entry is what a comparison varies, so `report`
+compares the two routes side by side.
+
 ```bash
 node scripts/kb-eval.mjs run --ref HEAD --out /tmp/kb-eval/head --reps 3   # headless Claude Code sessions
 node scripts/kb-eval.mjs run --ref HEAD --out /tmp/kb-eval/head-users --set users --reps 3
+node scripts/kb-eval.mjs run --ref HEAD --out /tmp/kb-eval/head-devin --set users --entry devin --reps 3
 node scripts/kb-eval.mjs judge --out /tmp/kb-eval/head                      # does each answer state each fact
 node scripts/kb-eval.mjs report /tmp/kb-eval/main /tmp/kb-eval/head         # per rep, side by side
 ```

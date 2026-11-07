@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { approvals, harness, loadQuestions, mismatch, parseRun, reached, setFile, setFiles } from "./kb-eval.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { approvals, ENTRIES, harness, loadQuestions, mismatch, PROMPT, parseRun, promptFor, reached, setFile, setFiles } from "./kb-eval.mjs";
 
 const line = (o) => JSON.stringify(o);
 const TRANSCRIPT = [
@@ -39,6 +41,13 @@ test("runs compare only under the same harness, whatever the ref", () => {
   assert.deepEqual(mismatch(a, b), []);
   assert.deepEqual(mismatch(a, { ...b, claude_version: "2.1.314 (Claude Code)" }), ["claude_version"]);
   assert.deepEqual(mismatch(a, harness([{ id: "other" }], "2.1.308 (Claude Code)")), ["facts_sha"]);
+});
+
+test("an entry changes only the file the prompt names, and every entry file exists", () => {
+  assert.equal(promptFor(), PROMPT);
+  assert.equal(promptFor("devin").replaceAll(ENTRIES.devin, "SKILL.md"), PROMPT);
+  assert.throws(() => promptFor("codex"), /bad entry/);
+  for (const f of Object.values(ENTRIES)) assert.ok(fs.existsSync(path.join(import.meta.dirname, "..", f)), f);
 });
 
 test("every gold fact names a claim, and every question has one, in every set; ids are unique across sets", () => {
