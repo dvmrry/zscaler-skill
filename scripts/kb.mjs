@@ -29,6 +29,10 @@
 //                                    --merge drops it in favour of an existing claim that says the same
 //   surface <query>                  API, SDK and Terraform surface for a product key (zia, zdx, zid, ...), a Terraform name, API path,
 //                                    Go SDK package, or Python module, class or method (generated layer)
+//   releases [<product>] [--since <date>] [--until <date>] [--grep <text>] [--full] [--json]
+//                                    the vendor's release notes for a product key, help-site section or alias,
+//                                    newest first (generated layer); dates are YYYY, YYYY-MM or YYYY-MM-DD; --grep
+//                                    keeps entries containing the text and prints their text, as --full does
 //
 // Exit codes: 0 ok, 1 validation failed, 2 usage error.
 import fs from "node:fs";
@@ -41,7 +45,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|check|lint|resolve|map|read|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|freshness> [args]");
+  console.error("usage: kb.mjs <validate|check|lint|resolve|map|read|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|releases|freshness> [args]");
   process.exit(2);
 }
 
@@ -88,6 +92,21 @@ async function main(argv) {
     const { lookupSurface } = await import("./kb-surface.mjs");
     const hits = lookupSurface(ROOT, args[0]);
     console.log(JSON.stringify(hits, null, 2));
+    return hits.length ? 0 : 1;
+  }
+  if (cmd === "releases") {
+    const since = option(args, "--since");
+    const until = option(args, "--until");
+    const grep = option(args, "--grep");
+    for (const d of [since, until]) if (d !== undefined && !/^\d{4}(-\d{2}(-\d{2})?)?$/.test(d)) usage(`--since and --until take YYYY, YYYY-MM or YYYY-MM-DD, not ${d}`);
+    const product = args.find((a) => !a.startsWith("--"));
+    if (!product && !grep) usage("releases needs a product or --grep");
+    const { lookupReleases, releasesText } = await import("./kb-releases.mjs");
+    const hits = lookupReleases(ROOT, { product, since, until, grep });
+    if (!hits) usage(`no release notes for ${product}; name a product key (zia, zpa, zcc, ...), a help-site section or an alias`);
+    if (args.includes("--json")) console.log(JSON.stringify(hits, null, 2));
+    else process.stdout.write(releasesText(hits, { full: grep !== undefined || args.includes("--full") }));
+    if (!hits.length) console.error("kb releases: no release matches");
     return hits.length ? 0 : 1;
   }
   const g = buildGraph(loadPublic(ROOT));

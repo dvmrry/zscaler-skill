@@ -24,6 +24,7 @@ About 1,000 subjects hold 8,000 claims, 1,600 open gaps and 390 divergences (whe
 node scripts/kb.mjs read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel   # areas, subjects, log fields
 node scripts/kb.mjs map zia                                         # the spine as text, without a file tool
 node scripts/kb.mjs surface zia_url_filtering_rules                 # API, SDK and Terraform surface
+node scripts/kb.mjs releases zpa --since 2026-06 --grep "App Connector"   # the vendor's release notes, newest first
 node scripts/kb.mjs resolve --each zia.url-filtering.rule-order zia.cloud-app-control.precedence   # JSON bundles, for scripts
 ```
 

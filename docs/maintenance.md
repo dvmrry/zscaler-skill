@@ -88,8 +88,8 @@ Keep scratch output outside the checkout (`$TMP` below).
    with `HEAD` moves with the pin) into the same `broken`, `in-change` and `untouched`;
    read every `in-change` entry against its claim.
 5. **Generated layers.** `node scripts/gen-surfaces.mjs all` (or one product) after a spec capture or an SDK or
-   provider pin changes, and `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes;
-   both take `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` and
+   provider pin changes, `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes, and
+   `node scripts/gen-releases.mjs` after a release-note page changes; each takes `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` and
    `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`.
 6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
    `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.

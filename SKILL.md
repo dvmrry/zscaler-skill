@@ -93,6 +93,7 @@ node scripts/kb.mjs map <product> ...                     # the spine as text, w
 node scripts/kb.mjs read <area | subject | type> ...       # reading text with claim IDs; company records with an overlay
 node scripts/kb.mjs resolve <id>                          # one subject or old ledger ID as a JSON bundle, with citations
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
+node scripts/kb.mjs releases <product> [--since <date>] [--grep <text>]   # the vendor's release notes, newest first
 ```
 
 - **Claims.** Tier A claims quote their source. Tier B claims are inferences with stated `conditions`: say so

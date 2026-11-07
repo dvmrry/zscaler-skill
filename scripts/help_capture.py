@@ -446,18 +446,23 @@ def _release_notes_html(notes: dict | None) -> str:
 
     The payload carries the entries for its default cloud (`selected_category`): for each deployment date,
     groups such as Feature Available and Limited Availability, each a list of titled entries with HTML
-    descriptions. They render as a date heading, a group heading (with its version when it has one), and each
-    entry's title and description, in the payload's order (newest date first).
+    descriptions. Feature releases send them under `feature`, component releases (App Connector, Client
+    Connector, ZDX module versions) under `release`. They render as a date heading, a group heading (with its
+    version when the title does not already name it), and each entry's title and description, in the
+    payload's order (newest date first).
     """
     out = []
     for day in (notes or {}).get("entries", {}).values():
         out.append(f"<h4>{html.escape(day['title'])}</h4>")
-        for groups in (day.get("feature") or {}).values():
-            for g in groups:
-                label = " ".join(x for x in (g.get("title", ""), g.get("version", "")) if x)
-                out.append(f"<h5>{html.escape(label)}</h5>")
-                for e in g.get("entries") or []:
-                    out.append(f"<h6>{html.escape(e['title'])}</h6>{e.get('description') or ''}")
+        # Every dict on a day is a set of groups (`feature`, `release`); `title` and `rn_version` are not.
+        for kinds in (v for v in day.values() if isinstance(v, dict)):
+            for groups in kinds.values():
+                for g in groups:
+                    title, version = g.get("title", ""), g.get("version", "")
+                    label = title if version in title else f"{title} {version}"
+                    out.append(f"<h5>{html.escape(label)}</h5>")
+                    for e in g.get("entries") or []:
+                        out.append(f"<h6>{html.escape(e['title'])}</h6>{e.get('description') or ''}")
     return "".join(out)
 
 

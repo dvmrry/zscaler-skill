@@ -137,6 +137,8 @@ function main(argv) {
   step(process.execPath, ["scripts/gen-log-types.mjs"]);
   // A refetched API spec page changes the surface layer as a pin bump does.
   step(process.execPath, ["scripts/gen-surfaces.mjs", "all"]);
+  // A refetched release-note page adds its new releases.
+  step(process.execPath, ["scripts/gen-releases.mjs"]);
   step(process.execPath, ["scripts/kb.mjs", "manifest"]);
   // verified exits 1 when a citation fails, which is what the review below reports; it writes the record either way.
   step(process.execPath, ["scripts/kb.mjs", "verified"], { ok: [0, 1] });

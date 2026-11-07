@@ -21,6 +21,7 @@ bundle interface for scripts. The record contracts are the schemas under `refere
 | `references/_meta/types/` | tenant object types bound to zscalerctl and IaC | `kb.mjs import-types` |
 | `references/_meta/imports/zscalerctl.json` | the pinned zscalerctl catalogue | `kb.mjs export-zscalerctl` |
 | `references/_meta/surfaces/` | API, SDK and Terraform surface per product | `scripts/gen-surfaces.mjs` |
+| `references/_meta/releases/` | each product's release notes by date, verbatim from the help captures | `scripts/gen-releases.mjs` |
 | `references/_meta/evals/` | answer evals, the retrieval eval's gold facts (`facts.json`) and workflow eval shapes ([how they run](evals.md)) | people |
 | `references/_meta/evals/claim-audit/` | the claim audit's rubric and calibration set ([how it runs](maintenance.md)) | people |
 | `references/_meta/claim-audit.json` | each audited claim's verdict, keyed by a hash of its statement and evidence | `scripts/claim_audit.py record` |

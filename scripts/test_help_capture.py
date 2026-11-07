@@ -44,6 +44,19 @@ def test_release_notes_entries_render_after_the_introduction():
     assert _release_notes_html(None) == ""
 
 
+def test_component_release_notes_render_like_feature_notes():
+    # App Connector, Client Connector and ZDX module pages send their entries under `release`, with the version
+    # already in the group title.
+    notes = {"entries": {"2025-12-17": {"title": "December 17, 2025", "rn_version": [{"25.49.11": "25.49.11"}],
+        "release": {"available": [{"version": "25.49.11", "title": "Release Available: App Connector 25.49.11", "entries": [
+            {"id": "1", "title": "App Connector Version 25.49.11", "description": "<p>Resolves an issue.</p>"}]}]}}}}
+    _title, blocks = render(f"<article><h3>App Connector Release Summary (2025)</h3>{_release_notes_html(notes)}</article>")
+    assert text_of(blocks) == (
+        "#### December 17, 2025\n##### Release Available: App Connector 25.49.11\n"
+        "###### App Connector Version 25.49.11\nResolves an issue.\n"
+    )
+
+
 def test_title_is_the_article_heading_not_the_product_banner():
     title, _ = render(ARTICLE)
     assert title == "About Example"

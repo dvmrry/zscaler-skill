@@ -82,6 +82,7 @@ const FULL_CHECKS = [
   { name: "generated surface layer is current (Zero Trust Branch)", command: "node", args: ["scripts/gen-surfaces.mjs", "ztb", "--check"] },
   { name: "generated surface layer is current (Z-Insights)", command: "node", args: ["scripts/gen-surfaces.mjs", "zins", "--check"] },
   { name: "generated log types are current", command: "node", args: ["scripts/gen-log-types.mjs", "--check"] },
+  { name: "generated release history is current", command: "node", args: ["scripts/gen-releases.mjs", "--check"] },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
   {
     name: "vendor family coverage",
