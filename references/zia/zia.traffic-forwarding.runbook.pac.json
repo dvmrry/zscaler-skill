@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.runbook.pac",
+  "title": "Runbook: PAC file, explicit proxy and DPP outages, PAC causes and authentication loops",
+  "aliases": [
+    "PAC File Causes",
+    "Authentication Causes"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.pac" },
+    { "rel": "see-also", "to": "zia.authentication.exemptions" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.tunnel-path" }
+  ],
+  "prose": [
+    {
+      "label": "Reachability.",
+      "text": "{{reachability-hosts}} {{dpp-telnet-expected}} {{powershell-alternative}}"
+    },
+    {
+      "label": "PAC download and fragmentation.",
+      "text": "{{download-pac}} {{fragmentation}} {{avoid-fragmentation}}"
+    },
+    {
+      "label": "PAC causes.",
+      "text": "{{manual-proxy-test}} {{parsing-direct}} {{audit-and-revert}} WinMTR collection for PAC is in [[zia.traffic-forwarding.runbook.tunnel-path]]."
+    },
+    {
+      "label": "Authentication loop.",
+      "text": "{{auth-loop}} {{auth-loop-fix}}"
+    }
+  ],
+  "claims": {
+    "reachability-hosts": {
+      "statement": "In the runbook's section on troubleshooting Zscaler public DC issues, in an internet-down situation with PAC, the runbook says to validate DNS resolution and connectivity for pac.<cloudname>.net, login.<cloudname>.net, gateway.<cloudname>.net and the authentication server, on 80/443/DPP using ping and Telnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following sections describe how to troubleshoot Zscaler public DC issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For PAC, validate the successful DNS resolution and connectivity for the following:",
+            "pac.<cloudname>.net",
+            "login.<cloudname>.net",
+            "gateway.<cloudname>.net",
+            "Authentication server (IP FQDN)",
+            "Validate the connection on 80/443/DPP, using ping and Telnet tools to validate the connection."
+          ],
+          "after": "Network Causes"
+        }
+      ]
+    },
+    "dpp-telnet-expected": {
+      "statement": "The runbook lists a failed Telnet to DPP (its example port is 10938) as 'not provisioned', alongside a successful Telnet to port 80/443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Failed TELNET (DPP 10938) - not provisioned",
+            "Successful TELNET (port 80/443)"
+          ],
+          "after": "Network Causes"
+        }
+      ]
+    },
+    "powershell-alternative": {
+      "statement": "When the Telnet client is not enabled and the end device has restrictive permissions, the runbook says PowerShell can be used to check network reachability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In case the Telnet client is not enabled, and the end device has restrictive permissions, you can use PowerShell to check the network reachability."
+          ]
+        }
+      ]
+    },
+    "download-pac": {
+      "statement": "The runbook says to copy the PAC URL from the Admin Console and confirm the affected device can download the PAC file; if it can, open the file to identify the primary and secondary data center and run ping and Telnet reachability tests towards both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "copy the PAC URL from the Zscaler Admin Console and confirm if the impacted user device can download the PAC file successfully.",
+            "open the downloaded PAC file to identify the primary and secondary DC. Run reachability tests (ping and Telnet) towards the primary and secondary DC."
+          ]
+        }
+      ]
+    },
+    "fragmentation": {
+      "statement": "If the device cannot download the PAC file although pac.<cloudname>.net is reachable, the runbook says to run a client packet capture and check for IP fragmentation; the filter icmp.type==3 and icmp.code==4 indicates a fragmentation issue and the Wireshark filter ip.flags.mf == 1 shows all fragmented packets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If user device is unable to download the PAC file, although reachability to pac.<cloudname>.net is present, run the client's packet capture and validate that there is no IP fragmentation taking place.",
+            "The filter that indicates a fragmentation issue is:",
+            "icmp.type==3 and icmp.code==4",
+            "To look for all fragmented packets, use the Wireshark filter:",
+            "ip.flags.mf == 1"
+          ]
+        }
+      ]
+    },
+    "avoid-fragmentation": {
+      "statement": "The runbook says to determine the IP packet size the network supports, using Path MTU discovery or setting the Maximum Segment Size (MSS), to avoid IP fragmentation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In order to avoid IP fragmentation, determine the size of the IP packets that the network supports. There are two approaches that are generally used: Path MTU discovery and Setting Maximum Segment Size (MSS)."
+          ]
+        }
+      ]
+    },
+    "manual-proxy-test": {
+      "statement": "To test whether an issue is PAC-related, the runbook says to find the data center the customer is connected to at http://ip.zscaler.com, log out of Client Connector, take the FQDN of the PAC VIP for the DC from config.zscaler.com, set it as a manual proxy on port 80/443 with the relevant IdP authentication domains in the bypass, and visit an HTTP site; if the test page loads, troubleshooting focuses on the PAC file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Perform a test with a manual proxy to confirm if the issue is PAC-related.",
+            "Go to http://ip.zscaler.com to find the DC the customer is connected to.",
+            "Log out of Zscaler Client Connector, then go to https://config.zscaler.com to find the FQDN of PAC VIP for the DC.",
+            "set a manual proxy server to the FQDN of the DC, with port 80/443. Add the relevant IdP authentication domains in the proxy bypass.",
+            "If the test page loads, focus your troubleshooting on the PAC file.",
+            "Visit an HTTP website (e.g., http://isitfridayyet.net) to complete the Zscaler cookie authentication process."
+          ]
+        }
+      ]
+    },
+    "parsing-direct": {
+      "statement": "The runbook says a PAC parsing issue could cause applications to send traffic direct, which might drop at the customer firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "PAC parsing issue could cause applications to send traffic direct which might drop at the customer firewall."
+          ]
+        }
+      ]
+    },
+    "audit-and-revert": {
+      "statement": "To check for recent PAC changes the runbook points to Administration > Admin Management > Audit Logs with the PAC File Sub-Category filter; to revert, open Hosted PAC Files, Manage Versions, then Actions > Deploy on the previous version. A PAC-only scenario needs the browser cache cleared and might need a browser restart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "go to Administration > Admin Management > Audit Logs and select the PAC File Sub-Category drop-down menu.",
+            "go to Infrastructure > Internet & SaaS > Traffic Forwarding > Traffic Steering > Hosted PAC Files.",
+            "Find the relevant PAC file, and click Manage Versions.",
+            "Click Actions and select Deploy to revert the changes to the previous PAC version.",
+            "For a PAC-only scenario, a browser cache must be cleared, and a browser restart might be required."
+          ]
+        }
+      ]
+    },
+    "auth-loop": {
+      "statement": "The runbook describes an authentication loop that can occur when the IdP request is both forwarded via Internet & SaaS and redirected for authentication; it is identified in a packet capture or browser trace by a 307 redirection for an IdP request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "An authentication loop could happen if the request for IdP is configured to be forwarded via Internet & SaaS, and the request for IdP is also redirected for authentication, causing an endless loop.",
+            "take a packet capture or browser trace and look for a 307 redirection for an IdP request."
+          ]
+        }
+      ]
+    },
+    "auth-loop-fix": {
+      "statement": "Zscaler recommends bypassing IdP traffic from forwarding to Internet & SaaS, or at least configuring it in Authentication Exemptions; the runbook says to add a bypass for the authentication domain in the PAC file or add the domains under Administration > Advance Settings > Authentication Exemptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler recommends bypassing IdP traffic from forwarding to Internet & SaaS, or at least ensuring that the IdP traffic is configured in Authentication Exemptions.",
+            "Add a bypass for the authentication domain in the PAC file, or add the domains to the authentication bypass list, by going to Administration > Advance Settings > Authentication Exemptions."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

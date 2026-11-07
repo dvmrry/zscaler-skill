@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.runbook.notifications",
+  "title": "DLP runbook: web DLP email and ICAP notification issues, attachment limit, SMTP codes and ICAP connectivity checks",
+  "aliases": [
+    "Web DLP Email or ICAP Notification Issue",
+    "DLP email notification not received"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.dlp.runbook" },
+    { "rel": "see-also", "to": "zia.dlp.notification-templates" },
+    { "rel": "see-also", "to": "zia.dlp.icap-receivers" },
+    { "rel": "see-also", "to": "zia.dlp.incident-receiver" },
+    { "rel": "see-also", "to": "zia.dlp.rules" }
+  ],
+  "prose": [
+    {
+      "label": "Delivery channels.",
+      "text": "{{delivery-channels}}"
+    },
+    {
+      "label": "Email attachment size.",
+      "text": "{{email-attachment-limit}} {{gap:email-limit-knob}} {{email-large-content-options}}"
+    },
+    {
+      "label": "Email not arriving.",
+      "text": "{{smtp-troubleshooting}} {{smtp-policy-reasons}} {{smtp-codes}} {{support-data-email}}"
+    },
+    {
+      "label": "ICAP.",
+      "text": "{{icap-secure}} {{icap-troubleshooting}} {{support-data-icap}}"
+    }
+  ],
+  "claims": {
+    "email-attachment-limit": {
+      "statement": "Zscaler supports a 25 MB limit for DLP email notification attachments by default; the admin still receives the DLP email notification but without the violation content attachment, with a message such as 'NRIC-Large.xlsx not attached - its size 51530124 bytes exceeds archive size limit of 25MB'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler supports a 25 MB limit for DLP email notification attachments by default.",
+            "The admin still receives the DLP email notification but without the violation content attachment.",
+            "Posting Type: General Browsing Post (NRIC-Large.xlsx not attached - its size 51530124 bytes exceeds archive size limit of 25MB)"
+          ]
+        }
+      ]
+    },
+    "email-large-content-options": {
+      "statement": "For large violation content the runbook suggests the ICAP method (integration with a third-party ICAP server, Zscaler Incident Receiver, or Zscaler Workflow Automation), or, for a strong, valid use case to send large violation content using email, a Provisioning support case with Zscaler Support with the details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use other options such as leveraging the ICAP method (integration with a third-party ICAP server, Zscaler Incident Receiver, or Zscaler Workflow Automation).",
+            "If you have a strong, valid use case to send large violation content using email, then raise a Provisioning support case with Zscaler Support with the details."
+          ]
+        }
+      ]
+    },
+    "delivery-channels": {
+      "statement": "Zscaler supports sending DLP violation notification delivery using email or Internet Content Adaptation Protocol (ICAP); the ICAP option (subscription required) can be integrated with a third-party ICAP server or Zscaler Incident Receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler supports sending DLP violation notification delivery using email, Internet Content Adaptation Protocol (ICAP).",
+            "You can integrate the ICAP option (subscription required) with a third-party ICAP server or Zscaler Incident."
+          ]
+        }
+      ]
+    },
+    "smtp-codes": {
+      "statement": "Zscaler Support can check the SMTP code for a particular email delivery using the DLP Identifier field from Web Insights logs; the runbook lists the first digit as the category (2.x.x success, 3.x.x positive intermediate reply, 4.x.x transient or temporary error, 5.x.x permanent error) and the codes 220 (service ready), 250 (message delivered successfully), 421 (service not available, temporary issue with the server), 450 (mailbox unavailable, temporary), 451 (requested action aborted, local error in processing), 500 (syntax error, command unrecognized), 550 (mailbox unavailable or not found, permanent error) and 554 (transaction failed, general error).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Support can check the Simple Mail Transfer Protocol (SMTP) code for a particular email delivery using the DLP Identifier field from Web Insights logs.",
+            "2.x.x: Positive completion reply (success).",
+            "4.x.x: Transient negative completion reply (temporary error).",
+            "5.x.x: Permanent negative completion reply (permanent error).",
+            "220: Service ready (SMTP server is ready to accept connections).",
+            "451: Requested action aborted: local error in processing (temporary error on the server).",
+            "500: Syntax error, command unrecognized (invalid command).",
+            "250: Requested mail action okay (message delivered successfully).",
+            "421: Service not available, closing transmission channel (temporary issue with the server).",
+            "550: Requested action not taken: mailbox unavailable or not found (permanent error).",
+            "554: Transaction failed (general error during message transmission).",
+            "3.x.x: Positive intermediate reply (command accepted, more information needed).",
+            "450: Requested mail action not taken: mailbox unavailable (temporary issue with the recipient's mailbox)."
+          ]
+        }
+      ]
+    },
+    "smtp-troubleshooting": {
+      "statement": "If the DLP policy is triggered as per Zscaler logs but no email notification reaches the configured auditor email address, the runbook says to ensure the auditor email address is correct, testing with a different email address in a different domain (e.g., gmail.com or yahoo.com) as a problem isolation step, not a workaround or solution, that needs internal approval, and to filter the Web Insights logs to DLP transactions and, in the Policy Action column, ensure the notification for DLP was triggered as either Violates Compliance Category, archived to mailbox, or Allowed and archived to mailbox, in the runbook's wording.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the DLP policy is triggered as per Zscaler logs, and you are not getting email notifications to the configured auditor email address, then use the following sections.",
+            "Ensure the auditor email address is correct. You can test it using a different email address (with a different email domain (e.g., gmail.com or yahoo.com).",
+            "This step is not a workaround or solution but a problem isolation step.",
+            "you must get the necessary internal approval before performing this test.",
+            "ensure the notification for DLP was triggered as either Violates Compliance Category, archived to mailbox, or Allowed and archived to mailbox.",
+            "find the external auditor's email address by editing the relevant DLP rule.",
+            "You can filter the Web Insights logs to display the DLP transactions.",
+            "Look for the Policy Action column"
+          ]
+        }
+      ]
+    },
+    "smtp-policy-reasons": {
+      "statement": "The Policy Reasons article lists these DLP Policy Reason values: 'Violates Compliance Category' (the transaction was blocked due to a DLP policy violation), 'Violates Compliance Category, archive to mailbox' (blocked, and an email was sent to the auditor's mailbox), 'Violates Compliance Category, archive to mailbox failed' (blocked, and sending the email to the auditor's mailbox failed), 'Allowed and archived to mailbox' (allowed, and an email was sent to the auditor's mailbox) and 'Allowed and archived to mailbox failed' (allowed, and sending the email to the auditor's mailbox failed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-policy-reasons.json",
+          "quotes": [
+            "Due to a DLP policy violation, the transaction was blocked.",
+            "The transaction was blocked due to a DLP policy violation. Email was sent to the auditor's mailbox.",
+            "Violates Compliance Category, archive to mailbox failed",
+            "The transaction was blocked due to a DLP policy violation. Failed to send email to the auditor's mailbox.",
+            "The transaction violated a DLP policy rule, but it was allowed. An email was sent to the auditor's mailbox.",
+            "Allowed and archived to mailbox failed",
+            "The transaction violated a DLP policy rule, but it was allowed. Failed to send an email to the auditor's mailbox."
+          ]
+        }
+      ]
+    },
+    "icap-secure": {
+      "statement": "Zscaler supports secure or unencrypted ICAP receivers on the DLP notification and recommends sending transaction information via secure ICAP; secure ICAP is required to set up the stunnel application.",
+      "tier": "A",
+      "conditions": "The ICAP receivers article describes stunnel as the application Zscaler recommends installing on the DLP server to decrypt secure ICAP; see [[zia.dlp.icap-receivers]]. The runbook gives no further wording on the requirement.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler supports secure or unencrypted ICAP receivers on the DLP notification. Zscaler recommends sending transaction information via secure ICAP.",
+            "Secure ICAP is required to set up stunnel application."
+          ]
+        }
+      ]
+    },
+    "icap-troubleshooting": {
+      "statement": "For an ICAP notification issue the runbook says to ensure the necessary firewall configuration according to Zscaler's Config page, listing DLP ICAP Requirements (https://config.zscaler.com/<zscaler cloud>/icap), DLP Incident Receiver (/dlp-incident-receiver), Internet & SaaS Advanced DLP (Private Service Edge) (/zia-private-dlp) and Private Service Edge for Internet & SaaS Access Requirements (/zia-sedge); to perform a telnet to the external ICAP server IP address and port (e.g., 1344) behind an allowed network; and, if it is ICAP, to check the stunnel configuration according to the tunnel application guide; and to change the configuration to an unencrypted ICAP URL and test again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure the necessary Firewall configuration according to Zscaler's Config page.",
+            "DLP ICAP Requirements. Use the following URL format: https://config.zscaler.com/<zscaler cloud>/icap",
+            "DLP Incident Receiver. Use the following URL format: https://config.zscaler.com/<zscaler cloud>/dlp-incident-receiver",
+            "Internet & SaaS Advanced DLP (Private Service Edge). Use the following URL format: https://config.zscaler.com/<zscaler cloud>/zia-private-dlp",
+            "Private Service Edge for Internet & SaaS Access Requirements. Use the following URL format: https://config.zscaler.com/<zscaler cloud>/zia-sedge",
+            "If it is ICAP, check the stunnel configuration according to the tunnel application guide.",
+            "Perform a telnet to the external ICAP server IP address and port (e.g., 1344) behind an allowed network.",
+            "Change the configuration to an unencrypted ICAP URL and test again.",
+            "check the stunnel configuration according to the tunnel application guide."
+          ]
+        }
+      ]
+    },
+    "support-data-email": {
+      "statement": "For an email notification issue, the runbook's data checklist asks for relevant configuration screenshots of the DLP rule name and the auditor email address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "1. Relevant configuration screenshots:",
+            "1. DLP rule name",
+            "Auditor email address"
+          ]
+        }
+      ]
+    },
+    "support-data-icap": {
+      "statement": "For an ICAP notification issue, the runbook's data checklist asks for relevant configuration screenshots of the DLP rule name, the DLP rule’s DLP Incident Receiver setting and the DLP Incident Receiver’s configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Relevant configuration screenshots:",
+            "- DLP rule name",
+            "DLP rule’s DLP Incident Receiver setting",
+            "DLP Incident Receiver’s configuration"
+          ],
+          "after": "Change the configuration to an unencrypted ICAP URL and test again."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "email-limit-knob": {
+      "kind": "semantic",
+      "title": "Whether the 25 MB DLP email notification attachment limit can be changed by configuration",
+      "status": "open",
+      "detail": "The runbook states the 25 MB default and a Provisioning support case for a valid use case to send large violation content by email, but names no configuration setting for the limit.",
+      "resolves_with": ["support-ticket", "source-read"]
+    }
+  }
+}

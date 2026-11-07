@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control.runbook.misdetection-and-overrides",
+  "title": "File Type Control runbook: archives blocked by inner file type, the Malware Protection Unscannable Files override, and misidentified file types",
+  "aliases": [
+    "archive files blocked despite allow policy",
+    "not allowed to upload/download unscannable file formats"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.file-type-control.runbook" },
+    { "rel": "see-also", "to": "zia.file-type-control" },
+    { "rel": "see-also", "to": "zia.file-type-control.pipeline" },
+    { "rel": "see-also", "to": "zia.file-type-control.actions" },
+    { "rel": "see-also", "to": "zia.malware-protection" },
+    { "rel": "see-also", "to": "zia.malware-protection.inspection" },
+    { "rel": "see-also", "to": "zia.atp.security-exceptions" },
+    { "rel": "see-also", "to": "zia.troubleshooting.security-policies-runbook.malware-atp" }
+  ],
+  "prose": [
+    {
+      "label": "Archives.",
+      "text": "{{archive-blocked-by-inner-type}} {{archive-rule-order}}"
+    },
+    {
+      "label": "Unscannable Files override.",
+      "text": "{{unscannable-precedence}} {{unscannable-causes}} {{gap:unscannable-size-rule}} {{divergence:oversize-precedence}} {{unscannable-fix}}"
+    },
+    {
+      "label": "Misidentified file types.",
+      "text": "{{misidentified-type}} {{misidentification-causes}} {{true-type-check}}"
+    }
+  ],
+  "claims": {
+    "archive-blocked-by-inner-type": {
+      "statement": "When users report that archive files (e.g., ZIP) are blocked despite having an allow policy, the runbook says the contents in the archive might trigger policy rules: Zscaler uses deep packet inspection to analyze files inside archives, and if a blocked file type (e.g., an image file) exists within the archive, the entire archive is blocked, which is confirmed using the Web Insights Logs under the Blocked Policy Name field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "When users report issues such as archive files (e.g., ZIP) are blocked despite having an allow policy, the contents in the archive might trigger policy rules.",
+            "Zscaler uses deep packet inspection to analyze files inside archives.",
+            "If a blocked file type (e.g., an image file) exists within the archive, the entire archive is blocked.",
+            "This is confirmed by using the Web Insights Logs under the Blocked Policy Name field."
+          ]
+        }
+      ]
+    },
+    "archive-rule-order": {
+      "statement": "For the goal of blocking image files while allowing archive files, the runbook's example configures a policy to block image files first, followed by an allow rule for archive files, and says that in this case a ZIP file containing blocked file types (e.g., images) is blocked by the image file rule; it says any priority rule blocking access to the actual file inside the archive blocks the connection, and to ensure rules blocking the specific inner file types are deprioritized after the allow rule for archives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "if your goal is to block image files while allowing archive files, you would first configure a policy to block image files, followed by an allow rule for archive files",
+            "In this case, if the ZIP file contains blocked file types (e.g., images), the upload/download of the archive file is blocked by the image file rule.",
+            "Any priority rule blocking access to the actual file inside Archive blocks the connection.",
+            "Ensure rules blocking the specific inner file types are deprioritized after the allow rule for archives."
+          ]
+        }
+      ]
+    },
+    "unscannable-precedence": {
+      "conditions": "Stated as the File Type Control runbook's account. The Malware Protection security exceptions article says unscannable files are allowed by default; see [[zia.malware-protection.inspection]].",
+      "statement": "Even if a file type (e.g., .bz2) is allowed by a File Type Control policy, users can encounter a block message stating Not allowed to upload/download unscannable file formats, because Zscaler Malware Protection > Unscannable Files Block settings take precedence over File Type Control policies; if the Malware Protection setting is configured to block unscannable files, it overrides File Type Control allow rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Even if a file type (e.g., .bz2) is allowed by an File Type Control policy, users can encounter a block message stating Not allowed to upload/download unscannable file formats.",
+            "Zscaler Malware Protection > Unscannable Files Block settings take precedence over File Type Control policies.",
+            "If the Malware Protection setting is configured to block unscannable files, it overrides File Type Control allow rules."
+          ]
+        }
+      ]
+    },
+    "unscannable-causes": {
+      "statement": "The runbook lists these causes of unscannable files: Unrecognized file format (malformed, truncated, or encrypted files), Excessive file size (files, e.g., Microsoft Office documents, exceeding specific size limits, such as 400 MB), and Excessive compression (files compressed or archived more than 5 times).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Unrecognized file format: Malformed, truncated, or encrypted files.",
+            "Excessive file size: Files (e.g., Microsoft Office documents) exceeding specific size limits, such as 400 MB.",
+            "Excessive compression: Files compressed or archived more than 5 times."
+          ]
+        }
+      ]
+    },
+    "unscannable-fix": {
+      "statement": "To fix an unscannable block, the runbook says to review the Web Insights Logs to confirm Blocked Policy Type as Malware Protection, go to Policies > Cybersecurity > Malware Protection > Security Exceptions, add the specific URLs under Do Not Scan Content from these URLs, and test and confirm that the file is uploaded or downloaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Review the Web Insights Logs to confirm Blocked Policy Type as Malware Protection.",
+            "Go to Policies > Cybersecurity > Malware Protection > Security Exceptions.",
+            "Add the specific URLs under Do Not Scan Content from these URLs.",
+            "Test and confirm that the file is uploaded or downloaded."
+          ]
+        }
+      ]
+    },
+    "misidentified-type": {
+      "statement": "A Dynamic Link Library (.dll) file might be detected as an .exe file, resulting in a block if .exe files are restricted; the runbook says Zscaler does not solely rely on file extensions to identify file types and instead validates the true file type by analyzing the file signature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "a Dynamic Link Library (.dll) file might be detected as an .exe file, resulting in a block if .exe files are restricted.",
+            "Zscaler does not solely rely on file extensions to identify file types. Instead, it validates the true file type by analyzing the file signature",
+            "Validate the file’s true type by analyzing its file signature."
+          ]
+        }
+      ]
+    },
+    "misidentification-causes": {
+      "statement": "The runbook lists these causes: Mismatch Between File Extension and True File Type, where the file extension was renamed manually without altering the file’s contents, corrupted or incomplete files that could have been partially overwritten, leading to incorrect magic bytes, and website-specific behaviors where some websites can use non-standard file naming conventions or mechanisms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Mismatch Between File Extension and True File Type: The file extension was renamed manually without altering the file’s contents.",
+            "Corrupted or Incomplete Files: The file could have been partially overwritten, leading to incorrect magic bytes.",
+            "Website-Specific Behaviors: Some websites can use non-standard file naming conventions or mechanisms."
+          ]
+        }
+      ]
+    },
+    "true-type-check": {
+      "statement": "To identify a file's true type the runbook says it can analyze its hex signature on a Linux OS, using a file utility to confirm the true file type; it then says to compare the identified file type with the policy rules and, if the true type is blocked due to policy restrictions, to modify the File Type Control policy specific to this domain or file type, if appropriate, or contact the destination vendor for clarification and identifying the mismatch between the file signature and file extension.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "you can analyze its hex signature on a Linux OS. You can use a file utility to confirm the true file type of a file.",
+            "Compare the identified file type with the policy rules. If the true type is blocked due to policy restrictions:",
+            "Modify the File Type Control policy specific to this domain or file type, if appropriate.",
+            "Contact the destination vendor for clarification and identifying the mismatch between the file signature and file extension."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unscannable-size-rule": {
+      "kind": "semantic",
+      "title": "Which size and compression limits make a file unscannable",
+      "status": "open",
+      "detail": "The File Type Control runbook gives 400 MB and 'more than 5 times' compression as examples of causes without stating the Unscannable Files size rule; the security policies runbook words its Malware Protection limit as archive files larger than 400 MB or extracted files larger than 200 MB (see [[zia.troubleshooting.security-policies-runbook.malware-atp]]). How the figures relate, and whether an over-limit file is unscannable, is not stated; the precedence disagreement is recorded in the divergence.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  },
+  "divergences": {
+    "oversize-precedence": {
+      "summary": "The File Type Control runbook lists excessive file size as a cause of unscannable files and says a Malware Protection setting that blocks unscannable files overrides File Type Control allow rules, while the security policies runbook says an over-limit file whose type the service can identify is allowed or blocked by File Type Control policy.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Excessive file size: Files (e.g., Microsoft Office documents) exceeding specific size limits, such as 400 MB.",
+              "If the Malware Protection setting is configured to block unscannable files, it overrides File Type Control allow rules."
+            ]
+          },
+          "says": "Excessive size makes a file unscannable, and a Malware Protection block on unscannable files overrides File Type Control allow rules."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-security-policies-support-troubleshooting-runbook.json",
+            "quotes": [
+              "If a file exceeds the size limit and the Zscaler service can identify the file type, then the file is allowed or blocked based on File Type Control policy."
+            ]
+          },
+          "says": "An over-limit file whose type the service can identify is allowed or blocked based on File Type Control policy."
+        }
+      ],
+      "impact": "Neither page reconciles the two. Do not say an oversize file is blocked as unscannable, or is decided by File Type Control, without naming both pages; the earlier File Type Control pipeline gap on files above 400 MB is not answered by either."
+    }
+  }
+}

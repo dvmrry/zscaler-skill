@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.log-integrity",
+  "title": "NSS runbook: duplicate logs, missing log fields and SIEM-side checks",
+  "aliases": [
+    "Duplicate Logs",
+    "Log Column/Field Missing",
+    "SIEM Side Checks"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.log-loss" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.cloud-nss" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.corner-cases" },
+    { "rel": "see-also", "to": "zia.logs.nss-feed-format" },
+    { "rel": "see-also", "to": "shared.nss.reliability" },
+    { "rel": "see-also", "to": "shared.nss.feed-settings" }
+  ],
+  "prose": [
+    {
+      "label": "Duplicate logs.",
+      "text": "{{duplicate-recordid}} {{duplicate-source-checks}} {{duplicate-logs-setting}} {{duplicate-other-causes}}"
+    },
+    {
+      "label": "Missing field.",
+      "text": "{{missing-field-format}} {{missing-field-hex}} {{missing-field-verify}} Which smmgr flag the getsminfo check takes {{gap:getsminfo-flag}} is open."
+    },
+    {
+      "label": "SIEM side.",
+      "text": "{{siem-side-checks}}"
+    }
+  ],
+  "claims": {
+    "duplicate-recordid": {
+      "statement": "For duplicate logs on the SIEM, the runbook says to include the %d{recordid} field in the NSS feed format, a unique record identifier for each log, to identify duplication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check if you have configured %d{recordid} in the NSS feed format, which is a unique record identifier for each log. If not, include this field, which helps in identifying duplication of logs."
+          ]
+        }
+      ]
+    },
+    "duplicate-source-checks": {
+      "statement": "To find where duplicates come from, the SIEM Log Source field shows which NSS server sent them, and for duplicates from two different NSS servers the runbook says to verify the NSS feeds and look for redundant feeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "On the SIEM, check the NSS server from which these duplicate logs are received. The Log Source field provides this information.",
+            "If these duplicate logs are received from two different NSS servers, verify that all the NSS feeds are configured with these NSS servers and see if there are redundant feeds."
+          ]
+        }
+      ]
+    },
+    "duplicate-logs-setting": {
+      "statement": "For duplicates from the same NSS server the runbook checks the Duplicate Logs feed setting; set to a value of 1-60 minutes, it makes the NSS replay buffered logs after a lost SIEM connection is restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "When this setting is set to a specific value (1–60 minutes), whenever the connection between the NSS and the SIEM is lost, the NSS replays the logs from the buffer and sends them to the SIEM after the connection is restored.",
+            "If these duplicate logs are received from the same NSS server, check if the Duplicate Logs setting is configured in the feed config."
+          ]
+        }
+      ]
+    },
+    "duplicate-other-causes": {
+      "statement": "Duplicates can also come from data engines such as Cribl or Datadog in front of the SIEM, or from multiple active NSS servers mapped to the same Nanolog cluster in a multi-cluster setup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If you are using data engines such as Cribl, Datadog, or similar for log collection and routing in front of their SIEM, consult vendor experts to investigate potential duplication issues.",
+            "It can lead to duplication when multiple active NSS servers are mapped to same Nanolog cluster.",
+            "If you have a multi-cluster Nanolog setup (refer to the corner case of logs sprayed across the multi-cluster Nanolog section for more details)"
+          ]
+        }
+      ]
+    },
+    "missing-field-format": {
+      "statement": "For a missing log column or field, the runbook has the admin confirm the field is configured with the right case (field names are case-sensitive) and string format (%s, %d, %x), and that the feed escape character is set when the delimiter commonly appears in values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "make sure the impacted field is configured with appropriate cases (field names are case-sensitive) and string format (%s, %d, %x).",
+            "Make sure you have entered the feed escape character if the field delimiter used is something that is commonly present on the output values."
+          ]
+        }
+      ]
+    },
+    "missing-field-hex": {
+      "statement": "String fields such as URL and user agent need hex-encoded fields in the feed format; Zscaler uses hex-encoded fields for all non-printable ASCII characters in field values, for example %s{eurl} and %s{ereferer}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Make sure you are using hex-encoded fields in the feed format for the string fields like URL, user agent, etc.",
+            "Zscaler uses hex-encoded fields for all non-printable ASCII characters in field values like %s{eurl}, %s{ereferer}, etc."
+          ]
+        }
+      ]
+    },
+    "missing-field-verify": {
+      "statement": "To verify a missing field from the NSS server, the runbook checks sudo /sc/bin/smmgr -s getsminfo=nss_feed_info_all and simulates a sample log while capturing on the NSS service interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "From the NSS server, run sudo /sc/bin/smmgr -s getsminfo=nss_feed_info_all to see if the feed configuration is reflecting correctly.",
+            "Try to simulate a sample log and simultaneously take a pcap on the service interface of NSS to confirm if the NSS is forwarding the log as expected."
+          ]
+        }
+      ]
+    },
+    "siem-side-checks": {
+      "statement": "The runbook's SIEM-side checks cover event ingestion, parsing and normalization, correlation rules, data pipeline health and recent changes, with exact commands varying by SIEM vendor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "These are general guidelines outlining what to check on the SIEM. The exact commands, paths, or interfaces vary depending on the SIEM vendor.",
+            "Zscaler recommends you use tab as field delimiters to avoid any parsing errors. When commas and spaces are used, they could be output values.",
+            "Validate that all connectors/agents are running and healthy.",
+            "Confirm that the relevant correlation rules are enabled.",
+            "Identify any updates or configuration changes that could have affected event flow."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "getsminfo-flag": {
+      "kind": "semantic",
+      "title": "Whether getsminfo=nss_feed_info_all takes smmgr -s or -ys",
+      "status": "open",
+      "detail": "The missing-field step writes sudo /sc/bin/smmgr -s getsminfo=nss_feed_info_all, while the SIEM connectivity and MCAS steps write sudo /sc/bin/smmgr -ys getsminfo=nss_feed_info_all. The captured page does not say which flag is correct or whether both work.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  }
+}

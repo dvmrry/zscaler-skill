@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.runbook",
+  "title": "How the Private Access LSS support troubleshooting runbook describes retention, the log flow and its three common issues",
+  "aliases": [
+    "Private Access Log Streaming Service (LSS) Support Troubleshooting Runbook",
+    "LSS support runbook"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zpa.log-receivers" },
+    { "rel": "see-also", "to": "zpa.log-receivers.runbook.no-logs" },
+    { "rel": "see-also", "to": "zpa.log-receivers.runbook.partial-and-parsing" },
+    { "rel": "see-also", "to": "zpa.log-receivers.architecture" },
+    { "rel": "see-also", "to": "zpa.log-receivers.delivery" },
+    { "rel": "see-also", "to": "zpa.audit-logs.what-is-recorded" },
+    { "rel": "see-also", "to": "zpa.troubleshooting.diagnostics" },
+    { "rel": "see-also", "to": "zpa.app-connectors.runbook" }
+  ],
+  "prose": [
+    {
+      "label": "Retention.",
+      "text": "{{retention}} {{divergence:audit-retention-bound}} The full retention wording is in [[zpa.log-receivers.delivery]]."
+    },
+    {
+      "label": "What LSS does.",
+      "text": "{{benefits-components}} {{connection-flow}} {{lss-client-visibility}}"
+    },
+    {
+      "label": "Common issues.",
+      "text": "{{symptom-routing}} No logs on the SIEM is in [[zpa.log-receivers.runbook.no-logs]], and partial logs and parsing issues are in [[zpa.log-receivers.runbook.partial-and-parsing]]."
+    }
+  ],
+  "claims": {
+    "retention": {
+      "statement": "The LSS runbook says Zscaler retains user activity, user status and App Connector log information for rolling periods of at least 14 days, and audit log information for 6-month periods, during the subscription term; the 6-month wording carries no \"at least\" or \"up to\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-log-streaming-service-lss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler retains user activity, user status, and App Connector log information for rolling periods of at least 14 days during the subscription term.",
+            "Zscaler retains audit log information for 6-month periods during the subscription term."
+          ]
+        }
+      ]
+    },
+    "benefits-components": {
+      "statement": "LSS lets an admin forward diagnostics and status logs to a SIEM, store logs longer than the cloud retention period, build charts in an in-house SIEM, and create events and alerts with third-party log correlation; it has two components, a Log Receiver (SIEM) and an App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-log-streaming-service-lss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Forward your diagnostics and status logs to a security information and event management (SIEM).",
+            "Store logs for longer than the cloud retention period.",
+            "Create analytical charts and graphs using your own in-house SIEM.",
+            "Create events and alerts using third-party log correlation.",
+            "The LSS has two components: a Log Receiver (SIEM) and an App Connector."
+          ]
+        }
+      ]
+    },
+    "connection-flow": {
+      "statement": "Each user request creates a microtunnel toward a Public or Private Service Edge, generating a log that is sent to Zscaler's backend logging servers, which makes the logs available on the Admin Console; if SIEM integration is enabled for the log type the Service Edge also forwards a copy to the LSS Client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-log-streaming-service-lss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "When this occurs, the Service Edge generates a log.",
+            "backend logging servers, which allows the logs to be available on the Zscaler Admin Console",
+            "All user requests are handled by the creation of a microtunnel towards a Public Service Edge or a Private Service Edge.",
+            "If SIEM integration is enabled for the log type, the Service Edge also forwards a copy of the log to a specialized Private Access component called the LSS Client",
+            "analyzing events reported primarily by the Public Service Edges for Private Access or Private Service Edges"
+          ]
+        }
+      ]
+    },
+    "lss-client-visibility": {
+      "statement": "The LSS client's logging activity is itself logged in Private Access Diagnostics and the Users dashboard, and, as the runbook puts it, depending on the amount of logs generated the LSS Client can appear among the Top Users by Bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-log-streaming-service-lss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The LSS client logging activity is also logged in Private Access Diagnostics and Users dashboard.",
+            "Depending on the amount of logs generated",
+            "the user Private Access LSS Client can appear as one of the Top Users by Bandwidth"
+          ]
+        }
+      ]
+    },
+    "symptom-routing": {
+      "statement": "The LSS runbook's common-issues sections include: no logs received on the SIEM server, partial logs received, and log syntax or parsing issues on the SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-log-streaming-service-lss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following sections describe common troubleshooting Private Access LSS issues.",
+            "Customers can reference the relevant section based on their specific problem to streamline resolution efforts.",
+            "No Logs Received on SIEM Server",
+            "Partial Log Received on SIEM Server",
+            "Log Syntax or Parsing Issues on SIEM"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "audit-retention-bound": {
+      "summary": "Which side of 6 months bounds ZPA audit log retention: the LSS runbook says 6-month periods, the Log Streaming Service page says at least 6-month periods, and the Audit Logs page says up to 6 months.",
+      "positions": [
+        {
+          "says": "The LSS runbook says audit log information is retained for 6-month periods, with no bound stated.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-private-access-log-streaming-service-lss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Zscaler retains audit log information for 6-month periods during the subscription term."
+            ]
+          }
+        },
+        {
+          "says": "The Log Streaming Service page says audit log information is retained for at least 6-month periods (a floor).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-log-streaming-service.json",
+            "quotes": [
+              "Zscaler retains audit log information for at least 6-month periods during the subscription term."
+            ]
+          }
+        },
+        {
+          "says": "The Audit Logs page says audit logs are stored for up to 6 months (a ceiling).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-audit-logs.json",
+            "quotes": [
+              "Audit logs are stored for up to 6 months."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer that treats 6 months as guaranteed, or as a limit, rests on one of the wordings; the runbook's own sentence does not say which."
+    }
+  },
+  "gaps": {}
+}

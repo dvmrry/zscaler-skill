@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.forwarding-runbook.endpoint-firewall",
+  "title": "Runbook: Endpoint FW/AV Error and FIREWALL_BLOCK_ERROR, 100.64.0.0/24 health checks and the Windows firewall rule",
+  "aliases": [
+    "Endpoint FW/AV Error",
+    "FIREWALL_BLOCK_ERROR"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook" },
+    { "rel": "see-also", "to": "zcc.interoperability.security-software" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.service-status-errors" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook.connection-error" }
+  ],
+  "prose": [
+    {
+      "label": "Symptoms.",
+      "text": "{{symptoms}} {{dtls-throttle}} {{capture-file}}"
+    },
+    {
+      "label": "Process and transport checks.",
+      "text": "{{allowlist-processes}} {{tls-profile}}"
+    },
+    {
+      "label": "Health check route.",
+      "text": "{{health-check-route}}"
+    },
+    {
+      "label": "Windows firewall.",
+      "text": "{{os-firewall-rule}} {{block-rule-precedence}} {{rule-validation}} {{third-party-and-reinstall}}"
+    }
+  ],
+  "claims": {
+    "symptoms": {
+      "statement": "Listed symptoms of endpoint firewall or antivirus interference are Endpoint FW/AV Error or FIREWALL_BLOCK_ERROR in the Internet Security window, log lines Firewall detected retries expired or [WFP]: Bad health, and connectivity issues or dropped packets related to the reserved Zscaler range 100.64.0.0/24.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The Internet Security window shows Endpoint FW/AV Error or FIREWALL_BLOCK_ERROR.",
+            "Logs mention Firewall detected retries expired or [WFP]: Bad health.",
+            "Connectivity issues or dropped packets related to reserved Zscaler IP range (100.64.0.0/24)."
+          ]
+        }
+      ]
+    },
+    "dtls-throttle": {
+      "statement": "Some ISPs tend to throttle DTLS traffic, which leads to SERVER_DOWN_ERROR and FIREWALL_BLOCK_ERROR in the ZSATunnel logs; the runbook advises switching to TLS in such cases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Some ISPs tend to throttle DTLS traffic, which leads to Zscaler Client Connector responding with SERVER_DOWN_ERROR and FIREWALL_BLOCK_ERROR errors and is captured in the ZSATunnel logs. In such cases, it is advised to switch to TLS."
+          ]
+        }
+      ]
+    },
+    "capture-file": {
+      "statement": "The packet capture file CaptureLWF<timestamp>.pcap can confirm whether communication is failing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector CaptureLWF<timestamp>.pcap can confirm if the communication is failing:"
+          ]
+        }
+      ]
+    },
+    "allowlist-processes": {
+      "statement": "The runbook says ZSATunnel.exe, ZSATray.exe, ZSAService.exe and ZDPService.exe must be excluded from firewall and antivirus scanning and policy restrictions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure critical processes (ZSATunnel.exe, ZSATray.exe, ZSAService.exe, ZDPService.exe) are excluded from firewall and antivirus scanning and policy restrictions."
+          ]
+        }
+      ]
+    },
+    "tls-profile": {
+      "statement": "The runbook says to test the TLS transport by creating a profile that uses Z-Tunnel 2.0 with TLS transport.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Test switching to TLS transport protocol. Create a profile to use Z-Tunnel 2.0 with TLS transport."
+          ]
+        }
+      ]
+    },
+    "health-check-route": {
+      "statement": "Client Connector health check traffic must be excluded from any third-party VPN IP range so the 100.64.0.0 range routes via the physical interface; in PowerShell, Find-NetRoute -RemoteIPAddress 100.64.0.6 should show Wi-Fi or ethernet (InterfaceAlias) and not the VPN adapter, and specific routing rules should exclude 100.64.0.0/24 from VPN adapters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure Zscaler Client Connector health check traffic is excluded from any third-party VPN IP range to route 100.64.0.0 IP range via physical interface.",
+            "Add specific routing rules to exclude health check traffic (100.64.0.0/24) from VPN adapters.",
+            "Open Windows PowerShell and run the Find-NetRoute -RemoteIPAddress 100.64.0.6 command to ensure the traffic is connected via Wi-Fi or ethernet (InterfaceAlias field) and not to the VPN adapter."
+          ]
+        }
+      ]
+    },
+    "os-firewall-rule": {
+      "statement": "By default Client Connector adds a firewall rule for ZSATunnel.exe allowing all ports and protocols on the domain, private and public profiles; the Zscaler App Rule should exist and be enabled for all profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Confirm Zscaler App Rule exists and is enabled for all profiles (i.e., domain, private, public).",
+            "By default, Zscaler Client Connector adds a rule for ZSATunnel.exe for allowing all ports and protocols for domain, private, and public network, respectively."
+          ]
+        }
+      ]
+    },
+    "block-rule-precedence": {
+      "statement": "In Windows firewall an ANY block rule that would catch Client Connector traffic takes precedence even if less specific than the Client Connector rule; Zscaler recommends removing or disabling any rule blocking inbound connectivity to local port 9000 or port 80.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If there is a rule which is blocking inbound connectivity to local port 9000 or port 80, Zscaler recommends that you remove or disable that rule.",
+            "Windows firewall works in a way that if there is an ANY block rule which would catch the Zscaler Client Connector traffic (even if it is LESS specific than the Zscaler Client Connector rule), the block rule takes precedence."
+          ]
+        }
+      ]
+    },
+    "rule-validation": {
+      "statement": "The firewall rule can be validated from the Client Connector log AppInfo.xml or with the CLI command netsh advfirewall firewall show rule name = \"Zscaler App Rule\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "You can validate the Firewall rule from the Zscaler Client Connector log AppInfo.xml.",
+            "netsh advfirewall firewall show rule name = \"Zscaler App Rule\""
+          ]
+        }
+      ]
+    },
+    "third-party-and-reinstall": {
+      "statement": "The runbook says to temporarily disable third-party VPN clients such as Cisco AnyConnect and endpoint security tools to find conflicts, and, if persistent after upgrading Client Connector to the latest version, to uninstall and reinstall Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Disable third-party VPN clients (e.g., Cisco AnyConnect) and endpoint security tools temporarily to identify traffic conflicts."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Upgrade Zscaler Client Connector to the latest version in case of persistent errors.",
+            "If persistent, uninstall and reinstall Zscaler Client Connector to correct misconfigurations."
+          ],
+          "after": "Adjust firewall rules based on packet capture findings."
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

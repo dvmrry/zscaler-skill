@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.performance-runbook.udp-throttling",
+  "title": "Client Connector performance runbook: ISP UDP throttling and moving a user to TLS or the hybrid profile",
+  "aliases": [
+    "ISP throttling UDP",
+    "switch to Z-Tunnel 2.0 TLS",
+    "hybrid configuration"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.z-tunnel.bypasses" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.performance-runbook" },
+    { "rel": "see-also", "to": "zcc.z-tunnel.transport" }
+  ],
+  "prose": [
+    {
+      "label": "Cause.",
+      "text": "{{isp-deprioritizes-udp}}"
+    },
+    {
+      "label": "Switching to TLS.",
+      "text": "{{switch-to-tls-user-override}} {{switch-to-tls-profile}} {{tls-improvement-meaning}}"
+    },
+    {
+      "label": "Hybrid.",
+      "text": "{{hybrid-configuration}} {{divergence:hybrid-vs-recommend-both}}"
+    }
+  ],
+  "claims": {
+    "isp-deprioritizes-udp": {
+      "statement": "The runbook reports that certain ISPs deprioritize UDP traffic; DTLS, the primary transport for Z-Tunnel 2.0, uses UDP 443, and deprioritization can cause overall sluggishness.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "certain ISPs deprioritize UDP-based traffic",
+            "DTLS is the primary transport protocol for Z-Tunnel 2.0, and DTLS uses UDP 443.",
+            "Deprioritization can result in network traffic performance issues such as overall internet sluggishness."
+          ]
+        }
+      ]
+    },
+    "switch-to-tls-user-override": {
+      "statement": "To switch a user to TLS from the local page, enable Allow end user to override Z-Tunnel 2.0 or ZPA protocol settings under User Privacy, browse to http://127.0.0.1:9000/zconfig?q=@<CustomerDomain>, select TLS as the Protocol, and click Restart Service in the More window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "go to Infrastructure > Connectors > Client > User Privacy",
+            "With Zscaler Client Connector turned on, browse to http://127.0.0.1:9000/zconfig?q=@<CustomerDomain>",
+            "enable the Allow end user to override Z-Tunnel 2.0 or ZPA protocol settings option.",
+            "select TLS as the Protocol in the drop-down menu:",
+            "To enable these changes, click Restart Service in the More window of Zscaler Client Connector."
+          ],
+          "after": "The following steps describe switching user to Z-Tunnel 2.0 / TLS:"
+        }
+      ]
+    },
+    "switch-to-tls-profile": {
+      "statement": "The profile route to TLS creates a new forwarding profile with Primary Transport Selection set to TLS, maps it to a new app profile and the affected user, and the user clicks Update Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "You must create a new app profile and a new forwarding profile.",
+            "In the new forwarding profile, select the Primary Transport Selection as TLS.",
+            "Map this new forwarding profile to the newly created app profile.",
+            "Map the affected user to this new app profile.",
+            "Users must click Update Policy in Zscaler Client Connector to be assigned to the new profile."
+          ],
+          "after": "## Option 2: Switching Users to Z-Tunnel 2.0 or TLS"
+        }
+      ]
+    },
+    "tls-improvement-meaning": {
+      "statement": "If performance improves on TLS, the runbook says the ISP is throttling UDP packets and to contact the ISP; Z-Tunnel 2.0 with TLS can still intercept all ports and protocols like DTLS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the performance improves, it indicates that the ISP is throttling UDP packets. Contact the ISP and work towards resolution.",
+            "Z-Tunnel 2.0 with TLS can still intercept all ports and protocols, just like Z-Tunnel 2.0 with DTLS."
+          ]
+        }
+      ]
+    },
+    "hybrid-configuration": {
+      "statement": "Client Connector 3.8 introduced a feature for tailoring a new app profile for users affected by slow performance, which turns on Redirect Web Traffic to Zscaler Client Connector Listening Proxy and turns off Use Z-Tunnel 2.0 for Proxied Web Traffic in the Advanced Z-Tunnel Configuration menu while configuring the forwarding profile; web traffic then uses Z-Tunnel 1.0, non-web uses Z-Tunnel 2.0 and the forwarding profile PAC is not used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector version 3.8 introduced a feature that you can use to tailor a new app profile for specific users affected by slow performance issues.",
+            "The feature turns on Redirect Web Traffic to Zscaler Client Connector Listening Proxy and turns off Use Z-Tunnel 2.0 for Proxied Web Traffic in the Advanced Z-Tunnel Configuration menu while configuring the forwarding profile.",
+            "Web traffic using Z-Tunnel 1.0.",
+            "Non-web traffic using Z-Tunnel 2.0.",
+            "Not using the forwarding profile Proxy Auto-Configuration (PAC) file."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "hybrid-vs-recommend-both": {
+      "summary": "The runbook offers turning off Use Z-Tunnel 2.0 for Proxied Web Traffic while Redirect Web Traffic to Zscaler Client Connector Listening Proxy is on as a workaround for UDP throttling; the forwarding profile page recommends enabling both options. The forwarding profile page still lists both options under the same names and describes the same Z-Tunnel 1.0 web result.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+            "quotes": [
+              "The feature turns on Redirect Web Traffic to Zscaler Client Connector Listening Proxy and turns off Use Z-Tunnel 2.0 for Proxied Web Traffic in the Advanced Z-Tunnel Configuration menu while configuring the forwarding profile."
+            ]
+          },
+          "says": "As a workaround until the ISP resolves UDP throttling, the hybrid configuration turns Redirect Web Traffic to the listening proxy on and Use Z-Tunnel 2.0 for Proxied Web Traffic off."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+            "quotes": [
+              "Zscaler recommends enabling both Redirect Web Traffic to Zscaler Client Connector Listening Proxy and Use Z-Tunnel 2.0 for Proxied Web Traffic."
+            ]
+          },
+          "says": "Zscaler recommends enabling both options."
+        }
+      ],
+      "impact": "The hybrid configuration is a stated workaround for a UDP-throttling ISP, not the recommended setting; which applies to a given user depends on whether UDP throttling was confirmed."
+    }
+  }
+}

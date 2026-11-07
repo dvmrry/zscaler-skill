@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.runbook.enrollment",
+  "title": "What the App Connector runbook checks when enrollment fails: sizing, DNS, broker reachability, SSL interception, clock, provisioning key and VM moves",
+  "aliases": [
+    "Troubleshooting Enrollment Failure"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zpa.app-connectors.runbook" },
+    { "rel": "see-also", "to": "zpa.app-connectors.enrollment" },
+    { "rel": "see-also", "to": "zpa.troubleshooting.support-information" }
+  ],
+  "prose": [
+    {
+      "label": "Sizing.",
+      "text": "{{sizing-check}}"
+    },
+    {
+      "label": "DNS.",
+      "text": "{{dns-on-connector}} {{dns-fix-first}}"
+    },
+    {
+      "label": "Broker reachability.",
+      "text": "{{broker-reachability}} {{firewall-ranges}}"
+    },
+    {
+      "label": "Certificate causes.",
+      "text": "{{ssl-interception}} {{time-sync}}"
+    },
+    {
+      "label": "Key and hardware causes.",
+      "text": "{{provision-key-copy}} {{vm-move}}"
+    }
+  ],
+  "claims": {
+    "sizing-check": {
+      "statement": "The enrollment-failure runbook says to make sure the App Connector deployed follows the correct sizing requirements, to check the build info with the lscpu command, and to make the necessary changes to meet the required settings where the sizing requirements do not match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use the lscpu command to check the App Connector build info. The following is an example of the output of lscpu command:",
+            "If the sizing requirements do not match",
+            "then you must address this by making the necessary changes to meet the required settings",
+            "Make sure that the App Connector deployed follows the correct sizing requirements."
+          ],
+          "after": "Troubleshooting Enrollment Failure"
+        }
+      ]
+    },
+    "dns-on-connector": {
+      "statement": "With no connectivity to the Control Broker the Support Information page cannot run DNS and other commands, DNS must be able to resolve co2br.<cloudname>.net, and the App Connector uses the DNS servers in /etc/resolv.conf.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Since there is no connectivity to the Control Broker, you cannot use the Support Information page to run DNS and other commands.",
+            "Make sure the DNS is able to resolve co2br.<cloudname>.net.",
+            "The App Connector uses the DNS servers present in the /etc/resolv.conf page."
+          ],
+          "after": "Confirm that the DNS is Working Correctly"
+        }
+      ]
+    },
+    "dns-fix-first": {
+      "statement": "If DNS resolution from the App Connector is unsuccessful, the runbook says to rectify the DNS issue first, validating network connectivity to the DNS servers and updating the DNS server configuration if needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the DNS resolution is unsuccessful, then you must rectify the DNS issue first.",
+            "Validate the network connectivity to DNS servers and update the DNS server configuration if needed."
+          ],
+          "after": "Confirm that the DNS is Working Correctly"
+        }
+      ]
+    },
+    "broker-reachability": {
+      "statement": "The runbook checks broker reachability from the App Connector with a ping and an openssl TLS connection to a Public Service Edge for Private Access; if the connection fails it points to network or firewall blocks and a packet capture, which shows any TCP resets (RSTs) or blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run pings to check the ICMP Reachability and the path that the App Connector takes to reach the Broker.",
+            "ping co2br.prod.zpath.net",
+            "Test if the App Connector can make a TLS connection to a Public Service Edge for Private Access using the openssl command.",
+            "If this connection fails, you can investigate for any blocks in the network or firewall.",
+            "If there are any TCP Resets (RSTs) or Blocks, the packet capture shows such."
+          ],
+          "after": "Check the Reachability to the Broker"
+        }
+      ]
+    },
+    "firewall-ranges": {
+      "statement": "If there are blocks identified on the network firewall, the runbook says to allow all the IP address ranges listed on config.zscaler.com/private.zscaler.com/zpa for the private.zscaler.com cloud or config.zscaler.com/zpatwo.net/zpa for the zpatwo.net cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If there are any blocks identified on the network firewall",
+            "make sure all the IP address ranges are allowed on the firewall as per config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud)"
+          ]
+        }
+      ]
+    },
+    "ssl-interception": {
+      "statement": "SSL Interception by an intermediate device can make the SSL connection between the App Connector and the Private Access cloud fail; the App Connector prints logs in the journal in that case, and the fix is to allowlist all the Private Access domains or IP addresses listed on the cloud's config.zscaler.com page in the SSL interception device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If any intermediate device is performing SSL Interception, it can cause the SSL connection between App Connector and the Private Access cloud to fail.",
+            "In the case of SSL Interception, App Connector prints the following logs in Journalctl logs.",
+            "you must allowlist all the Private Access domains or IP addresses in the SSL interception device that are listed on config.zscaler.com/private.zscaler.com/zpa"
+          ],
+          "after": "Check for Certificate Issues"
+        }
+      ]
+    },
+    "time-sync": {
+      "statement": "Another reason for certificate rejection is an App Connector timestamp that does not match the timestamp on the Private Access back-end servers, which can delay the certificate becoming valid and enrolling the App Connector; the runbook says to verify the connector time is properly set and maintained.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Another reason for certificate rejection is when the App Connector time is not in sync.",
+            "does not match the timestamp on the Private Access back-end servers",
+            "there can be a delay before the certificate becomes valid and enrolls the App Connector",
+            "Verify that the time on the App Connector is properly set and maintained."
+          ]
+        }
+      ]
+    },
+    "provision-key-copy": {
+      "statement": "A provisioning key not copied correctly can cause enrollment issues: the connector logs show 'Login request failed - http status(401)' and 'Certificate enrollment failed.', and the runbook recommends configuring the provisioning key again and re-enrolling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "There can be enrollment issues due to issues with the provisioning key having not been copied correctly.",
+            "error:Login request failed - http status(401)",
+            "notice:Certificate enrollment failed.",
+            "In such cases, Zscaler recommends you configure the provisioning key again and re-enroll."
+          ]
+        }
+      ]
+    },
+    "vm-move": {
+      "statement": "Moving an App Connector to new hardware with tools such as VM cloning or Hyper-v Live Migration, or any migration tool that changes the hardware ID including the MAC address, makes enrollment fail with log lines 'Cannot decrypt data from instance_id.crypt' and 'Cannot get instance id'; the runbook recommends re-provisioning the App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-private-access-app-connector-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the App Connector is moved to a new hardware using tools like VM cloning, Hyper-v Live Migration, and any migration tool that changes the hardware ID, including MAC address, the App Connector enrollment fails",
+            "Cannot decrypt data from instance_id.crypt",
+            "Cannot get instance id",
+            "In such cases, Zscaler recommends re-provisioning the App Connector."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

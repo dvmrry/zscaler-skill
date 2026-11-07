@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-runbook",
+  "title": "How the Internet & SaaS performance troubleshooting runbook scopes a slowness case and routes it to its pages",
+  "aliases": [
+    "Internet & SaaS Performance Support Troubleshooting Runbook",
+    "internet and saas performance runbook"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-testing" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook.isolation-tests" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook.nearest-data-center" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook.tunnel-overhead" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook.mtr" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook.zdx-and-bandwidth" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.performance-runbook" }
+  ],
+  "prose": [
+    {
+      "label": "Scope.",
+      "text": "{{public-dc-scope}} {{scope-traffic-type}} {{validate-forwarding-method}}"
+    },
+    {
+      "label": "Web and all traffic.",
+      "text": "{{nearest-dc-branch}} {{destination-split}}"
+    },
+    {
+      "label": "Non-web traffic.",
+      "text": "{{firewall-insights-nonweb}} {{pac-ztunnel1-nonweb}} {{gre-ipsec-ztunnel2-nonweb}}"
+    },
+    {
+      "label": "Z-Tunnel 2.0.",
+      "text": "{{ztunnel2-only-routing}} The Client Connector side is in [[zcc.troubleshooting.performance-runbook]]."
+    },
+    {
+      "label": "Runbook pages.",
+      "text": "Manual proxy, direct access, Trust Portal and speed test checks are in [[zia.troubleshooting.performance-runbook.isolation-tests]], and the nearest data center checks are in [[zia.troubleshooting.performance-runbook.nearest-data-center]]. GRE and IPSec tunnel limits are in [[zia.troubleshooting.performance-runbook.tunnel-overhead]], WinMTR is in [[zia.troubleshooting.performance-runbook.mtr]], and ZDX, Bandwidth Control and additional checks are in [[zia.troubleshooting.performance-runbook.zdx-and-bandwidth]]. The Cloud Performance Test itself is in [[zia.troubleshooting.performance-testing]]."
+    }
+  ],
+  "claims": {
+    "scope-traffic-type": {
+      "statement": "The Internet & SaaS performance runbook starts by asking whether all traffic is affected or only non-web traffic, to see whether web and non-web traffic follow different routes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "First, determine whether all traffic is affected or if only non-web traffic is impacted and web browsing remains unaffected.",
+            "analyze and determine if web and non-web traffic are following different routes (e.g., using PAC or Z-Tunnel 1.0 to forward non-web traffic directly to the internet)"
+          ]
+        }
+      ]
+    },
+    "validate-forwarding-method": {
+      "statement": "When only non-web traffic is affected, the runbook has you ensure users forward the non-web traffic for the affected service through Zscaler, filtering Web Insights logs for an affected user or location and checking the Traffic Forwarding column to validate the forwarding method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "In cases when only non-web traffic is affected (e.g., Microsoft Teams meeting issues), you must ensure users are forwarding non-web traffic or are forwarding the non-web traffic for the affected service through Zscaler.",
+            "You can filter the Web Insight logs to identify an affected user or location and can check the Traffic Forwarding column to validate the traffic forwarding method."
+          ]
+        }
+      ]
+    },
+    "firewall-insights-nonweb": {
+      "statement": "To validate that a user forwards non-web traffic to Zscaler, the runbook checks Firewall Insights on Top 100 Network Service for non-web traffic and for services such as DNS, ICMP, SNMP and SFTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check Firewall Insights on Top 100 Network Service for any non-web (not HTTP or HTTPS) traffic.",
+            "See if there are other network services like DNS, ICMP, SNMP, SFTP traffic that indicate that the user is forwardiing all ports and protocols to Zscaler"
+          ]
+        }
+      ]
+    },
+    "pac-ztunnel1-nonweb": {
+      "statement": "With PAC or Z-Tunnel 1.0, non-web traffic is not forwarded to Zscaler, so the runbook says to check the internal network (PBR or routing) for non-web traffic going to Zscaler or to local breakouts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Non-web traffic is not forwarded to Zscaler when using Proxy Auto-Configuration (PAC) or Z-Tunnel 1.0.",
+            "Check the internal network (like PBR or routing) to see if non-web traffic is being forwarded to Zscaler or local breakouts."
+          ]
+        }
+      ]
+    },
+    "gre-ipsec-ztunnel2-nonweb": {
+      "statement": "With GRE, IPSec or Z-Tunnel 2.0, non-web traffic can be forwarded with additional configuration; if it is absent from Firewall Insights logs, the runbook says to check PBR, routing or the Client Connector forwarding profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Non-web traffic can be forwarded to Zscaler using Generic Routing Encapsulation (GRE), IPSec, or Z-Tunnel 2.0 with additional configuration.",
+            "If you are not seeing non-web traffic on the Zscaler Firewall Insights logs, then check the internal network (like PBR, routing, or Zscaler Client Connector forwarding profile)"
+          ]
+        }
+      ]
+    },
+    "ztunnel2-only-routing": {
+      "statement": "If the forwarding method is Z-Tunnel 2.0, the runbook compares Z-Tunnel 2.0, PAC and manual proxy; slowness only with Z-Tunnel 2.0 goes to Client Connector troubleshooting, slowness with both Z-Tunnel 1.0/PAC and Z-Tunnel 2.0 goes to the speedtest section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Compare performance of Z-Tunnel 2.0, PAC, or Manual proxy to find if any slowness issues persist.",
+            "If slowness occurs with both Z-Tunnel 1.0/PAC and Z-Tunnel 2.0, go to Speedtest Poor Result to continue with troubleshooting.",
+            "If you observe slowness only with Z-Tunnel 2.0, see Zscaler Client Connector Performance Support Troubleshooting Runbook.",
+            "If the traffic forwarding method is Z-Tunnel 2.0, you must rule out if the performance issue is experienced only with Z-Tunnel 2.0 or with other traffic forwarding methods as well."
+          ]
+        }
+      ]
+    },
+    "public-dc-scope": {
+      "statement": "The runbook focuses on user traffic forwarded to Zscaler public data centers only, and its Zscaler Public Data Center section assumes all customer traffic is being affected by specific locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "This section assumes that all customer traffic is being affected by specific locations.",
+            "This runbook focuses on user traffic forwarded to Zscaler public data center only."
+          ]
+        }
+      ]
+    },
+    "nearest-dc-branch": {
+      "statement": "Under its Web Only or All Traffic heading, the runbook checks whether the user is connected to the nearest Zscaler data center, using the getGatewayEndpoints URL on the PAC server with a srcip parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check if the user is connected to the nearest Zscaler data center. The syntax is:",
+            "https://pac.<cloudname>.net/getGatewayEndpoints?srcip=x.x.x.x"
+          ],
+          "after": "Web Only or All Traffic"
+        }
+      ]
+    },
+    "destination-split": {
+      "statement": "The runbook splits slowness by whether the issue affects Z-Tunnel 2.0 only, a specific destination or a poor Speedtest result: for specific destinations it first checks which public data centers the destinations are routed to, for a poor Speedtest result it goes to the Zscaler Public Data Center section if there is an actual impact on end user performance, and its Zscaler Public Data Center section reviews performance for traffic from all destinations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Does the Issue Affect Z-Tunnel 2.0 Only, a Specific Destination, or a Poor Speedtest Result?",
+            "If only specific destinations are affected, first check to which public data centers the specific destinations are routed.",
+            "Assess user impact in terms of performance, or if the user complaint is about poor speed test results.",
+            "If there is an actual impact on end user performance, go to Zscaler Public Data Center to continue with the troubleshooting.",
+            "The following sections describe how to review performance for traffic from all destinations."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

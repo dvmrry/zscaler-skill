@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.forwarding-runbook.connection-error",
+  "title": "Runbook: Connection Error and Server Down Error, getSmeProxyState values and Tunnel 2.0 logs",
+  "aliases": [
+    "Connection Error",
+    "Server Down Error",
+    "getSmeProxyState"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook" },
+    { "rel": "see-also", "to": "zcc.z-tunnel.transport" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.service-status-errors" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook.endpoint-firewall" }
+  ],
+  "prose": [
+    {
+      "label": "Meaning and identification.",
+      "text": "{{meaning}} {{log-keywords}}"
+    },
+    {
+      "label": "Tunnel 1.0 logs.",
+      "text": "{{tunnel-1-pac-parse}} {{tunnel-1-keepalive}} {{proxy-state-values}} What each status means is open {{gap:state-values-undefined}}."
+    },
+    {
+      "label": "Tunnel 2.0 logs.",
+      "text": "{{tunnel-2-channels}} {{tunnel-2-state-log}} {{tunnel-2-fallback-log}} {{ssl-interception-log}}"
+    },
+    {
+      "label": "Causes and resolution.",
+      "text": "{{causes}} {{udp-and-tls}} {{bypass-inspection}}"
+    }
+  ],
+  "claims": {
+    "meaning": {
+      "statement": "Client Connector shows a connection error when it fails to connect to Internet & SaaS or Private Access services because Zscaler data centers are unreachable; symptoms are the Internet Security window showing Connection Error or the logs showing Server Down Error, with intermittent or no internet access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector shows a connection error when it fails to establish a connection to Internet & SaaS or Private Access services due to unreachable Zscaler data centers.",
+            "The Internet Security window displays Connection Error or the logs show Server Down Error.",
+            "Intermittent or no internet access."
+          ]
+        }
+      ]
+    },
+    "log-keywords": {
+      "statement": "The Connection Error identification says to review Client Connector logs for PAC file parsing and connection attempts to gateway.<cloudname>.net, searching the keywords getSmeProxyState and Tunnel Forwarding Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Review Zscaler Client Connector logs for proxy auto-configuration (PAC) file parsing and connection attempts to gateway.<cloudname>.net.",
+            "Keywords to search: getSmeProxyState, Tunnel Forwarding Status."
+          ]
+        }
+      ]
+    },
+    "tunnel-1-pac-parse": {
+      "statement": "For Tunnel 1.0 the runbook shows a ZSATunnel log where the app parses the PAC file and lists the primary and secondary data centers; in its sample the saved proxy string is PROXY 165.225.120.17:80; PROXY 165.225.122.17:80; DIRECT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector parses the PAC file and lists the primary and secondary data centers:",
+            "INF Saving default proxy string as: PROXY 165.225.120.17:80; PROXY 165.225.122.17:80; DIRECT",
+            "PAC Parsing - ZSATunnel Log"
+          ],
+          "after": "Zscaler Client Connector Tunnel 1.0"
+        }
+      ]
+    },
+    "tunnel-1-keepalive": {
+      "statement": "For Tunnel 1.0 the app monitors the primary proxy IP every 30 seconds; if keepalives fail with all data centers returned from the PAC file it goes into the connection error state, which can be followed by searching getSmeProxyState in ZSATunnel logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Client Connector performs monitoring for primary proxy IP every 30 seconds.",
+            "If the keepalives fail with all the data centers returned from the PAC file, Zscaler Client Connector goes into connection error state.",
+            "You can search for keyword getSmeProxyState in ZSATunnel logs to review the state of the connection over time."
+          ],
+          "after": "Zscaler Client Connector Tunnel 1.0"
+        }
+      ]
+    },
+    "proxy-state-values": {
+      "statement": "In the Tunnel 1.0 section, searching getSmeProxyState in ZSATunnel logs shows the connection state over time; the four statuses listed are TUNNEL_FORWARDING, CONNECTING, SERVER_DOWN_ERROR and LOCAL_PROXY_FORWARDING; the runbook's Endpoint Firewall or Antivirus Error section has ZApp Status log lines that also show getSmeProxyState:FIREWALL_BLOCK_ERROR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Endpoint Firewall or Antivirus Error",
+            "DBG ZApp Status: getCurrentNetworkType:NON_TRUSTED getSmeProxyState:CONNECTING",
+            "getSmeProxyState:FIREWALL_BLOCK_ERROR getZpnProxyState:FIREWALL_BLOCK_ERROR"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Here, you'll see four statuses: TUNNEL_FORWARDING, CONNECTING, SERVER_DOWN_ERROR, LOCAL_PROXY_FORWARDING.",
+            "You can search for keyword getSmeProxyState in ZSATunnel logs to review the state of the connection over time."
+          ],
+          "after": "Zscaler Client Connector Tunnel 1.0"
+        }
+      ]
+    },
+    "tunnel-2-channels": {
+      "statement": "Z-Tunnel uses DTLS or TLS to send packets to the Zscaler service; Tunnel 2.0 uses a control channel that is always TLS and a data channel whose protocol follows the Tunnel 2.0 mode set by Primary Transport Selection in the forwarding profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler Tunnel (Z-Tunnel) has a tunneling architecture that uses DTLS or TLS to send packets to the Zscaler service.",
+            "The control channel is always on TLS protocol, and the data channel is according to the Tunnel 2.0 mode set on the forwarding profile selection Primary Transport Selection."
+          ]
+        }
+      ]
+    },
+    "tunnel-2-state-log": {
+      "statement": "A Tunnel 2.0 ZSATunnel status line carries getSmeProxyState and a T2State block with Tx, Rx, IP, SME, Protocol and Status; one sample's Status holds ZSCCM:TUNNEL_FORWARDING and ZSDDC:CONNECTING.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "T2State: [Tx:31109 Rx:29942 IP:10.254.120.171 SME:165.225.202.56 Protocol: DTLS Status:UP]",
+            "Status: ZSCCM:TUNNEL_FORWARDING ZSDDC:CONNECTING]",
+            "You can monitor the Tunnel 2.0 connection status by searching getSmeProxyState in Zscaler Client Connector ZSATunnel logs:"
+          ]
+        }
+      ]
+    },
+    "tunnel-2-fallback-log": {
+      "statement": "A Tunnel 2.0 fallback to Tunnel 1.0 is shown in the sample log by a connect timeout to 147.161.179.24:443 and the line 'SME List is empty. Fallback to ZTunnel 1.0'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Tunnel 2.0 connection falling back to Tunnel 1.0 is highlighted in the following way:",
+            "Exception:Timeout: connect timed out: 147.161.179.24:443",
+            "SME List is empty. Fallback to ZTunnel 1.0"
+          ]
+        }
+      ]
+    },
+    "ssl-interception-log": {
+      "statement": "If a device intercepts SSL connections, the sample Tunnel 2.0 log shows ZST2M::ZT2A::initialize: Data Channel establishment Failed. and Auth::Lib::certificateErroCallback: Invalid certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If any device intercepts SSL connections, it is highlighted with the following logs:",
+            "ZST2M::ZT2A::initialize: Data Channel establishment Failed.",
+            "Auth::Lib::certificateErroCallback: Invalid certificate"
+          ],
+          "after": "Zscaler Client Connector Tunnel 2.0"
+        }
+      ]
+    },
+    "causes": {
+      "statement": "Possible causes listed are a network firewall or endpoint device blocking Zscaler IP ranges or specific ports, SSL interception or a network proxy interfering with Zscaler communication, and incorrect PAC file configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Network firewall or endpoint device blocking Zscaler IP ranges or specific ports.",
+            "SSL interception or network proxy interfering with Zscaler communication.",
+            "Incorrect PAC file configuration."
+          ]
+        }
+      ]
+    },
+    "udp-and-tls": {
+      "statement": "For Z-Tunnel 2.0 the runbook says to make sure UDP traffic is not restricted because Z-Tunnel 2.0 uses UDP for DTLS communication, and to switch the tunnel protocol to TLS and test.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For Z-Tunnel 2.0, make sure there is no restriction on UDP traffic as Z-Tunnel 2.0 uses UDP protocol for DTLS communication.",
+            "Switch the tunnel protocol to TLS and test if that helps improve the situation."
+          ]
+        }
+      ]
+    },
+    "bypass-inspection": {
+      "statement": "Firewall or SSL interception devices should bypass Zscaler IP ranges, and traffic to gateway.<cloud_name>.net should be allowed on standard ports 80 and 443; the example PAC URL is http://pac.<cloud_name>.net/<cloud_name>.net/proxy.pac.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Firewall or SSL interception devices should bypass Zscaler IP ranges to prevent connection failures.",
+            "Allow traffic to gateway.<cloud_name>.net on all standard ports (80, 443).",
+            "http://pac.<cloud_name>.net/<cloud_name>.net/proxy.pac"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "state-values-undefined": {
+      "kind": "semantic",
+      "title": "What each getSmeProxyState value and the ZSCCM and ZSDDC status fields mean",
+      "status": "open",
+      "detail": "The runbook lists TUNNEL_FORWARDING, CONNECTING, SERVER_DOWN_ERROR and LOCAL_PROXY_FORWARDING as getSmeProxyState statuses without defining each (its Endpoint FW/AV sample also shows FIREWALL_BLOCK_ERROR, so the list of four is not the full set), and shows ZSCCM and ZSDDC in the T2State Status field without defining them.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

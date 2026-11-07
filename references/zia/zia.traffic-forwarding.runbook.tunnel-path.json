@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.runbook.tunnel-path",
+  "title": "Runbook: MTR collection, WinMTR for Client Connector and PAC, and latency checks for GRE and IPSec gateways",
+  "aliases": [
+    "How to Collect MTR",
+    "Validate the Network Path",
+    "WinMTR"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.gre" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.ipsec" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.pac" }
+  ],
+  "prose": [
+    {
+      "label": "MTR collection.",
+      "text": "{{mtr-linux}} {{winmtr}} PAC file diagnosis is in [[zia.traffic-forwarding.runbook.pac]]."
+    },
+    {
+      "label": "Analysis.",
+      "text": "{{mtr-analysis}} {{latency-thresholds}} Which regions count as developed is open {{gap:region-definition}}. {{suboptimal-routing}}"
+    },
+    {
+      "label": "IPSec section.",
+      "text": "{{ipsec-mtr-and-latency}}"
+    }
+  ],
+  "claims": {
+    "mtr-linux": {
+      "statement": "In the GRE section, the runbook runs a forward MTR from the GRE gateway to the Zscaler GRE VIP, sent outside the tunnel to capture all ISP-level hops, for at least 300 packets; the Linux command is mtr –nrc <packet-count> <GRE-VIP>, with flags -n (no host-name resolution), -r (report mode) and -c (packet count); other options are -z (BGP AS number per hop), -T (TCP instead of ICMP), -s (probe packet size) and -h.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run a forward My Traceroute (MTR) from the GRE gateway to the Zscaler GRE VIP:",
+            "mtr –nrc <packet-count> <GRE-VIP>",
+            "Ensure MTR probes are sent outside the tunnel to capture all ISP-level hops.",
+            "Run the MTR for at least 300 packets to spot any intermediate anomalies in the network path.",
+            "-n do not resolve host names -r output using report mode -c count of packets",
+            "-z display’s BGP AS number of each hop -T use TCP instead of ICMP -s packet size used for probing -h display all available options"
+          ],
+          "after": "GRE Tunnel is Flapping"
+        }
+      ]
+    },
+    "mtr-analysis": {
+      "statement": "In the GRE section, MTR results are analyzed for high latency or consistent packet loss along the path; routing loops or abnormal paths might require involving the ISP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check for high latency or consistent packet loss along the path.",
+            "Any signs of routing loops or abnormal paths might require involving the ISP."
+          ],
+          "after": "Run a forward My Traceroute (MTR) from the GRE gateway to the Zscaler GRE VIP:"
+        }
+      ]
+    },
+    "winmtr": {
+      "statement": "On Windows the runbook uses WinMTR, with the Zscaler IP or URL (for performance issues, the IP from ip.zscaler.com) as host, Resolve names deselected so every hop's IP shows, run for at least 300 packets and saved with Export TEXT as a .txt file; it applies to Client Connector (Z-Tunnel 1.0 and Tunnel with Local Proxy) and PAC files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following are steps to collect WinMTR output with Zscaler Client Connector (TUNNEL: Z-Tunnel 1.0 and Tunnel with Local Proxy) and PAC files:",
+            "If you must take the traces for performance issues with Zscaler, get the IP from the output of ip.zscaler.com.",
+            "Deselect Resolve names before collecting this data so you can see the IP addresses of all the hops.",
+            "keep it running for at least 300 packets. You can run it for more packets, but 300 is the least count needed.",
+            "Save this output by clicking Export TEXT:",
+            "Specify the Zscaler IP or URL for which you are collecting the trace.",
+            "Save the output in .txt format to your desired location."
+          ]
+        }
+      ]
+    },
+    "latency-thresholds": {
+      "statement": "In the GRE section the recommended latency thresholds for the round trip time (RTT) to the Zscaler GRE VIP are approximately 60ms per 4000km in developed regions, up to a maximum of 100ms per 4000km for less developed regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Verify the round trip time (RTT) to the Zscaler GRE VIP. The recommended latency thresholds:",
+            "Developed regions: Approximately 60ms per 4000km.",
+            "Maximum: Up to 100ms per 4000km for less developed regions."
+          ]
+        }
+      ]
+    },
+    "suboptimal-routing": {
+      "statement": "Suboptimal routing is called a common issue in the GRE latency check; if confirmed, the runbook says to raise a ticket with the ISP and optimize IP SLA health-policy thresholds by increasing timeout intervals to tolerate latency spikes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check for signs of suboptimal routing (common issue):",
+            "If suboptimal routing is confirmed:",
+            "Raise a ticket with your ISP.",
+            "Optimize IP SLA health-policy thresholds to tolerate excessive spikes in latency by increasing timeout intervals."
+          ],
+          "after": "Validate Latency Between the GRE Gateway and Service Edge for Internet & SaaS"
+        }
+      ]
+    },
+    "ipsec-mtr-and-latency": {
+      "statement": "In the IPSec section, the runbook runs a forward MTR from the IPSec gateway to the Zscaler IPSec VIP, verifies the RTT to the Zscaler IPSec VIP against approximately 60ms per 4000km for developed regions and up to 100ms per 4000km for less-developed regions, and if suboptimal routing is confirmed says to raise a ticket with the ISP and optimize IP SLA health-policy thresholds by increasing the timeout interval; its Linux MTR command there still reads mtr –nrc <packet-count> <GRE-VIP>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run a forward MTR from the IPSec gateway to the Zscaler IPSec VIP.",
+            "mtr –nrc <packet-count> <GRE-VIP>",
+            "Verify the RTT to the Zscaler IPSec VIP. Recommended latency thresholds:",
+            "Developed regions: Approx. 60ms per 4000km.",
+            "Maximum: Up to 100ms per 4000km for less-developed regions.",
+            "Raise a ticket with their ISP.",
+            "Optimize IP SLA health-policy thresholds to tolerate excessive spikes in latency by increasing timeout interval."
+          ],
+          "after": "IPSec Tunnel Flapping"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "region-definition": {
+      "kind": "semantic",
+      "title": "Which regions the runbook counts as developed or less developed",
+      "status": "open",
+      "detail": "The latency thresholds say 'Approximately' 60ms per 4000km for developed regions and 'Up to' 100ms per 4000km for less developed regions; the runbook does not define either kind of region.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control.runbook",
+  "title": "How the Internet & SaaS File Type Control policy troubleshooting runbook confirms fault and checks detection, SSL inspection, protocol and rule criteria",
+  "aliases": [
+    "Internet & SaaS File Type Control Policy Support Troubleshooting Runbook",
+    "file type control troubleshooting runbook"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting" },
+    { "rel": "see-also", "to": "zia.file-type-control" },
+    { "rel": "see-also", "to": "zia.file-type-control.runbook.misdetection-and-overrides" },
+    { "rel": "see-also", "to": "zia.file-type-control.criteria" },
+    { "rel": "see-also", "to": "zia.file-type-control.pipeline" },
+    { "rel": "see-also", "to": "zia.ssl-inspection" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" }
+  ],
+  "prose": [
+    {
+      "text": "{{detection-method}}"
+    },
+    {
+      "label": "Confirm File Type Control is responsible.",
+      "text": "{{validate-fault}} {{log-values}}"
+    },
+    {
+      "label": "SSL Inspection and protocol.",
+      "text": "{{ssl-inspection}} {{supported-protocols}}"
+    },
+    {
+      "label": "Rule criteria.",
+      "text": "{{rule-match-fields}} {{active-content-unscannable-criteria}}"
+    },
+    {
+      "label": "Archives, overrides and misdetection.",
+      "text": "Archive blocks, the Malware Protection Unscannable Files override and misidentified file types are in [[zia.file-type-control.runbook.misdetection-and-overrides]]."
+    }
+  ],
+  "claims": {
+    "detection-method": {
+      "statement": "Zscaler's File Type Control policy enables administrators to create filtering rules to restrict the upload or download of specific file types, including unknown or unrecognized ones, and Zscaler leverages file signatures, MIME types, and extensions to detect a file’s true type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler’s File Type Control policy enables administrators to create filtering rules to restrict the upload or download of specific file types, including unknown or unrecognized ones.",
+            "Zscaler leverages file signatures, MIME types, and extensions to detect a file’s true type."
+          ]
+        }
+      ]
+    },
+    "validate-fault": {
+      "statement": "The runbook says it is essential to confirm whether File Type Control is responsible for the block or unexpected behavior before troubleshooting, since security policies such as Malware Protection, Sandbox, Cloud App Control, or other upstream security solutions can also impact file upload/download, and to validate this by reviewing the End User Notification or the Web Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Before troubleshooting a reported issue, it is essential to confirm whether File Type Control is responsible for the block or unexpected behavior.",
+            "Various security policies, such as Malware Protection, Sandbox, Cloud App Control, or other upstream security solutions, can also impact file upload/download.",
+            "Validate if the issue or block is related to File Type Control by reviewing the End User Notification.",
+            "You can also validate from the Web Insights Logs if the block is related to File Type Control."
+          ]
+        }
+      ]
+    },
+    "log-values": {
+      "statement": "In the runbook's Web Insights examples, File Type Control shows Blocked Policy Type File Type Control with Policy Action values 'File Type download cautioned', 'File Type upload cautioned' or 'File Type upload/download cautioned' for cautions, and 'Not allowed to access this file type' or 'Not allowed to upload/download files of this type' for blocks, with Download File Type and Download File Name fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "| Policy Action | Download File Type | Download File Name | Blocked Policy Type |",
+            "| File Type download cautioned File Type upload cautioned File Type upload/download cautioned | <File Type Cautioned> | <Cautioned Filename> | File Type Control |",
+            "| Not allowed to access this file type Not allowed to upload/download files of this type | <File Type Blocked> | <Blocked Filename> | File Type Control |"
+          ]
+        }
+      ]
+    },
+    "ssl-inspection": {
+      "statement": "File Type Control policies require SSL Inspection to function properly; the runbook says to filter logs for the affected domain and inspect the SSL Policy Reason column, and if the SSL Policy Reason is Bypassed, to review and update the SSL Inspection policies so SSL Inspection is applied appropriately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "File Type Control policies require SSL Inspection to function properly.",
+            "Filter logs for the affected domain and inspect the SSL Policy Reason column.",
+            "If SSL Policy Reason is Bypassed:",
+            "Review your SSL Inspection policies.",
+            "Update the policies as needed to ensure SSL Inspection is applied appropriately."
+          ]
+        }
+      ]
+    },
+    "supported-protocols": {
+      "statement": "The runbook says to ensure the protocol involved in the transaction is supported by File Type Control policies, listing FTP over HTTP and Native FTP among the supported protocols, to filter Web Insights Logs and review the Protocol column, and that if the protocol is unsupported, File Type Control policies are not applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Ensure the protocol involved in the transaction is supported by File Type Control policies. The supported protocols are:",
+            "FTP over HTTP",
+            "Native FTP",
+            "Filter Web Insights Logs and review the Protocol column.",
+            "If the protocol is unsupported, File Type Control policies are not applicable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "FTP over HTTP",
+            "Native FTP"
+          ],
+          "after": "Ensure the protocol involved in the transaction is supported by File Type Control policies. The supported protocols are:"
+        }
+      ]
+    },
+    "rule-match-fields": {
+      "statement": "If the File Type Control policy relies on specific attributes (e.g., URL Category, Cloud App, User, Location), the runbook says to ensure these conditions match by filtering Web Insights Logs for the affected domain and reviewing these key fields and any other fields configured as the policy criteria, and to adjust the policy if the conditions do not align.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the File Type Control policy relies on specific attributes (e.g., URL Category, Cloud App, User, Location), ensure these conditions match.",
+            "Adjust the policy if the conditions do not align. Test the updated policy behavior.",
+            "Review these key fields and any other fields configured as the policy criteria:",
+            "Filter Web Insights Logs for the affected domain."
+          ]
+        }
+      ]
+    },
+    "active-content-unscannable-criteria": {
+      "statement": "For rules using Active Content (which only applies to Microsoft Office and PDF files) or Unscannable Files criteria, the runbook says to check the Web Insights logs for the Unscannable Type entry (if None is logged, the file was successfully scanned and rules targeting Unscannable Files do not apply) and to temporarily deselect the Active Content or Unscannable Files criteria in the policy to identify whether these settings are causing the issue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-filetype-control-policy-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Active Content: Only applies to Microsoft Office and PDF files.",
+            "Check the Web Insights logs for the Unscannable Type entry. If None is logged, the file was successfully scanned. In this case, rules targeting Unscannable Files do not apply.",
+            "Temporarily deselect the Active Content or Unscannable Files criteria in the policy to identify if these settings are causing the issue."
+          ]
+        }
+      ]
+    }
+  }
+}

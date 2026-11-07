@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting.performance-runbook.isolation-tests",
+  "title": "Performance runbook isolation tests: manual proxy, direct access, Trust Portal and speed tests",
+  "aliases": [
+    "manual proxy test",
+    "direct access test",
+    "speedtest poor result"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-testing" }
+  ],
+  "prose": [
+    {
+      "label": "Manual proxy and direct access.",
+      "text": "{{manual-proxy-test}} {{direct-access-test}} {{direct-access-slow}}"
+    },
+    {
+      "label": "Trust Portal.",
+      "text": "{{trust-portal-specific-destination}} {{trust-portal-all-destinations}}"
+    },
+    {
+      "label": "Speed tests.",
+      "text": "{{speedtest-not-sufficient}} {{cloud-performance-test}} {{speedtest-bandwidth-shared}} {{task-manager-throughput}} {{gap:manual-proxy-port}}"
+    }
+  ],
+  "claims": {
+    "manual-proxy-test": {
+      "statement": "To compare Z-Tunnel 2.0 with PAC or a manual proxy, the runbook's manual proxy test finds the connected data center at ip.zscaler.com, logs out of Client Connector, finds the FQDN of the data center's PAC VIP at config.zscaler.com, sets the manual proxy under the browser's Internet Options > Connections > LAN Settings to that FQDN on port 80/443 with the IdP authentication domains bypassed, and visits an HTTP site to complete cookie authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Compare performance of Z-Tunnel 2.0, PAC, or Manual proxy to find if any slowness issues persist.",
+            "Go to http://ip.zscaler.com to find which data center the customer is connected to.",
+            "Logout from Zscaler Client Connector.",
+            "Then go to https://config.zscaler.com to find the FQDN of PAC VIP for the data center.",
+            "Go to the browser's Internet Options > Connections > LAN Settings",
+            "set a manual proxy server to FQDN of data center with port 80/443. Add the relevant IdP authentication domains in the proxy bypass.",
+            "Visit an HTTP website (e.g., http://httpforever.com/) to complete the Zscaler cookie authentication process."
+          ]
+        }
+      ]
+    },
+    "direct-access-test": {
+      "statement": "For a specific destination, the runbook tests an affected user on a non-Zscaler network such as guest Wi-Fi or a mobile hotspot; if loading is normal directly, it collects a Wireshark capture, a browser header trace and an MTR to the destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Find an affected user who is connected to a non-Zscaler environment, such as Guest Wi-Fi or a mobile hotspot, and test the performance.",
+            "If the result is Normal Loading with Direct Access, then continue to collect Wireshark capture, browser's header trace and MTR to the impacted destination server for baseline measurements"
+          ]
+        }
+      ]
+    },
+    "direct-access-slow": {
+      "statement": "For a specific destination and for all destinations, if loading is slow with direct access, the runbook says to involve the destination's webmaster.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the result is Slow Loading with Direct Access, then you can involve the destination webmaster to investigate any ongoing issues with the server."
+          ],
+          "after": "You can ask the user to provide ip.zscaler.com output to verify traffic forwarding information."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the result is Slow Loading with Direct Access, then you can involve the destination webmaster to investigate any ongoing issues with the server."
+          ],
+          "after": "The following sections describe how to review performance for traffic from all destinations."
+        }
+      ]
+    },
+    "trust-portal-specific-destination": {
+      "statement": "For a specific destination, the runbook checks the Trust Portal for open cloud incidents on the domain or data center; if an incident post is active, it checks whether the affected website works through a different data center, and suggests redirecting or bypassing the traffic by PAC or policy based routing change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check for any open cloud incidents for the affected domain or Zscaler data center on the Trust Portal.",
+            "If an active incident Trust Post is found, check if the affected website is working through a different Zscaler data center.",
+            "Potential Workaround: Redirect the impacted traffic to another Zscaler data center (PAC Modification or Policy Based Routing modification), or bypass Zscaler (PAC Modification or Policy Based Routing modification)."
+          ]
+        }
+      ]
+    },
+    "trust-portal-all-destinations": {
+      "statement": "For all destinations, the runbook's incident check is headed Check for Any Active Cloud Incidents on Zscaler Admin Console and its text says to check for open incidents for the affected domain or data center on Trust Portal; if an incident post is active, it checks whether a different data center improves performance and performs traffic failover per the forwarding method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The following sections describe how to review performance for traffic from all destinations.",
+            "Check for Any Active Cloud Incidents on Zscaler Admin Console",
+            "Check for any open cloud incidents for the affected domain or Zscaler data center on Trust Portal.",
+            "If an active incident Trust Post is found, complete the following:",
+            "Check if the performance improves when using a different Zscaler Data Center and perform traffic failover according to Traffic Forwarding methods."
+          ]
+        }
+      ]
+    },
+    "speedtest-not-sufficient": {
+      "statement": "The runbook says Speedtest results alone are insufficient to determine a performance issue; if there is an actual impact on end user performance it goes to the Zscaler Public Data Center section, and if users have no significant day-to-day issues even with low Speedtest results their actual performance is likely unaffected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Relying solely on Speedtest results is insufficient to determine performance issues.",
+            "If there is an actual impact on end user performance, go to Zscaler Public Data Center to continue with the troubleshooting.",
+            "If users are not experiencing any significant issues with their day-to-day internet activities, it is likely that their actual performance is not affected"
+          ]
+        }
+      ]
+    },
+    "cloud-performance-test": {
+      "statement": "The runbook recommends the Zscaler Cloud Performance Test Tool over Speedtest or iperf; its indicators include a map view, latency, jitter and packet loss, and the More Diagnostics tab compares Client Connector and direct speeds for Z-Tunnel 2.0 only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Some common measurement tools such as Speedtest or iperf have issues that might impact reporting. Zscaler recommends using the Zscaler Cloud Performance Test Tool.",
+            "Study the output indicators, such as a map view of the user's location, user location, and the Zscaler data center, latency, jitter, and packet loss that can contribute to slow speeds.",
+            "The More Diagnostics tab can give a comparison between Zscaler Client Connector and Direct speed results (Z-Tunnel 2.0 only)."
+          ]
+        }
+      ]
+    },
+    "speedtest-bandwidth-shared": {
+      "statement": "The runbook says even the Zscaler speed test does not guarantee a subscribed bandwidth: bandwidth is typically shared, so a 50 Mbps link does not mean the test returns 50 Mbps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Even with the Zscaler Speedtest tool, Speedtest results do not guarantee the maximum bandwidth they have subscribed to.",
+            "The bandwidth is typically shared among multiple users, so one user might use the entire allocated bandwidth.",
+            "Even if the user has 50 Mbps internet link, it doesn't mean that the Speedtest returns 50 Mbps."
+          ]
+        }
+      ]
+    },
+    "task-manager-throughput": {
+      "statement": "The runbook suggests using Windows Task Manager's Performance tab on the active network connection while downloading several large files from different servers, and comparing Send and Receive throughput with and without Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Go to the Performance option and the active Network connection (Ethernet, Wi-Fi, etc.).",
+            "Start downloading a few large files from different download servers.",
+            "Take note of the Send and Receive throughput and compare between with and without Zscaler"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "manual-proxy-port": {
+      "kind": "semantic",
+      "title": "When the manual proxy test uses port 80 and when 443",
+      "status": "open",
+      "detail": "The runbook says the manual proxy test sets the data center FQDN with port 80/443 and does not say when to pick which. The captured page does not resolve it.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  }
+}

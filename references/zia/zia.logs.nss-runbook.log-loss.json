@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.log-loss",
+  "title": "NSS runbook: missing and delayed logs on VM-based NSS, smstat counters and where the loss occurs",
+  "aliases": [
+    "NSS Feed missing logs",
+    "Logs Delayed (VM-based NSS)",
+    "smstat counters"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.connectivity" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.vm-health" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.cloud-nss" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.corner-cases" },
+    { "rel": "see-also", "to": "shared.nss.reliability" }
+  ],
+  "prose": [
+    {
+      "label": "Triage order.",
+      "text": "{{missing-logs-triage-order}} {{ui-transaction-count}}"
+    },
+    {
+      "label": "Counters.",
+      "text": "{{counter-cur-transactions}} {{counter-tot-transactions}} {{counter-events-flushed}} {{localize-loss-by-counters}} {{divergence:cur-count-drop-rule}}"
+    },
+    {
+      "label": "Where the loss is.",
+      "text": "{{loss-nanolog-to-nss}} {{loss-on-nss}} {{divergence:received-on-nss-counter}} {{loss-nss-to-siem}}"
+    },
+    {
+      "label": "Case study.",
+      "text": "{{case-study-web-logs}}"
+    },
+    {
+      "label": "Delayed logs.",
+      "text": "{{logs-delayed-vm}} [[zia.logs.nss-runbook.corner-cases]]"
+    }
+  ],
+  "claims": {
+    "missing-logs-triage-order": {
+      "statement": "For missing NSS feed logs the runbook asks first whether the NSS server is unhealthy, then whether there are network connectivity issues, and only if both are fine does it quantify the log loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Is the NSS server showing unhealthy?",
+            "Yes: Check NSS showing unhealthy.",
+            "Yes: Check Connectivity and Communication problems.",
+            "If the NSS server is healthy and network connectivity appears stable, proceed with the following steps:",
+            "Validate and quantify the log loss:"
+          ]
+        }
+      ]
+    },
+    "ui-transaction-count": {
+      "statement": "To quantify log loss, the runbook takes the transaction count from the Admin Console: Logs > Insights, Web Insights or Firewall Insights depending on log type, and the Overall Traffic for the issue time frame.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Depending on the impacted log type, go to Logs > Insights and then choose either Web Insights or Firewall Insights.",
+            "Check the Overall Traffic for the number of transactions for the issue time frame."
+          ]
+        }
+      ]
+    },
+    "counter-cur-transactions": {
+      "statement": "The smsmclt_cur_transactions_count counter gives transactions received on NSS from the Nanolog server, and is generally higher than the UI total because it counts all log types before NSS filters apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check the value of the counter smsmclt_cur_transactions_count to get the number of transactions received on NSS from Zscaler Nanolog server:",
+            "The output of this counter is generally higher than the total transactions seen on the UI report as it includes all types of logs before processing or applying the NSS filters.",
+            "/sc/bin/smstat -s stime=<start_time> -s etime=<end_time> -s interval=<seconds_in_timeframe> -k smsmclt_cur_transactions_count -d diff"
+          ]
+        }
+      ]
+    },
+    "counter-tot-transactions": {
+      "statement": "The smsmclt_tot_transactions_count counter gives transactions on NSS after the filter is applied; it is often close to, but not exactly, the UI total because of factors like Web Delay, which is reviewed with smsmclt_cur_datatimestamp and smsm_cur_weblog_time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check the value of the counter smsmclt_tot_transactions_count to get the number of transactions on NSS after processing/applying the filter:",
+            "Often, this output value is close to the total transactions on UI, but not exact as there are factors like Web Delay that contribute to the deviation.",
+            "Review the delay by checking for counters smsmclt_cur_datatimestamp and smsm_cur_weblog_time together.",
+            "Look for the delta column and only for the rows that have Zscaler Nanolog server IP."
+          ]
+        }
+      ]
+    },
+    "counter-events-flushed": {
+      "statement": "The smsmclt_tot_events_flushed counter gives transactions sent from NSS to the SIEM, and for multiple feeds the command filters on the impacted feed with -j <feedname>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check the value of the counter smsmclt_tot_events_flushed to get the number of transactions sent from NSS to SIEM:",
+            "If there are multiple feeds, apply a filter for the impacted feed using -j <feedname> in the command."
+          ]
+        }
+      ]
+    },
+    "localize-loss-by-counters": {
+      "statement": "The runbook says comparing counters localizes the loss: fewer smsmclt_cur_transactions_count than the UI total means loss between Nanolog server and NSS; smsmclt_tot_transactions_count or smsmclt_tot_events_flushed below smsmclt_cur_transactions_count means the logs are dropped on the NSS; matching counters with missing SIEM logs mean loss between NSS and SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If smsmclt_cur_transactions_count shows fewer transactions than total transactions on the UI, the log loss occurs between Zscaler Nanolog server and NSS.",
+            "If smsmclt_tot_transactions_count or smsmclt_tot_events_flushed is less than smsmclt_cur_transactions_count, the logs are dropped on the NSS.",
+            "However, if all these counters match, but logs are still missing in the SIEM, the log loss occurs between NSS and SIEM."
+          ]
+        }
+      ]
+    },
+    "loss-nanolog-to-nss": {
+      "statement": "For loss between Nanolog server and NSS, the runbook checks the Nanolog connection with netstat; if the Admin Console transactions and the transactions received on NSS match, it checks smsmclt_tot_transactions_count and, if that shows a significant difference, the NSS feed filters; if NSS is not receiving all the logs it says to contact Zscaler Support to take simultaneous captures on the Nanolog server and NSS and run an MTR trace from the Nanolog server to the NSS IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run sudo nss troubleshoot netstat | grep tcp to see if the connection to Zscaler Nanolog server is established. If not, go to Zscaler Nanolog Server Connection Unstable.",
+            "If the transactions seen on Zscaler Admin Console and transactions received on NSS are matching, check smsmclt_tot_transactions_count on NSS.",
+            "If this shows a significant difference, then validate the NSS feed configuration to see if any feed filters are configured.",
+            "Take simultaneous capture on Zscaler Nanolog server and NSS to see the communication.",
+            "Run an MTR trace from Zscaler Nanolog server to NSS IP to see if there is real-time packet loss.",
+            "If the NSS is not receiving all the logs, contact Zscaler Support to validate the following:"
+          ]
+        }
+      ]
+    },
+    "loss-on-nss": {
+      "statement": "If there is a significant difference between transactions received on NSS and sent to the SIEM, the runbook says the SIEM is likely consuming slowly so NSS buffers and can overflow; it checks Send-Q and sudo nss troubleshoot feeds, and if the SIEM is slow, whether the feed has SIEM Rate configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run sudo /sc/bin/smmgr -ys smnet=netstat | less to see if the Send-Q is overutilized. This reflects Q status between NSS and SIEM.",
+            "Run sudo nss troubleshoot feeds to see if the feed is lagging. If so, you see a message indicating that Feed end point is unable to consume logs fast enough.",
+            "When SIEM is consuming logs slow, the logs are temporarily buffered on the NSS. If the delay is very huge, it can lead to buffer overflow, leading to log loss.",
+            "significant difference in the transactions received on NSS (Zscaler Nanolog server clt_tot_transactions_count) and transactions sent to SIEM (Zscaler Nanolog server clt_tot_events_flushed), chances are SIEM is consuming logs at a slower causing NSS to buffer the logs and eventually leading to buffer overflow."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If you notice SIEM is consuming logs slowly, check if the feed config has SIEM Rate configured."
+          ],
+          "after": "If so, you see a message indicating that Feed end point is unable to consume logs fast enough. See the following sample:"
+        }
+      ]
+    },
+    "loss-nss-to-siem": {
+      "statement": "If NSS has forwarded everything but the SIEM lacks logs, the runbook says the logs could be dropped on the SIEM due to parsing errors or by an intermediate network device, and suggests simultaneous captures on the SIEM and the NSS service interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If NSS is sending all the logs but SIEM is not receiving them, it could either be dropped from the SIEM due to parsing errors or by an intermediate network device.",
+            "You can take a simultaneous packet capture on SIEM and NSS service interface to see if there are any issues on the network."
+          ]
+        }
+      ]
+    },
+    "case-study-web-logs": {
+      "statement": "In the vendor's case study (web logs suspected lost for 2 hours on 30 June 2025), the UI showed about 7.3M transactions, smsmclt_cur_transactions_count about 10M, smsmclt_tot_transactions_count and smsmclt_tot_events_flushed about 7.2M, and a Web Lag of 15 minutes on average at 900 per second was found, and the runbook says a very minor difference in the logs received is fine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Scenario: You suspect web logs to be lost for 2 hours on 30th June 2025.",
+            "In this Case the transaction is ~7.3M for the impacted time.",
+            "Output of counter smsmclt_cur_transactions_count shows ~10M, this is because this counter shows all transaction before filtering on NSS.",
+            "Output of smsmclt_tot_transactions_count shows ~7.2M, this is close to total transactions on UI but not exact.",
+            "You can see there is a Web Lag of average 15 minutes on the NSS with an average rate/second of 900.",
+            "Output of smsmclt_tot_events_flushed also shows ~7.2M, which is same as total transactions received on NSS after applying filters.",
+            "Hence, a very minor difference in the logs received is fine."
+          ]
+        }
+      ]
+    },
+    "logs-delayed-vm": {
+      "statement": "For delayed logs the runbook compares smsmclt_cur_datatimestamp and smsm_cur_weblog_time, tests for unusually high latency to the Nanolog server with connect=tcp, and runs sudo nss troubleshoot feeds for a lagging feed; if the SIEM is consuming slowly it checks whether the feed has SIEM Rate configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check for the counters smsmclt_cur_datatimestamp and smsm_cur_weblog_time together to see if the NSS is receiving logs delayed.",
+            "Run sudo nss troubleshoot netstat | grep tcp to get the IP address of Zscaler Nanolog server.",
+            "Run sudo nss troubleshoot feeds to see if the feed is lagging. You see a message indicating that feed end point is unable to consume logs fast enough.",
+            "Run /sc/bin/smmgr -s host=<Zscaler Nanolog server_ip> -s port=443 -ys connect=tcp to see if there is an unusually high latency."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If you notice SIEM is consuming logs slowly, check if the feed config has SIEM Rate configured."
+          ],
+          "after": "You see a message indicating that feed end point is unable to consume logs fast enough."
+        }
+      ]
+    }
+  },
+  "gaps": {},
+  "divergences": {
+    "cur-count-drop-rule": {
+      "summary": "The runbook says tot_transactions or tot_events_flushed below smsmclt_cur_transactions_count means logs are dropped on NSS, while its own case study and counter notes say the cur counter counts all log types before filters, so a filtered feed shows a lower tot count with no loss.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "If smsmclt_tot_transactions_count or smsmclt_tot_events_flushed is less than smsmclt_cur_transactions_count, the logs are dropped on the NSS."
+            ]
+          },
+          "says": "A tot or flushed count below the cur count means logs are dropped on NSS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Output of counter smsmclt_cur_transactions_count shows ~10M, this is because this counter shows all transaction before filtering on NSS.",
+              "Output of smsmclt_tot_transactions_count shows ~7.2M, this is close to total transactions on UI but not exact.",
+              "Hence, a very minor difference in the logs received is fine."
+            ]
+          },
+          "says": "In the case study the cur count is about 10M and the tot and flushed counts about 7.2M, because cur is before filtering, and the runbook treats it as fine."
+        }
+      ],
+      "impact": "Do not tell an admin that tot or flushed below cur proves NSS dropped logs; when the feed has filters the cur count is expected to be higher. Compare the tot count to the UI total, as the case study does."
+    },
+    "received-on-nss-counter": {
+      "summary": "The runbook defines transactions received on NSS as smsmclt_cur_transactions_count, while its NSS-loss steps use smsmclt_tot_transactions_count for the received count.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Check the value of the counter smsmclt_cur_transactions_count to get the number of transactions received on NSS from Zscaler Nanolog server:"
+            ]
+          },
+          "says": "Transactions received on NSS come from smsmclt_cur_transactions_count."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "If NSS is not sending all the logs received (smsmclt_tot_transactions_count), then check for loss on NSS.",
+              "significant difference in the transactions received on NSS (Zscaler Nanolog server clt_tot_transactions_count) and transactions sent to SIEM (Zscaler Nanolog server clt_tot_events_flushed)"
+            ]
+          },
+          "says": "The logs received on NSS are given as smsmclt_tot_transactions_count, with a garbled counter name in the comparison to the SIEM."
+        }
+      ],
+      "impact": "Which counter is the received count for the NSS-to-SIEM comparison is not settled by the page. Name the counters when relaying the check, and do not assume the garbled clt_tot_transactions_count names smsmclt_cur_transactions_count."
+    }
+  }
+}

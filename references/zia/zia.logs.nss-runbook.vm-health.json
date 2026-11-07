@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.vm-health",
+  "title": "NSS runbook: VM-based NSS Unhealthy server, alerts and build upgrade checks",
+  "aliases": [
+    "NSS showing Unhealthy",
+    "Operational Issue with NSS VM"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.connectivity" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.diagnostics" },
+    { "rel": "see-also", "to": "shared.nss.vm-sizing" },
+    { "rel": "see-also", "to": "shared.nss.vm-operations" },
+    { "rel": "see-also", "to": "shared.nss.alerts" }
+  ],
+  "prose": [
+    {
+      "label": "Unhealthy server.",
+      "text": "{{unhealthy-first-checks}} {{unhealthy-causes}} {{divergence:outdated-version-effect}} {{certificate-check}} {{orgid-check}} {{sizing-guidance}} {{disk-and-core-files}} {{service-logs}}"
+    },
+    {
+      "label": "Alerts.",
+      "text": "{{alert-cpu-memory-swap}} {{alert-disk-and-siem-link}} {{alert-history}} Which section the alert steps' Scope 2 reference points to {{gap:alert-scope-2-anchor}} is open. {{snmp-alerts}} {{historical-no-alerts}}"
+    },
+    {
+      "label": "Build upgrade.",
+      "text": "{{build-upgrade-validation}} {{build-upgrade-troubleshooting}}"
+    }
+  ],
+  "claims": {
+    "unhealthy-first-checks": {
+      "statement": "For a VM-based NSS server showing Unhealthy in the Admin Console, the runbook starts with sudo nss status, then sudo nss dump-config if the service is not running, and later checks all granular NSS roles with /sc/bin/smctl.sh.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Verify if the NSS Server is showing Unhealthy in the Zscaler Admin Console. If yes:",
+            "Run sudo nss status to see if the NSS service is running.",
+            "If the service is not running, validate the configuration using sudo nss dump-config.",
+            "Run /sc/bin/smctl.sh to see if all the granular NSS roles are running."
+          ]
+        }
+      ]
+    },
+    "certificate-check": {
+      "statement": "To validate the NSS certificate, the runbook has the admin run an openssl command against /sc/conf/zscaler_nss_certificate.crt, compare it with the certificate downloaded from the UI, and look for duplicate certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run the command openssl x509 -in /sc/conf/zscaler_nss_certificate.crt -noout -subject -noout -serial -noout -issuer -noout -dates.",
+            "Compare the contents of installed cert and cert on the UI. Make sure all the values including serial number, CN, validity, etc., match.",
+            "Sometimes there could be duplicate certificates if accidentally installed twice.",
+            "In the SSL Certificate field, select Download."
+          ]
+        }
+      ]
+    },
+    "orgid-check": {
+      "statement": "The runbook has the admin run sudo /sc/bin/smmgr -g smca_cur_nss_orgid -d stats and try to reinstall the NSS client certificate if the issue persists; it also lists checking for Zscaler Central Authority related connectivity issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Run sudo /sc/bin/smmgr -g smca_cur_nss_orgid -d stats if the orgid is not seen in the output and shows an invalid output.",
+            "Try to reinstall the NSS client certificate again if the issue persists.",
+            "Check if there are any Zscaler Central Authority (CA) related connectivity issues."
+          ]
+        }
+      ]
+    },
+    "sizing-guidance": {
+      "statement": "The runbook says that above 75K users Zscaler recommends the 64GB VM type, and that an organization averaging more than 1 billion daily transactions needs additional Nanolog clusters, requested through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If the number of users is more than 75K, Zscaler recommends 64GB VM type.",
+            "If the average daily transaction for your organization is >1 billion, you need additional Nanolog clusters for every 1 billion transaction.",
+            "You can request additional Nanolog clusters (NLCs) by contacting Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "disk-and-core-files": {
+      "statement": "For disk space issues on VM-based NSS, the runbook uses df -h or ls -ltrh /sc, then checks smcdsc.core* output; CPU details come from sysctl hw | grep cpu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If there are Disk Space issues, run the df -h or ls -ltrh /sc command to see disk space utilization.",
+            "If disk space is overutilized, check ls -ltrh smcdsc.core* output",
+            "You can also check CPU details using the sysctl hw | grep cpu command."
+          ]
+        }
+      ]
+    },
+    "service-logs": {
+      "statement": "The runbook checks /sc/log/zscaler.log for service restarts or stops and /sc/log/smmonitor.log for HUNG states, and says to capture information and contact Zscaler Support if the service is frequently hung.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check the NSS log file /sc/log/zscaler.log to see if there were any service restarts or stop.",
+            "Check /sc/log/smmonitor.log for any HUNG states on NSS.",
+            "If the service is frequently in hung state, capture necessary information and contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "unhealthy-causes": {
+      "statement": "The runbook lists common causes of an Unhealthy NSS server state: network connectivity loss to the Zscaler cloud, configuration errors, resource constraints, certificate errors, service crashes, a version mismatch (running an outdated NSS software version, which the runbook says can sometimes cause unhealthy conditions), and the server being disabled on the UI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Network Connectivity Issues: NSS server can lose connectivity with Zscaler cloud (Zscaler CA Server/Zscaler Nanolog server), causing the service to become unhealthy.",
+            "Configuration Errors: Misconfigurations in the NSS service, such as incorrect credentials, wrong SIEM IP or port, or incompatible settings, can result in an unhealthy state.",
+            "Resource Constraints: If the NSS server runs out of system resources, such as CPU, memory, or disk space, it can enter an unhealthy state.",
+            "Certificate Errors: If there is an issue with SSL/TLS certificates or if duplicate certificates status shows unhealthy.",
+            "Service Crashes: If the NSS service process crashes or is otherwise stopped, the server is in an unhealthy state.",
+            "Version Mismatch: Running an outdated version of the NSS software (which can have compatibility issues or bugs) can sometimes cause unhealthy conditions.",
+            "Make sure you have not disabled the NSS server on the UI. Doing so shows status as Unhealthy.",
+            "Here are some of the common causes for an NSS server to be in an Unhealthy state:"
+          ]
+        }
+      ]
+    },
+    "alert-cpu-memory-swap": {
+      "statement": "For the CPU utilization high, Memory is low and Memory swap is high alerts, the runbook has the admin run top (CPU, memory) or swapinfo (swap), and can also check the processwatch_cur_cpu_use_inpercentage counter for historical CPU use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For Memory is low Alerts, run the top command to check memory utilization.",
+            "For The CPU utilization is high Alert, run the top command to see if the CPU consumption is high.",
+            "You can also check the processwatch_cur_cpu_use_inpercentage counter to see historical CPU utilization issues.",
+            "For Memory swap is high Alert, run the swapinfo command to see if the swap memory is overutilized."
+          ]
+        }
+      ]
+    },
+    "alert-disk-and-siem-link": {
+      "statement": "For the Disk space is low alert the runbook checks df -h or ls -ltrh /sc, and if /sc/log is overutilized, the smcdsc.core* files; for the connection between the NSS and the SIEM is poor alert it says the connection is not stable and to check that average bandwidth requirements are met if NSS and SIEM are on different networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "For Disk space is low Alert, run the df -h or ls -ltrh /sc command to check disk space utilization.",
+            "If /sc/log is overutilized, check ls -ltrh smcdsc.core*",
+            "The connection between the NSS and the SIEM is poor Alert indicates that network connection between NSS and SIEM is not stable.",
+            "If NSS and SIEM are on different networks, make sure the average bandwidth requirements are met."
+          ]
+        }
+      ]
+    },
+    "alert-history": {
+      "statement": "Historical Zscaler alerts can be read from the nss_alert_generated counter, with /sc/bin/smmgr -g nss_alert_generated -d stats, and alerts for connectivity down to the SIEM, Nanolog or CA are handled with the Network Connectivity Checks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "You can also check the nss_alert_generated counter on the NSS to see the historical Alerts generated.",
+            "Enter the command /sc/bin/smmgr -g nss_alert_generated -d stats | less.",
+            "If you are seeing connectivity down Alert for SIEM or Zscaler Nanolog or Zscaler CA, run Network Connectivity Checks and refer to Scope 2 for these Alerts."
+          ]
+        }
+      ]
+    },
+    "snmp-alerts": {
+      "statement": "SNMP monitoring can be used for NSS health and connectivity; /var/log/snmpd.log shows SNMP alerts generated on the NSS, and the mitigation steps are the same as for Zscaler alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use SNMP monitoring to monitor health and network connectivity on the NSS.",
+            "Check the /var/log/snmpd.log file to see if there were any SNMP Alerts generated on the NSS.",
+            "SNMP generates Alerts similar to Zscaler monitoring whenever there is a resource or connectivity issue, and the mitigation steps are the same as discussed in Zscaler Alerts."
+          ]
+        }
+      ]
+    },
+    "historical-no-alerts": {
+      "statement": "When a historical issue has no monitoring alerts configured, the runbook checks the nss_alert_generated counter at the issue timestamp, /var/log/messages, /sc/log/zscaler.log for runtime errors and /sc/log/smmonitor.log for HUNG states.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The nss_alert_generated counter on the NSS for the issue timestamp.",
+            "Check /var/log/messages to see system-level details like Kernel (e.g., Link state, Boot messages, RAID messages), SSH, NTP (time synchronization).",
+            "Check the /sc/log/zscaler.log to see if there were any runtime errors.",
+            "Check the /sc/log/smmonitor.log to see if NSS was in a HUNG state or any other runtime errors."
+          ]
+        }
+      ]
+    },
+    "build-upgrade-validation": {
+      "statement": "To validate NSS build upgrades, sudo nss checkversion shows the current and available build (alternate: /sc/bin/smcdsc -V) and sudo nss update-now upgrades manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check the current and available build version sudo nss checkversion (an alternate command is /sc/bin/smcdsc -V).",
+            "Try upgrading the build manually using the sudo nss update-now command."
+          ]
+        }
+      ]
+    },
+    "build-upgrade-troubleshooting": {
+      "statement": "For a failing NSS build upgrade the runbook checks that smcdsc (responsible for build updates) is running, tests zdistribute connectivity with sudo nss test-firewall, checks disk space and /sc/core files, and reads /sc/log/autoupgrade.log for historical failures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check if all the services are running, especially smcdsc, which is responsible for build updates: /sc/bin/smctl.sh.",
+            "Check if the zdistribute server (responsible for updates) connectivity is broken using the sudo nss test-firewall command.",
+            "Check if there are Disk space issues (build download fails when there is no disk space available) using the df -h command.",
+            "If /sc directory is overutilized, check the /core folder (ls -ltrh /sc/core) to see if there are too many core files taking up space. Clear the files and retry the update.",
+            "To investigate historical update failure issues, check the autoupgrade file using the cat /sc/log/autoupgrade.log command."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "alert-scope-2-anchor": {
+      "kind": "semantic",
+      "title": "Which runbook section 'Scope 2' and 'Zscaler Nanolog Server Connection Unstable' refer to",
+      "status": "open",
+      "detail": "The alert steps tell the reader to refer to Scope 2 for connectivity-down alerts, and the missing-logs steps refer to Zscaler Nanolog Server Connection Unstable, but the captured page gives no anchor for either. The mapping to the Connectivity Between NSS and Zscaler Cloud or SIEM section is by inference and not stated.",
+      "resolves_with": ["source-read"]
+    }
+  },
+  "divergences": {
+    "outdated-version-effect": {
+      "summary": "The runbook's Unhealthy-causes list says an outdated NSS software version can sometimes cause unhealthy conditions, while its security answer says a server not on the latest version would not be able to communicate with the Zscaler cloud.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "Version Mismatch: Running an outdated version of the NSS software (which can have compatibility issues or bugs) can sometimes cause unhealthy conditions."
+            ]
+          },
+          "says": "An outdated NSS software version can sometimes cause an Unhealthy state."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+            "quotes": [
+              "The Zscaler architecture mandates that all our systems are always on the latest version, failing which the server would not be able to communicate with the Zscaler cloud."
+            ]
+          },
+          "says": "A system not on the latest version would not be able to communicate with the Zscaler cloud."
+        }
+      ],
+      "impact": "The first line is about the NSS software build and the second about all Zscaler systems including the ZSOS version, and the page does not say whether they are the same requirement. Do not tell an admin that an outdated build always makes the server unhealthy or always breaks communication."
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.runbook.fine-tuning",
+  "title": "DLP runbook: policy fine-tuning with Minimum Data Size, file type fallback, catch-all rules and dictionary combinations",
+  "aliases": [
+    "Require DLP Feature Configuration Assistance or DLP Policy Fine-Tuning",
+    "DLP false positive tuning"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.dlp.runbook" },
+    { "rel": "see-also", "to": "zia.dlp.rules" },
+    { "rel": "see-also", "to": "zia.dlp.engines" },
+    { "rel": "see-also", "to": "zia.dlp.dictionaries" },
+    { "rel": "see-also", "to": "zia.dlp.inspection-limits" }
+  ],
+  "prose": [
+    {
+      "label": "Minimum Data Size.",
+      "text": "{{minimum-data-size}}"
+    },
+    {
+      "label": "File type fallback.",
+      "text": "{{file-type-fallback}} {{avoid-catch-all}}"
+    },
+    {
+      "label": "Dictionaries and engines.",
+      "text": "{{dictionary-combination}} {{gap:dictionary-thresholds}}"
+    }
+  ],
+  "claims": {
+    "minimum-data-size": {
+      "statement": "To fine-tune a DLP policy, the runbook suggests that if a lot of telemetry data smaller than 10 KB contributes to a large volume of false positives, Minimum Data Size (KB) can be configured as 10 KB and monitored again; it also states that Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text, and that if files exceed defined thresholds for size or format compatibility, DLP inspection could fail or skip triggering policies for those files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text.",
+            "If files exceed defined thresholds for size or format compatibility, DLP inspection could fail or skip triggering policies for those files.",
+            "if there is a lot of telemetry data smaller than 10 KB that contributes to a large volume of false positives, you can configure the Minimum Data Size (KB) as 10 KB and monitor again."
+          ]
+        }
+      ]
+    },
+    "file-type-fallback": {
+      "statement": "For HTTP Form Data, the runbook suggests creating a DLP Allowlist rule based on the Custom Allowlist URL category, which includes file type fallback decisions by Zscaler: for single-part non-URL-encoded requests the default is HTTP non-file text data, and for multipart requests and single-part URL-encoded requests the default is HTTP Form data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Create a DLP Allowlist rule for HTTP Form Data based on the Custom Allowlist URL category. This category includes file type fallback decisions by Zscaler.",
+            "For single-part non-URL-encoded requests, the default is HTTP non-file text data.",
+            "For multipart requests and single-part URL-encoded requests, the default is HTTP Form data."
+          ]
+        }
+      ]
+    },
+    "avoid-catch-all": {
+      "statement": "The runbook says to avoid configuring a catch-all DLP policy rule with ANY file type, and that due to the file type fallback decisions by Zscaler, HTTP Form data can be dropped from the file type list of the last catch-all rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Avoid configuring a catch-all DLP policy rule with ANY file type.",
+            "Due to the file type fallback decisions by Zscaler, you can drop HTTP Form data from the file type list of the last catch-all rule."
+          ]
+        }
+      ]
+    },
+    "dictionary-combination": {
+      "statement": "The runbook recommends using a combination of a Predefined Dictionary with a Low or Medium Confidence Score Threshold and a Custom Dictionary for Pattern/Phrase, with an example DLP Engine built from the predefined dictionary NRIC Numbers (Singapore) and a custom dictionary, previewed as ((NRIC Numbers (Singapore) > 5) AND ((Identity Card Number (Phrases 1) > 0) OR (Identity Card Number (Phrases 2) > 0))).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-dlp-policies-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Use a combination of a Predefined Dictionary with a Low or Medium Confidence Score Threshold and a Custom Dictionary for Pattern/Phrase.",
+            "Leverage the Predefined dictionary NRIC Numbers (Singapore).",
+            "Create a new DLP Engine by using the Predefined dictionary NRIC Numbers (Singapore) and Custom Dictionary.",
+            "((NRIC Numbers (Singapore) > 5) AND ((Identity Card Number (Phrases 1) > 0) OR (Identity Card Number (Phrases 2) > 0)))"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dictionary-thresholds": {
+      "kind": "semantic",
+      "title": "Which numeric Confidence Score Threshold and Proximity Length the runbook's tuning advice implies",
+      "status": "open",
+      "detail": "The runbook says to use a Low or Medium Confidence Score Threshold and to note Proximity Length but gives no numeric values for them. What Low, Medium and Proximity Length mean for a dictionary is in [[zia.dlp.dictionaries]] and [[zia.dlp.dictionary-patterns]]; whether the tuning advice maps onto those values is not stated.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

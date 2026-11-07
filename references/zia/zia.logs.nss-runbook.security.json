@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.nss-runbook.security",
+  "title": "NSS runbook: vulnerability scan findings, ZSOS patching and hardening answers",
+  "aliases": [
+    "NSS Vulnerabilities",
+    "NSS Commonly Asked Questions",
+    "NSS Hardening",
+    "ZSOS"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.logs.nss-runbook" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.vm-health" },
+    { "rel": "see-also", "to": "zia.logs.nss-runbook.corner-cases" },
+    { "rel": "see-also", "to": "shared.nss.servers" }
+  ],
+  "prose": [
+    {
+      "label": "Base OS.",
+      "text": "{{zsos-and-base-os}} {{zsos-patching}} {{zsos42}}"
+    },
+    {
+      "label": "Reporting a vulnerability.",
+      "text": "{{vulnerability-escalation}} {{vulnerability-management}}"
+    },
+    {
+      "label": "Ciphers and hardening.",
+      "text": "{{ssh-ciphers}} {{weak-permissions-and-hardening}} {{nss-hardening}}"
+    }
+  ],
+  "claims": {
+    "zsos-and-base-os": {
+      "statement": "The NSS VM runs ZSOS, a customized FreeBSD-based OS, and base-OS vulnerabilities are typically not applicable because the NSS application's libraries are statically compiled into its binary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The NSS VM operates on Zscaler OS (ZSOS), a customized operating system built on FreeBSD.",
+            "If the reported vulnerability is related to the base OS (FreeBSD) version, typically they are not applicable to ZSOS or NSS for the following reasons:",
+            "All the libraries and dependencies are statically compiled and bundled into the NSS binary."
+          ]
+        }
+      ]
+    },
+    "zsos-patching": {
+      "statement": "The runbook says ZSOS fixes are pushed out regularly and that the Zscaler architecture mandates all its systems be always on the latest version, failing which the server would not be able to communicate with the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Fixes are pushed out to ZSOS on production and customer infrastructure regularly, in order to ensure security and compliance.",
+            "The Zscaler architecture mandates that all our systems are always on the latest version, failing which the server would not be able to communicate with the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "zsos42": {
+      "statement": "As of July 2025 ZSOS42 was updated on all customer managed Zscaler components including NSS, based on FreeBSD 13.2, with OS patches and new libraries, OpenSSL 3.0 support and ASLR support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "As of July 2025, ZSOS42 was updated on all customer managed Zscaler components, including NSS.",
+            "ZSOS42 uses FreeBSD 13.2 and has the following key security features:",
+            "OpenSSL 3.0 support",
+            "ASLR support",
+            "OS security patches and new libraries"
+          ]
+        }
+      ]
+    },
+    "vulnerability-escalation": {
+      "statement": "For vulnerabilities on specific base OS, ZSOS or package libraries the runbook says to contact Zscaler Support to confirm whether NSS needs them, giving the product, the cloud and scan reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "contact Zscaler Support and get a confirmation if it is needed by NSS or can be removed.",
+            "include the Zscaler product and service being used, as well as the cloud in which you are hosted.",
+            "When inquiring about CVEs or vulnerabilities, provide scan reports to facilitate accurate analysis and response.",
+            "If your concern is regarding vulnerabilities related to specific libraries or packages on the base OS or ZSOS"
+          ]
+        }
+      ]
+    },
+    "vulnerability-management": {
+      "statement": "Zscaler states it performs weekly vulnerability scans, SAST, DAST, SCA, regular penetration testing and other security assessments on its applications' libraries and codebase, including NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "These efforts include weekly vulnerability scans, SAST, DAST, SCA, regular penetration testing, and other advanced security assessment processes.",
+            "Zscaler conducts thorough vulnerability management and security audits on the libraries and codebase of its applications, including NSS."
+          ]
+        }
+      ]
+    },
+    "ssh-ciphers": {
+      "statement": "For vulnerabilities flagged against static cipher suites in SSH configuration, customers may modify sshd_config; Zscaler retains the suites for legacy customers, and the server cipher suite order prioritizes the strongest ciphers in TLS negotiations, using the weaker suites only if a connecting client does not support stronger ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Customers are free to modify the sshd_config settings as per their environment and security posture.",
+            "Zscaler retains these cipher suites for legacy customers who still use them, but they do not affect customers who are using current browsers/clients to connect to the NSS.",
+            "How to address vulnerabilities flagged against static cipher suites used in SSH configuration?",
+            "The server's cipher suite order prioritizes the strongest ciphers in TLS negotiations and only uses these weaker cipher suites in the rare event that a connecting client does not support stronger ones."
+          ]
+        }
+      ]
+    },
+    "weak-permissions-and-hardening": {
+      "statement": "On the Weak Permissions vulnerability the runbook says NSS is a privileged system to which only administrators should have access, because administrators have access to the files irrespective of the permissions set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "The NSS is a privileged system and Zscaler recommends only administrators should have access to the machines as the admins have access to the files anyway, irrespective of the permissions set.",
+            "How to address Weak Permissions vulnerability?"
+          ]
+        }
+      ]
+    },
+    "nss-hardening": {
+      "statement": "On NSS hardening the runbook says Zscaler applies the necessary hardening to the nodes it provides, that any additional hardening by the customer beyond what is preconfigured could potentially affect the functionality and performance of the NSS, and that its hardening approach for both VSE and NSS is consistent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-nanolog-streaming-service-nss-support-troubleshooting-runbook.json",
+          "quotes": [
+            "any additional hardening performed by the customer beyond what is preconfigured by Zscaler could potentially affect the functionality and performance of the NSS",
+            "Zscaler's approach to hardening for both VSE and NSS remains consistent.",
+            "Zscaler ensures that all necessary security hardening measures are applied to the nodes provided to customers for deployment within their environment."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

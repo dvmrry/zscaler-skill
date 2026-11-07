@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting.performance-runbook",
+  "title": "How the Client Connector performance troubleshooting runbook classifies slowness by pattern and routes it to its pages",
+  "aliases": [
+    "Zscaler Client Connector Performance Support Troubleshooting Runbook",
+    "client connector performance runbook"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.troubleshooting" },
+    { "rel": "see-also", "to": "zia.troubleshooting.performance-runbook" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.performance-runbook.udp-throttling" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.performance-runbook.path-mtu" }
+  ],
+  "prose": [
+    {
+      "label": "Symptom classes.",
+      "text": "{{symptom-classes}} ISP UDP throttling is in [[zcc.troubleshooting.performance-runbook.udp-throttling]] and MTU is in [[zcc.troubleshooting.performance-runbook.path-mtu]]. The Internet & SaaS side is in [[zia.troubleshooting.performance-runbook]]."
+    },
+    {
+      "label": "Patterns.",
+      "text": "{{os-pattern}} {{all-users-pattern}} {{time-pattern}} {{office-pattern}}"
+    }
+  ],
+  "claims": {
+    "symptom-classes": {
+      "statement": "In its section on checking UDP throttling and MTU, which is marked Only Z-Tunnel 2.0, the Client Connector performance runbook addresses slowness from ISP throttling of UDP packets and from MTU mismatch reported by users on Z-Tunnel 2.0, and says an MTR trace alone does not identify these.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Check UDP Throttling and MTU (Only Z-Tunnel 2.0)",
+            "The following troubleshooting information addresses the major types of symptoms commonly reported by users facing performance issues using Zscaler Tunnel (Z-Tunnel) 2.0:",
+            "Slowness due to internet service provider (ISP) throttling UDP packets.",
+            "Slowness due to maximum transmission unit (MTU) mismatch.",
+            "A My Traceroute (MTR) trace alone is not helpful in identifying these issues."
+          ]
+        }
+      ]
+    },
+    "os-pattern": {
+      "statement": "For slowness on a particular OS type, the runbook asks about an OS upgrade (test on the previous OS), a newly installed or updated third-party security or VPN app (disable its services), the Client Connector process allowlist, and high CPU utilization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Slowness might be observed with a particular OS type, at office or at home, or when connected to any Zscaler data center.",
+            "Did an OS upgrade occur? | Check the behavior on a device with the previous OS or revert the OS on one of the impacted machines.",
+            "Did a third-party security or VPN app get newly installed or updated? | Disable the services of the app and monitor the performance.",
+            "Have the processes required for Zscaler Client Connector to function been allowlisted? | Revisit this allowlist to validate it.",
+            "High CPU utilization with Zscaler Client Connector enabled. | High CPU usage on the host machine could lead to performance issues."
+          ]
+        }
+      ]
+    },
+    "all-users-pattern": {
+      "statement": "When all users of an organization are slow after a Client Connector upgrade, the runbook reverts a few workstations to the previously known working version and monitors performance; after a security patch or new software push it reverts that change on a few workstations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Slow performance after a recent Zscaler Client Connector version upgrade. | Revert to the previously known working version on a few workstations and monitor performance.",
+            "Slowness performance after a recent security patch or new software push. | Revert the security patch or software push on a few workstations."
+          ]
+        }
+      ]
+    },
+    "time-pattern": {
+      "statement": "For slowness at a particular time of day or day of the week, the runbook lists scheduled big data uploads or downloads and scheduled antivirus scans as possible causes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Performance Issues Observed During a Particular Time of the Day or Day of the Week",
+            "Scheduled big data upload or download, which restricts the firewall or internet bandwidth.",
+            "Scheduled antivirus scans on the workstation, which restricts the CPU or memory utilization of the workstation."
+          ]
+        }
+      ]
+    },
+    "office-pattern": {
+      "statement": "For slowness at one office location that is normal on a mobile hotspot or elsewhere, the runbook lists a Zscaler data center issue or maintenance and path congestion (collect Client Connector logs, escalate), and office router, switch or firewall issues (check CPU, memory, throttling policies and monitoring).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-zscaler-client-connector-performance-support-troubleshooting-runbook.json",
+          "quotes": [
+            "When the users connect from a non-office location or connect to their mobile hotspot from the office, the performance is normal.",
+            "Ongoing issue or maintenance at the Zscaler data center. | Collect the Zscaler Client Connector logs from the location and escalate to Zscaler Support.",
+            "Path congestion between office location and the Zscaler data center. | Collect the Zscaler Client Connector logs the location and escalate to Zscaler Support.",
+            "Check the general health parameters (e.g., CPU, memory, throttling policies, etc.), and check any network monitoring tools."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "high-cpu-threshold": {
+      "kind": "semantic",
+      "title": "What CPU utilization the runbook counts as high",
+      "status": "open",
+      "detail": "The runbook lists high CPU utilization with Client Connector enabled as a cause of slowness and gives no threshold for high.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

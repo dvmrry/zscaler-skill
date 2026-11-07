@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.runbook",
+  "title": "How the Internet & SaaS traffic forwarding troubleshooting runbook triages a case and routes it to its pages",
+  "aliases": [
+    "Internet & SaaS Traffic Forwarding Support Troubleshooting Runbook",
+    "traffic forwarding troubleshooting runbook"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.traffic-forwarding" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.pac" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.gre" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.ipsec" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.runbook.tunnel-path" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.verification" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.pac" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.gre" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.gre-failover" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.ipsec" },
+    { "rel": "see-also", "to": "zia.traffic-forwarding.vpn-credentials" },
+    { "rel": "see-also", "to": "zcc.troubleshooting.forwarding-runbook" }
+  ],
+  "prose": [
+    {
+      "label": "Sections.",
+      "text": "{{sections}} PAC file and explicit proxy diagnosis is in [[zia.traffic-forwarding.runbook.pac]], GRE tunnels are in [[zia.traffic-forwarding.runbook.gre]], IPSec tunnels are in [[zia.traffic-forwarding.runbook.ipsec]], and MTR collection, WinMTR for Client Connector and PAC, and latency checks for GRE and IPSec gateways are in [[zia.traffic-forwarding.runbook.tunnel-path]]."
+    },
+    {
+      "label": "Verifying the method.",
+      "text": "{{verify-web-insights}} {{verify-speedtest}}"
+    },
+    {
+      "label": "Full outage and Client Connector errors.",
+      "text": "{{full-outage-incidents}} {{zcc-error-redirect}} Those errors are in [[zcc.troubleshooting.forwarding-runbook]]."
+    }
+  ],
+  "claims": {
+    "sections": {
+      "statement": "The Internet & SaaS forwarding runbook has sections for PAC files and Zscaler Client Connector (endpoint-based forwarding), GRE tunnels and IPSec tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Proxy Auto Config (PAC) files and Zscaler Client Connector: This section focuses on diagnosing and troubleshooting issues specific to endpoint-based traffic forwarding mechanisms.",
+            "GRE tunnels: This section provides a deep dive into troubleshooting GRE tunnels",
+            "IPSec tunnels: This section addresses troubleshooting IPSec tunnels"
+          ]
+        }
+      ]
+    },
+    "verify-web-insights": {
+      "statement": "To verify that a location's traffic arrives over a GRE tunnel, note the tunnel's public egress IP address with ip.zscaler.com, then find a matching Web Insights transaction from the affected location where Traffic Forwarding is Zscaler Client Connector over GRE Tunnel or PAC File over GRE Tunnel and Client External IP is that egress IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "Note the public egress IP address of the GRE tunnel using ip.zscaler.com.",
+            "Find from the Web Insights logs any matching transaction from the affected location where:",
+            "Traffic Forwarding is Zscaler Client Connector over GRE Tunnel or PAC File over GRE Tunnel.",
+            "Client External IP is the public egress IP address of the GRE tunnel."
+          ]
+        }
+      ]
+    },
+    "verify-speedtest": {
+      "statement": "From ip.zscaler.com, Connection Quality or speedtest.zscaler.com shows the traffic forwarding method below the World Map as Connected via <traffic forwarding method>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "From ip.zscaler.com, go to Connection Quality or http://speedtest.zscaler.com/.",
+            "Look for the Traffic Forwarding method below the World Map where it mentions Connected via <traffic forwarding method>"
+          ]
+        }
+      ]
+    },
+    "full-outage-incidents": {
+      "statement": "For a complete internet outage (all destinations), the runbook says to check the Zscaler Trust Portal for open cloud incidents for the affected domain or data center; if an active incident post is found, the potential workaround is to fail over to another Zscaler data center (PAC modification or tunnel failover).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "When there is an incident with a complete internet outage (affecting all destinations)",
+            "Check for any open cloud incidents for the affected domain or Zscaler DC on the Zscaler Trust Portal.",
+            "If an active incident trust post is found, the potential workaround is to fail over the traffic to another Zscaler DC (PAC Modification or Tunnel Failover)."
+          ]
+        }
+      ]
+    },
+    "zcc-error-redirect": {
+      "statement": "If Zscaler Client Connector shows a specific error message, the Internet & SaaS runbook sends the reader to the Client Connector forwarding runbook for the errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-internet-saas-traffic-forwarding-support-troubleshooting-runbook.json",
+          "quotes": [
+            "If Zscaler Client Connector is showing a specific error message, see the Zscaler Client Connector Traffic Forwarding Support Troubleshooting Runbook for more information about errors."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}
