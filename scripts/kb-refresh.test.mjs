@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { counts, prBody, reportOk } from "./kb-refresh.mjs";
+import { captureName, counts, discoveryNote, discoveryPlan, MAX_NEW_PAGES, prBody, reportOk, sectionOf } from "./kb-refresh.mjs";
 
 const page = (file, diffLines = 3) => ({
   file,
@@ -54,4 +54,66 @@ test("a check counts as run only when it printed its report, since a crash exits
   assert.ok(!reportOk(""));
   assert.ok(!reportOk("Traceback (most recent call last):"));
   assert.ok(!reportOk('{"error": "x"}'));
+});
+
+const H = "https://help.zscaler.com";
+const captures = [
+  { file: "zia-about-url-filtering.json", urls: [`${H}/zia/about-url-filtering`, `${H}/zia/url-filtering-old`] },
+  { file: "zpa-about-connectors.json", urls: [`${H}/zpa/about-connectors`] },
+];
+const report = (help = {}, automate = "none", vendor = []) => ({
+  sources: {
+    help: { changes: { candidates: help.changes ?? [] }, removals: { candidates: help.removals ?? [] } },
+    automate: { captureRecommendation: automate },
+    vendor: { changes: { candidates: vendor } },
+  },
+});
+
+test("a page's section is its host and first path segment", () => {
+  assert.equal(sectionOf(`${H}/zia/about-url-filtering`), "help.zscaler.com/zia");
+  assert.equal(sectionOf("not a url"), null);
+});
+
+test("discovery's changes become checks of the captures they touch, by page or by alias", () => {
+  const plan = discoveryPlan(captures, report({
+    changes: [
+      { url: `${H}/zia/url-filtering-old`, kind: "changed", field: "lastmod" },
+      { url: `${H}/zpa/about-connectors`, kind: "changed-since", field: "lastmod" },
+      { url: `${H}/zia/not-captured`, kind: "changed", field: "lastmod" },
+    ],
+    removals: [{ url: `${H}/zpa/about-connectors` }, { url: `${H}/zia/never-captured` }],
+  }));
+  assert.deepEqual(plan.check, ["zia-about-url-filtering.json", "zpa-about-connectors.json"]);
+  assert.deepEqual(plan.capture, [], "a changed date on an uncaptured page is not a new page");
+  assert.deepEqual(plan.removed, [{ url: `${H}/zpa/about-connectors`, file: "zpa-about-connectors.json" }, { url: `${H}/zia/never-captured`, file: null }]);
+});
+
+test("new pages are captured only in sections already captured, at most a run's worth", () => {
+  const fresh = Array.from({ length: MAX_NEW_PAGES + 2 }, (_, i) => ({ url: `${H}/zia/new-${String(i).padStart(3, "0")}`, kind: "new", field: "url" }));
+  const plan = discoveryPlan(captures, report({ changes: [...fresh, { url: `${H}/dspm/new-page`, kind: "new", field: "url" }] }));
+  assert.equal(plan.capture.length, MAX_NEW_PAGES);
+  assert.deepEqual(plan.deferred, [MAX_NEW_PAGES, MAX_NEW_PAGES + 1].map((i) => `${H}/zia/new-${String(i).padStart(3, "0")}`));
+  assert.deepEqual(plan.elsewhere, [`${H}/dspm/new-page`]);
+  assert.equal(plan.automate, false);
+});
+
+test("an Automate asset change asks for the recapture, and vendor releases are listed for the pull request", () => {
+  const plan = discoveryPlan(captures, report({}, "full-capture", [{ path: "vendor/zscaler-sdk-go", field: "latest-release", current: "v3.9.0" }]));
+  assert.equal(plan.automate, true);
+  assert.deepEqual(plan.vendor, [{ path: "vendor/zscaler-sdk-go", field: "latest-release", current: "v3.9.0" }]);
+  const note = discoveryNote(plan);
+  assert.match(note, /Automate API reference changed/);
+  assert.match(note, /`vendor\/zscaler-sdk-go` latest-release: v3\.9\.0/);
+});
+
+test("the discovery note lists captured pages as authoring work, and says when nothing was found", () => {
+  const plan = discoveryPlan(captures, report({ changes: [{ url: `${H}/zia/brand-new`, kind: "new", field: "url" }] }));
+  assert.match(discoveryNote(plan, [{ url: `${H}/zia/brand-new`, result: "wrote zia-brand-new.json" }]), /Captured 1 new help page[\s\S]*brand-new -> `wrote zia-brand-new\.json`/);
+  assert.match(discoveryNote(discoveryPlan(captures, report())), /Nothing new/);
+});
+
+test("a new page's capture file is named for its section, so one slug in two sections does not collide", () => {
+  assert.equal(captureName(`${H}/secure-ai-users/managing-inbound-integrations`), "secure-ai-users-managing-inbound-integrations.json");
+  assert.equal(captureName(`${H}/secure-ai-apps-infra/managing-inbound-integrations`), "secure-ai-apps-infra-managing-inbound-integrations.json");
+  assert.equal(captureName(`${H}/zia/zia-release-notes`), "zia-release-notes.json");
 });

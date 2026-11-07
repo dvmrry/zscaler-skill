@@ -12,9 +12,10 @@ advisory checks report without failing. `lint-js.yml` and `lint-py.yml` are
 the other two required checks (Biome and Ruff).
 
 `.github/workflows/kb-refresh.yml` runs the knowledge-graph refresh loop below
-every Monday at 12:00 UTC through `node scripts/kb-refresh.mjs`, and opens a
-`kb-refresh` pull request when a capture moved. See "Weekly knowledge-graph
-refresh" below.
+through `node scripts/kb-refresh.mjs`: a cheap pass after each daily discovery
+run, and the full pass every Monday at 12:00 UTC. It opens one `kb-refresh` pull
+request and keeps adding to it while it is open. See "Daily and weekly
+knowledge-graph refresh" below.
 
 `.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in
 sticky-issue mode every Monday at 13:00 UTC. The first run creates a sticky
@@ -27,7 +28,7 @@ marker carries state so no Actions cache or local `state.json` is needed.
 `scripts/maintenance-digest.py` weekly after the main hygiene cadence. It
 updates a sticky issue with label `maintenance-digest` with stale help
 captures, eval coverage warnings, script scaffolds, and TODO inventory. Vendor
-drift against the graph is the weekly refresh pull request's job, not the
+drift against the graph is the refresh pull request's job, not the
 digest's. This is advisory backlog generation, not a merge gate.
 
 `.github/workflows/vendor-impact.yml` runs on PRs touching `vendor/**` or
@@ -43,8 +44,9 @@ paths, restores the most recent successful observation baseline through the
 Actions artifacts API when one is available, and uploads the new report and
 baseline as artifacts. A missing artifact is reported as bootstrap coverage;
 the workflow does not silently treat an unavailable baseline as an unchanged
-source. The job summary contains the bounded Markdown report, and the scan
-does not open issues, mutate sources, or send notifications.
+source. The job summary contains the bounded Markdown report. The scan itself
+does not open issues, mutate sources, or send notifications; `kb-refresh.yml`
+acts on each successful run's report.
 
 ## Knowledge-graph refresh loop
 
@@ -142,21 +144,42 @@ since its audit. It runs through the `claude` CLI on a Claude plan's quota, neve
 rubric or model change, rerun the calibration set (`build --calibration`, `run`, `grade`). A rubric change
 empties the record when the next run is recorded, so record any run in flight first, then re-audit every claim.
 
-## Weekly knowledge-graph refresh (automated)
+## Daily and weekly knowledge-graph refresh (automated)
 
-- Monday at 12:00 UTC, `kb-refresh.yml` runs `kb-refresh.mjs`. When nothing
-  moved it says so in the job summary and stops. Otherwise it commits the
-  rewritten captures and records to the `kb-refresh` branch, opens a pull
-  request whose description is the drift review, uploads the full review
-  (diffs included) as the `kb-refresh` artifact, and dispatches the three
-  required checks on the branch (a pull request opened with `GITHUB_TOKEN`
-  starts no `pull_request` workflows).
-- Broken evidence fails the gate on that pull request: re-anchor it on the
-  branch, or turn the claim into a gap when the source no longer says it, read
-  every in-change entry against its claim, and run the claim audit on the
-  claims you touched before merging.
-- While a refresh pull request is open, the next run only reports it, so fixes
-  pushed to the branch are never overwritten. Merge or close it to resume.
+- **Daily**, after each successful discovery run, `kb-refresh.yml` runs
+  `kb-refresh.mjs --discovery <report> --changed-only`, the cheap pass:
+  - it refetches only the captures whose page discovery saw change (a new
+    sitemap date) or leave the help sitemap;
+  - it captures new pages in sections the graph already captures, at most 40 a
+    run, as `<section>-<slug>.json`;
+  - it recaptures the Automate API reference and the OneAPI Postman collection
+    when discovery saw the Automate assets change.
+
+  A renamed page's capture follows its redirect during the check and keeps the
+  old address as an alias, so the new address is not captured twice. When
+  discovery saw nothing, the run stops there.
+- **Mondays at 12:00 UTC**, the full pass refetches every help and issue
+  capture, since a page can change without a new sitemap date, and does the
+  same discovery work.
+- **When something moved**, the run commits the rewritten and new captures and
+  records to the `kb-refresh` branch. The first run opens a pull request whose
+  description is the drift review, followed by what discovery found: new pages
+  captured, pages that left the sitemap, new pages in sections the graph does
+  not capture, the Automate state and vendor releases.
+
+  While that pull request is open, later runs commit on top of its branch and
+  add their review as a comment, so fixes pushed to the branch are kept. Every
+  run uploads the full review, diffs included, as the `kb-refresh` artifact,
+  and dispatches the three required checks on the branch, because a pull
+  request opened with `GITHUB_TOKEN` starts no `pull_request` workflows.
+- **Before merging**, fix what the gate fails on. Broken evidence fails the
+  gate on that pull request:
+  - re-anchor it on the branch, or turn the claim into a gap when the source
+    no longer says it;
+  - read every in-change entry against its claim;
+  - run the claim audit on the claims you touched.
+
+  The new captures are uncited until a coverage pass writes their claims.
 
 ## Weekly upstream refresh (automated)
 

@@ -44,7 +44,7 @@ Merging a pull request that adds a notes file releases that version. The `releas
 Tags are made only by that workflow, except in the repair below. `scripts/release-version.sh` decides the version
 for both the pull-request check and the release, so the merge publishes what review saw.
 
-Renovate and the weekly knowledge-graph refresh open their pull requests with `no-release`. Their changes ship
+Renovate and the knowledge-graph refresh open their pull requests with `no-release`. Their changes ship
 in the next release that someone writes notes for.
 
 ## Writing the notes
