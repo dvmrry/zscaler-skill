@@ -208,8 +208,9 @@
       ]
     },
     "main-update-builds-from-state": {
-      "statement": "The main application segment update builds its request from Terraform arguments: its expander reads the existing segment, but uses that segment's TCP and UDP port ranges only to choose between the two configured port-range forms. The update then reads the segment again only to detect that it is gone, ignores any other error from that read, discards the result, and sends the rebuilt struct as the PUT body. The SDK's `Update` sends the struct it is given and merges nothing.",
+      "statement": "The main application segment update builds its request from Terraform arguments: its expander reads the existing segment, but uses that segment's TCP and UDP port ranges only to choose between the two configured port-range forms. The update then reads the segment again only to detect that it is gone, ignores any other error from that read, discards the result, and sends the rebuilt struct as the PUT body. The SDK's `Update` sends the struct it is given as the PUT body.",
       "tier": "A",
+      "conditions": "Absence read from the code, not run: `Update` in the Go SDK is one NewRequestDo PUT call with the struct and no read or merge before it, and in the expander the remote port ranges appear only in the two isSameSlice comparisons.",
       "evidence": [
         {
           "source": "tf-zpa",

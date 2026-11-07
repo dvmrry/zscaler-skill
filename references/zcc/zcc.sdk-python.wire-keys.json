@@ -309,7 +309,7 @@
       ]
     },
     "response-keys-camel-cased": {
-      "statement": "`form_response_body` passes every key of a response through `to_lower_camel_case` before a model reads it, so a model attribute looked up under a snake_case key is not found on that path unless FIELD_EXCEPTIONS yields that key: `exit_password` maps to itself, and the camelCase `tunnelTwoForiOSDevices` maps to `tunnel_two_fori_os_devices`; `list_by_company` for web policies instead hands the raw items to the model.",
+      "statement": "`form_response_body` passes every key of a response through `to_lower_camel_case`, so a model attribute looked up under a snake_case key is not found on that path unless FIELD_EXCEPTIONS yields that key: `exit_password` maps to itself, and the camelCase `tunnelTwoForiOSDevices` maps to `tunnel_two_fori_os_devices`; `list_by_company` for web policies instead reads the response with `get_results()`.",
       "tier": "A",
       "conditions": "`_to_camel` uses `to_lower_camel_case`, which maps `exit_password` to itself. `to_lower_camel_case` returns a FIELD_EXCEPTIONS entry before its underscore test, so a camelCase key the map holds is converted too. `sed -n '/^def to_lower_camel_case/,/^def convert_keys_to_snake_case/p' zscaler/helpers.py | grep -E ': \"[^\"]*_[^\"]*\",'` at v1.11.3-1-g4f8f54df returns two entries whose value has an underscore, `\"tunnelTwoForiOSDevices\": \"tunnel_two_fori_os_devices\"` and `\"exit_password\": \"exit_password\"`.",
       "evidence": [

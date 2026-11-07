@@ -173,7 +173,7 @@
       "conditions": "At v4.4.10 and v4.4.16, `awk '/^func resourcePolicyForwardingRuleUpdate\\(/,/^}/' zpa/resource_zpa_policy_access_forwarding_rule.go | grep -n -E 'policysetcontroller\\.|Get[A-Za-z]*\\('` returns only `d.Get` and `d.GetOk` reads, `fetchPolicySetIDByType` (the policy set, when `policy_set_id` is unset), `ValidateConditions` (operand lookups) and `policysetcontroller.UpdateRule`; there is no `GetPolicyRule`. At v3.8.58, `awk '/^func UpdateRule\\(/,/^}/' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n 'NewRequestDo'` returns only the PUT."
     },
     "v2-update-reads-then-discards": {
-      "statement": "A v2 policy rule update does read the rule first, but only to detect a deleted rule: the response is thrown away and the request sent is again built from Terraform state. The v2 SDK request type has the same always-serialized fields (`devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups`).",
+      "statement": "A v2 forwarding rule update does read the rule first, but only to detect a deleted rule: the response is thrown away and the request sent is again built from Terraform state. The v2 SDK request type has the same always-serialized fields (`devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups`).",
       "tier": "A",
       "evidence": [
         {
@@ -316,7 +316,7 @@
       ]
     },
     "v2-sdk-clears-operand-ids-not-names": {
-      "statement": "The v2 SDK's `UpdateRule` does something different: it clears operand IDs, not names. The v2 provider schemas model operands by object type and values rather than a writable name.",
+      "statement": "The v2 SDK's `UpdateRule` clears operand IDs, not names. The v2 provider schemas model operands by object type and values rather than a writable name.",
       "tier": "A",
       "evidence": [
         {
@@ -553,6 +553,18 @@
             "rules, _, err := policysetcontrollerv2.GetAllByType(ctx, service, t)",
             "if strings.EqualFold(op.ObjectType, \"APP_GROUP\") {",
             "rule.Conditions = newConditions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
           ]
         }
       ],

@@ -155,8 +155,11 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/client_settings/client_settings.go",
           "quotes": [
+            "baseURL := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint",
             "baseURL += \"?type=\" + url.QueryEscape(t)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", baseURL, nil, &settings, nil)",
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint + \"/all\"",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &v)",
             "path := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint",
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+clientSettingEndpoint, settings, v, nil)",
             "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, nil, nil, nil)",
@@ -177,6 +180,26 @@
             "def get_all_client_settings(self) -> APIResult[dict]:",
             "def add_client_setting(self, **kwargs) -> APIResult[dict]:",
             "def delete_client_setting(self) -> APIResult[None]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/client_settings.py",
+          "after": "def get_all_client_settings(",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "/clientSetting/all",
+            "request, error = self._request_executor.create_request(http_method, api_url)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/client_settings.py",
+          "after": "def delete_client_setting(",
+          "quotes": [
+            "http_method = \"delete\".upper()",
+            "/clientSetting",
+            "request, error = self._request_executor.create_request(http_method, api_url)"
           ]
         },
         {

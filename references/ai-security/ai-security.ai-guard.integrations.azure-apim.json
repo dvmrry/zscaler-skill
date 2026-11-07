@@ -158,7 +158,7 @@
       ]
     },
     "response-extraction": {
-      "statement": "The outbound scan runs only when the backend answered HTTP 200 and scans the text of the last content item of the last `output` entry (Responses API) or the `message.content` of the last choice, using an empty string when that value is missing.",
+      "statement": "The outbound scan runs only when the backend answered HTTP 200 and scans the text of the last content item of the last `output` entry or the `message.content` of the last choice, using an empty string when that value is missing.",
       "tier": "A",
       "evidence": [
         {
@@ -234,6 +234,7 @@
           "path": "Microsoft/zscaler-aiguard-scan",
           "quotes": [
             "var policyId = context.Variables.GetValueOrDefault<string>(\"currentPolicy\", \"\");",
+            "if (!string.IsNullOrEmpty(policyId)) {",
             "requestBody.Add(\"policyId\", int.Parse(policyId));",
             "return requestBody.ToString();"
           ]

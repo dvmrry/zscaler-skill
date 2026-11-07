@@ -309,7 +309,8 @@
             "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}"
           ]
         }
-      ]
+      ],
+      "conditions": "No branch on key_type: at v1.11.3-1-g4f8f54df, `grep -n 'enrollment_cert_id' zscaler/zpa/provisioning.py` in vendor/zscaler-sdk-python returns docstring and example lines plus one `body.get(\"enrollment_cert_id\")` in add_provisioning_key, and `grep -n 'key_type ==' zscaler/zpa/provisioning.py` returns only the two lines in simplify_key_type."
     },
     "python-add-key-leaks-snake-case": {
       "statement": "The Python add_provisioning_key reads component_id and enrollment_cert_id with body.get rather than pop, so those snake_case keys stay in the body next to the camelCase keys it adds. The executor then camel-cases the body: enrollment_cert_id becomes the same enrollmentCertId key with the same value, and component_id becomes an extra componentId member next to zcomponentId.",

@@ -103,7 +103,8 @@
             "<Step><Name>JS-ScanPrompt</Name></Step>",
             "<Name>SC-AIGuardScan</Name>",
             "<PostFlow name=\"PostFlow\">",
-            "<Name>SC-AIGuardResponseScan</Name>"
+            "<Name>SC-AIGuardResponseScan</Name>",
+            "<Name>JS-ScanResponse</Name>"
           ]
         },
         {
@@ -111,6 +112,13 @@
           "path": "Google/apigee/apiproxy/policies/SC-AIGuardScan.xml",
           "quotes": [
             "<ServiceCallout name=\"SC-AIGuardScan\">"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardResponseScan.xml",
+          "quotes": [
+            "<ServiceCallout name=\"SC-AIGuardResponseScan\">"
           ]
         }
       ]
@@ -370,6 +378,9 @@
           "source": "zguard-integrations",
           "path": "Google/apigee/apiproxy/resources/jsc/scan-response.js",
           "quotes": [
+            "direction: 'OUT'",
+            "if (policyId && policyId.length > 0) {",
+            "payload.policyId = parseInt(policyId);",
             "var user = context.getVariable('aiguardUser') || '';",
             "if (user.length > 0) {",
             "payload.user = String(user);"

@@ -146,6 +146,9 @@
           "path": "Windsurf/.windsurf/hooks/pre_run_command.py",
           "quotes": [
             "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
+            "if action == \"BLOCK\":",
+            "block_stderr(r, cmd_s)",
+            "print(msg, file=sys.stderr)",
             "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
             "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())",
             "print(f\"Zscaler AI Guard scan failed: {r['error']}\", file=sys.stderr)",
@@ -157,6 +160,8 @@
           "path": "Windsurf/.windsurf/hooks/pre_mcp_tool_use.py",
           "quotes": [
             "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
+            "if action == \"BLOCK\":",
+            "print(msg, file=sys.stderr) return EXIT_BLOCK",
             "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
             "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())",
             "print(f\"Zscaler AI Guard scan failed: {r['error']}\", file=sys.stderr)",

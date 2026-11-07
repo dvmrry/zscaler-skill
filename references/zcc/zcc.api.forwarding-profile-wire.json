@@ -159,7 +159,7 @@
   ],
   "claims": {
     "edit-is-post": {
-      "statement": "Forwarding profiles are created and updated through the same `POST /webForwardingProfile/edit`: the contract's only operation on that path is a POST described as updating a profile, the Go SDK's create function posts there and reports a 'create/update' failure, and the Python `update_forwarding_profile` posts there too.",
+      "statement": "Forwarding profiles are created and updated through the same `POST /webForwardingProfile/edit`: the contract has a POST on that path described as updating a profile, the Go SDK's create function posts there and reports a 'create/update' failure, and the Python `update_forwarding_profile` posts there too.",
       "tier": "A",
       "evidence": [
         {
@@ -529,7 +529,7 @@
     "go-request-omissions": {
       "statement": "The Go write type has no field for `trustedNetworks` or `trustedNetworkIdsSelected` on the profile, or for `systemProxy`, `sendAllDNSToTrustedServer`, `optimiseForUnstableConnections` or `dropIpv6TrafficInIpv6Network` on a ZIA action, although the read type carries them all.",
       "tier": "A",
-      "conditions": "Absence: the request types in forwarding_profile_request.go have none of those fields at the pin; the read-type fields are quoted.",
+      "conditions": "Absence: a case-insensitive search of forwarding_profile_request.go for trustedNetworks and trustedNetworkIdsSelected returned one line, the PredefinedTrustedNetworks bool; the request struct quoted below lists the profile's fields without either, and the read-type fields are quoted.",
       "evidence": [
         {
           "source": "sdk-go",
@@ -568,6 +568,20 @@
           "after": "type ForwardingProfileActionRequest struct {",
           "quotes": [
             "ActionType int `json:\"actionType\"` EnablePacketTunnel int `json:\"enablePacketTunnel\"` BlockUnreachableDomainsTraffic string `json:\"blockUnreachableDomainsTraffic\"` DropIpv6Traffic int `json:\"dropIpv6Traffic\"` PrimaryTransport int `json:\"primaryTransport\"` UDPTimeout int `json:\"UDPTimeout\"`",
+            "DTLSTimeout int `json:\"DTLSTimeout\"` TLSTimeout int `json:\"TLSTimeout\"` MtuForZadapter string `json:\"mtuForZadapter\"` AllowTLSFallback int `json:\"allowTLSFallback\"` PathMtuDiscovery int `json:\"pathMtuDiscovery\"`",
+            "Tunnel2FallbackType int `json:\"tunnel2FallbackType\"` UseTunnel2ForProxiedWebTraffic int `json:\"useTunnel2ForProxiedWebTraffic\"` UseTunnel2ForUnencryptedWebTraffic int `json:\"useTunnel2ForUnencryptedWebTraffic\"`",
+            "RedirectWebTraffic int `json:\"redirectWebTraffic\"` DropIpv6IncludeTrafficInT2 int `json:\"dropIpv6IncludeTrafficInT2\"` CustomPac string `json:\"customPac\"` SystemProxyData SystemProxyDataRequest `json:\"systemProxyData\"`",
+            "LatencyBasedZenEnablement int `json:\"latencyBasedZenEnablement\"` ZenProbeInterval int `json:\"zenProbeInterval\"` ZenProbeSampleSize int `json:\"zenProbeSampleSize\"` ZenThresholdLimit int `json:\"zenThresholdLimit\"`",
+            "LatencyBasedServerEnablement int `json:\"latencyBasedServerEnablement\"` LbsProbeInterval int `json:\"lbsProbeInterval\"` LbsProbeSampleSize int `json:\"lbsProbeSampleSize\"` LbsThresholdLimit int `json:\"lbsThresholdLimit\"`",
+            "LatencyBasedServerMTEnablement int `json:\"latencyBasedServerMTEnablement\"` NetworkType int `json:\"networkType\"` IsSameAsOnTrustedNetwork *bool `json:\"isSameAsOnTrustedNetwork,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileActionRequest struct {",
+          "quotes": [
+            "ActionType int `json:\"actionType\"` EnablePacketTunnel int `json:\"enablePacketTunnel\"` BlockUnreachableDomainsTraffic string `json:\"blockUnreachableDomainsTraffic\"` DropIpv6Traffic int `json:\"dropIpv6Traffic\"` PrimaryTransport int `json:\"primaryTransport\"` UDPTimeout int `json:\"UDPTimeout\"`",
             "DTLSTimeout int `json:\"DTLSTimeout\"` TLSTimeout int `json:\"TLSTimeout\"` MtuForZadapter string `json:\"mtuForZadapter\"` AllowTLSFallback int `json:\"allowTLSFallback\"` PathMtuDiscovery int `json:\"pathMtuDiscovery\"` Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`",
             "UseTunnel2ForProxiedWebTraffic int `json:\"useTunnel2ForProxiedWebTraffic\"` UseTunnel2ForUnencryptedWebTraffic int `json:\"useTunnel2ForUnencryptedWebTraffic\"` RedirectWebTraffic int `json:\"redirectWebTraffic\"` DropIpv6IncludeTrafficInT2 int `json:\"dropIpv6IncludeTrafficInT2\"`",
             "CustomPac string `json:\"customPac\"` SystemProxyData SystemProxyDataRequest `json:\"systemProxyData\"` LatencyBasedZenEnablement int `json:\"latencyBasedZenEnablement\"` ZenProbeInterval int `json:\"zenProbeInterval\"` ZenProbeSampleSize int `json:\"zenProbeSampleSize\"`",
@@ -578,7 +592,7 @@
       ]
     },
     "python-keys-only": {
-      "statement": "The Python SDK's `update_forwarding_profile` renames keys the model declares to their wire keys, keeps wire-form keys and the legacy snake_case set (`WebPolicy.SNAKE_CASE_KEYS`) unchanged, camel-cases any other key, and stores each value under its new key without converting its type; only the keys inside a nested dict or list value are rewritten.",
+      "statement": "The Python SDK's `update_forwarding_profile` renames keys the model declares to their wire keys, keeps wire-form keys and the legacy snake_case set (`WebPolicy.SNAKE_CASE_KEYS`) unchanged, camel-cases any other key, and stores each value under its new key; a nested value is passed through the same key conversion.",
       "tier": "A",
       "conditions": "Unknown snake_case keys are not passed through but camel-cased by `to_lower_camel_case`; the module docstring's \"unknown keys pass through unchanged\" holds only for keys without an underscore.",
       "evidence": [
