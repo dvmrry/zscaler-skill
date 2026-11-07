@@ -68,12 +68,12 @@ export function parseReleasePage(doc) {
   let entry = null;
   for (const b of doc.blocks) {
     const level = b.heading === undefined ? 0 : b.level;
+    // The article's introduction comes before the first dated heading.
+    if (!release && level !== 4) continue;
     if (level === 4) {
       release = { date: isoDate(b.heading), entries: [] };
       releases.push(release);
       status = entry = null;
-    } else if (!release) {
-      continue; // the article's introduction
     } else if (level === 5) {
       status = b.heading;
       entry = null;

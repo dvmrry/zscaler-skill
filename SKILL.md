@@ -82,8 +82,10 @@ needs).
    files the company records locate, with your file tools, and search them for the objects the question names
    (the app, rule, location or category). Give the file's `committed` date.
 
-Run each command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a bare
-command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
+Run each command bare: no `cd`, no pipe, no redirect. Paths here are relative to this skill's directory (the
+repository root); when the working directory is elsewhere, as with the skill installed under `~/.claude/skills`,
+write them from that directory (`node <skill directory>/scripts/kb.mjs read ...`), still as one bare command.
+Permission checks approve a bare command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
 `node -e`. A refused command says only that its form was wrong, not that the shell is off: run `node scripts/kb.mjs
 read ...` bare next, and never answer from the spine alone. When a command's output is long and the runtime saves
 it to a file, open that file with your file tool, never with `cat`, `grep` or another shell command.
@@ -125,8 +127,9 @@ Read the named subject before answering; these are the points answers most often
 - **DLP:** rules reference engines, not dictionaries: `zia.dlp`.
 - **ZPA segments:** two segments with identical specificity have an undocumented tiebreak; answer at medium
   confidence: `zpa.app-segments.matching:same-specificity-tie`.
-- **ZPA `TRUSTED_NETWORK` not firing:** usually the forwarding profile's `sendTrustedNetworkResultToZpa` toggle:
-  `zcc.forwarding-profiles.private-access-actions`.
+- **ZPA `TRUSTED_NETWORK` not firing:** the Client Connector forwarding profile's Send Trusted Network Result to
+  ZPA setting (`sendTrustedNetworkResultToZpa`) is the documented link; how the result reaches ZPA and what ZPA
+  does with it are open gaps, so do not name it the cause: `zpa.trusted-networks.zcc-relationship`.
 - **ZCC forwarding-profile enums** are partly inferred, not documented; answer at medium confidence and cite the
   open gaps in `zcc.api.forwarding-profile-wire`.
 - **Cross-product questions** (ZIA plus ZPA, ZCC plus a server product) are silently-wrong-answer territory: start
@@ -134,19 +137,19 @@ Read the named subject before answering; these are the points answers most often
 - **Secrets on read:** which GETs return provisioning keys, API keys, passwords or PSKs: `shared.secret-surfaces`.
 - **ZDX:** the SDK's "deeptrace" is the console's Diagnostics Session; the contract's `/v1/config` configuration
   API exists but no SDK calls it: `zdx.applications:config-no-sdk`.
-- **Naming collisions:** Python `client.zbi` is **Business Insights**, not Zero Trust Browser (`zbi.*`), and "ZTB"
-  can mean Zero Trust Browser or Zero Trust Branch (`zero-trust-branch.overview`). Cloud & Branch Connector is ZTW
+- **Naming collisions:** Python `client.zbi` is **Business Insights** (`business-insights.api`), not Zero Trust
+  Browser (`zbi.*`), and "ZTB" can mean Zero Trust Browser or Zero Trust Branch (`zbi.cloud-browser`). Cloud & Branch Connector is ZTW
   in the API and SDKs and ZTC in Terraform.
 - **Cloud Connector SDK:** Python reaches it as `client.ztw` on the v1.x line;
-  the `2.0.0bN` beta does **not** include ZTW: `cloud-connector.api.client-coverage`.
+  the `2.0.0bN` beta does **not** include ZTW: `cloud-connector.sdk-python`, `cloud-connector.api.client-coverage`.
 - **ZIdentity API clients:** the first client comes from the console; after that Python `client.zid.api_client`
   (singular) and Go `api_clients` manage clients and secrets; resource servers are read-only:
   `zidentity.api-clients`, `zidentity.resource-servers`.
 - **Step-up:** a parent authentication level is the stronger one (its validity must be shorter than its
   sub-levels'); whether step-up is OIDC-only is a divergence: `zidentity.step-up`.
 - **Python accessors for the smaller products:** AI Guard `client.aiguard`, ZMS `client.zms` (read-only GraphQL),
-  EASM `client.zeasm`, Cellular `client.zcell`; Zscaler's AI Guard integration examples are
-  `ai-security.ai-guard.integrations`.
+  EASM `client.zeasm`, Cellular `client.zcell`: `zms.api`, `easm.api`, `zscaler-cellular.api`; Zscaler's AI Guard
+  integration examples are `ai-security.ai-guard.integrations`.
 
 For a portfolio-level entry (Resilience, BCC, CTEM, Posture Control, Red Canary MDR, CASB as a term, B2B, the
 federal clouds), read its `portfolio.*` subject; `portfolio.overview` maps each need to its product. Most of

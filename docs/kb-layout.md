@@ -3,7 +3,7 @@
 `references/` is the knowledge graph: the same for every installation, built only from public sources.
 Company knowledge lives in the overlay ([`data-contract/knowledge.md`](data-contract/knowledge.md)), never here.
 Agents open the spine with their file tools, then read the areas, subjects, log types and fields they picked with one
-`node scripts/kb.mjs read <area | subject | type | field> ...` (`SKILL.md` "Retrieval"); `kb.mjs resolve` is the JSON
+`node scripts/kb.mjs read <area | subject | type | field> ...` (`SKILL.md` "Using the knowledge graph"); `kb.mjs resolve` is the JSON
 bundle interface for scripts. The record contracts are the schemas under `references/_meta/schema/`.
 
 | Path | Holds | Written by |

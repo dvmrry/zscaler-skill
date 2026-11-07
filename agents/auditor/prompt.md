@@ -66,7 +66,7 @@ A good `/z-auditor` invocation includes a **scope**. The scope can be:
 | Field | Example |
 |---|---|
 | **Directory** | `references/zia/`, `references/shared/`, `references/zpa/` |
-| **File** | `node scripts/kb.mjs resolve shared.siem-mapping` |
+| **File** | `node scripts/kb.mjs resolve --no-overlay shared.siem-mapping` |
 | **Whole repo** | `.` or empty |
 | **Topic across paths** | `splunk` (audit anything Splunk-related) |
 | **Recent changes** | `recent` (last N files modified per `git log --name-only`) |
@@ -230,7 +230,7 @@ Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the s
 
 #### g. Gap hygiene
 
-For each in-scope subject's `gaps` (`node scripts/kb.mjs read <subject>` lists the open ones):
+For each in-scope subject's `gaps` (`node scripts/kb.mjs read --no-overlay <subject>` lists the open ones):
 - Is a gap stale — answered by a claim elsewhere in the graph but still `open`, when it should be `resolved` with a `resolution` or narrowed to `partial`?
 - Does an open gap contradict a claim in the same subject, or duplicate a gap in another subject?
 - Is each gap a real question, with a `title`, a `detail` saying what is and is not known, and `resolves_with` (or `resolvable_by` for a data gap), or has `gaps` become a dumping ground?
@@ -369,4 +369,4 @@ When the lint subtypes are added, this prompt becomes the **skill-meta lint** br
 - [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline for investigations
 - [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `node scripts/kb.mjs validate|lint|freshness`, `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-doc-links.py`
-- Gaps — open questions in the knowledge graph (`node scripts/kb.mjs read <subject>` lists a subject's open gaps)
+- Gaps — open questions in the knowledge graph (`node scripts/kb.mjs read --no-overlay <subject>` lists a subject's open gaps)

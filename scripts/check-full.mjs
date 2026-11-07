@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -9,18 +10,12 @@ import { runTempRoot } from "./lib.mjs";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // Set by main: the run's temporary root, handed to every check as TMPDIR and removed when the gate exits.
 let runTemp = { env: {} };
-const PYTEST_FILES = [
-  "scripts/test_help_capture.py",
-  "scripts/test_issue_capture.py",
-  "scripts/test_automate_pages.py",
-  "scripts/test_issue_watch.py",
-  "scripts/test_family_coverage.py",
-  "scripts/test_maintenance_digest.py",
-  "scripts/automate-capture/test_extract_docusaurus_blobs.py",
-  "scripts/automate-capture/test_build_openapi_from_blobs.py",
-  "scripts/automate-capture/test_reconcile_contract.py",
-  "scripts/automate-capture/test_rosetta.py",
-];
+// Every scripts/**/test_*.py, discovered as check-fast discovers the node tests, so a new suite cannot be left out.
+const PYTEST_FILES = fs
+  .readdirSync(path.join(repoRoot, "scripts"), { recursive: true })
+  .filter((name) => /(^|[\\/])test_[^\\/]*\.py$/.test(name) && !name.includes("__pycache__"))
+  .sort()
+  .map((name) => `scripts/${name.split(path.sep).join("/")}`);
 
 const FULL_CHECKS = [
   {

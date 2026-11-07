@@ -74,7 +74,7 @@
     },
     {
       "label": "Writing a client.",
-      "text": "{{required-fields}} The Python SDK's docstring marks most of them optional {{divergence:required-fields-docstring}}. {{put-full-replace}}"
+      "text": "{{python-accessor}} {{required-fields}} The Python SDK's docstring marks most of them optional {{divergence:required-fields-docstring}}. {{put-full-replace}}"
     },
     {
       "label": "Token lifetime.",
@@ -492,6 +492,27 @@
           "quotes": [
             "In the Delete API Client window, read the confirmation message, enter CONFIRM, then click Delete.",
             "On the API Clients and AI Agents page, click the Edit icon for the required API client."
+          ]
+        }
+      ]
+    },
+    "python-accessor": {
+      "statement": "The Python SDK reaches API clients as `client.zid.api_client` (singular): the client's `zid` property returns a `ZIdService`, and its `api_client` property returns the `APIClientAPI`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "@property def zid(self): if self._zid is None: self._zid = ZIdService(self._request_executor) return self._zid"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/zid_service.py",
+          "quotes": [
+            "@property def api_client(self) -> APIClientAPI:",
+            "return APIClientAPI(self._request_executor)"
           ]
         }
       ]

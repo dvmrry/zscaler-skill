@@ -18,7 +18,7 @@ The product is **codified behavior**, not API access. An agent with live API key
 
 ## How it works
 
-About 1,000 subjects hold 8,000 claims, 1,600 open gaps and 390 divergences (where two vendor sources disagree), plus 190 tenant object types and their fields. Subjects link by typed edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in), most naming the claim that establishes them. An agent enters through the generated spine: with its file tools it reads `references/_meta/spine/<product>.json` (the product's areas and the areas their edges reach), then `references/_meta/spine/<product>/<area>.json` for the areas that bear on the question (each subject's opening fact and edges), and reads what it picked in one call:
+About 1,700 subjects hold 19,900 claims, 3,100 open gaps and 990 divergences (where two vendor sources disagree), plus 244 tenant object types and their fields. Subjects link by typed edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in), most naming the claim that establishes them. An agent enters through the generated spine: with its file tools it reads `references/_meta/spine/<product>.json` (the product's areas and the areas their edges reach), then `references/_meta/spine/<product>/<area>.json` for the areas that bear on the question (each subject's opening fact and edges), and reads what it picked in one call:
 
 ```bash
 node scripts/kb.mjs read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel   # areas, subjects, log fields

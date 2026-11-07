@@ -34,6 +34,9 @@
 //                                    the vendor's release notes for a product key, help-site section or alias,
 //                                    newest first (generated layer); dates are YYYY, YYYY-MM or YYYY-MM-DD; --grep
 //                                    keeps entries containing the text and prints their text, as --full does
+//   freshness [--days <n>] [--upstream] [--json]
+//                                    how old the cited vendor material is, per source and file (by its own date),
+//                                    flagging what is older than --days (365); --upstream adds each pin's newest release
 //
 // Exit codes: 0 ok, 1 validation failed, 2 usage error.
 import fs from "node:fs";
@@ -99,7 +102,7 @@ async function main(argv) {
     const since = option(args, "--since");
     const until = option(args, "--until");
     const grep = option(args, "--grep");
-    for (const d of [since, until]) if (d !== undefined && !/^\d{4}(-\d{2}(-\d{2})?)?$/.test(d)) usage(`--since and --until take YYYY, YYYY-MM or YYYY-MM-DD, not ${d}`);
+    for (const d of [since, until]) if (d !== undefined && !/^\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?)?$/.test(d)) usage(`--since and --until take YYYY, YYYY-MM or YYYY-MM-DD, not ${d}`);
     const product = args.find((a) => !a.startsWith("--"));
     if (!product && !grep) usage("releases needs a product or --grep");
     const { lookupReleases, releasesText } = await import("./kb-releases.mjs");

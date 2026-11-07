@@ -76,9 +76,10 @@ Company knowledge arrives through the resolver: with an overlay configured,
 `node scripts/kb.mjs resolve` merges its active records into each bundle as
 `layer: company` facets, so no workflow reads the overlay's files to find them.
 Follow [`docs/data-contract/knowledge.md`](../docs/data-contract/knowledge.md)
-for the answer-time disclosures. A missing overlay, or no facets, is silent; an
-invalid overlay is reported by `scripts/check-data-contract.mjs`, not at answer
-time.
+for the answer-time disclosures. With no overlay, or no facets, a bundle carries
+none. An overlay that cannot be opened, or whose `overlay.json` is invalid, is
+dropped with a warning (`read` also says so on stdout), and an invalid record is
+skipped with one; `scripts/check-data-contract.mjs` reports what is wrong.
 
 Researcher and auditor have a hard exclusion: their output is upstream-bound, so
 they resolve with `--no-overlay` and never load the overlay or the retired

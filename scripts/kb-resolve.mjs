@@ -1220,6 +1220,9 @@ function defaultOverlay(root) {
  */
 export function usableOverlay(g, ov) {
   const errors = validateOverlay(g, ov);
+  // A bad overlay.json (an unknown schema_version, a malformed iac entry) makes every record suspect: drop the overlay.
+  const config = errors.filter((e) => e.file === "overlay.json");
+  if (config.length) throw new Error(`overlay: ${path.join(ov.root, "overlay.json")}: ${config.map((e) => e.message).join("; ")}`);
   const bad = new Set();
   for (const e of errors) {
     console.error(e.pointer ? `overlay pointer unresolved (record kept): ${e.file}: ${e.message}` : `overlay record skipped: ${e.file}: ${e.message}`);
@@ -1228,19 +1231,22 @@ export function usableOverlay(g, ov) {
   return { ...ov, records: ov.records.filter((r) => !bad.has(r.file)) };
 }
 
-/** The overlay for a command, or null with a warning when it cannot be opened: public answers never fail on it. */
+/**
+ * The overlay for a command as { ov }, or { ov: null, failure } with a warning when it cannot be opened: public
+ * answers never fail on it, and `read` says why it is answering without one.
+ */
 function openOverlay(g, dir) {
   try {
-    return usableOverlay(g, loadOverlay(g, dir));
+    return { ov: usableOverlay(g, loadOverlay(g, dir)) };
   } catch (e) {
     console.error(`overlay not used (${e.message}); answering from the public graph only`);
-    return null;
+    return { ov: null, failure: e.message };
   }
 }
 
 export async function runCommand(root, g, cmd, args, { option, usage }) {
   const overlayDir = args.includes("--no-overlay") ? null : option(args, "--overlay") ?? process.env.ZSCALER_KB_OVERLAY ?? defaultOverlay(root);
-  const ov = overlayDir ? openOverlay(g, overlayDir) : null;
+  const { ov = null, failure = null } = overlayDir ? openOverlay(g, overlayDir) : {};
   if (cmd === "resolve") {
     // Compact JSON by default: indentation costs agents about a quarter of a bundle's tokens.
     const pretty = args.includes("--pretty");
@@ -1275,8 +1281,10 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay", "--overlay"].includes(a));
     if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links] [--overlay <dir> | --no-overlay]`);
     if (!ids.length) usage("read needs one or more area, subject or type IDs");
-    // Say when there is no overlay, so a reader does not go looking for company records or IaC.
-    if (!ov) process.stdout.write("No company overlay is configured: this is the public graph only.\n\n");
+    // Say when there is no overlay, so a reader does not go looking for company records or IaC, and when a configured
+    // one could not be used, so a broken overlay is not mistaken for none.
+    if (failure) process.stdout.write(`The company overlay could not be used (${failure}): this is the public graph only.\n\n`);
+    else if (!ov) process.stdout.write("No company overlay is configured: this is the public graph only.\n\n");
     process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1 }));
     return 0;
   }

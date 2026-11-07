@@ -35,7 +35,8 @@ for (const file of fs.readdirSync(HELP).filter((f) => f.endsWith(".json")).sort(
   } catch (e) {
     throw new Error(`${file}: ${e.message}`);
   }
-  const L = (layers[product] ||= { pages: {}, releases: [] });
+  layers[product] ||= { pages: {}, releases: [] };
+  const L = layers[product];
   L.pages[file] = {
     title: doc.title,
     url: doc.source.url,

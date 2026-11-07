@@ -350,7 +350,9 @@ for (const file of fs.readdirSync(HELP).filter((f) => f.endsWith(".json")).sort(
   for (const [p, ops] of Object.entries(sp.paths || {})) {
     for (const [m, op] of Object.entries(ops)) {
       if (!METHODS.includes(m)) continue;
-      const e = ((legacy.operations[p] ||= {})[m] ||= { pages: [], ...(op.summary ? { summary: op.summary } : {}) });
+      legacy.operations[p] ||= {};
+      legacy.operations[p][m] ||= { pages: [], ...(op.summary ? { summary: op.summary } : {}) };
+      const e = legacy.operations[p][m];
       if (!e.pages.includes(file)) e.pages.push(file);
       // The same path may sit under different page bases; any of them can match.
       const shapes = [...new Set(e.pages.flatMap((f) => [shape(p), shape(legacy.pages[f].base + p)]))];

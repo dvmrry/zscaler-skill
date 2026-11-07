@@ -584,6 +584,17 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   assert.equal(gone.status, 0);
   assert.match(gone.stderr, /overlay not used/);
   assert.match(gone.stdout, /\(zia\.api\.activation\)/);
+  // ...and says on stdout that it could not be used, not that none is configured.
+  assert.match(gone.stdout, /^The company overlay could not be used \(overlay: .*not found\): this is the public graph only\.$/m);
+  // An overlay.json the schema rejects drops the whole overlay, records and all.
+  const bad = fs.mkdtempSync(path.join(os.tmpdir(), "kb-bad-overlay-"));
+  fs.cpSync(OVERLAY, bad, { recursive: true });
+  const cfg = JSON.parse(fs.readFileSync(path.join(bad, "overlay.json"), "utf8"));
+  fs.writeFileSync(path.join(bad, "overlay.json"), JSON.stringify({ ...cfg, schema_version: 2 }));
+  const rejected = spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", bad, "--no-links", "zia.logs.web-rule-attribution"], { encoding: "utf8" });
+  assert.equal(rejected.status, 0);
+  assert.match(rejected.stdout, /^The company overlay could not be used/m);
+  assert.doesNotMatch(rejected.stdout, /zs_url_rule/, "no record of a rejected overlay is read");
 });
 
 test("resolve rejects an unknown flag instead of searching for it", () => {

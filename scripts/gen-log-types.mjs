@@ -259,7 +259,8 @@ function sessionCodes() {
       const [status, code, description, resolution] = row.map((c) => c.trim());
       const after = `| ${cell(status)} | ${cell(code)} |`;
       if (!cls || text.split(after).length !== 2) throw new Error(`gen-log-types: session status code ${code} has no class or no unique anchor`);
-      (out[code] ??= []).push({
+      out[code] ??= [];
+      out[code].push({
         help: { class: cls, session_status: status, description, ...(resolution ? { resolution } : {}) },
         evidence: { source: "zscaler-help", path: SESSION_CODES.src, after, quotes: [description, resolution].filter((q) => q.length >= 8).map((q) => clip(cell(q))) },
       });
@@ -297,7 +298,8 @@ function policyReasons() {
         if (text.split(q).length !== 2) throw new Error(`gen-log-types: policy reason row "${reason}" has no unique anchor`);
         evidence = { source: "zscaler-help", path: POLICY_REASONS.src, quotes: [q] };
       }
-      const r = (out[reason] ??= { rows: [], evidence: [] });
+      out[reason] ??= { rows: [], evidence: [] };
+      const r = out[reason];
       r.rows.push({ feature, description });
       r.evidence.push(evidence);
     }
@@ -372,7 +374,8 @@ for (const [feed, meta] of Object.entries(FEEDS)) {
     const name = m[3];
     const evidence = meta.sections ? rowEvidence(src, row, headingLine, text) : (q => q && { source: "zscaler-help", path: src, quotes: [q] })(quoteFor(row, text));
     if (meta.sections) {
-      const s = (sections[name] ??= { in: [], variants: [] });
+      sections[name] ??= { in: [], variants: [] };
+      const s = sections[name];
       if (!s.in.includes(heading)) s.in.push(heading);
       if (!s.variants.some((v) => v.description === cells.Description.trim())) s.variants.push({ heading, description: cells.Description.trim(), evidence });
     }
