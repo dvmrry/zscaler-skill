@@ -45,6 +45,11 @@ mkdir -p ~/.claude/skills
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
+The skill's commands (`node scripts/kb.mjs read ...`) and spine paths are relative to the repository root, and the
+agent runs them as written, so start the session in the checkout (or a worktree of it). From another project
+directory the relative commands do not resolve; an absolute path to `scripts/kb.mjs` works, but only where your
+permission rules allow it.
+
 That is enough for grounded Q&A from the committed knowledge graph. Maintainers
 who audit source provenance, refresh references, or run the researcher workflow
 should also initialize the pinned upstream source repositories:

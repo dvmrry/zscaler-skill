@@ -92,10 +92,8 @@ only when the first points at something the answer needs). Many runtimes stop fo
    IaC files or values they point to. When the answer depends on our setup, open those IaC files with your file
    tools and search them for the objects the question names.
 
-Run each command bare: no `cd`, no pipe, no redirect. Paths here are relative to this skill's directory (the
-repository root); when the working directory is elsewhere, as with the skill installed under `~/.claude/skills`,
-write them from that directory (`node <skill directory>/scripts/kb.mjs read ...`), still as one bare command.
-Permission checks approve a bare command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
+Run each command bare, from the repo root, exactly as written (`node scripts/kb.mjs read ...`): no `cd`, no pipe,
+no redirect, no absolute path. Permission checks approve a bare command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
 `node -e`. A refused command says only that its form was wrong, not that the shell is off: run `node scripts/kb.mjs
 read ...` bare next, and never answer from the spine alone. When a command's output is long and the runtime saves
 it to a file, open that file with your file tool, never with `cat`, `grep` or another shell command.
