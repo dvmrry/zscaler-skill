@@ -531,7 +531,7 @@
       ]
     },
     "pra-update-sends-remote-values": {
-      "statement": "On a PRA segment update, every nested app whose domain already exists remotely is rebuilt from the remote object (name, enabled, port, protocol, connection security, domain, description). The configured values for that app are used only to decide whether its domain is still present. Only apps with a new domain are taken from the configuration. A change to an existing app's port, protocol, connection security, name or description is therefore not sent.",
+      "statement": "On a PRA segment update, every configured nested app is sent. If its domain already exists remotely, its IDs, enabled, and description are taken from the remote object, and its name is taken from the configured name if present, otherwise the remote name; its port, protocol, connection security, and domain are taken from the configuration. Apps whose configured domain is not present remotely are sent with empty IDs, and remote apps whose domain is no longer configured are marked for deletion. A change to an existing app's enabled or description is therefore not sent, while changes to port, protocol, connection security, or name are sent.",
       "tier": "A",
       "binds": [
         "zpa/pra-app-segments#praApps"
@@ -540,20 +540,13 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
-          "at": [
-            "v4.4.10",
-            "HEAD"
-          ],
           "after": "func expandSRAApplicationSegment(",
           "quotes": [
-            "if existing != nil {",
-            "if _, found := currentHCLDomains[domain]; found { app := applicationsegmentpra.AppsConfig{ AppID: pra.AppID, PRAAppID: pra.ID, Name: pra.Name, Enabled: pra.Enabled, AppTypes: []string{\"SECURE_REMOTE_ACCESS\"}, ApplicationPort: pra.ApplicationPort,",
-            "ApplicationPort: pra.ApplicationPort, ApplicationProtocol: pra.ApplicationProtocol, ConnectionSecurity: pra.ConnectionSecurity, Domain: pra.Domain, Description: pra.Description, } fullAppsConfig = append(fullAppsConfig, app) } else {",
-            "if _, exists := existingDomains[app.Domain]; !exists {",
-            "existingDomains[pra.Domain] = pra",
-            "for _, app := range hclDefinedDto.AppsConfig { currentHCLDomains[app.Domain] = struct{}{} }",
-            "if _, exists := existingDomains[app.Domain]; !exists { fullAppsConfig = append(fullAppsConfig, app) }",
-            "details.CommonAppsDto.AppsConfig = fullAppsConfig"
+            "hclDefinedDto := expandCommonAppsDto(d)",
+            "// Merge the configured apps with the ones that already exist, matched by // domain: an existing app keeps its IDs and is sent with the configured // values; an app no longer configured is sent in deletedPraApps.",
+            "app.Name = configuredNames[app.Domain] if pra, found := existingDomains[app.Domain]; found { app.AppID = pra.AppID app.PRAAppID = pra.ID app.Enabled = pra.Enabled app.Description = pra.Description if app.Name == \"\" { app.Name = pra.Name } }",
+            "if _, found := currentHCLDomains[pra.Domain]; !found { details.CommonAppsDto.DeletedPraApps = append(details.CommonAppsDto.DeletedPraApps, pra.ID) }",
+            "ApplicationPort: appConfigMap[\"application_port\"].(string), ApplicationProtocol: appConfigMap[\"application_protocol\"].(string), ConnectionSecurity: appConfigMap[\"connection_security\"].(string),"
           ]
         },
         {
@@ -1186,22 +1179,18 @@
       ]
     },
     "pra-update-returns-read-after-update": {
-      "statement": "The PRA segment update's error returns cover only its initial Get, the app ID step, port validation and the SDK Update; on its normal path it ends by returning the result of a Read, with no comparison of the configured nested apps against what was sent.",
+      "statement": "The PRA segment update's error returns cover only its initial Get, port validation and the SDK Update; on its normal path it ends by returning the result of a Read, with existing apps matched by domain to keep their IDs but no comparison of the configured nested apps against what was sent.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
-          "at": [
-            "v4.4.10",
-            "HEAD"
-          ],
           "after": "func resourceApplicationSegmentPRAUpdate(",
           "quotes": [
             "_, err = applicationsegmentpra.Update(ctx, service, id, &req)",
             "return resourceApplicationSegmentPRARead(ctx, d, meta)",
             "return diag.FromErr(fmt.Errorf(\"error retrieving application segment: %v\", err))",
-            "return diag.FromErr(fmt.Errorf(\"error setting app_id and pra_app_id in common_apps_dto: %v\", err))",
+            "// Prepare the request payload for the update. Apps that already exist keep // their app_id and pra_app_id, matched by domain.",
             "if err := validateAppPorts(req.SelectConnectorCloseToApp, req.UDPAppPortRange, req.UDPPortRanges); err != nil { return diag.FromErr(err) }",
             "return diag.FromErr(fmt.Errorf(\"error updating application segment: %v\", err)) } return resourceApplicationSegmentPRARead(ctx, d, meta)"
           ]

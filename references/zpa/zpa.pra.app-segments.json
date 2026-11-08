@@ -185,7 +185,7 @@
       ]
     },
     "tf-app-types-forced": {
-      "statement": "The Terraform PRA segment resource sets app_types to SECURE_REMOTE_ACCESS on each existing PRA app it keeps when it updates a segment, and on every PRA app it reads back into state.",
+      "statement": "When it updates a segment, the Terraform PRA segment resource sets app_types to SECURE_REMOTE_ACCESS on each configured PRA app whose app_types is empty, and it sets app_types to SECURE_REMOTE_ACCESS on every PRA app it reads back into state.",
       "tier": "A",
       "binds": [
         "zpa/pra-app-segments#praApps"
@@ -195,10 +195,7 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
           "quotes": [
-            "if existing != nil {",
-            "// Rebuild apps from existing state: keep only apps still present in HCL; mark removed ones for deletion",
-            "if _, found := currentHCLDomains[domain]; found {",
-            "AppTypes:            []string{\"SECURE_REMOTE_ACCESS\"},"
+            "if len(app.AppTypes) == 0 { app.AppTypes = []string{\"SECURE_REMOTE_ACCESS\"} } fullAppsConfig = append(fullAppsConfig, app)"
           ]
         },
         {

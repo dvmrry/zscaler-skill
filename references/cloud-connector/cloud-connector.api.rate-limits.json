@@ -235,7 +235,8 @@
             "resp, err := c.HTTPClient.Do(req) logger.LogResponse(c.Logger, resp, start, reqID)",
             "resp.Body = ioutil.NopCloser(bytes.NewBuffer(body))",
             "resp, err = c.HTTPClient.Do(req) logger.LogResponse(c.Logger, resp, start, reqID)",
-            "resp.Body.Close() if resp.StatusCode > 299 && resp.StatusCode != http.StatusUnauthorized { return nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode)) }",
+            "resp.Body.Close() // A DELETE that an earlier attempt may have applied is done: the // object is gone, which is what the caller asked for.",
+            "if resp.StatusCode > 299 && resp.StatusCode != http.StatusUnauthorized { return nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode)) }",
             "logger := logger.GetDefaultLogger(loggerPrefix)"
           ]
         },
