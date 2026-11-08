@@ -38,6 +38,10 @@ file, sorted into broken, in changed text and untouched), runs `scripts/find-asy
 the vendor impact summary plus asymmetry candidates as artifacts. Use this for
 Renovate and submodule PR triage before merging.
 
+`.github/workflows/bump-regenerate.yml` runs on Renovate's bump PRs. It
+regenerates the layers built from vendored sources and commits them to the
+bump's branch, so what the gate still fails on is quotes the new code broke.
+
 `.github/workflows/refresh-discovery.yml` is the cheap daily publication scan.
 It runs `npm run refresh:discovery` with temporary JSON and Markdown report
 paths, restores the most recent successful observation baseline through the
@@ -92,7 +96,8 @@ Keep scratch output outside the checkout (`$TMP` below).
 5. **Generated layers.** `node scripts/gen-surfaces.mjs all` (or one product) after a spec capture or an SDK or
    provider pin changes, `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes, and
    `node scripts/gen-releases.mjs` after a release-note page changes; each takes `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` (needs Go) and
-   `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`.
+   `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`: rewrite them with
+   `node scripts/regen-goldens.mjs` and read the diff.
 6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
    `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.
 6a. **Retrieval.** `node scripts/kb-retrieval.mjs` reports how a plain-question resolve ranks each eval's gold
@@ -200,8 +205,27 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
   exact released tag, so claims cite a version that shipped. Nothing here runs
   the vendored modules or providers; a bump of any of them is reviewed with
   `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
+- On a Renovate bump PR, `bump-regenerate.yml` regenerates the layers built
+  from vendored sources on the bump's branch and commits them:
+  - the API surfaces;
+  - the zscalerctl import and config types;
+  - the resolve goldens;
+  - the spines and `verified.json`.
+
+  It dispatches the required checks, since its push starts no workflows.
+  Renovate leaves the branch alone after that, and the next bump comes once
+  this one merges.
 - A bump PR runs the full gate. A quote that no longer anchors at the new pin
   fails it: that is a real source change to re-anchor on the bump branch.
+  `node scripts/kb-reanchor.mjs --base main` does this for code too. It
+  compares the file at the old pin with the new, re-anchors broken `after`
+  context anchors, and for a claim about one version keeps the quote and pins
+  the evidence to that version (`old_version`).
+
+  Refactored code needs a careful reviewer: a re-quote can be valid text from
+  the wrong function. Review its `--json` output, edit it where it is wrong,
+  and apply exactly that with `--apply <file.json>`. Re-running would ask
+  the model again, and its decisions differ from run to run.
 - `vendor-impact.yml` also runs on vendor PRs. Read its PR comment first: it
   contains the submodule commit logs and the pin review, whose in-change list
   is the evidence to read against its claims even when nothing is broken. The
