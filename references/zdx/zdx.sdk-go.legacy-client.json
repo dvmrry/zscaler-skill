@@ -261,7 +261,7 @@
       ]
     },
     "global-limiter": {
-      "statement": "The client's configuration installs a global limiter of 100 requests per 60 seconds with an additional 5-second delay on `cfg.HTTPClient`, the client the sign-in request uses; each API request instead builds a fresh retrying client with `getHTTPClient` and no rate limiter, whose transport is a plain `http.Transport`.",
+      "statement": "The client's configuration installs a global limiter of 100 requests per 60 seconds with an additional 5-second delay on `cfg.HTTPClient`, the client the sign-in request uses; each API request instead builds a fresh retrying client with `getHTTPClient` and no rate limiter, whose transport is a plain `http.Transport` wrapped by `errorx.TrackAttempts`.",
       "tier": "A",
       "evidence": [
         {
@@ -300,7 +300,7 @@
           "quotes": [
             "httpClient := getHTTPClient(client.Config.Logger, nil, client.Config)",
             "transport := &http.Transport{",
-            "retryableClient.HTTPClient.Transport = transport"
+            "retryableClient.HTTPClient.Transport = errorx.TrackAttempts(transport)"
           ]
         }
       ]
