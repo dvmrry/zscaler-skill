@@ -175,7 +175,15 @@ empties the record when the next run is recorded, so record any run in flight fi
 - **Before merging**, fix what the gate fails on. Broken evidence fails the
   gate on that pull request:
   - re-anchor it on the branch, or turn the claim into a gap when the source
-    no longer says it;
+    no longer says it. `node scripts/kb-reanchor.mjs --base main --write`
+    does the re-anchoring for capture quotes. It is given `KB_MODEL_ENDPOINT`
+    and `KB_MODEL`, any OpenAI-compatible endpoint, plus `KB_MODEL_API_KEY` if
+    that endpoint needs one. For each broken quote it shows the model the old
+    passage and the same part of the new page. It takes only new quotes that
+    occur exactly once in the page, restates a claim only on a restate
+    decision, and regenerates the spines and `verified.json`. It leaves what
+    the page no longer supports for a person. Read its `--report` before
+    committing;
   - read every in-change entry against its claim;
   - run the claim audit on the claims you touched.
 
