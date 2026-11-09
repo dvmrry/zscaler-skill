@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
-import { approvals, ENTRIES, harness, loadQuestions, mismatch, PROMPT, parseRun, promptFor, reached, setFile, setFiles } from "./kb-eval.mjs";
+import { approvals, ENTRIES, harness, loadQuestions, MODEL, mismatch, PROMPT, parseRun, promptFor, reached, setFile, setFiles, shellCalls, verdictOf } from "./kb-eval.mjs";
 
 const line = (o) => JSON.stringify(o);
 const TRANSCRIPT = [
@@ -28,6 +28,20 @@ test("approvals count shell calls with any segment that is not read-only search"
   assert.equal(approvals([bash("node scripts/kb.mjs read zia"), bash("cat a.json && node -e 'x'"), bash("F=x; grep y $F")]), 3);
 });
 
+test("shell calls count every Bash call, read-only or not", () => {
+  const bash = (command) => ({ name: "Bash", input: { command } });
+  assert.equal(shellCalls([bash("ls references"), bash("cat a.md"), bash("node scripts/kb.mjs read zia"), { name: "Read", input: {} }, { name: "Grep", input: {} }]), 3);
+});
+
+test("a verdict reads from a result object or from a list of events, and is null when there is none", () => {
+  const result = { type: "result", result: 'Here it is: {"1": true, "2": false}' };
+  assert.deepEqual(verdictOf(JSON.stringify(result)), { 1: true, 2: false });
+  assert.deepEqual(verdictOf(JSON.stringify([{ type: "system", subtype: "init" }, { type: "assistant" }, result])), { 1: true, 2: false });
+  assert.equal(verdictOf(JSON.stringify([{ type: "system" }])), null, "a list with no result");
+  assert.equal(verdictOf(JSON.stringify({ type: "result", result: "no JSON here" })), null);
+  assert.equal(verdictOf(""), null, "no output at all");
+});
+
 test("a holder is reached by its printed ID, or by its key inside its subject file", () => {
   const { ctx } = parseRun(TRANSCRIPT);
   assert.ok(reached(ctx, "zia.url-filtering.rule-order:first-match"));
@@ -41,6 +55,8 @@ test("runs compare only under the same harness, whatever the ref", () => {
   assert.deepEqual(mismatch(a, b), []);
   assert.deepEqual(mismatch(a, { ...b, claude_version: "2.1.314 (Claude Code)" }), ["claude_version"]);
   assert.deepEqual(mismatch(a, harness([{ id: "other" }], "2.1.308 (Claude Code)")), ["facts_sha"]);
+  assert.equal(harness([], "").model, MODEL);
+  assert.deepEqual(mismatch(a, { ...b, ...harness([{ id: "q" }], "2.1.308 (Claude Code)", "us.anthropic.claude-haiku-5-5") }), ["model"]);
 });
 
 test("an entry changes only the file the prompt names, and every entry file exists", () => {
