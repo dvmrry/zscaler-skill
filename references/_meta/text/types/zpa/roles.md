@@ -1,0 +1,19 @@
+# zpa/roles (zpa/roles)
+- Names: zscalerctl `zpa roles`
+- Live read (read-only): `zscalerctl zpa roles list`
+- apiKeys
+- bypassRemoteAssistanceCheck
+- classPermissionGroups
+- creationTime
+- customRole
+- description
+- id
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- permissions
+- restrictedRole
+- systemRole
+- users

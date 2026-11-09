@@ -1,0 +1,3 @@
+# Timed out while waiting for a config: a policy reason of ZIA web log (NSS web feed) (zia/web-log#reason)
+- Firewall Filtering: This implicit rule action is logged when the Service Edge for Internet & SaaS (ZIA) has established a connection with the CA but the requested configuration does not arrive from the CA within the expected time period (typically 5 seconds). This might occur when traffic flow from a specific user or location arrives at the Service Edge for the first time and a connection to the CA is established but there is no response from the CA within the expected time frame.
+- Source: `vendor/zscaler-help/zia-policy-reasons.json:117`

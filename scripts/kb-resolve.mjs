@@ -564,7 +564,7 @@ function neighborsOf(g, subjectId) {
   return out.sort((a, b) => order[a.rel] - order[b.rel] || a.id.localeCompare(b.id));
 }
 
-function titleOf(g, id) {
+export function titleOf(g, id) {
   const n = g.nodes.get(id);
   return n?.data?.title || n?.data?.statement || id;
 }
@@ -852,7 +852,7 @@ export function subjectMap(g, prefixes = []) {
  * One subject as reading text: prose with every claim inlined and marked with its citable ID, the claims the prose
  * does not carry, and the open gaps. No evidence quotes: they are for verifying a claim, not for answering.
  */
-function readSubject(g, id) {
+export function readSubject(g, id) {
   const s = g.nodes.get(id).data;
   const { text, order } = renderProse(g, id, { footnotes: false, qualified: true });
   const parts = [`# ${s.title} (${id})`, text];
@@ -883,7 +883,7 @@ function readSubject(g, id) {
 }
 
 /** A type as reading text: one line per field, or per field in `paths`. */
-function readType(g, id, paths = null) {
+export function readType(g, id, paths = null) {
   const t = g.nodes.get(id).data;
   const head = [];
   const names = Object.entries(t.names || {}).map(([k, v]) => `${k} \`${v}\``);
@@ -965,7 +965,26 @@ const AREA_TOKENS = 20000;
 
 // How strongly `read` follows each edge type: the mechanisms that settle an outcome first, prose links next.
 // see-also and configured-via are listed by title, not read; so is any type (a log's field list is long).
-const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-on": 3, "reached-via": 3, "logged-in": 3, "links-to": 2, "configured-via": 0, "see-also": 0 };
+export const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-on": 3, "reached-via": 3, "logged-in": 3, "links-to": 2, "configured-via": 0, "see-also": 0 };
+
+/**
+ * What is one hop from the subjects in `from` (subjects and types not in `seen`), most strongly linked first: each
+ * with the summed weight of the edges pointing at it and those edges, each with the subject it leaves from.
+ */
+export function neighbours(g, from, seen = new Set(from)) {
+  const votes = new Map();
+  for (const id of from) {
+    if (g.nodes.get(id).kind !== "subject") continue;
+    for (const e of edgesOf(g, id)) {
+      if (seen.has(e.to) || !FOLLOW[e.rel]) continue;
+      const v = votes.get(e.to) || { w: 0, edges: [] };
+      v.w += FOLLOW[e.rel];
+      v.edges.push({ ...e, from: e.via || id });
+      votes.set(e.to, v);
+    }
+  }
+  return [...votes.entries()].sort((a, b) => b[1].w - a[1].w || a[0].localeCompare(b[0]));
+}
 
 /**
  * A subject's outgoing edges: its typed `related` entries, the typed edges of the hubs above it (a child shares what
@@ -993,28 +1012,37 @@ function edgesOf(g, id) {
  * `zia.ssl-inspection`, `zpa`), which reads that subject and every subject under it. The subjects those point to are
  * read next, the ones most of the reading set points to first, until `budget` tokens; every other neighbour prints as
  * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
- * about it.
+ * about it. `company` keeps only those records, for a reader that has the public text already (scripts/gen-text.mjs
+ * writes it as files): no hop, and an area reads every subject under it however large.
  *
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
  */
-export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS } = {}) {
+export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS, company = false } = {}) {
+  if (company) {
+    hops = 0;
+    areaTokens = Infinity;
+  }
   const out = [];
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
   if (repos.length) out.push(`IaC repos: ${repos.map((r) => `${r.id} = ${r.path}/${r.committed ? ` (last commit ${r.committed})` : ""}`).join("; ")}`);
   const missing = (ov?.iacRepos || []).filter((r) => !r.available);
   if (missing.length) out.push(`IaC repos not checked out: ${missing.map((r) => `${r.id} (${r.path})`).join("; ")}`);
-  if (ov?.config.live) out.push(`Live tier: ${ov.config.live.tool} is declared; each config type below names its read-only command`);
+  if (ov?.config.live) out.push(`Live tier: ${ov.config.live.tool} is declared; each config type ${company ? `(${META}/text/types/<type id>.md)` : "below"} names its read-only command`);
   const seen = new Set();
   const shown = new Set(); // company records already printed in this read
+  let records = 0;
   const emit = (id) => {
     seen.add(id);
     const n = g.nodes.get(id);
     const text = n.kind === "type" ? readType(g, id) : readSubject(g, id);
-    out.push(text);
-    const company = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
-    if (company) out.push(`Company records:\n${company}`);
+    if (!company) out.push(text);
+    const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
+    if (about) {
+      out.push(company ? `Company records about ${id}:\n${about}` : `Company records:\n${about}`);
+      records++;
+    }
     return text.length / 4;
   };
   const fields = new Map();
@@ -1023,11 +1051,11 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // old ledger ID (`zia-02`).
     let arg = given.replace(/^(gap|divergence):/, "");
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
-      out.push(readStatusCode(g, arg));
+      if (!company) out.push(readStatusCode(g, arg));
       continue;
     }
     if (!g.nodes.has(arg) && g.policyReasons.has(arg.toLowerCase())) {
-      out.push(readPolicyReason(g, arg.toLowerCase()));
+      if (!company) out.push(readPolicyReason(g, arg.toLowerCase()));
       continue;
     }
     if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);
@@ -1061,24 +1089,17 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   for (const [type, paths] of fields) {
     // A type already read whole holds the fields named with it.
     if (seen.has(type)) continue;
-    out.push(readType(g, type, paths));
-    const company = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
-    if (company) out.push(`Company records:\n${company}`);
+    if (!company) out.push(readType(g, type, paths));
+    const about = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
+    if (about) {
+      out.push(company ? `Company records about ${paths.map((p) => `${type}#${p}`).join(", ")}:\n${about}` : `Company records:\n${about}`);
+      records++;
+    }
   }
+  if (company && ov && !records) out.push(`No company records are about ${args.join(", ")} or what it binds.`);
   for (let hop = 0; hop < hops; hop++) {
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
-    const votes = new Map();
-    for (const id of seen) {
-      if (g.nodes.get(id).kind !== "subject") continue;
-      for (const e of edgesOf(g, id)) {
-        if (seen.has(e.to) || !FOLLOW[e.rel]) continue;
-        const v = votes.get(e.to) || { w: 0, edges: [] };
-        v.w += FOLLOW[e.rel];
-        v.edges.push({ ...e, from: e.via || id });
-        votes.set(e.to, v);
-      }
-    }
-    const ranked = [...votes.entries()].sort((a, b) => b[1].w - a[1].w || a[0].localeCompare(b[0]));
+    const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
     out.push(`## Linked subjects (one hop from what was read)`);
     let spent = 0;
@@ -1100,7 +1121,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
 }
 
 /** A heading and as many lines as fit in `room` characters, then a count of the rest. */
-function fit(head, lines, room, what) {
+export function fit(head, lines, room, what) {
   const kept = [];
   let size = head.length;
   for (const l of lines) {
@@ -1305,14 +1326,17 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
   }
   if (cmd === "read") {
     const ids = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--overlay");
-    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay", "--overlay"].includes(a));
-    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links] [--overlay <dir> | --no-overlay]`);
+    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--company", "--no-overlay", "--overlay"].includes(a));
+    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links | --company] [--overlay <dir> | --no-overlay]`);
     if (!ids.length) usage("read needs one or more area, subject or type IDs");
+    // --company: only the company records, for a reader that read the public text from references/_meta/text/.
+    const company = args.includes("--company");
     // Say when there is no overlay, so a reader does not go looking for company records or IaC, and when a configured
     // one could not be used, so a broken overlay is not mistaken for none.
-    if (failure) process.stdout.write(`The company overlay could not be used (${failure}): this is the public graph only.\n\n`);
-    else if (!ov) process.stdout.write("No company overlay is configured: this is the public graph only.\n\n");
-    process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1 }));
+    if (failure) process.stdout.write(`The company overlay could not be used (${failure}): ${company ? "there are no company records to read" : "this is the public graph only"}.\n\n`);
+    else if (!ov) process.stdout.write(`No company overlay is configured: ${company ? "there are no company records to read" : "this is the public graph only"}.\n${company ? "" : "\n"}`);
+    if (company && !ov) return 0;
+    process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1, company }));
     return 0;
   }
   if (cmd === "render") {

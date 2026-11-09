@@ -1,0 +1,19 @@
+# zia/browser-control-settings (zia/browser-control-settings)
+- Names: zscalerctl `zia browser-control-settings`; terraform `zia_browser_control_policy`; terraform_data_source `zia_browser_control_policy`
+- Live read (read-only): `zscalerctl zia browser-control-settings show`
+- allowAllBrowsers
+- blockedChromeVersions
+- blockedFirefoxVersions
+- blockedInternetExplorerVersions
+- blockedOperaVersions
+- blockedSafariVersions
+- bypassAllBrowsers
+- bypassApplications
+- bypassPlugins
+- enableSmartBrowserIsolation
+- enableWarnings
+- pluginCheckFrequency
+- smartIsolationGroups
+- smartIsolationProfile
+- smartIsolationProfileId
+- smartIsolationUsers

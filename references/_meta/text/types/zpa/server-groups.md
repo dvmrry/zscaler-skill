@@ -1,0 +1,23 @@
+# zpa/server-groups (zpa/server-groups)
+- Names: zscalerctl `zpa server-groups`; terraform `zpa_server_group`; terraform_data_source `zpa_server_group`
+- Live read (read-only): `zscalerctl zpa server-groups list`
+- appConnectorGroups
+- applications
+- configSpace
+- creationTime
+- description
+- dynamicDiscovery
+- enabled
+- extranetDTO
+- extranetEnabled
+- id
+- ipAnchored
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- readOnly
+- restrictionType
+- servers
+- zscalerManaged

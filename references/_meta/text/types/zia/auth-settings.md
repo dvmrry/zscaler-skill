@@ -1,0 +1,16 @@
+# zia/auth-settings (zia/auth-settings)
+- Names: zscalerctl `zia auth-settings`
+- Live read (read-only): `zscalerctl zia auth-settings list`
+- authCustomFrequency
+- authFrequency
+- autoProvision
+- directorySyncMigrateToScimEnabled
+- kerberosEnabled
+- lastSyncEndTime
+- lastSyncStartTime
+- mobileAdminSamlIdpEnabled
+- oneTimeAuth
+- orgAuthType
+- passwordExpiry
+- passwordStrength
+- samlEnabled

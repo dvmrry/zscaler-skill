@@ -1,0 +1,15 @@
+# zia/dlp-global-options (zia/dlp-global-options)
+- Names: zscalerctl `zia dlp-global-options`; terraform `zia_dlp_global_options`; terraform_data_source `zia_dlp_global_options`
+- Live read (read-only): `zscalerctl zia dlp-global-options show`
+- applications
+- enableCasbOcr
+- enableEdmPopularFormat
+- enableEmailDlpOcr
+- enableEvaluateAllDlpRules
+- enableInlineDlpOcr
+- enableNpkEdmTemplates
+- enableNpkEdmTemplatesForOrg
+- exemptUrlEncodedData
+- httpGetCustomUrlCategories
+- urlCategories
+- urls

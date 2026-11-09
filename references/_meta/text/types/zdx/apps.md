@@ -1,0 +1,11 @@
+# zdx/apps (zdx/apps)
+- Names: zscalerctl `zdx apps`
+- Live read (read-only): `zscalerctl zdx apps report`
+- id
+- metrics
+- most_impacted_region
+- name
+- score
+- score_trend
+- stats
+- total_users

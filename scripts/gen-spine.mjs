@@ -8,7 +8,8 @@
 //   <product>/<area>.json  every subject of the area with its title, its lead (its opening claim) and its typed
 //                          edges to other subjects.
 // An agent reads the product file, opens the area files that bear on the question, picks subjects by their leads
-// and edges, and reads those with `kb.mjs read`. Everything comes from the subject files; nothing is hand-written.
+// and edges, and reads those subjects' text files (scripts/gen-text.mjs). Everything comes from the subject files;
+// nothing is hand-written.
 //
 // Usage: node scripts/gen-spine.mjs [--check]
 //   --check  exit 1 if a committed spine file differs from what the subject files generate.
@@ -66,10 +67,10 @@ export function spineFiles(g) {
       generated_by: "scripts/gen-spine.mjs",
       open: `an area's subjects are in references/_meta/spine/${spine.product}/<area id>.json, e.g. references/_meta/spine/${spine.product}/${spine.areas[0].id}.json`,
       size: "tokens is about what reading the area costs, before linked subjects; from an area over about 10000, read single subjects",
-      ...(logTypes.length ? { log_fields: "read a log type, or only some of its fields: kb.mjs read <type>#<field> ..." } : {}),
+      ...(logTypes.length ? { log_fields: `a log type with every field: ${META}/text/types/<type id>.md` } : {}),
     }, { areas: spine.areas.filter((a) => !isRef(a)).map((a) => areaEntry(g, a)), log_types: logTypes, reference_areas: spine.areas.filter(isRef).map((a) => areaEntry(g, a)) });
     for (const a of spine.areas) {
-      files[`${spine.product}/${a.id}.json`] = lines({ area: a.id, title: a.title || a.id, read_with: "node scripts/kb.mjs read <subject> ..." }, { subjects: a.subjects });
+      files[`${spine.product}/${a.id}.json`] = lines({ area: a.id, title: a.title || a.id, read_with: `${META}/text/${spine.product}/<subject id>.md` }, { subjects: a.subjects });
     }
   }
   return files;

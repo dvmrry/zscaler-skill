@@ -1,0 +1,21 @@
+# What DNS search domains do for application segments and how they must match (zpa.app-segments.dns-search-domains)
+Also called: DNS search domains; dns search suffix; Domain Validation in Client Connector; shortname hosts; trailing dot search domain
+
+DNS search domains can be added as suffixes to application names to create fully qualified domain names, analogous to the DNS search suffixes in a DHCP scope for adding suffixes to non-FQDN (shortname) hosts, and they are processed in sequence in Zscaler Client Connector. [zpa.app-segments.dns-search-domains:purpose] Defining DNS search domains for applications is not required, but when you configure an application segment, the FQDNs or wildcard discovery domains you enter must match your DNS search domains. [zpa.app-segments.dns-search-domains:must-match]
+
+**Tenants and entries.** DNS search domains are unique per customer, and when configuring Microtenants, DNS search domains that are added in the default tenant are inherited across Microtenants. [zpa.app-segments.dns-search-domains:microtenants] A trailing dot is not supported when adding DNS search domains; for example, the domain example.safemarch.com. is not valid. [zpa.app-segments.dns-search-domains:no-trailing-dot] The suffix limit and what in-sequence processing means are open [gap:zpa.app-segments.dns-search-domains:suffix-limits].
+
+**Domain Validation.** The Domain Validation in Client Connector checkbox makes Zscaler Client Connector resolve invalid domains as NXDOMAIN (non-existent domain), and the page says the setting only applies when running Client Connector 1.5.1 or later. [zpa.app-segments.dns-search-domains:domain-validation-version] How a domain is then matched and answered is in [Which application segment a destination maps to when several overlap](kb:zpa.app-segments.matching).
+
+**Discovery and shortnames.** If you are enabling application discovery for domains, the page advises matching the DNS search domains for your organization, which ensures that users accessing applications as host shortnames have the domain suffixes appended and an FQDN is sent through for application discovery. For applications that users access using host names (for example DFS), DNS search suffixes should be configured so that Private Access can automatically add the search domain to the host name. [zpa.app-segments.dns-search-domains:discovery-and-shortnames]
+
+Not known (open gaps):
+- The limit on DNS search domains, what processed in sequence means, and the platform behind the 1.5.1 floor [gap:zpa.app-segments.dns-search-domains:suffix-limits]: settled by source-read or support-ticket
+
+Area: zpa.app-segments, its subjects in references/_meta/spine/zpa/zpa.app-segments.json
+
+Linked (open a file only if the answer needs it):
+- decided-by references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap), from zpa.app-segments: Granularity is judged on the domain or address: an exact host is more specific than a wildcard that contains it, and for IPs a /32 host is more specific than the /24 that contains it. [zpa.app-segments.matching:granularity-ranking]
+- decided-by references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks), from zpa.app-segments: The Bypass setting within an application segment always takes precedence over any newly added client forwarding policy rule. [zpa.app-segments.bypass:bypass-beats-cfp]
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types), from zpa.app-segments: When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria. [zpa.policy.evaluation-order:segment-then-rules]
+- decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]

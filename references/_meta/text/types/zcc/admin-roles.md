@@ -1,0 +1,41 @@
+# zcc/admin-roles (zcc/admin-roles)
+- Names: zscalerctl `zcc admin-roles`; terraform_data_source `zcc_admin_roles`
+- Live read (read-only): `zscalerctl zcc admin-roles list`
+- adminManagement
+- administratorGroup
+- androidProfile
+- appBypass
+- appProfileGroup
+- auditLogs
+- authSetting
+- clientConnectorAppStore
+- clientConnectorIdp
+- clientConnectorNotifications
+- clientConnectorSupport
+- companyId
+- createdBy
+- dashboard
+- ddilConfiguration
+- dedicatedProxyPorts
+- deviceGroups
+- deviceOverview
+- devicePosture
+- enrolledDevicesGroup
+- forwardingProfile
+- id
+- iosProfile
+- isEditable
+- linuxProfile
+- macProfile
+- machineTunnel
+- obfuscateData
+- partnerDeviceOverview
+- publicApi
+- roleName
+- trustedNetwork
+- updatedBy
+- userAgent
+- windowsProfile
+- zpaPartnerLogin
+- zscalerDeception
+- zscalerEntitlement

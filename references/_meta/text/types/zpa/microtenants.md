@@ -1,0 +1,18 @@
+# zpa/microtenants (zpa/microtenants)
+- Names: zscalerctl `zpa microtenants`; terraform `zpa_microtenant_controller`; terraform_data_source `zpa_microtenant_controller`
+- Live read (read-only): `zscalerctl zpa microtenants list`
+- creationTime
+- criteriaAttribute
+- criteriaAttributeValues
+- description
+- enabled
+- id
+- modifiedBy
+- modifiedTime
+- name
+- operator
+- priority
+- privilegedApprovalsEnabled
+- roles
+- user
+- user.microtenantId

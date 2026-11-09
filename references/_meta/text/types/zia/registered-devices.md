@@ -1,0 +1,21 @@
+# zia/registered-devices (zia/registered-devices)
+- Names: zscalerctl `zia registered-devices`
+- Live read (read-only): `zscalerctl zia registered-devices list`
+- active
+- deleted
+- firstRegistrationTimestamp
+- hardwareId
+- hostname
+- id
+- lastRegistrationTimestamp
+- locale
+- macAddress
+- model
+- name
+- os
+- rooted
+- udid
+- unRegistrationTimestamp
+- user
+- vendor
+- version

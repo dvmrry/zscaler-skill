@@ -1,0 +1,23 @@
+# zpa/user-portals (zpa/user-portals)
+- Names: zscalerctl `zpa user-portals`; terraform `zpa_user_portal_controller`
+- Live read (read-only): `zscalerctl zpa user-portals list`
+- certificateId
+- certificateName
+- creationTime
+- description
+- domain
+- enabled
+- extDomain
+- extDomainName
+- extDomainTranslation
+- extLabel
+- getcName
+- id
+- managedByZs
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- userNotification
+- userNotificationEnabled

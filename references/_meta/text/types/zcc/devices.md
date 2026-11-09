@@ -1,0 +1,28 @@
+# zcc/devices (zcc/devices)
+- Names: zscalerctl `zcc devices`; terraform_data_source `zcc_devices`
+- Live read (read-only): `zscalerctl zcc devices list`
+- agentVersion
+- companyName
+- config_download_time
+- deregistrationTimestamp
+- detail
+- download_count
+- hardwareFingerprint
+- keepAliveTime
+- last_seen_time
+- macAddress
+- machineHostname
+- manufacturer
+- osVersion
+- owner
+- policyName
+- registrationState
+- registration_time
+- state
+- tunnelVersion
+- type
+- udid
+- upmVersion
+- user
+- vpnState
+- zappArch

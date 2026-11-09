@@ -1,0 +1,22 @@
+# ztw/admin-users (ztw/admin-users)
+- Names: zscalerctl `ztw admin-users`
+- Live read (read-only): `zscalerctl ztw admin-users list`
+- adminScopeScopeEntities
+- adminScopeType
+- adminScopescopeGroupMemberEntities
+- comments
+- disabled
+- email
+- id
+- isAuditor
+- isExecMobileAppEnabled
+- isNonEditable
+- isPasswordExpired
+- isPasswordLoginAllowed
+- isProductUpdateCommEnabled
+- isSecurityReportCommEnabled
+- isServiceUpdateCommEnabled
+- loginName
+- pwdLastModifiedTime
+- role
+- userName

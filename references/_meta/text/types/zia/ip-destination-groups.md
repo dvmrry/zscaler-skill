@@ -1,0 +1,11 @@
+# zia/ip-destination-groups (zia/ip-destination-groups)
+- Names: zscalerctl `zia ip-destination-groups`; terraform `zia_firewall_filtering_destination_groups`; terraform_data_source `zia_firewall_filtering_destination_groups`
+- Live read (read-only): `zscalerctl zia ip-destination-groups list`
+- addresses
+- countries
+- description
+- id
+- ipCategories
+- isNonEditable
+- name
+- type

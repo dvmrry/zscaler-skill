@@ -1,0 +1,17 @@
+# zcc/web-privacy (zcc/web-privacy)
+- Names: zscalerctl `zcc web-privacy`; terraform `zcc_web_privacy`; terraform_data_source `zcc_web_privacy`
+- Live read (read-only): `zscalerctl zcc web-privacy list`
+- active
+- collectMachineHostname
+- collectUserInfo
+- collectZdxLocation
+- disableCrashlytics
+- enableAutoLogSnippet
+- enableFQDNMatchForVpnBypasses
+- enablePacketCapture
+- enforceSecurePacUrls
+- exportLogsForNonAdmin
+- grantAccessToZscalerLogFolder
+- id
+- overrideT2ProtocolSetting
+- restrictRemotePacketCapture

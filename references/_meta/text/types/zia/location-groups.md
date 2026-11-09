@@ -1,0 +1,13 @@
+# zia/location-groups (zia/location-groups)
+- Names: zscalerctl `zia location-groups`; terraform_data_source `zia_location_groups`
+- Live read (read-only): `zscalerctl zia location-groups list`
+- comments
+- deleted
+- dynamicLocationGroupCriteria
+- groupType
+- id
+- lastModTime
+- lastModUser
+- locations
+- name
+- predefined

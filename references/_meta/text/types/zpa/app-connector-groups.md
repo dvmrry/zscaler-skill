@@ -1,0 +1,46 @@
+# zpa/app-connector-groups (zpa/app-connector-groups)
+- Names: zscalerctl `zpa app-connector-groups`; terraform `zpa_app_connector_group`; terraform_data_source `zpa_app_connector_group`
+- Live read (read-only): `zscalerctl zpa app-connector-groups list`
+- cityCountry
+- connectorGroupType
+- connectors
+- countryCode
+- creationTime
+- dcHostingInfo
+- description
+- dnsQueryType
+- enabled
+- enrollmentCertId
+- geoLocationId
+- id
+- latitude
+- location
+- longitude
+- lssAppConnectorGroup
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- nameWithoutTrim
+- npAssistantGroup
+- npAssistantGroup.appConnectorGroupId
+- npAssistantGroup.lanSubnets.appConnectorGroupId
+- overrideVersionProfile
+- praEnabled
+- readOnly
+- restrictionType
+- serverGroups
+- siteId
+- siteName
+- tcpQuickAckApp
+- tcpQuickAckAssistant
+- tcpQuickAckReadAssistant
+- upgradeDay
+- upgradeTimeInSecs
+- useInDrMode
+- versionProfileId
+- versionProfileName
+- versionProfileVisibilityScope
+- wafDisabled
+- zscalerManaged

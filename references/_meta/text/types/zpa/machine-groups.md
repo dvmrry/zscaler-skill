@@ -1,0 +1,15 @@
+# zpa/machine-groups (zpa/machine-groups)
+- Names: zscalerctl `zpa machine-groups`; terraform_data_source `zpa_machine_group`
+- Live read (read-only): `zscalerctl zpa machine-groups list`
+- creationTime
+- description
+- enabled
+- id
+- machines
+- machines.machineGroupId
+- machines.microtenantId
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name

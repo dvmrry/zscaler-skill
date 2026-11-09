@@ -1,0 +1,31 @@
+# What users can do with Client Connector logs: logging controls and readable exports (zcc.logging.user-access)
+Also called: hide logging controls; hide logging controls on zscaler client connector; app supportability; zcc export logs encrypted; user cannot export zcc logs; exportLogsForNonAdmin; grantAccessToZscalerLogFolder; enable local packet capture; user logging controls
+
+Hide Logging Controls on Zscaler Client Connector, on the App Supportability tab, blocks users from the app's logging controls when enabled and allows them when disabled. Users reach the controls from the app's More window and the system tray icon's menu. [zcc.logging.user-access:hide-toggle] With the controls visible, users can see where the encrypted logs are stored, export logs as a ZIP file from the tray menu, send encrypted logs to support by email with copies to others, change the log mode, and clear logs. [zcc.logging.user-access:visible-capabilities] Hide Logging Control on Zscaler Client Connector prevents users from exporting or clearing logs and from changing the log mode the admin set in app profiles; disabling it allows users to send an email copy of the data entered on the Report an Issue form along with encrypted logs. [zcc.logging.user-access:hidden-blocks] Whether iOS offers these controls in full is open [gap:zcc.logging.user-access:ios-log-access].
+
+**Scope.** The logging-controls setting is one App Supportability setting for the tenant, which the company-info record carries by name as `disableLoggingControls`, not a web policy field; the app profile has no per-profile equivalent. [zcc.logging.user-access:tenant-wide] The other App Supportability fields are in [By name, the company-info fields `supportEnabled`, `supportAdminEmail`, `supportTicketEnabled`, `disableLoggingControls` and `fetchLogsForAdminsEnabled` hold Enable Support Access, Admin Email Address to Send Logs, Enable End User Ticket Submission to Zscaler, Hide Logging Control and Client Connector App Logs.](kb:zcc.support-options:field-ui-mapping).
+
+**Can the user read the logs?** From Client Connector 2.1.2 for Windows and macOS, exported logs are not encrypted, while logs attached to the Report an Issue form are; before 2.1.2, exported logs are always encrypted and users cannot read them. [zcc.logging.user-access:export-encryption] Who can decrypt the encrypted logs is in [Only Zscaler can decrypt the encrypted logs.](kb:zcc.logging.collection:only-zscaler-decrypts).
+
+**Packet capture.** Users can capture packets only when User Privacy, or on Windows 4.8 and later the app profile, allows it: [Enable Local Packet Capture adds a Start Packet Capture option to the app, installing Npcap if needed (on Windows 5.0 and later the app profile can select Packet Monitor (Pktmon) or Npcap); capture files are stored with the app's logs and included in Export Logs, not in Report an Issue. The option can take up to two hours to appear, or appears after Update Policy, and on Windows 4.8 and later an app profile setting overrides it.](kb:zcc.web-privacy.collection:packet-capture).
+
+**User Privacy log settings.** Non-administrator access to the log folder is [Allow access to Client Connector logs folder for non administrators, on the User Privacy page, lets users without administrator privileges open the Zscaler program data folder and send individual log files instead of the whole folder as a ZIP.](kb:zcc.web-privacy.collection:non-admin-log-folder), and limiting packet capture to administrators is [Restrict Remote Packet Capture limits packet capture to administrators: with Npcap installed (by packet capture or by ZDX), non-administrators could otherwise use capture tools from user space, which can elevate their access.](kb:zcc.web-privacy.collection:restrict-remote-capture); the matching API keys are [The API keys that match these settings by name are `collectMachineHostname`, `collectZdxLocation`, `disableCrashlytics` (Disable Automatic Crash Reporting), `enablePacketCapture`, `restrictRemotePacketCapture`, `grantAccessToZscalerLogFolder`, `overrideT2ProtocolSetting` and `enforceSecurePacUrls`, which is absent from the API document and the Python model and present in the Go SDK and the Terraform provider.](kb:zcc.web-privacy.collection:api-key-map). What the privacy API's `exportLogsForNonAdmin` does, and how it relates to these in-app controls, is open [What exportLogsForNonAdmin does](kb:zcc.web-privacy.collection:privacy-field-meanings). Whether local administrators can read the log files directly, whatever the controls say, is open [gap:zcc.logging.user-access:local-admin-read].
+
+What to check:
+1. Whether Hide Logging Controls is on, and so whether the user could export, clear or change the log mode.
+2. The Client Connector version on Windows or macOS, since exports from 2.1.2 on are readable by the user.
+3. For a privacy review, whether local administrators can read the log files whatever the logging controls say, and the User Privacy log-folder and packet-capture settings.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zcc.logging.user-access:tenant-wide] Tier B: Rests on absence: the setting is documented only on the App Supportability page, and the app profile article lists no logging-controls option (it does list a per-profile packet-capture override). Extended (v5 item 11): names the company-info field from zcc.support-options:field-ui-mapping, matched by name only.
+
+Not known (open gaps):
+- Direct access to log files by local administrators [gap:zcc.logging.user-access:local-admin-read]: settled by lab-test
+- iOS log access limitations [gap:zcc.logging.user-access:ios-log-access]: settled by lab-test or source-read
+
+Area: zcc.logging, its subjects in references/_meta/spine/zcc/zcc.logging.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zcc/zcc.web-privacy.collection.md (What each User Privacy setting collects or allows)
+- links-to references/_meta/text/zcc/zcc.logging.collection.md (Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures)
+- links-to references/_meta/text/zcc/zcc.support-options.md (ZCC end-user support options (App Supportability))

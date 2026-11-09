@@ -1,0 +1,40 @@
+# How a tenant profile is enforced: the headers ZIA inserts (zia.tenant-profiles.wire-mechanic)
+Also called: tenant restriction headers; Restrict-Access-To-Tenants; Restrict-Access-Context; X-GoogApps-Allowed-Domains; sec-Restrict-Tenant-Access-Policy; anthropic-allowed-org-ids; ChatGPT-Allowed-Workspace-Id; how tenant restriction works; tenant restriction mechanism; CiscoSpark-Allowed-Domains
+
+The documented cases follow. Read together they suggest (inferred, see `header-insertion` below) that ZIA adds the vendor's own tenant-restriction header rather than deciding tenant ownership itself.
+
+**Microsoft.** When a tenant profile is associated with a Cloud App Control rule and a request reaches login.microsoftonline.com, login.microsoft.com, login.windows.net or login.live.com, ZIA inserts `Restrict-Access-Context` (the Tenant Directory ID) and `Restrict-Access-To-Tenants` (the Office 365 Tenants or Tenant IDs). It inserts `sec-Restrict-Tenant-Access-Policy` only for login.live.com traffic, and only when Allow Personal Office 365 Domains is No. [zia.tenant-profiles.wire-mechanic:microsoft-headers]
+
+**Google.** For any google.com request (or associated Google app), ZIA adds `X-GoogApps-Allowed-Domains` carrying the profile's Domains. Google apps that need no sign-in, such as Google search, are unaffected, but a user who signs in from Google search with an account that is not on the allowlist is blocked. [zia.tenant-profiles.wire-mechanic:google-header]
+
+**AI and collaboration apps.** For requests to chatgpt.com and its subdomains, ZIA adds `ChatGPT-Allowed-Workspace-Id` carrying the profile's workspace IDs. [zia.tenant-profiles.wire-mechanic:chatgpt-header] For requests to claude.ai, claude.com and anthropic.com, ZIA adds `anthropic-allowed-org-ids` carrying the profile's workspace IDs. [zia.tenant-profiles.wire-mechanic:claude-header] For requests to docusign.com or docusign.net, ZIA adds `X-Docusign-Allow-Organization` carrying the profile's account IDs. [zia.tenant-profiles.wire-mechanic:docusign-header] For Slack requests, ZIA adds `X-Slack-Allowed-Workspaces-Requester` (the Your Workspace ID) and `X-Slack-Allowed-Workspaces` (the Allowed Workspace IDs). [zia.tenant-profiles.wire-mechanic:slack-headers] For incoming requests to the Webex identity hosts (identity.webex.com, identity-eu.webex.com, idbroker.webex.com, idbroker-secondary.webex.com, idbroker-b-us.webex.com, idbroker-eu.webex.com, atlas-a.wbx2.com), ZIA adds `CiscoSpark-Allowed-Domains` carrying the profile's Webex tenants. [zia.tenant-profiles.wire-mechanic:webex-header]
+
+**Hosting and storage apps.** For Dropbox requests, ZIA adds `X-Dropbox-allowed-Team-Ids` carrying the profile's team IDs. Network control must be enabled in Dropbox for tenancy restriction. [zia.tenant-profiles.wire-mechanic:dropbox-header] For requests to cloud.ibm.com and its subdomains, ZIA adds `IBM-Cloud-Tenant` carrying the profile's IBM account IDs. [zia.tenant-profiles.wire-mechanic:ibm-header]
+
+**Where the Help text stops.** The Help form ties the GitHub field to the `sec-GitHub-allowed-enterprise` header and the Zoom Policy Label to the `X-ZoomApps-Policy` header. For these two it does not say that ZIA inserts the header, or on which hosts. [zia.tenant-profiles.wire-mechanic:github-zoom-header-names] How those four applications are enforced is open [gap:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail].
+
+**What this means.** ZIA conveys the tenant constraint by inserting the SaaS vendor's own tenant-restriction request header into the inspected request; the vendor then decides. This is documented for nine applications; it is not documented for AWS, Google Cloud Platform, YouTube or Zoho. [zia.tenant-profiles.wire-mechanic:header-insertion] Header insertion into HTTPS needs the request decrypted, so a tenant restriction can work only where the SSL/TLS inspection rule covers the login service. [zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic] The prerequisite rules per application are in [SSL/TLS inspection rules a tenant profile depends on](kb:zia.tenant-profiles.ssl-prerequisite). What a bypassed login flow does is open [gap:zia.tenant-profiles.wire-mechanic:bypassed-traffic-behavior], and the general effect of bypass is in [What stops working when traffic bypasses SSL/TLS inspection](kb:zia.ssl-inspection.bypass-impact).
+
+What to check:
+1. Whether the profile is associated with the rule, when a restriction does not work.
+2. Whether the login service sits in an inspection rule that matches before any bypass.
+3. For Microsoft, whether the version and personal-domain setting are as intended.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.tenant-profiles.wire-mechanic:github-zoom-header-names] Tier B: The field descriptions name the header; the interception sentences that the other applications have are absent for GitHub and Zoom.
+- [zia.tenant-profiles.wire-mechanic:header-insertion] Tier B: Generalized from the nine applications whose interception sentence names an inserted header. The decision being made by the vendor is inferred from the headers being the vendors' own.
+- [zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic] Tier B: Inference: an inserted header cannot be added to a request ZIA cannot read. The Help text states the inspection requirement, not this reason.
+
+Not known (open gaps):
+- How ZIA enforces tenant restriction for the applications whose header is not documented [gap:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail]: settled by support-ticket or lab-test. Blocks: explaining how tenant restriction is detected for AWS, GCP, YouTube and Zoho
+- What tenant restriction does when the login service is bypassed from SSL inspection [gap:zia.tenant-profiles.wire-mechanic:bypassed-traffic-behavior]: settled by lab-test. Blocks: telling an operator whether a missing inspection rule fails open
+
+Area: zia.tenant-profiles, its subjects in references/_meta/spine/zia/zia.tenant-profiles.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zia/zia.tenant-profiles.ssl-prerequisite.md (SSL/TLS inspection rules a tenant profile depends on): Header insertion into HTTPS needs the request decrypted, so a tenant restriction can work only where the SSL/TLS inspection rule covers the login service. [zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic]
+- depends-on references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)): Header insertion into HTTPS needs the request decrypted, so a tenant restriction can work only where the SSL/TLS inspection rule covers the login service. [zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic]
+- depends-on references/_meta/text/zia/zia.cloud-app-control.md (ZIA Cloud App Control), from zia.tenant-profiles: Tenancy restriction lets you restrict access to personal accounts, business accounts, or both for certain cloud applications. It has two parts: creating tenant profiles, and associating them with Cloud App Control policy rules. [zia.tenant-profiles:what-it-is]
+- interacts-with references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles), from zia.tenant-profiles: In the AI/ML rule UI, Tenant Profiles appears only when ChatGPT is the selected cloud application, and the applications selected under the tenant profiles must not be exempted from SSL/TLS Inspection. [zia.cloud-app-control.ai-ml-rules:tenant-profiles-visibility]
+- interacts-with references/_meta/text/zia/zia.cloud-app-control.precedence.md (Cloud App Control versus URL Filtering: which applies), from zia.tenant-profiles: Allowing a specific tenant automatically blocks other tenants for most cloud applications, and subsequent policies are not evaluated. [zia.tenant-profiles:allow-blocks-others]
+- links-to references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection)

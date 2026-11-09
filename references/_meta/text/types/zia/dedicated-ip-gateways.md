@@ -1,0 +1,12 @@
+# zia/dedicated-ip-gateways (zia/dedicated-ip-gateways)
+- Names: zscalerctl `zia dedicated-ip-gateways`; terraform_data_source `zia_dedicated_ip_proxy`
+- Live read (read-only): `zscalerctl zia dedicated-ip-gateways list`
+- createTime
+- default
+- description
+- id
+- lastModifiedBy
+- lastModifiedTime
+- name
+- primaryDataCenter
+- secondaryDataCenter

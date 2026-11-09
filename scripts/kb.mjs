@@ -16,7 +16,8 @@
 //   read <subject | area | type | field> ...  (a claim, gap or ledger ID reads its subject; a ZPA LSS status
 //                                    code reads its entry in each log type that lists it)
 //                                    reading text with citable claim IDs, one hop of linked subjects, and
-//                                    company records with an overlay (--no-links: no hop)
+//                                    company records with an overlay (--no-links: no hop; --company: the
+//                                    company records only, beside the text in references/_meta/text/)
 //   render <subject-id>              the subject as Markdown (deterministic)
 //   manifest                         record capture-manifest entries for cited captures
 //   verified [--check]               regenerate references/_meta/verified.json (--check: exit 1 if it is stale)

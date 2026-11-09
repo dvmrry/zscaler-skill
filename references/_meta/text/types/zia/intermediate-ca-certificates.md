@@ -1,0 +1,18 @@
+# zia/intermediate-ca-certificates (zia/intermediate-ca-certificates)
+- Names: zscalerctl `zia intermediate-ca-certificates`
+- Live read (read-only): `zscalerctl zia intermediate-ca-certificates list`
+- certExpDate
+- certStartDate
+- csrFileName
+- csrGenerationTime
+- currentState
+- defaultCertificate
+- description
+- hsmAttestationVerifiedTime
+- id
+- keyGenerationTime
+- name
+- publicKey
+- region
+- status
+- type

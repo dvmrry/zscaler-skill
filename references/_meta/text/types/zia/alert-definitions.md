@@ -1,0 +1,13 @@
+# zia/alert-definitions (zia/alert-definitions)
+- Names: zscalerctl `zia alert-definitions`; terraform `zia_ueba_alert_definitions`; terraform_data_source `zia_ueba_alert_definitions`
+- Live read (read-only): `zscalerctl zia alert-definitions list`
+- alertName
+- comments
+- entity
+- id
+- interval
+- occurrence
+- scope
+- severity
+- status
+- trafficChangePercent

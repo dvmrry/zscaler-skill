@@ -1,0 +1,47 @@
+# Client Connector install parameters and deployment (zcc.install)
+Also called: zcc install parameters; install options; msi properties; exe install options; zcc deployment parameters; managed app config zcc; plist install parameters; install-time parameters; zcc install-time parameters
+
+Install parameters are values handed to Client Connector when it is deployed, before it has downloaded any policy. Each platform takes install parameters through its own channel: on Windows they are passed when installing manually or through GPO, SCCM or another device-management method, with different names for the MSI and the EXE installer; on macOS they are PLIST settings deployed from an MDM alongside a pkg installation; on iOS they come from an MDM; on Android and Android on ChromeOS from an MDM with Android Enterprise enabled. [zcc.install:delivery]
+
+1. **Who is the user, and which tenant?** Domain, cloud, device token, username and the MDM correlation ID: [Install parameters that identify the tenant and user at enrollment](kb:zcc.install.enrollment).
+2. **Must the device be blocked until it enrolls?** Strict enforcement, the policy token it depends on, and the fail-close file: [Strict enforcement, the policy token, and the fail-close configuration](kb:zcc.install.strict-enforcement). Business Continuity and enrolling new users during an outage: [Business Continuity in Client Connector: availability, the Business Continuity page, the app profile switch, install parameters and enrolling during an outage](kb:zcc.install.business-continuity).
+3. **Does an install parameter or a console setting win?** [Install parameters versus console settings: which wins, and what survives an update](kb:zcc.install.precedence).
+4. **Windows-only switches.** The filter driver: [Windows filter driver install parameters (LWF)](kb:zcc.install.windows-driver). Browser, SSO and Imprivata sign-in: [Install parameters for how users sign in to Client Connector](kb:zcc.install.authentication-options). Silent install, upgrade, revert and uninstall, and launch behavior: [Silent install, upgrade, revert and uninstall parameters, and launch behavior](kb:zcc.install.windows-unattended). The MSI, MST, EXE and Active Directory GPO: [Deploying Client Connector on Windows: the MSI and MST, the EXE, command lines and Active Directory GPO](kb:zcc.install.windows-deployment). Non-persistent Citrix VDIs: [Client Connector on non-persistent Citrix VDIs: the single-user model, the VDI install parameters and the master VM](kb:zcc.install.citrix-vdi).
+5. **Reverting to the previous version.** Windows and macOS: [Reverting Client Connector to the previous version: availability, enabling it, the commands and what a revert keeps](kb:zcc.install.revert).
+6. **iOS and Android-only keys.** [iOS and Android-only install keys](kb:zcc.install.mobile-options). Getting the app onto iOS and Android devices through an MDM: [Deploying Client Connector on iOS through an MDM: managed app configuration, the VPN profile, per-app VPN, dual tunnel, SSO and ZDX](kb:zcc.install.ios-deployment) and [Deploying Client Connector on Android through an MDM: Android Enterprise, the APK, minimum OS and Always-on VPN](kb:zcc.install.android-deployment).
+7. **ChromeOS and ChromeOS Flex.** Through the Google Admin console: [Deploying Client Connector on ChromeOS and ChromeOS Flex through the Google Admin console](kb:zcc.install.chromeos-deployment).
+8. **Linux.** Run file, Debian and RPM packages and zscaler-config: [Deploying Client Connector on Linux: run file, Debian and RPM packages, dependencies, zscaler-config and log locations](kb:zcc.install.linux-deployment).
+9. **System requirements and prerequisites.** Per-OS disk and memory requirements, expected resource use, update intervals and the per-service prerequisites: [Client Connector system requirements, resource usage, update intervals and deployment prerequisites](kb:zcc.install.system-requirements).
+10. **Rolling it out.** App Store downloads, deployment phases and update test groups: [Rolling out Client Connector: App Store downloads, deployment phases, pilot tests and update test groups](kb:zcc.install.rollout).
+11. **macOS through an MDM.** The package, the preference domain and the plist: [Deploying Client Connector on macOS: the package, the preference domain, updates and removal](kb:zcc.install.macos-deployment). System extensions, VPN payloads and privacy profiles: [macOS system extensions, VPN payloads and privacy profiles for Client Connector](kb:zcc.install.macos-extensions). The Client Connector firewall on macOS: [Client Connector's firewall on macOS: the system extension and content filter profiles, VendorConfig rules and the app profile switches](kb:zcc.install.macos-firewall).
+12. **Client Connector inside Azure desktops.** Windows 365 Cloud PCs and Azure Virtual Desktop host pools: [Client Connector in Azure desktops: Windows 365 Cloud PCs and Azure Virtual Desktop](kb:zcc.install.azure-virtual-desktop).
+
+Runtime behavior that is configured in the console rather than at install time lives in the forwarding profile ([ZCC forwarding profiles](kb:zcc.forwarding-profiles)) and the app profile ([ZCC app profiles (web policies)](kb:zcc.app-profiles)); tenant-wide per-OS settings for sign-in, IPv6, ZDX upgrades and unattended-mode passwords are in [Platform Settings: the per-OS console settings for sign-in, IPv6, ZDX upgrades, default UI and unattended-mode passwords](kb:zcc.platform-settings).
+
+Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
+- links-to references/_meta/text/zcc/zcc.forwarding-profiles.md (ZCC forwarding profiles)
+- links-to references/_meta/text/zcc/zcc.install.android-deployment.md (Deploying Client Connector on Android through an MDM: Android Enterprise, the APK, minimum OS and Always-on VPN)
+- links-to references/_meta/text/zcc/zcc.install.authentication-options.md (Install parameters for how users sign in to Client Connector)
+- links-to references/_meta/text/zcc/zcc.install.azure-virtual-desktop.md (Client Connector in Azure desktops: Windows 365 Cloud PCs and Azure Virtual Desktop)
+- links-to references/_meta/text/zcc/zcc.install.business-continuity.md (Business Continuity in Client Connector: availability, the Business Continuity page, the app profile switch, install parameters and enrolling during an outage)
+- links-to references/_meta/text/zcc/zcc.install.chromeos-deployment.md (Deploying Client Connector on ChromeOS and ChromeOS Flex through the Google Admin console)
+- links-to references/_meta/text/zcc/zcc.install.citrix-vdi.md (Client Connector on non-persistent Citrix VDIs: the single-user model, the VDI install parameters and the master VM)
+- links-to references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)
+- links-to references/_meta/text/zcc/zcc.install.ios-deployment.md (Deploying Client Connector on iOS through an MDM: managed app configuration, the VPN profile, per-app VPN, dual tunnel, SSO and ZDX)
+- links-to references/_meta/text/zcc/zcc.install.linux-deployment.md (Deploying Client Connector on Linux: run file, Debian and RPM packages, dependencies, zscaler-config and log locations)
+- links-to references/_meta/text/zcc/zcc.install.macos-deployment.md (Deploying Client Connector on macOS: the package, the preference domain, updates and removal)
+- links-to references/_meta/text/zcc/zcc.install.macos-extensions.md (macOS system extensions, VPN payloads and privacy profiles for Client Connector)
+- links-to references/_meta/text/zcc/zcc.install.macos-firewall.md (Client Connector's firewall on macOS: the system extension and content filter profiles, VendorConfig rules and the app profile switches)
+- links-to references/_meta/text/zcc/zcc.install.mobile-options.md (iOS and Android-only install keys)
+- links-to references/_meta/text/zcc/zcc.install.precedence.md (Install parameters versus console settings: which wins, and what survives an update)
+- links-to references/_meta/text/zcc/zcc.install.revert.md (Reverting Client Connector to the previous version: availability, enabling it, the commands and what a revert keeps)
+- links-to references/_meta/text/zcc/zcc.install.rollout.md (Rolling out Client Connector: App Store downloads, deployment phases, pilot tests and update test groups)
+- links-to references/_meta/text/zcc/zcc.install.strict-enforcement.md (Strict enforcement, the policy token, and the fail-close configuration)
+- links-to references/_meta/text/zcc/zcc.install.system-requirements.md (Client Connector system requirements, resource usage, update intervals and deployment prerequisites)
+- links-to references/_meta/text/zcc/zcc.install.windows-deployment.md (Deploying Client Connector on Windows: the MSI and MST, the EXE, command lines and Active Directory GPO)
+- links-to references/_meta/text/zcc/zcc.install.windows-driver.md (Windows filter driver install parameters (LWF))
+- links-to references/_meta/text/zcc/zcc.install.windows-unattended.md (Silent install, upgrade, revert and uninstall parameters, and launch behavior)
+- links-to references/_meta/text/zcc/zcc.platform-settings.md (Platform Settings: the per-OS console settings for sign-in, IPv6, ZDX upgrades, default UI and unattended-mode passwords)

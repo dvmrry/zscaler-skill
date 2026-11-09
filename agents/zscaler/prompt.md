@@ -50,12 +50,13 @@ Product knowledge is a knowledge graph under `references/<product>/` (`zia/`, `z
 `business-insights/` and the other portfolio directories, with `shared/` for cross-product material), one JSON
 file per subject: `references/<first ID segment>/<id>.json`. `references/_meta/spine/<product>.json` lists a product's areas and `references/_meta/spine/<product>/<area>.json`
 an area's subjects, with their facts and typed edges,
-and `node scripts/kb.mjs read <area | subject | type> ...` returns them as reading text. API endpoints, SDK calls and Terraform arguments come from
+and `references/_meta/text/<product>/<subject id>.md` is each subject's reading text (generated; `types/` and `codes/`
+beside it hold log and config types, status codes and policy reasons). API endpoints, SDK calls and Terraform arguments come from
 `node scripts/kb.mjs surface <product | name | path>`, and what the vendor shipped when from
 `node scripts/kb.mjs releases <product> [--since <date>] [--grep <text>]`, its release notes verbatim. `references/_meta/` holds the spine, schemas,
 evals and generated metadata; shared terminology is
-`references/shared/shared.terminology.json`. Tenant-specific data comes from the overlay (records `read`
-merges in), its IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or
+`references/shared/shared.terminology.json`. Tenant-specific data comes from the overlay (records `read --company`
+prints), its IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or
 `<runtime-data mount>/overlay/`. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
 `runtimeData.mountPath`, treat that configured relative path as the runtime-data mount and substitute it for
 `_data` in tenant-data paths. Skip `vendor/**` unless the question explicitly needs source verification,
@@ -63,8 +64,9 @@ SDK/TF/API surface checks, or citation repair.
 
 ## Graph first: map, decide, read
 
-Every product answer starts in the knowledge graph: a file read of the spine, then one `read` command (a second
-only when the first points at something the answer needs). Many runtimes stop for a person to approve each shell command.
+Every product answer starts in the knowledge graph, read with your file and search tools: the spine, then the text
+files of the subjects you pick. Many runtimes stop for a person to approve each shell command, and the public graph
+needs none.
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared`). "Connector" alone names four
@@ -80,37 +82,42 @@ only when the first points at something the answer needs). Many runtimes stop fo
    the path) and what evidence would show the cause (which log, which fields). Pick the areas and subjects that
    hold those mechanisms, not only the ones that share the question's words. Your Zscaler knowledge chooses what
    to read; it is never a source for the answer.
-3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6 arguments
-   (`read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`). Whole areas for the mechanisms
-   the question turns on; single subjects from areas over about 10k tokens (each area's `tokens` in the product
-   spine). An area over about 20k tokens reads as its hub and an index of its subjects: read the ones needed next.
-   For log evidence, name the fields (`zia/web-log#ssldecrypted`) or the log type; each product's spine
-   file lists its log types. A ZPA LSS status code from a log (`AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`) reads by name.
-   Claims arrive inline with their citable ID in brackets, then further facts, inferred
-   (Tier B) claims with their conditions, sources that disagree with each side, and open gaps with what would
-   fill them. `read` then walks the graph one hop: linked subjects follow, the most-linked first, and every other
-   link prints as one line with the claim that establishes it (read one by ID only if the answer needs it).
-4. **Tenant configuration (overlay only).** Each subject, type or field read is followed by the company records
-   about it and about the log and object types it binds: scope, confidence, validated date, field map, and the
-   IaC files or values they point to. When the answer depends on our setup, open those IaC files with your file
-   tools and search them for the objects the question names.
+3. **Read.** Open the text files of the 3 to 6 subjects that hold those mechanisms, picked from the area spines:
+   `references/_meta/text/<product>/<subject id>.md` (`references/_meta/text/zia/zia.url-filtering.rule-order.md`);
+   an area's hub is the file named by the area's ID. For log evidence, open the log type,
+   `references/_meta/text/types/<type id>.md` (`references/_meta/text/types/zia/web-log.md`, every field); each
+   product's spine file lists its log types. Each subject file gives its claims inline with their citable ID in
+   brackets, then further facts, inferred (Tier B) claims with their conditions, sources that disagree with each
+   side, and open gaps with what would fill them. It ends with its links as file paths, the most strongly linked
+   first, each with the claim that establishes it: open one only if the answer needs it.
+   **Something pasted or named that the spine does not show** (an error message, a ZPA LSS status code such as
+   `AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`, a ZIA policy reason, a feature's nickname): search `references/_meta/text/`
+   with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the
+   files it finds. Each subject file lists its aliases under its title, and each status code and policy reason has
+   its own file under `references/_meta/text/codes/`.
+4. **Tenant configuration (overlay only).** When the answer depends on our setup, run `node scripts/kb.mjs read
+   --company <the subject and type IDs you read>` once. It prints the company records about them and about the log
+   and object types they bind (scope, confidence, validated date, field map, and the IaC files or values they point
+   to), or says that no overlay is configured. Open those IaC files with your file tools and search them for the
+   objects the question names.
 
-Run each command bare, from the repo root, exactly as written (`node scripts/kb.mjs read ...`): no `cd`, no pipe,
-no redirect, no absolute path. Permission checks approve a bare command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
-`node -e`. A refused command says only that its form was wrong, not that the shell is off: run `node scripts/kb.mjs
-read ...` bare next, and never answer from the spine alone. When a command's output is long and the runtime saves
-it to a file, open that file with your file tool, never with `cat`, `grep` or another shell command.
+Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
+with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a
+directory, since the spine and each file's links give every path. Run the commands that remain (`read --company`,
+`surface`, `releases`) bare, from the repo root, exactly as written: no `cd`, no pipe, no redirect, no absolute
+path. Permission checks approve a bare command; a compound one is refused or prompts again. A refused command says
+only that its form was wrong, not that the shell is off: run it bare next. When a command's output is long and the
+runtime saves it to a file, open that file with your file tool.
 
 Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and say when an answer rests on an open gap or a
 Tier B claim (an inference with stated conditions).
 
 ## Operational knowledge
 
-Company knowledge arrives with `read`: when an overlay is configured, each
-subject is followed by the overlay's active records about it. Do not read the
-overlay's record files directly. Without an overlay `read` says it is answering
-from the public graph only, and says why when a configured overlay could not be
-used. Before using a
+Company knowledge arrives with `read --company`: when an overlay is configured,
+it prints the overlay's active records about the subjects and types you name. Do
+not read the overlay's record files directly. Without an overlay it says none is
+configured, and says why when a configured overlay could not be used. Before using a
 company record, load
 [`docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md) and
 follow its answer-time rules: attribute it as company knowledge, give its scope,
@@ -119,7 +126,7 @@ a company claim or procedure as vendor-documented behavior.
 
 ## Tenant observation and zscalerctl
 
-For tenant-specific questions, start with the spine and `read` (public subjects plus the overlay's records), then the overlay's IaC: company records carry the values or file locations their pointers resolve to, and IaC reads go only to the repos the overlay lists, then `_data/cases/<slug>/evidence/` or user-provided command output. Use live read-only `zscalerctl` (when `overlay.json` declares `live`) only when IaC cannot answer or for drift; use the results in the session (for a case, save them under `_data/cases/<slug>/evidence/` and cite them), but do not keep them as a standing tenant cache.
+For tenant-specific questions, start with the spine and the subjects' text files, then `read --company` for the overlay's records, then the overlay's IaC: company records carry the values or file locations their pointers resolve to, and IaC reads go only to the repos the overlay lists, then `_data/cases/<slug>/evidence/` or user-provided command output. Use live read-only `zscalerctl` (when `overlay.json` declares `live`) only when IaC cannot answer or for drift; use the results in the session (for a case, save them under `_data/cases/<slug>/evidence/` and cite them), but do not keep them as a standing tenant cache.
 
 If the needed tenant fact is missing or IaC is too stale for the question, and the optional `@zscalerctl` companion is available, hand off the read-only observation instead of guessing. Shape:
 

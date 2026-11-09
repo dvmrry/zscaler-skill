@@ -1,0 +1,14 @@
+# zpa/managed-browser-profiles (zpa/managed-browser-profiles)
+- Names: zscalerctl `zpa managed-browser-profiles`
+- Live read (read-only): `zscalerctl zpa managed-browser-profiles list`
+- browserType
+- chromePostureProfile
+- creationTime
+- customerId
+- description
+- id
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name

@@ -1,0 +1,35 @@
+# zia/email-dlp-rules (zia/email-dlp-rules)
+- Names: zscalerctl `zia email-dlp-rules`; terraform `zia_outbound_email_dlp`; terraform_data_source `zia_outbound_email_dlp`
+- Live read (read-only): `zscalerctl zia email-dlp-rules list`
+- action
+- auditor
+- contentLocations
+- customHeader
+- departments
+- description
+- dlpEngines
+- emailRecipientProfiles
+- emailTenants
+- excludedDepartments
+- excludedGroups
+- excludedUsers
+- externalAuditorEmail
+- fileTypes
+- groups
+- id
+- includedDomainProfiles
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- minSize
+- name
+- notificationTemplate
+- order
+- parentRule
+- receiver
+- severity
+- state
+- timeWindows
+- userRiskScoreLevels
+- users
+- withoutContentInspection

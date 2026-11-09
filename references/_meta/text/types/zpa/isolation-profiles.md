@@ -1,0 +1,13 @@
+# zpa/isolation-profiles (zpa/isolation-profiles)
+- Names: zscalerctl `zpa isolation-profiles`; terraform_data_source `zpa_isolation_profile`
+- Live read (read-only): `zscalerctl zpa isolation-profiles list`
+- creationTime
+- description
+- enabled
+- id
+- isolationProfileId
+- isolationTenantId
+- isolationUrl
+- modifiedBy
+- modifiedTime
+- name

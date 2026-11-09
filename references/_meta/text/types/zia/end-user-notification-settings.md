@@ -1,0 +1,33 @@
+# zia/end-user-notification-settings (zia/end-user-notification-settings)
+- Names: zscalerctl `zia end-user-notification-settings`; terraform `zia_end_user_notification`; terraform_data_source `zia_end_user_notification`
+- Live read (read-only): `zscalerctl zia end-user-notification-settings show`
+- aupCustomFrequency
+- aupDayOffset
+- aupFrequency
+- aupMessage
+- cautionAgainAfter
+- cautionCustomText
+- cautionPerDomain
+- customText
+- displayCompLogo
+- displayCompName
+- displayReason
+- idpProxyNotificationText
+- notificationType
+- orgPolicyLink
+- quarantineCustomNotificationText
+- redirectUrl
+- securityReviewCustomLocation
+- securityReviewEnabled
+- securityReviewSubmitToSecurityCloud
+- securityReviewText
+- supportEmail
+- supportPhone
+- urlCatReviewCustomLocation
+- urlCatReviewEnabled
+- urlCatReviewSubmitToSecurityCloud
+- urlCatReviewText
+- webDlpReviewCustomLocation
+- webDlpReviewEnabled
+- webDlpReviewSubmitToSecurityCloud
+- webDlpReviewText

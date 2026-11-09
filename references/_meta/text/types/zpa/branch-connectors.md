@@ -1,0 +1,17 @@
+# zpa/branch-connectors (zpa/branch-connectors)
+- Names: zscalerctl `zpa branch-connectors`
+- Live read (read-only): `zscalerctl zpa branch-connectors list`
+- branchConnectorGroupId
+- branchConnectorGroupName
+- creationTime
+- description
+- edgeConnectorGroupId
+- edgeConnectorGroupName
+- enabled
+- fingerprint
+- id
+- ipAcl
+- issuedCertId
+- modifiedBy
+- modifiedTime
+- name

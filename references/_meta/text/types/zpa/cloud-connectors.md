@@ -1,0 +1,15 @@
+# zpa/cloud-connectors (zpa/cloud-connectors)
+- Names: zscalerctl `zpa cloud-connectors`
+- Live read (read-only): `zscalerctl zpa cloud-connectors list`
+- creationTime
+- description
+- edgeConnectorGroupId
+- edgeConnectorGroupName
+- enabled
+- fingerprint
+- id
+- ipAcl
+- issuedCertId
+- modifiedBy
+- modifiedTime
+- name

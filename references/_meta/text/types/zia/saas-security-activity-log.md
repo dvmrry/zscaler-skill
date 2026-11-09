@@ -1,0 +1,26 @@
+# ZIA SaaS Security Activity log (NSS SaaS Security Activity feed) (zia/saas-security-activity-log)
+Also called: nss saas security activity log; zia saas security activity logs
+- Names: nss `saas-security-activity`
+- time string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59)
+- mm integer: Minutes (0–59)
+- hh integer: Hours (0–23)
+- dd integer: The day of the month (1–31)
+- mth integer: The month of the year
+- yyyy integer: Year
+- mon string: The name of the month
+- day string: The day of the week
+- username string: The user who performed the activity
+- is_admin_act string: Indicates if the user who performed the activity is an administrator
+- tenant string: The SaaS application tenant associated with the activity
+- objtypename1 string: The object type associated with the activity
+- objtypename2 string: The second object type associated with the activity, if applicable
+- appname string: The SaaS application associated with the activity
+- objnames1 string: The object name associated with the first object type
+- objnames2 string: The object name associated with the second object type, if applicable
+- act_cnt integer: The activity count
+- act_type_name string: The type of activity performed by the user
+- eventtime string: The event time of the activity
+- extownername string: The external owner of the SaaS application
+- src_ip string: The IP address associated with the activity

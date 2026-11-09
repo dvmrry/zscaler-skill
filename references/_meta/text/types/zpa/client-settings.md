@@ -1,0 +1,11 @@
+# zpa/client-settings (zpa/client-settings)
+- Names: zscalerctl `zpa client-settings`
+- Live read (read-only): `zscalerctl zpa client-settings list`
+- clientCertificateType
+- creationTime
+- enrollmentCertId
+- enrollmentCertName
+- id
+- modifiedBy
+- name
+- singningCertExpiryInEpochSec

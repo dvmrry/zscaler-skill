@@ -1,0 +1,3 @@
+# BRK_MT_SETUP_FAIL_REJECTED_BY_POLICY_POSTURE_FAILED: a status code of ZPA User Activity Log (LSS zpn_trans_log) (zpa/user-activity-log)
+- Help article (Policy Block codes): SE: Application policy blocked access due to device failing a posture check. The Private Access service blocked the application request because the device posture check failed. The device does not meet the required security posture criteria (e.g., missing security updates, disabled antivirus, etc.). Resolution: Confirm all security posture requirements are met for the device (e.g., update the operating system, enable antivirus software, etc.).
+- Source: `vendor/zscaler-help/zpa-understanding-private-access-session-status-codes.json:214`

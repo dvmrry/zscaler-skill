@@ -1,0 +1,11 @@
+# ztw/ip-destination-groups (ztw/ip-destination-groups)
+- Names: zscalerctl `ztw ip-destination-groups`; terraform `ztc_ip_destination_groups`; terraform_data_source `ztc_ip_destination_groups`
+- Live read (read-only): `zscalerctl ztw ip-destination-groups list`
+- addresses
+- countries
+- description
+- id
+- ipCategories
+- isNonEditable
+- name
+- type

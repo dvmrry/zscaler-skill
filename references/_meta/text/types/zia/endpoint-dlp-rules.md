@@ -1,0 +1,39 @@
+# zia/endpoint-dlp-rules (zia/endpoint-dlp-rules)
+- Names: zscalerctl `zia endpoint-dlp-rules`; terraform `zia_endpoint_dlp_rules`; terraform_data_source `zia_endpoint_dlp_rules`
+- Live read (read-only): `zscalerctl zia endpoint-dlp-rules list`
+- action
+- auditor
+- dataTransferMethod
+- departments
+- description
+- deviceGroups
+- deviceTrustLevels
+- devices
+- dlpEngines
+- endPointApplicationGroups
+- endPointApplications
+- eunEnabled
+- eunTemplateId
+- externalAuditorEmail
+- fileTypes
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- minSize
+- name
+- networkType
+- notificationTemplate
+- order
+- parentRule
+- rank
+- receiver
+- resourceGroups
+- resources
+- severity
+- state
+- ucTemplateId
+- userRiskScoreLevels
+- users
+- withoutContentInspection

@@ -1,0 +1,43 @@
+# zia/cloud-app-control (zia/cloud-app-control)
+- Names: zscalerctl `zia cloud-app-control`; terraform `zia_cloud_app_control_rule`
+- Live read (read-only): `zscalerctl zia cloud-app-control list`
+- accessControl
+- actions
+- applications
+- browserEunTemplateId
+- cascadingEnabled
+- cbiProfile
+- cloudAppInstances
+- cloudAppRiskProfile
+- departments
+- description
+- deviceGroups
+- deviceTrustLevels
+- devices
+- enforceTimeValidity
+- eunEnabled
+- eunTemplateId
+- groups
+- id
+- labels
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- numberOfApplications
+- order
+- predefined
+- promptCaptureEnabled
+- rank
+- sizeQuota
+- state
+- tenancyProfileIds
+- timeQuota
+- timeWindows
+- type
+- userAgentTypes
+- userRiskScoreLevels
+- users
+- validityEndTime
+- validityStartTime
+- validityTimeZoneId

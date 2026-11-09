@@ -1,0 +1,33 @@
+# The Filewatcher VM and container for the Zscaler Incident Receiver path to Azure: template parameters, recommendations, prerequisites, prompt defaults, upgrade and SFTP settings (zwa.azure-dlp-integration.filewatcher)
+Also called: filewatcher; FileWatcherVM.json; run-filewatcher.sh
+
+On the ZIR path, the Incident Receiver sends incidents by SFTP to the zscaler-files folder and the Filewatcher container uploads the files from that folder to the Azure Blob containers; when installing, the script run with bash run-filewatcher.sh creates envfile.txt and the zscaler-files folder in the current directory. [zwa.azure-dlp-integration.filewatcher:role-of-filewatcher] When configuring the SFTP storage of the ZIR VM on Azure, storage_sftp_fqdn is the Filewatcher VM's IP address, storage_sftp_port is the upload port (22 shown by default), and storage_dir is the storage directory on the Filewatcher VM, for example /home/<username>/zscaler-files. [zwa.azure-dlp-integration.filewatcher:zir-sftp-settings]
+
+**VM.** In the FileWatcherVM.json deployment, OS Version offers Ubuntu-22-04 and Redhat-9.2 (Ubuntu-22-04 by default), and Vm Size is entered as Standard_D2ads_v6 (Gen2) while Standard_D2s_v3 appears by default. [zwa.azure-dlp-integration.filewatcher:vm-template-parameters] The required VM size is open [gap:zwa.azure-dlp-integration.filewatcher:vm-size]. For the Filewatcher VM, Zscaler recommends at least 200 GB for a single disk, or with multiple disks 100 GB for the root and other partitions and at least 100 GB for the SFTP folder (zscaler-files). [zwa.azure-dlp-integration.filewatcher:storage-recommendations] Zscaler recommends running the Filewatcher container with Podman (daemonless), giving the VM no public IPs, restricting NSG inbound 22/TCP to known corporate CIDRs (using a bastion or jump host if SSH is needed), restricting sudo and applying regular OS updates; for Docker only, an iptables rule in DOCKER-USER can block container access to Azure IMDS (169.254.169.254). [zwa.azure-dlp-integration.filewatcher:security-recommendations] The recommendation of no public IPs conflicts with the page's own public-IP parameter and default [divergence:zwa.azure-dlp-integration.filewatcher:public-ip]. On the ZIR path the custom role for the Filewatcher application grants container read and write actions and, in its dataActions list, blobs read, write, move and add. [zwa.azure-dlp-integration.filewatcher:filewatcher-role]
+
+**Installing.** Before installing the Filewatcher container, the script must not be run as root and the firewall must allow public.ecr.aws:443 and gallery.ecr.aws:443 for the image download and nine Microsoft identity-service domains for the Filewatcher's outbound connection: login.microsoftonline.com, *.aadcdn.msftauth.net, *.aadcdn.msftauthimages.net, *.aadcdn.msauthimages.net, *.logincdn.msftauth.net, login.live.com, *.msauth.net, *.aadcdn.microsoftonline-p.com and *.microsoftonline-p.com. [zwa.azure-dlp-integration.filewatcher:install-prerequisites] In the install procedure, run-filewatcher.sh prompts with defaults of source_folder=/var/data, file_processor_thread_pool_size=8 (files uploaded at a time), file_process_wait_time_in_millis=5000, delete_folders_older_than=7, health_check_interval_in_sec=300, podman as the container platform and is_gov_cloud=no, and the page says to use the default value for each of those except the platform and is_gov_cloud prompts. [zwa.azure-dlp-integration.filewatcher:script-prompt-defaults] What the government-cloud prompt covers is open [gap:zwa.azure-dlp-integration.filewatcher:gov-cloud].
+
+**Upgrading.** A new VM follows the install procedure; for an existing Filewatcher container whose image version is earlier than 1.80.0 the upgrade procedure applies, and 1.80.0 is the image-version the script prompt gives as the latest. [zwa.azure-dlp-integration.filewatcher:install-vs-upgrade] When upgrading, the script updates the envfile.txt file in the current directory and uses the existing folder where the Incident Receiver sends incidents by SFTP; envfile.txt must not be inside the zscaler-files folder. [zwa.azure-dlp-integration.filewatcher:upgrade-behavior]
+
+The integration object is in [The Azure DLP application integration for Workflow Automation: the two forwarding methods, required outputs, fields, validation and privacy settings](kb:zwa.azure-dlp-integration) and the Azure resources in [Azure resources for the DLP integration: app registration, permissions, containers, Event Grid, custom role, storage networking and Front Door](kb:zwa.azure-dlp-integration.resources).
+
+What to check:
+1. Whether the Filewatcher container image version is earlier than 1.80.0, which decides between the install and the upgrade procedure.
+2. Whether the firewall allows the two registry hosts and all nine Microsoft identity-service domains the page lists for the Filewatcher VM.
+3. Whether envfile.txt sits outside the zscaler-files folder after an upgrade.
+
+Sources disagree (name both sides):
+- The Incident Receiver page's security recommendation says the Filewatcher VM must have no public IPs, but the same page's template parameter and manual VM steps provide a public IP. [divergence:zwa.azure-dlp-integration.filewatcher:public-ip]
+  - zscaler-help: The VM must have no public IPs.
+  - zscaler-help: The template offers a Require Public IP choice, and the manual VM steps default to a public IP address (None gives private IP addresses).
+  Impact: Whether a public IP is permitted is not settled: the recommendation reads as a requirement, while the defaults and parameters create one.
+
+Not known (open gaps):
+- Which Filewatcher VM size is required: Standard_D2ads_v6 (Gen2) or the default Standard_D2s_v3? [gap:zwa.azure-dlp-integration.filewatcher:vm-size]: settled by lab-test or support-ticket
+- Which clouds does the is_gov_cloud prompt cover, and what do file_process_wait_time_in_millis and delete_folders_older_than mean beyond the quoted lines? [gap:zwa.azure-dlp-integration.filewatcher:gov-cloud]: settled by source-read or support-ticket
+
+Area: zwa.azure-dlp-integration, its subjects in references/_meta/spine/zwa/zwa.azure-dlp-integration.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zwa/zwa.azure-dlp-integration.md (The Azure DLP application integration for Workflow Automation: the two forwarding methods, required outputs, fields, validation and privacy settings)
+- links-to references/_meta/text/zwa/zwa.azure-dlp-integration.resources.md (Azure resources for the DLP integration: app registration, permissions, containers, Event Grid, custom role, storage networking and Front Door)

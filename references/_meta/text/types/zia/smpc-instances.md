@@ -1,0 +1,12 @@
+# zia/smpc-instances (zia/smpc-instances)
+- Names: zscalerctl `zia smpc-instances`
+- Live read (read-only): `zscalerctl zia smpc-instances list`
+- city
+- connectionStatus
+- countryCode
+- datacenterName
+- dcIsolationStatus
+- id
+- nodes
+- zscmIsolationEnabled
+- zscmIsolationEnabledApiFlag

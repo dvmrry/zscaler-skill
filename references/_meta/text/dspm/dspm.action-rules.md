@@ -1,0 +1,29 @@
+# How DSPM action rules apply Microsoft Purview sensitivity labels, and how SaaS tenants (Microsoft 365) are onboarded (dspm.action-rules)
+Also called: dspm action rules; dspm mip labels; dspm sensitivity labels; dspm saas tenants; dspm saas applications; dspm microsoft 365 onboarding; dspm leverage mip label
+
+Action rules currently support only applying sensitivity labels to Azure file shares and on-premises SMB and NFS file shares, based on criteria such as DLP engines and document types. [dspm.action-rules:action-rule-scope] Azure file share rules need the Leverage MIP Label option selected under Manage Services, and on-premises file share rules need a Microsoft 365 SaaS tenant added with the MIP Label service. [dspm.action-rules:action-rule-prereqs] Sensitivity labels configured with user-defined permissions cannot be applied by action rules, and for Azure file shares DSPM overrides previously assigned labels on files in the rule's scope. [dspm.action-rules:action-rule-user-defined]
+
+**Timing and priority.** DSPM scans and discovers sensitivity labels every 12 hours and applies labels every 4 hours after an action rule is created. [dspm.action-rules:action-rule-timing] Action rule priority ranges from 1 to 2,000 and a lower value means higher priority. [dspm.action-rules:action-rule-priority] Which rule wins when several match one file is open [gap:dspm.action-rules:rule-precedence].
+
+**Rule state.** The Adding an Action Rule page says a newly created action rule is disabled by default and must be enabled with the toggle. [dspm.action-rules:action-rule-default-disabled] The About Action Rules page says that, by default, the action rule is enabled. [dspm.action-rules:action-rule-default-enabled] The default state of a new action rule is in dispute [divergence:dspm.action-rules:action-rule-default-state]. An action rule is disabled when all resources in its scope are deleted or its label is deleted from Microsoft Purview Information Protection, and an invalid rule keeps its priority until deleted. [dspm.action-rules:action-rule-invalid]
+
+**SaaS tenants.** SaaS tenants can be integrated to monitor and scan SaaS data stores, apply Microsoft Information Protection labels to on-premises Azure file shares (the About SaaS Applications page's wording; the Microsoft 365 onboarding page says Azure or on-premises Azure file shares), or integrate with Microsoft Copilot; results appear on the SaaS Overview dashboard. [dspm.action-rules:saas-purpose] The About SaaS Applications page describes the SaaS tenant statuses Successfully Configured and Needs Attention (configuration failed, for example an invalid client secret or certificate), and Status Details is available only for Needs Attention tenants. [dspm.action-rules:saas-tenant-status] A SaaS tenant is edited from the SaaS Applications page: Actions, Edit opens a drawer whose Configuration Details are updated and saved. [dspm.action-rules:saas-tenant-edit] Deleting a SaaS tenant requires entering CONFIRM in the Delete SaaS Tenant window before clicking Delete SaaS Tenant. [dspm.action-rules:saas-tenant-delete-confirm] Tenant types other than Microsoft 365 are open [gap:dspm.action-rules:saas-tenant-types].
+
+**Onboarding Microsoft 365.** Onboarding an M365 tenant needs the Administrator role or a custom role with the Add SaaS Application permission, and an application registered with API permissions. [dspm.action-rules:m365-prereq-role] The registered app is given application permissions on Azure Rights Management Services (Application.Read.All and Content.Writer), Microsoft Information Protection Sync Service (UnifiedPolicy.Tenant.Read) and Microsoft Graph (Application.Read.All and InformationProtectionPolicy.Read.All), followed by admin consent. [dspm.action-rules:m365-api-permissions] The client secret expiry defaults to 180 days (6 months), and the secret must be copied immediately when generated. [dspm.action-rules:m365-client-secret] A self-signed X.509 certificate valid for 365 days can be generated with openssl; a CER file is uploaded to Azure or Entra and a PEM file to the Zscaler Admin Console, with the certificate's export password as Client Password. [dspm.action-rules:m365-certificate] Adding a tenant takes Tenant Type Microsoft 365, a unique Tenant Alias, the MIP Label service, and an Authentication Type, where Client Secret takes the client secret and the certificate option takes a Client Password and a PEM certificate file. [dspm.action-rules:m365-tenant-fields]
+
+What to check:
+1. Whether the action rule is enabled: the two DSPM pages give opposite defaults for a new rule.
+2. Which sensitivity labels and file shares an action rule can cover: labels with user-defined permissions cannot be applied, and only Azure file shares and on-premises SMB and NFS file shares are supported.
+3. Whether the SaaS tenant shows Needs Attention, and its Status Details, before looking at the client secret or certificate.
+
+Sources disagree (name both sides):
+- The Adding an Action Rule page says a new action rule is disabled by default; the About Action Rules page says the action rule is enabled by default. [divergence:dspm.action-rules:action-rule-default-state]
+  - zscaler-help: By default, a new action rule is disabled and the toggle enables it.
+  - zscaler-help: By default, the action rule is enabled.
+  Impact: Whether a newly created rule starts applying labels without the toggle is read differently on the two pages; check the rule's state on the Action Rules page.
+
+Not known (open gaps):
+- Which action rule wins when several match one file [gap:dspm.action-rules:rule-precedence]: settled by lab-test or support-ticket
+- SaaS tenant types beyond Microsoft 365, and the Copilot integration [gap:dspm.action-rules:saas-tenant-types]: settled by source-read
+
+Area: dspm.action-rules, its subjects in references/_meta/spine/dspm/dspm.action-rules.json

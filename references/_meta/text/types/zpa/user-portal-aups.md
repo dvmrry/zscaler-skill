@@ -1,0 +1,15 @@
+# zpa/user-portal-aups (zpa/user-portal-aups)
+- Names: zscalerctl `zpa user-portal-aups`; terraform `zpa_user_portal_aup`; terraform_data_source `zpa_user_portal_aup`
+- Live read (read-only): `zscalerctl zpa user-portal-aups list`
+- aup
+- creationTime
+- description
+- email
+- enabled
+- id
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- phoneNum

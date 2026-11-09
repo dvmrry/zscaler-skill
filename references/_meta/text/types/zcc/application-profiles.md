@@ -1,0 +1,40 @@
+# zcc/application-profiles (zcc/application-profiles)
+- Names: zscalerctl `zcc application-profiles`
+- Live read (read-only): `zscalerctl zcc application-profiles list`
+- active
+- appServiceIds
+- appServices
+- bypassAppIds
+- bypassCustomAppIds
+- description
+- deviceGroupIds
+- deviceGroups
+- deviceType
+- disasterRecovery
+- enableDeviceGroups
+- forwardingProfileId
+- groupAll
+- groupIds
+- groups
+- highlightActiveControl
+- id
+- ipv6Mode
+- logFileSize
+- logLevel
+- logMode
+- name
+- notificationTemplateId
+- onNetPolicy
+- pac_url
+- policyExtension
+- reactivateWebSecurityMinutes
+- reauth_period
+- refreshKerberosToken
+- ruleOrder
+- sendDisableServiceReason
+- showVPNTunNotification
+- tunnelZappTraffic
+- useTunnelSDK4_3
+- userIds
+- users
+- ziaPostureConfigId

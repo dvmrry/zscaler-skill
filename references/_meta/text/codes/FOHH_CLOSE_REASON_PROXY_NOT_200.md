@@ -1,0 +1,3 @@
+# FOHH_CLOSE_REASON_PROXY_NOT_200: a status code of ZPA User Activity Log (LSS zpn_trans_log) (zpa/user-activity-log)
+- Help article (Info codes): SE: Proxy connection failed for HTTP response error 200. The Public Service Edge or Private Service Edge connection through the proxy was closed because the returned code was not 200. The returned code 200 means that a connection is OK. If the code does not come back with 200, the connection is closed. Resolution: Check the proxy connection. If the error persists, contact Zscaler Support.
+- Source: `vendor/zscaler-help/zpa-understanding-private-access-session-status-codes.json:197`

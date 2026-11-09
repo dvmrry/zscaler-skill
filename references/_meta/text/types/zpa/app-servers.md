@@ -1,0 +1,15 @@
+# zpa/app-servers (zpa/app-servers)
+- Names: zscalerctl `zpa app-servers`; terraform `zpa_application_server`
+- Live read (read-only): `zscalerctl zpa app-servers list`
+- address
+- appServerGroupIds
+- configSpace
+- creationTime
+- description
+- enabled
+- id
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name

@@ -60,6 +60,7 @@ const FULL_CHECKS = [
     ],
   },
   { name: "generated spines are current", command: "node", args: ["scripts/gen-spine.mjs", "--check"] },
+  { name: "generated reading text is current", command: "node", args: ["scripts/gen-text.mjs", "--check"] },
   { name: "verified.json is current", command: "node", args: ["scripts/kb.mjs", "verified", "--check"] },
   { name: "generated surface layer is current (ZIA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zia", "--check"] },
   { name: "generated surface layer is current (ZPA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zpa", "--check"] },

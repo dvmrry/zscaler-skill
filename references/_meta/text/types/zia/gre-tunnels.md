@@ -1,0 +1,15 @@
+# zia/gre-tunnels (zia/gre-tunnels)
+- Names: zscalerctl `zia gre-tunnels`; terraform `zia_traffic_forwarding_gre_tunnel`; terraform_data_source `zia_traffic_forwarding_gre_tunnel`
+- Live read (read-only): `zscalerctl zia gre-tunnels list`
+- comment
+- id
+- internalIpRange
+- ipUnnumbered
+- lastModificationTime
+- lastModifiedBy
+- managedBy
+- primaryDestVip
+- secondaryDestVip
+- sourceIp
+- subcloud
+- withinCountry

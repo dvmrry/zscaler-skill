@@ -1,0 +1,14 @@
+# zia/proxies (zia/proxies)
+- Names: zscalerctl `zia proxies`; terraform `zia_forwarding_control_proxies`; terraform_data_source `zia_forwarding_control_proxies`
+- Live read (read-only): `zscalerctl zia proxies list`
+- address
+- base64EncodeXauHeader
+- cert
+- description
+- id
+- insertXauHeader
+- lastModifiedBy
+- lastModifiedTime
+- name
+- port
+- type

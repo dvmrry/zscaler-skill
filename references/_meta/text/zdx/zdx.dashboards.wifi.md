@@ -1,0 +1,18 @@
+# The Wi-Fi Dashboard: access points, SSIDs and their metrics (zdx.dashboards.wifi)
+Also called: wi-fi dashboard; wifi dashboard; zdx wi-fi; access point performance; ap prefix
+
+The Wi-Fi Dashboard is the console view of access point and SSID performance. The Wi-Fi Dashboard uses existing user and device Wi-Fi data in the organization to monitor device performance, which can help identify locations where users might have issues with their Wi-Fi access points. [zdx.dashboards.wifi:purpose] Monitoring the Wi-Fi Dashboard needs a ZDX subscription level that supports it; the subscription table lists Wi-Fi as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus. [zdx.dashboards.wifi:subscription]
+
+**Range and filters.** The Wi-Fi Dashboard's time range runs from the previous 2 hours to 48 hours, or a custom range within the last 14 days. Its SSID filter takes up to 5 SSIDs and selects the SSID with the most devices by default, and its AP Prefix filter takes up to 6 prefixed characters. [zdx.dashboards.wifi:range-filters]
+
+**What it shows.** The dashboard shows the current number of active access points and of active devices, each with its percentage change over the selected period, and distributes access points and connected devices by Good, Okay and Poor ZDX Scores. It estimates active devices per Wi-Fi band, with the device count duplicated for any device using more than one Wi-Fi band at a given time, and lists the top 5 geolocations by connected devices. [zdx.dashboards.wifi:overview-widgets] Wi-Fi performance by geolocation can be switched between a map view and a list view, and a location's access points show by default as a tree view whose tile color follows a ZDX Score and whose tile size follows user volume. The access point list gives the MAC address, a custom name, the number of users and devices, and average latency and jitter in milliseconds, and an access point's info can be customized with the Edit icon. [zdx.dashboards.wifi:ap-views] An access point's details give source-to-gateway latency and jitter over the selected range, its AP MAC and active users and devices, and for each connected device the BSSID, Wi-Fi adapter, ZDX Score, average signal strength, Wi-Fi type and Wi-Fi channel. [zdx.dashboards.wifi:ap-details] Wi-Fi data collection can optionally be configured to use signal strength and retransmission rate, instead of ZDX Score, to identify low-performing Wi-Fi devices. [zdx.dashboards.wifi:alternative-metrics]
+
+**Privacy settings.** When Client Connector's Collection Location Info for ZDX is not enabled, privacy information for Wi-Fi details such as SSID and BSSID is not captured in the Wi-Fi Dashboard. The article also says certain operating systems with the latest updates, for example macOS and Windows 11, do not enable Client Connector's privacy settings by default. [zdx.dashboards.wifi:privacy-collection] Whether the article means the Client Connector switch or the operating system's own permission is open [gap:zdx.dashboards.wifi:privacy-setting-meaning].
+
+What to check:
+1. Whether Collect Location Info for ZDX is enabled in Client Connector before treating an empty SSID or BSSID in the Wi-Fi Dashboard as a data fault.
+
+Not known (open gaps):
+- Whether the Wi-Fi article's privacy settings are Client Connector's switch or the operating system's permission [gap:zdx.dashboards.wifi:privacy-setting-meaning]: settled by lab-test or support-ticket. Blocks: explaining a missing SSID or BSSID in the Wi-Fi Dashboard
+
+Area: zdx.dashboards, its subjects in references/_meta/spine/zdx/zdx.dashboards.json

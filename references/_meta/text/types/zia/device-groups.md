@@ -1,0 +1,11 @@
+# zia/device-groups (zia/device-groups)
+- Names: zscalerctl `zia device-groups`; terraform_data_source `zia_device_groups`
+- Live read (read-only): `zscalerctl zia device-groups list`
+- description
+- deviceCount
+- deviceNames
+- groupType
+- id
+- name
+- osType
+- predefined

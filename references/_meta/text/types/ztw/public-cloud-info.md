@@ -1,0 +1,14 @@
+# ztw/public-cloud-info (ztw/public-cloud-info)
+- Names: zscalerctl `ztw public-cloud-info`; terraform `ztc_public_cloud_info`; terraform_data_source `ztc_public_cloud_info`
+- Live read (read-only): `zscalerctl ztw public-cloud-info list`
+- accountDetails
+- accountGroups
+- cloudType
+- externalId
+- id
+- lastModTime
+- lastModUser
+- lastSyncTime
+- name
+- regionStatus
+- supportedRegions

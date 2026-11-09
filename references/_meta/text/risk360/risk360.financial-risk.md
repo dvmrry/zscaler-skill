@@ -1,0 +1,20 @@
+# Risk360 Financial Risk page, Financial Risk Settings and the Monte Carlo Simulation page (risk360.financial-risk)
+Also called: risk360 financial exposure; risk360 monte carlo simulation page; risk360 breach probability; risk360 simulate toggle
+
+The Financial Risk page shows the organization's risk score-based financial exposure and the exposure without Zscaler, an estimate of the reduction from implementing the Top 10 Financial Contributing Factors' recommended actions, and the loss estimate change over the last 6 months. [risk360.financial-risk:page-widgets] The Top 10 Financial Contributing Factors table gives each factor's Financial Exposure as a loss estimate in US dollars, plus a Licensed? value. [risk360.financial-risk:top-factors] The Financial Risk page can download the complete list of factors affecting the financial risk to a CSV file. [risk360.financial-risk:factors-csv]
+
+**Settings.** Financial Risk Settings show default values set during onboarding, which can be customized by industry vertical and industry annual revenue range; Reset to Default restores the defaults. [risk360.financial-risk:settings-values] The Financial Loss Range is the lower and upper bounds of the financial loss if the organization faces a breach, and these values are used for simulating financial loss estimations within the range. [risk360.financial-risk:settings-loss-range] The Financial Risk model inherits the latest values from the preceding settings to perform loss estimations. [risk360.financial-risk:settings-inherit]
+
+**Monte Carlo Simulation page.** The Monte Carlo Simulation page shows a Loss Exceedance graph of the probability of exceeding loss values in millions of dollars, an Average Yearly Exposure bar graph of average yearly loss in millions of dollars per risk parameter, and Breach Probability (%) calculated from inherent, last 30 days average, residual and industry peer risk. [risk360.financial-risk:mc-page-metrics] The Zscaler-computed breach probability is continuously updated, is determined from industry vertical, annual revenue range and risk score, and is an input to the financial exposure calculation. [risk360.financial-risk:mc-breach-probability] Enabling the Simulate toggle lets the breach probability be edited per risk parameter; after Apply the financial exposure is reevaluated, and disabling the toggle restores the Zscaler-computed probabilities. [risk360.financial-risk:mc-simulate-toggle] The Simulation Results drawer has 4 tabs, one per risk parameter, each showing all 1,000 iterations; the page states the service runs the Monte Carlo simulations 1,000 times. [risk360.financial-risk:mc-iterations] How often the simulation runs is stated on the explainer in [Zscaler's Monte Carlo explainer says Risk360 runs the simulation for an organization one thousand times per day; each iteration measures financial loss from a randomized cyber breach event and a randomized financial loss within a predefined confidence interval.](kb:risk360.scoring:monte-carlo-runs). The loss-curve formula and the exposure-without-Zscaler method are not published [gap:risk360.financial-risk:model-method].
+
+What to check:
+1. Whether Simulate is enabled on the Monte Carlo Simulation page and its probabilities were edited and applied, since disabling the toggle restores the Zscaler-computed probabilities.
+2. The Industry Vertical, Industry Annual Revenue Range and Financial Loss Range in Financial Risk Settings before quoting a financial exposure.
+
+Not known (open gaps):
+- The financial model's loss-curve formula, exposure-without-Zscaler method and confidence level [gap:risk360.financial-risk:model-method]: settled by source-read or support-ticket
+
+Area: risk360.financial-risk, its subjects in references/_meta/spine/risk360/risk360.financial-risk.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/risk360/risk360.scoring.md (How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates)

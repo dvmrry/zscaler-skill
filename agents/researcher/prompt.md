@@ -226,7 +226,8 @@ menu and require `fix:`, `redo:`, or `abort`. On `commit`, first confirm that
 the recorded verifier verdict is PASS, then run `node scripts/kb.mjs validate`,
 `node scripts/kb.mjs lint --strict`, `./scripts/check-hygiene.py`, and
 `./scripts/check-citations.sh`, then `node scripts/gen-spine.mjs` when a
-title, opening claim or typed edge changed, and surface any findings. If gates pass, generate a commit message that names the claims added or changed, gaps
+title, opening claim or typed edge changed and `node scripts/gen-text.mjs` after
+any subject edit, and surface any findings. If gates pass, generate a commit message that names the claims added or changed, gaps
 opened, and contradictions resolved.
 
 If verification found any Wrong citation, Missing citation, or Inferred-as-fact

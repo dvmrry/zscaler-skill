@@ -1,0 +1,19 @@
+# zpa/scim-attributes (zpa/scim-attributes)
+- Names: zscalerctl `zpa scim-attributes`; terraform_data_source `zpa_scim_attribute_header`
+- Live read (read-only): `zscalerctl zpa scim-attributes list`
+- canonicalValues
+- caseSensitive
+- creationTime
+- dataType
+- description
+- id
+- idpId
+- modifiedBy
+- modifiedTime
+- multivalued
+- mutability
+- name
+- required
+- returned
+- schemaURI
+- uniqueness

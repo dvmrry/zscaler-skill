@@ -1,0 +1,26 @@
+# The Device Health Score and the hardware and usage profiles of the Devices Overview (zdx.devices.health-score)
+Also called: device health score; devices overview; device health dashboard; hardware profile; usage profile; utilization profile; hardware analysis; over provisioned; under provisioned
+
+The Devices Overview is the console's device health scoreboard; the API's device health reads are in [ZDX device health metrics and device events](kb:zdx.devices.health-and-events).The Devices Overview uses existing user and device data to create a device health scoreboard that monitors the performance of Windows and macOS devices. The Device Health Score gives a view of struggling devices across an entire organization, department, user group or location. [zdx.devices.health-score:overview] Monitoring the Devices Overview needs a ZDX subscription level that supports it and the proper ZDX role; the subscription table lists the Device Health Dashboard as not supported on Standard, Microsoft 365 and Advanced and supported on Advanced Plus. [zdx.devices.health-score:subscription]
+
+**The score.** The Device Health Score is determined by individual contributing metrics such as CPU, memory and disk usage, and falls in Good (66-100), Okay (34-65) or Poor (0-33); all scores are rounded to the nearest whole number. [zdx.devices.health-score:score-bands] The contributing metrics behind a device's score include CPU Usage, Memory Usage and Disk Usage scores, an Average Disk Queue Length score, a Battery score and a Wi-Fi Signal Quality score; system crash details (unexpected shutdowns, unexpected reboots, total system crashes and a System Crashes Score); and a Software Issues Score based on the number of software crashes or hangs. [zdx.devices.health-score:contributing-metrics] The key performance metrics are determined by predetermined optimal values for what is considered Good, Warning or Critical health, for CPU usage, memory usage, disk usage, battery, system crashes, average disk queue length, Wi-Fi signal quality and software crashes. [zdx.devices.health-score:metric-thresholds] The help article gives no thresholds, and no weights for combining the contributing scores [gap:zdx.devices.health-score:thresholds-and-weights].
+
+**Tabs.** The Devices Overview has Summary, Device List and Hardware Analysis tabs. The Summary tab takes a range from the previous 2 hours to 48 hours or a custom range within the last 14 days, and shows the organization Device Health Score, impacted devices over time, device health by region, and impacted device counts by usage profile (Light, Normal, Power) and by hardware profile (Low, Standard, High). [zdx.devices.health-score:tabs-summary] The Device List provides an exportable list of impacted devices for viewing, with each device's Device Health Score and its classification (Poor, Okay or Good), and can be exported as a CSV file. There might be inaccurate metrics or scores due to insufficient data if the device is unavailable for the majority of the time, and those data points can be hidden. [zdx.devices.health-score:device-list]
+
+**Profiles.** A device's hardware profile is calculated from the CPU speed, RAM, disk type, number of cores and logical processors, compared with other devices within the organization: Low is below 10% of the organization's distribution, Standard greater than 10% and below 90%, and High greater than 90%. [zdx.devices.health-score:hardware-profile] A device's usage profile is categorized from its CPU and memory usage for the previous 14 days: Light when below 80%, Normal when 80 to 90%, and Power when above 90%. [zdx.devices.health-score:usage-profile]
+
+**Hardware Analysis.** Hardware Analysis classes a device as Over Provisioned (a higher number of acceptable hardware resources than needed; amber), Right Sized (resources match its usage level; green) or Under Provisioned (not enough resources for its current usage level; red, with a recommendation to upgrade hardware). Its Usage Analysis analyzes every 7 days and can look up to the previous 14 days of data, and the device data are gathered from the previous 14 days and can be exported as a CSV file. [zdx.devices.health-score:hardware-analysis]
+
+**Shared devices.** Where users share a device the user count exceeds the device count, [When a device is shared between multiple users, the user count is higher than the device count; in the Devices Overview's example there are two users and one device.](kb:zdx.devices:shared-device-counts).
+
+What to check:
+1. Whether a poor device score rests on little data because the device was unavailable most of the time before acting on it.
+
+Not known (open gaps):
+- The Good, Warning and Critical thresholds and how contributing scores combine into the Device Health Score [gap:zdx.devices.health-score:thresholds-and-weights]: settled by support-ticket or lab-test. Blocks: explaining why a device scores Poor
+
+Area: zdx.devices, its subjects in references/_meta/spine/zdx/zdx.devices.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
+- links-to references/_meta/text/zdx/zdx.devices.health-and-events.md (ZDX device health metrics and device events)

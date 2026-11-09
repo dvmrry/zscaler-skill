@@ -1,0 +1,20 @@
+# zia/pac-files (zia/pac-files)
+- Names: zscalerctl `zia pac-files`; terraform `zia_pac_files`; terraform_data_source `zia_pac_files`
+- Live read (read-only): `zscalerctl zia pac-files list`
+- createTime
+- description
+- domain
+- editable
+- id
+- lastModificationTime
+- lastModifiedBy
+- name
+- pacCommitMessage
+- pacContent
+- pacSubURL
+- pacUrl
+- pacUrlObfuscated
+- pacVerificationStatus
+- pacVersion
+- pacVersionStatus
+- totalHits

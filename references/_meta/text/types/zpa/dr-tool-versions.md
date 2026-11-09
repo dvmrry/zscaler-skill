@@ -1,0 +1,12 @@
+# zpa/dr-tool-versions (zpa/dr-tool-versions)
+- Names: zscalerctl `zpa dr-tool-versions`
+- Live read (read-only): `zscalerctl zpa dr-tool-versions list`
+- creationTime
+- customerId
+- id
+- latest
+- modifiedBy
+- modifiedTime
+- name
+- platform
+- version

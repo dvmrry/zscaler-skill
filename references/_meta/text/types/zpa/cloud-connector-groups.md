@@ -1,0 +1,15 @@
+# zpa/cloud-connector-groups (zpa/cloud-connector-groups)
+- Names: zscalerctl `zpa cloud-connector-groups`; terraform_data_source `zpa_cloud_connector_group`
+- Live read (read-only): `zscalerctl zpa cloud-connector-groups list`
+- cloudConnectors
+- creationTime
+- description
+- enabled
+- geoLocationId
+- id
+- modifiedBy
+- modifiedTime
+- name
+- ziaCloud
+- ziaOrgId
+- znfGroupType

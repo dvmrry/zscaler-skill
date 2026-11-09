@@ -1,0 +1,39 @@
+# zia/file-type-rules (zia/file-type-rules)
+- Names: zscalerctl `zia file-type-rules`; terraform `zia_file_type_control_rules`; terraform_data_source `zia_file_type_control_rules`
+- Live read (read-only): `zscalerctl zia file-type-rules list`
+- accessControl
+- activeContent
+- browserEunTemplateId
+- capturePCAP
+- cloudApplications
+- departments
+- description
+- deviceGroups
+- deviceTrustLevels
+- devices
+- fileTypes
+- filteringAction
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- maxSize
+- minSize
+- name
+- operation
+- order
+- passwordProtected
+- protocols
+- rank
+- sizeQuota
+- state
+- timeQuota
+- timeWindows
+- unscannable
+- urlCategories
+- users
+- zpaAppSegments
+- zpaAppSegments.externalId

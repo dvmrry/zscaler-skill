@@ -1,0 +1,12 @@
+# zia/alert-subscriptions (zia/alert-subscriptions)
+- Names: zscalerctl `zia alert-subscriptions`; terraform `zia_subscription_alert`; terraform_data_source `zia_subscription_alert`
+- Live read (read-only): `zscalerctl zia alert-subscriptions list`
+- complySeverities
+- deleted
+- description
+- email
+- id
+- manageSeverities
+- pt0Severities
+- secureSeverities
+- systemSeverities

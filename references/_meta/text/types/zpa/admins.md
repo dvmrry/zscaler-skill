@@ -1,0 +1,25 @@
+# zpa/admins (zpa/admins)
+- Names: zscalerctl `zpa admins`
+- Live read (read-only): `zscalerctl zpa admins list`
+- comments
+- deliveryTag
+- displayName
+- email
+- eula
+- forcePwdChange
+- groupIds
+- id
+- isEnabled
+- isLocked
+- languageCode
+- localLoginDisabled
+- microtenantId
+- microtenantName
+- operationType
+- phoneNumber
+- pinSession
+- role
+- roleId
+- syncVersion
+- timezone
+- username

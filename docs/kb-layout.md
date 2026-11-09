@@ -11,6 +11,7 @@ bundle interface for scripts. The record contracts are the schemas under `refere
 | `references/<product>/<subject-id>.json` | one subject: prose, claims, gaps, divergences, cases, checks | people (and conversion tools) |
 | `references/<product>/types/*.json` | log types and their fields | `scripts/gen-log-types.mjs` |
 | `references/_meta/spine/` | the agents' entry point: `<product>.json` lists a product's areas, log types and reference areas with the areas their typed edges reach; `<product>/<area>.json` lists an area's subjects with their opening fact and edges. `gen-spine.mjs --check` gates it | `scripts/gen-spine.mjs` |
+| `references/_meta/text/` | the reading text agents open with file tools, so the public graph needs no shell command: `<product>/<subject id>.md` is a subject as `kb.mjs read` prints it, with its aliases and its one-hop links as file paths; `types/<type id>.md` a log or config type; `codes/` each ZPA LSS status code and ZIA policy reason. `gen-text.mjs --check` gates it | `scripts/gen-text.mjs` |
 | `references/_meta/schema/` | JSON Schemas for subjects, types, registries, the overlay and the resolve bundle | people |
 | `references/_meta/products.json` | product IDs, names and aliases | people |
 | `references/_meta/sources.json` | every citable source: submodules, help captures, static files, with rank | people |

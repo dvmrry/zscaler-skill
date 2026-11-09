@@ -1,0 +1,11 @@
+# ztw/ip-groups (ztw/ip-groups)
+- Names: zscalerctl `ztw ip-groups`; terraform `ztc_ip_pool_groups`; terraform_data_source `ztc_ip_pool_groups`
+- Live read (read-only): `zscalerctl ztw ip-groups list`
+- creatorContext
+- description
+- extranetIpPool
+- id
+- ipAddresses
+- isNonEditable
+- isPredefined
+- name

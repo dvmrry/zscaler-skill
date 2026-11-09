@@ -1,0 +1,26 @@
+# zia/url-categories (zia/url-categories)
+- Names: zscalerctl `zia url-categories`; terraform `zia_url_categories`; terraform_data_source `zia_url_categories`
+- Live read (read-only): `zscalerctl zia url-categories list`
+- categoryGroup
+- configuredName
+- customCategory
+- customIpRangesCount
+- customUrlsCount
+- dbCategorizedUrls
+- description
+- editable
+- id
+- ipRanges
+- ipRangesRetainingParentCategory
+- ipRangesRetainingParentCategoryCount
+- keywords
+- keywordsRetainingParentCategory
+- regexPatterns
+- regexPatternsRetainingParentCategory
+- scopes
+- superCategory
+- type
+- urlKeywordCounts
+- urlType
+- urls
+- urlsRetainingParentCategoryCount

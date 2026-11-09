@@ -1,0 +1,12 @@
+# zcc/custom-ip-apps (zcc/custom-ip-apps)
+- Names: zscalerctl `zcc custom-ip-apps`; terraform_data_source `zcc_custom_ip_apps`
+- Live read (read-only): `zscalerctl zcc custom-ip-apps list`
+- active
+- appDataBlob
+- appDataBlobV6
+- appName
+- createdBy
+- editedBy
+- editedTimestamp
+- id
+- uid

@@ -1,0 +1,42 @@
+# zia/forwarding-rules (zia/forwarding-rules)
+- Names: zscalerctl `zia forwarding-rules`; terraform `zia_forwarding_control_rule`; terraform_data_source `zia_forwarding_control_rule`
+- Live read (read-only): `zscalerctl zia forwarding-rules list`
+- appServiceGroups
+- dedicatedIPGateway
+- departments
+- description
+- destAddresses
+- destCountries
+- destIpCategories
+- destIpGroups
+- destIpv6Groups
+- deviceGroups
+- ecGroups
+- forwardMethod
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- nwApplicationGroups
+- nwServiceGroups
+- nwServices
+- order
+- proxyGateway
+- rank
+- resCategories
+- srcIpGroups
+- srcIps
+- srcIpv6Groups
+- state
+- type
+- users
+- zpaAppSegments
+- zpaAppSegments.externalId
+- zpaApplicationSegmentGroups
+- zpaApplicationSegments
+- zpaBrokerRule
+- zpaGateway

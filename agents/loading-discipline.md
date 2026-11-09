@@ -42,20 +42,21 @@ artifact that can answer the current question, then stop.
 
 1. **Route, then read.** For Zscaler knowledge, follow `SKILL.md` "Using the
    knowledge graph": pick areas from the spine (`references/_meta/spine/<product>.json`,
-   then `<product>/<area>.json`), then read them with
-   `node scripts/kb.mjs read <area | subject | type | field> ...` in one call. For
+   then `<product>/<area>.json`), then open the picked subjects' text files under
+   `references/_meta/text/` with your file tool. For
    anything else, use workflow metadata, the capability registry, or a short
    `rg` search to choose a source. Do not open product folders, runbooks, or
    vendor trees before a concrete question points there.
 2. **Prefer indexes before bodies.** The spine is the graph's index: an area
-   lists its subjects with their opening facts and sizes, and an area too large
-   to read whole reads as its hub and an index of its subjects. Load
+   lists its subjects with their opening facts and typed edges. Load
    `agents/**/grounding/index.md` or a source viewer index before child cards.
    Read a child only when the index names it as relevant.
-3. **Read, don't page in.** `read` prints a subject's claims, gaps and
-   divergences with citable IDs and follows one hop of links; old clarification
-   IDs (`zia-02`) read as their subjects. `resolve` gives the same knowledge as
-   JSON for scripts. Do not read or grep the graph's JSON files to answer.
+3. **Read, don't page in.** A subject's text file gives its claims, gaps and
+   divergences with citable IDs and ends with its links as file paths; search
+   `references/_meta/text/` for a pasted error, code or name. `read` prints the
+   same text (old clarification IDs such as `zia-02` read as their subjects),
+   and `resolve` gives the same knowledge as JSON for scripts. Do not read or
+   grep the graph's JSON files to answer.
 4. **Default search exclusions.** Broad searches should exclude local runtime
    copies and generated/stale workspaces: `--glob '!.claude/worktrees/**'`.
    Exclude raw vendor source under `vendor/**` unless the current workflow

@@ -1,0 +1,15 @@
+# zia/casb-tenants (zia/casb-tenants)
+- Names: zscalerctl `zia casb-tenants`; terraform_data_source `zia_casb_tenant`
+- Live read (read-only): `zscalerctl zia casb-tenants list`
+- enterpriseTenantId
+- featuresSupported
+- lastTenantValidationTime
+- modifiedTime
+- reAuth
+- saasApplication
+- status
+- tenantDeleted
+- tenantId
+- tenantName
+- tenantWebhookEnabled
+- zscalerAppTenantId

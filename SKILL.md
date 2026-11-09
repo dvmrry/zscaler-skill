@@ -31,8 +31,8 @@ Structured troubleshooting with a symptom, an affected scope and a timeframe bel
 | IaC | the overlay's IaC repos | what our configuration is, as of the repo's last commit |
 | Live | read-only `zscalerctl`, when the overlay declares it | what is true now, and drift from IaC |
 
-`read` finds the overlay itself (`$ZSCALER_KB_OVERLAY`, else `<runtime-data mount>/overlay/`): with one it prints the
-IaC repos and their paths, without one it says so, so there is nothing to locate first. IaC reads go only to the
+`read --company` finds the overlay itself (`$ZSCALER_KB_OVERLAY`, else `<runtime-data mount>/overlay/`): with one it
+prints the IaC repos and their paths, without one it says so, so there is nothing to locate first. IaC reads go only to the
 repos the overlay lists.
 
 - **IaC before live.** Company records carry the values or file locations their IaC pointers resolve to; read
@@ -48,9 +48,8 @@ Vendored provider and SDK source say what a tool can express, never what *we* de
 
 ## Using the knowledge graph
 
-Retrieval is a file read and one command: the spine, then one `read`. Many runtimes stop for a person to approve
-every shell command, so keep to that one (a second `read` only when the first points at something the answer
-needs).
+Retrieval is file reads and searches: the spine, then the text files of the subjects you pick. Many runtimes stop
+for a person to approve every shell command, and the public graph needs none; only company records take one.
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared` for cross-product material and log
@@ -68,33 +67,39 @@ needs).
    fields. Pick from the spine the areas and subjects that hold those mechanisms, not only the ones that share
    the question's words; the edges show where each mechanism lives. Your own Zscaler knowledge chooses what to
    read; it is never a source for the answer.
-3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6 arguments:
-   for example `read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`. An area reads every
-   subject under it; take whole areas for the mechanisms the question turns on, and single subjects from areas over
-   about 10k tokens (each area's `tokens` in the product spine). An area over about 20k tokens reads as its hub and
-   an index of its subjects with their sizes: read the ones the question needs by ID next. For log evidence, name the fields
-   (`zia/web-log#ssldecrypted`) or the log type; each product's spine file lists its log types. A ZPA LSS status code
-   from a log (`AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`) reads by name. Claims arrive inline
-   with their citable ID in brackets (`[zia.url-filtering.rule-order:first-match]`), then further facts, inferred
-   (Tier B) claims with their conditions, sources that disagree with each side, and open gaps with what would fill
-   them. `read` then walks the graph one hop: the subjects the ones you named link to follow under "Linked
-   subjects", the most-linked first, and every other link prints as one line with the claim that establishes it;
-   read one of those by ID only if the answer needs it. With a company overlay, each subject, type or field is
-   followed by the company records about it and the types it binds: scope, confidence, validated date, field map and
-   IaC locations.
-4. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
-   files the company records locate, with your file tools, and search them for the objects the question names
-   (the app, rule, location or category). Give the file's `committed` date.
+3. **Read.** Open the text files of the 3 to 6 subjects that hold those mechanisms, picked from the area spines:
+   `references/_meta/text/<product>/<subject id>.md` (for example
+   `references/_meta/text/zia/zia.url-filtering.rule-order.md`); an area's hub is the file named by the area's ID. For
+   log evidence, open the log type, `references/_meta/text/types/<type id>.md`
+   (`references/_meta/text/types/zia/web-log.md`, every field); each product's spine file lists its log types. Each
+   subject file gives its claims inline with their citable ID in brackets
+   (`[zia.url-filtering.rule-order:first-match]`), then further facts, inferred (Tier B) claims with their
+   conditions, sources that disagree with each side, and open gaps with what would fill them. It ends with its links
+   as file paths, the most strongly linked first, each with the claim that establishes it: open one only if the
+   answer needs it.
+   **Something pasted or named that the spine does not show** (an error message, a ZPA LSS status code such as
+   `AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`, a ZIA policy reason, a feature's nickname): search `references/_meta/text/`
+   with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the
+   files it finds. Each subject file lists its aliases under its title, and each status code and policy reason has
+   its own file under `references/_meta/text/codes/`.
+4. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, run
+   `node scripts/kb.mjs read --company <the subject and type IDs you read>` once: the company records about them and
+   the types they bind (scope, confidence, validated date, field map and IaC locations), or a line saying no overlay
+   is configured. Open the IaC files the records locate, with your file tools, and search them for the objects the
+   question names (the app, rule, location or category). Give the file's `committed` date.
 
-Run each command bare, from the repo root, exactly as written (`node scripts/kb.mjs read ...`): no `cd`, no pipe,
-no redirect, no absolute path. Permission checks approve a bare command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
-`node -e`. A refused command says only that its form was wrong, not that the shell is off: run `node scripts/kb.mjs
-read ...` bare next, and never answer from the spine alone. When a command's output is long and the runtime saves
-it to a file, open that file with your file tool, never with `cat`, `grep` or another shell command.
+Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
+with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a
+directory, since the spine and each file's links give every path. Run the commands that remain (`read --company`,
+`surface`, `releases`) bare, from the repo root, exactly as written: no `cd`, no pipe, no redirect, no absolute
+path. Permission checks approve a bare command; a compound one is refused or prompts again. A refused command says
+only that its form was wrong, not that the shell is off: run it bare next. When a command's output is long and the
+runtime saves it to a file, open that file with your file tool.
 
 ```bash
 node scripts/kb.mjs map <product> ...                     # the spine as text, when a file read is not available
-node scripts/kb.mjs read <area | subject | type> ...       # reading text with claim IDs; company records with an overlay
+node scripts/kb.mjs read --company <subject | type> ...    # the company records about them, with an overlay
+node scripts/kb.mjs read <area | subject | type> ...       # the text files' content in one call, with company records
 node scripts/kb.mjs resolve <id>                          # one subject or old ledger ID as a JSON bundle, with citations
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
 node scripts/kb.mjs releases <product> [--since <date>] [--grep <text>]   # the vendor's release notes, newest first

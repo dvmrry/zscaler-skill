@@ -1,0 +1,14 @@
+# ztw/network-services (ztw/network-services)
+- Names: zscalerctl `ztw network-services`; terraform `ztc_network_services`; terraform_data_source `ztc_network_services`
+- Live read (read-only): `zscalerctl ztw network-services list`
+- creatorContext
+- description
+- destTcpPorts
+- destUdpPorts
+- id
+- isNameL10nTag
+- name
+- srcTcpPorts
+- srcUdpPorts
+- tag
+- type

@@ -1,0 +1,27 @@
+# ZIA admin audit log (NSS admin audit feed) (zia/admin-audit-log)
+Also called: nss admin audit log; zia admin audit logs; zia audit log; zscalernss-audit
+- Names: nss `admin-audit`
+- time string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59)
+- mm integer: Minutes (0–59)
+- hh integer: Hours (0–23)
+- dd integer: The day of the month (1–31)
+- mth integer: The month of the year
+- yyyy integer: Year
+- mon string: The name of the month
+- day string: The day of the week
+- intlogtime integer: The epoch time of the transaction
+- recordid integer: The unique record identifier for each log
+- action string: The action performed by the admin in the Zscaler Admin Console
+- category string: The location in the Zscaler Admin Console where the action was performed
+- subcategory string: The sublocation in the Zscaler Admin Console where the action was performed
+- resource string: The specific location within a subcategory
+- interface string: The means by which the user performs their actions
+- adminid string: The admin ID. Possible field values include: The login ID of a user from your organization's Internet Access (ZIA) tenant The login ID of a Zscaler partner Zscaler Remote Assistance Service Support (i.e., when a partner accesses your organization’s Internet Access tenant from the Zscaler Management Portal for Partners) Partner Template (i.e., when a Policy Template is created and applied from the Management Portal for Partners to your organization’s Internet Access tenant)
+- clientip string: The source IP address for the admin
+- result string: The outcome of an action
+- errorcode string: An optional field that exists only if the result is a failure
+- auditlogtype string: The admin audit log type
+- preaction string: Data before any policy or configuration changes
+- postaction string: Data after any policy or configuration changes

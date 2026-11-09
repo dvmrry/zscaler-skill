@@ -1,0 +1,12 @@
+# zia/vzen-clusters (zia/vzen-clusters)
+- Names: zscalerctl `zia vzen-clusters`; terraform `zia_virtual_service_edge_cluster`; terraform_data_source `zia_virtual_service_edge_cluster`
+- Live read (read-only): `zscalerctl zia vzen-clusters list`
+- defaultGateway
+- id
+- ipAddress
+- ipSecEnabled
+- name
+- status
+- subnetMask
+- type
+- virtualZenNodes

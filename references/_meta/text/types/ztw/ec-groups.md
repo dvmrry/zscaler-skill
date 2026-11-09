@@ -1,0 +1,16 @@
+# ztw/ec-groups (ztw/ec-groups)
+- Names: zscalerctl `ztw ec-groups`; terraform_data_source `ztc_edge_connector_group`
+- Live read (read-only): `zscalerctl ztw ec-groups list`
+- awsAvailabilityZone
+- azureAvailabilityZone
+- deployType
+- desc
+- ecVMs
+- id
+- location
+- maxEcCount
+- name
+- platform
+- provTemplate
+- status
+- tunnelMode

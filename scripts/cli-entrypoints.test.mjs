@@ -27,6 +27,7 @@ const cases = [
   { script: "kb-reanchor.mjs", args: [], code: 2, output: /usage: KB_MODEL_ENDPOINT=.*node scripts\/kb-reanchor\.mjs/ },
   { script: "capture-queue.mjs", args: ["--limit", "0"], code: 2, output: /usage: capture-queue\.mjs/ },
   { script: "kb-eval.mjs", args: [], code: 2, output: /usage: kb-eval\.mjs/ },
+  { script: "gen-text.mjs", args: ["--bogus"], code: 2, output: /usage: node scripts\/gen-text\.mjs/ },
   { script: "bump-pins.mjs", args: ["--bogus"], code: 2, output: /usage: node scripts\/bump-pins\.mjs/ },
 ];
 

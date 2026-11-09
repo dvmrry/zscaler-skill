@@ -1,0 +1,16 @@
+# zia/ips-signature-rules (zia/ips-signature-rules)
+- Names: zscalerctl `zia ips-signature-rules`; terraform `zia_ips_signature_rules`; terraform_data_source `zia_ips_signature_rules`
+- Live read (read-only): `zscalerctl zia ips-signature-rules list`
+- category
+- deleted
+- description
+- disabledFromZSCM
+- dynamicValRejectCode
+- dynamicValidationRejected
+- dynamicValidationSubmitted
+- dynamicValidationSucceeded
+- enabled
+- id
+- name
+- promoteTime
+- ruleTextModTime

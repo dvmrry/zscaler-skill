@@ -1,0 +1,19 @@
+# zia/tenancy-restriction-profiles (zia/tenancy-restriction-profiles)
+- Names: zscalerctl `zia tenancy-restriction-profiles`; terraform `zia_tenant_restriction_profile`; terraform_data_source `zia_tenant_restriction_profile`
+- Live read (read-only): `zscalerctl zia tenancy-restriction-profiles list`
+- allowGcpCloudStorageRead
+- allowGoogleConsumers
+- allowGoogleVisitors
+- appType
+- description
+- id
+- itemDataPrimary
+- itemDataSecondary
+- itemTypePrimary
+- itemTypeSecondary
+- itemValue
+- lastModifiedTime
+- lastModifiedUserId
+- msLoginServicesTrV2
+- name
+- restrictPersonalO365Domains

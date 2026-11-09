@@ -1,0 +1,20 @@
+# zpa/user-portal-links (zpa/user-portal-links)
+- Names: zscalerctl `zpa user-portal-links`; terraform `zpa_user_portal_link`; terraform_data_source `zpa_user_portal_link`
+- Live read (read-only): `zscalerctl zpa user-portal-links list`
+- applicationId
+- creationTime
+- description
+- enabled
+- iconText
+- id
+- link
+- linkPath
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- nameWithoutTrim
+- protocol
+- userPortalId
+- userPortals

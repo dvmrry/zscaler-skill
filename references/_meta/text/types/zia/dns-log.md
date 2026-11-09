@@ -1,0 +1,59 @@
+# ZIA DNS log (NSS DNS feed) (zia/dns-log)
+Also called: nss dns log; zia dns logs; dns insights logs
+- Names: nss `dns`
+- time (Logged Time) string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59) (Insights: This field is derived from Logged Time)
+- mm integer: Minutes (0–59) (Insights: This field is derived from Logged Time)
+- hh integer: Hours (0–23) (Insights: This field is derived from Logged Time)
+- dd integer: The day of the month (1–31) (Insights: This field is derived from Logged Time)
+- mth integer: The month of the year (Insights: This field is derived from Logged Time)
+- yyyy integer: Year (Insights: This field is derived from Logged Time)
+- mon string: The name of the month (Insights: This field is derived from Logged Time)
+- day string: The day of the week (Insights: This field is derived from Logged Time)
+- epochtime integer: The epoch time of the transaction
+- extranet_name (Extranet Resource) string: The name of the extranet resource associated with the transaction
+- reqrulelabel (Request Rule Name) string: The name of the rule that was applied to the DNS request
+- reqaction (Request Action) string: The name of the action that was applied to the DNS request
+- resrulelabel (Response Rule Name) string: The name of the rule that was applied to the DNS response
+- resaction (Response Action) string: The name of the action that was applied to the DNS response
+- ecs_slot (ECS Object Name) string: The name of the EDNS Client Subnet (ECS) rule that was applied to the DNS transaction
+- dnsgw_slot (Resolver Gateway) string: The name of the DNS Gateway rule
+- istcp integer: Indicates if the DNS transaction uses TCP
+- cip (Client IP) string: The IP address of the user. This can be the internal IP address if it is visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it's the client's internet (NATed Public) IP address.
+- durationms (Request Duration) integer: The duration of the DNS request in milliseconds
+- sip (Server IP) string: The server IP address of the request
+- recordid integer: The unique record identifier for each log (Insights: This field is specific to NSS)
+- pcapid (Capture) string: The path of the packet capture (PCAP) file that captured the transaction. The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>. The company ID is the internal ID of an organization and can be found on the Organization profile page. The directory is the log type. To download the PCAP file, go to the Capture column on the DNS Insights Logs page.
+- location (Location) string: The gateway location or sublocation of the source
+- req (Requested Domain) string: The Fully Qualified Domain Name (FQDN) in the DNS request
+- res (Resolved IP or Name) string: The resolved IP or NAME in the DNS response
+- domcat (Request Categories) string: The category of the content of the DNS request
+- respipcat (Response Categories) string: The category of the content of the DNS response
+- reqtype (DNS Request Type) string: The DNS request type
+- restype (DNS Response Type) string: The DNS response type. The means or format of the response.
+- sport (Server Port) integer: The server port of the request
+- eedone string: Indicates if the characters specified in the Feed Escape Character field of the NSS configuration page were hex encoded (Insights: This field is specific to NSS)
+- error (DNS Error Code) string: The DNS error code. Usually an incomplete or failed transaction.
+- ecs_prefix (ECS Prefix) string: The EDNS Client Subnet (ECS) prefix used in the DNS request. This field displays a numeric string.
+- dnsgw_srv_proto (Server Protocol) string: The DNS Gateway server protocol
+- dnsgw_flags (DNS Gateway Flags) string: Flags indicating the DNS Gateway status for the transaction
+- http_code (HTTP Status Code) string: The HTTP return code used in DNS over HTTPS sessions
+- dnsappcat (DNS Tunnel & Network App Categories) string: The DNS tunnel or network application category
+- dnsapp (DNS Tunnels & Network Apps) string: The type of DNS tunnel or network application
+- protocol (Protocol Type) string: The protocol type
+- login (User) string: The login name in email address format
+- dept (Department) string: The department
+- company string: The company name (Insights: This field is specific to NSS)
+- cloudname string: The Zscaler cloud name (Insights: This field is specific to NSS)
+- devicehostname (Device Hostname) string: The hostname of the device
+- devicename (Device Name) string: The name of the device
+- deviceowner (Device Owner) string: The owner of the device
+- devicemodel (Device Model) string: The model of the device
+- deviceosversion (Device OS Version) string: The OS version that the device uses
+- deviceostype (Device OS Type) string: The OS type of the device
+- deviceappversion (Enrolled Device appversion) string: The app version that the device uses
+- devicetype string: The type of device
+- datacenter (Data Center) string: The name of the data center
+- datacentercity string: The city where the data center is located
+- datacentercountry string: The country where the data center is located

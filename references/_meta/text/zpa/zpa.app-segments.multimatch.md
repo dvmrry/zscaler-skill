@@ -1,0 +1,31 @@
+# Multimatch: one request matching several application segments (zpa.app-segments.multimatch)
+Also called: multimatch; match_style inclusive; inclusive exclusive application segment; wildcard segment catches undefined ports; exact match vs multimatch; app segment multimatch bulk
+
+Multimatch changes whether a destination can match more than one application segment.
+
+**Default and switch.** The definition, the exact-match default and the wildcard catching undefined ports are in [Without Multimatch a request is mapped to a single application segment and the policy search is then performed; Multimatch allows a request to match multiple application segments.](kb:zpa.policy.multimatch:multimatch-definition), [Exact match is the default application match behavior, in which Zscaler Client Connector attempts to match traffic to the more granular of two segments covering the same destination address.](kb:zpa.policy.multimatch:exact-match-default) and [After Multimatch is enabled, the wildcard application segment catches the UDP or TCP ports that are not configured in the more specific application segment.](kb:zpa.policy.multimatch:multimatch-catches-undefined-ports). The request field values are in [The application segment request field `matchStyle` takes the values EXCLUSIVE and INCLUSIVE.](kb:zpa.policy.multimatch:match-style-values), and [A domain can only be INCLUSIVE or EXCLUSIVE for the `matchStyle` field, and any application segment can only contain inclusive or exclusive domains.](kb:zpa.policy.multimatch:match-style-domain-constraint).
+
+**Consistency.** When Multimatch is enabled or disabled on a segment, Private Access checks every other segment with overlapping domains, and a domain found in segments with different Multimatch settings is a conflict that stops the segment from being updated. [zpa.app-segments.multimatch:config-conflict] Prerequisites and restrictions are in [Multimatch prerequisites, restrictions and App Connector selection](kb:zpa.app-segments.multimatch-requirements).
+
+**Which segments match.** Matches run from most specific to least and stop at the first segment without Multimatch: [Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch.](kb:zpa.policy.multimatch:match-order). [gap:zpa.app-segments.multimatch:multimatch-chain-example]
+
+**Policy across the matches.** Rules of every matched segment are searched: [With Multimatch a request that matches a specific and a broader segment can be allowed by a rule on the broader one when it fails the specific segment's rule, whereas without Multimatch the same request meets only the specific segment's rules and falls to the implicit block.](kb:zpa.policy.multimatch:rules-of-all-matched-segments). The block-rule example is open [Whether a block rule on the specific segment fires before an allow rule on the broader segment under Multimatch](kb:zpa.policy.multimatch:block-rule-with-multimatch). Rule evaluation order itself is in [Evaluation order across ZPA policy types](kb:zpa.policy.evaluation-order).
+
+**Without Multimatch.** Exact match, carve-outs and port misses are in [Which application segment a destination maps to when several overlap](kb:zpa.app-segments.matching).
+
+What to check:
+1. Whether every segment that covers the domain has the same matchStyle, since a mix is a conflict the update rejects.
+2. Where the chain of segments for the requested host stops, at the first segment that does not support Multimatch.
+3. Which rules in the access policy cover each matched segment, since the policy search runs across all of them in rule order.
+
+Not known (open gaps):
+- Which application segments a server1.db.hr.company.com request matches under Multimatch (documented example) [gap:zpa.app-segments.multimatch:multimatch-chain-example]: settled by lab-test or source-read. Blocks: the example of which Multimatch-enabled segments match a nested-wildcard request and which do not
+
+Area: zpa.app-segments, its subjects in references/_meta/spine/zpa/zpa.app-segments.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch): With Multimatch a request that matches a specific and a broader segment can be allowed by a rule on the broader one when it fails the specific segment's rule, whereas without Multimatch the same request meets only the specific segment's rules and falls to the implicit block. [zpa.policy.multimatch:rules-of-all-matched-segments]
+- interacts-with references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap): Without Multimatch, a wildcard segment never receives a request for a host that has its own segment on any port that segment does not list; the request is not forwarded to the wildcard segment. [zpa.app-segments.matching:wildcard-dead-for-carved-ports]
+- depends-on references/_meta/text/zpa/zpa.app-segments.multimatch-requirements.md (Multimatch prerequisites, restrictions and App Connector selection): Multimatch needs App Connectors or Private Service Edges at version 24.298.1 or later and Zscaler Client Connector at Windows 4.7.0.88 or 4.6.0.282 or later, macOS 4.5.2.98, iOS 4.4.1, Android 3.10 or Linux 4.2 or later; iOS also needs the 'Use Tunnel SDK Version 4.3 or above' setting. [zpa.app-segments.multimatch-requirements:prereq-versions]
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types), from zpa.app-segments: When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria. [zpa.policy.evaluation-order:segment-then-rules]
+- decided-by references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks), from zpa.app-segments: The Bypass setting within an application segment always takes precedence over any newly added client forwarding policy rule. [zpa.app-segments.bypass:bypass-beats-cfp]
