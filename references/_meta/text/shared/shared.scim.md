@@ -48,6 +48,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.scim.propagation.md (How fast SCIM changes reach ZIA)
 - links-to references/_meta/text/zpa/zpa.api.idp-scim-wire.md (IdP, SCIM and SAML attribute API: wire keys, types and the Go SCIM client)
 - links-to references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria)
+- links-to references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)
 - links-to references/_meta/text/zia/zia.scim.groups-and-departments.md (How SCIM groups and departments land in ZIA)
 - links-to references/_meta/text/zia/zia.scim.operations.md (ZIA SCIM server operations, paging and rate limit)
 - links-to references/_meta/text/zia/zia.scim.sdk-coverage.md (What the Go and Python SDKs do for ZIA SCIM)

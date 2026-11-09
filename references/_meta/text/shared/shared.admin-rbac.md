@@ -45,6 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.cloud-connector.md (Cloud & Branch Connector admin roles: super admin, the eleven permission categories and Unified RBAC)
 - links-to references/_meta/text/shared/shared.admin-rbac.zcc.md (Client Connector admin roles: the Administration Management page, Full, View Only, None and Customize, the permission sections and token obfuscation)
 - links-to references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
+- links-to references/_meta/text/shared/shared.admin-rbac.zia.md (ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule)
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-api-roles.md (ZIA API roles, SD-WAN partner API roles and SD-WAN partner API clients)
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-obfuscation.md (Who sees real user names, device information and Gen AI prompts in ZIA: role obfuscation and auditors)
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-permissions.md (ZIA admin role permissions: logs limit, dashboard, reporting, insights and alerts access, and the feature categories)

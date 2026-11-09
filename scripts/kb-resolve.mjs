@@ -1020,7 +1020,8 @@ function edgesOf(g, id) {
     if (hub?.kind !== "subject") continue;
     for (const e of hub.data.related || []) if (FOLLOW[e.rel] >= 3 && e.to !== id) out.push({ to: e.to, rel: e.rel, because: e.because, via: hub.id });
   }
-  for (const m of JSON.stringify(n.data.prose || []).matchAll(/\[\[([^\]:#|]+)/g)) {
+  // An ID starts with a letter or digit: a table's rows open with `[["` in the JSON, which is not a link.
+  for (const m of JSON.stringify(n.data.prose || []).matchAll(/\[\[([a-z0-9][^\]:#|"]*)/g)) {
     const to = g.nodes.get(m[1])?.kind === "subject" ? m[1] : g.nodes.get(m[1])?.subject;
     if (to && to !== id) out.push({ to, rel: "links-to" });
   }
@@ -1034,8 +1035,8 @@ function edgesOf(g, id) {
  * read next, the ones most of the reading set points to first, until `budget` tokens; every other neighbour prints as
  * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
  * about it. `company` keeps only those records, for a reader that has the public text already (scripts/gen-text.mjs
- * writes it as files): the records about what is named and about every subject one hop away, and an area reads every
- * subject under it however large.
+ * writes it as files): a subject named stands for its whole area, as the areas agents used to read did, and the
+ * records about every subject one hop from those follow. A type or field stands for itself.
  *
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
@@ -1072,14 +1073,17 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
       if (!company) out.push(readStatusCode(g, arg));
+      else named.push(given);
       continue;
     }
     if (!g.nodes.has(arg) && g.policyReasons.has(arg.toLowerCase())) {
       if (!company) out.push(readPolicyReason(g, arg.toLowerCase()));
+      else named.push(given);
       continue;
     }
     if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);
     if (g.nodes.get(arg)?.subject) arg = g.nodes.get(arg).subject;
+    if (company && g.nodes.get(arg)?.kind === "subject") arg = areaOf(arg);
     // A whole product is hundreds of thousands of tokens; its spine says which areas a question needs.
     if (!g.nodes.has(arg) && !/[./]/.test(arg) && subjectsOf(g).some((n) => n.id.startsWith(`${arg}.`))) {
       out.push(`# ${arg}: a whole product is too large to read; pick its areas from references/_meta/spine/${arg}.json`);
@@ -1122,9 +1126,10 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
-    // Records alone are short: every neighbour's, with no budget and no heading.
+    // Records alone are short: every linked subject's, with no budget and no heading (types are not followed, as in
+    // a full read, where a type never fits the budget).
     if (company) {
-      for (const [id] of ranked) emit(id);
+      for (const [id] of ranked) if (g.nodes.get(id).kind === "subject") emit(id);
       continue;
     }
     out.push(`## Linked subjects (one hop from what was read)`);
@@ -1143,7 +1148,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     if (listed.length) out.push(fit("Linked, not read here (each with the claim that links it; read one by ID for the rest):", listed, 12000, "linked subjects"));
   }
-  if (company && ov && named.length && !records) out.push(`No company records are about ${named.join(", ")}, what it binds or what it links to.`);
+  if (company && ov && named.length && !records) out.push(`No company records are about ${named.join(", ")}, its area, what it binds or what it links to.`);
   return `${out.join("\n\n")}\n`;
 }
 

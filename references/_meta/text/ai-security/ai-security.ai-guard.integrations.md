@@ -113,6 +113,7 @@ Area: ai-security.ai-guard, its subjects in references/_meta/spine/ai-security/a
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.azure-apim.md (The AI Guard policy fragment for Azure API Management (AI Gateway): which calls it scans, what it extracts, its fail-open switch, and what the example policy ships with)
+- links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.claude-code.md (Claude Code hooks for AI Guard (Zscaler example): events hooked, directions, verdict and failure handling, and what content is scanned)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.cline.md (Cline hooks for AI Guard (Zscaler example): hooks, directions, cancel handling, and the missing-key allow)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.codex.md (OpenAI Codex CLI hooks for AI Guard (Zscaler example): hooks, block mechanisms, the fail-open Stop scan, and what content is scanned)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.cursor.md (Cursor hooks for AI Guard (Zscaler example): hooks, failClosed, directions, and per-hook verdict and failure handling)
@@ -121,7 +122,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.google-apigee-sharedflow.md (The ZSCALER-AIGUARD Apigee SharedFlow: dialects, what each leg scans, MCP tool calls, verdict handling, and the traffic it lets through unscanned)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.litellm.md (AI Guard with the LiteLLM proxy: LiteLLM's native zscaler_ai_guard guardrail as the README describes it, and the SDK-based callback example)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.nemo-guardrails.md (AI Guard with NVIDIA NeMo Guardrails: the ready-to-use custom action and rails, the proposed library plugin, and the defects in both as shipped)
-- links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.claude-code.md (Claude Code hooks for AI Guard (Zscaler example): events hooked, directions, verdict and failure handling, and what content is scanned)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.kong-plugin.md (The zscaler-aiguard-intercept Lua plugin for Kong Gateway: access and response phase scans, its configuration, and where it blocks or lets traffic pass)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.kong-request-callout.md (The Kong Konnect Request Callout recipe for AI Guard: a prompt-only scan described in a README, how it extracts the prompt, and where it passes traffic)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.truefoundry.md (The AI Guard guardrail server for the TrueFoundry AI Gateway: its endpoints, how it reports a block, user forwarding, and its posture on AI Guard errors)

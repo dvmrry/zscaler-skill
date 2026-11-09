@@ -40,6 +40,7 @@ Area: shared.cloud-architecture, its subjects in references/_meta/spine/shared/s
 
 Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/shared/shared.subclouds.md (Subclouds: restricting which Service Edges handle a tenant's traffic): A subcloud is a subset of Public Service Edges for Internet & SaaS (ZIA). [shared.subclouds:definition]
+- links-to references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)
 - links-to references/_meta/text/shared/shared.cloud-architecture.logging-path.md (Where Zscaler logs go: Log Routers, Nanolog clusters, NSS and LSS)
 - links-to references/_meta/text/shared/shared.cloud-architecture.tunnels.md (Z-Tunnel and Microtunnel: the two tunnel layers of Private Access)
 - links-to references/_meta/text/shared/shared.ipsec.md (IPSec tunnels to Zscaler: where each question is answered)
@@ -51,6 +52,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.clusters.md (The Virtual Service Edge cluster: limits, object, build order and Location binding)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.load-balancing.md (How a Virtual Service Edge cluster spreads and returns traffic)
-- links-to references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)
 - links-to references/_meta/text/zpa/zpa.public-service-edges.what-it-is.md (What a ZPA Public Service Edge is)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.access-path.md (The hops of a ZPA access request and where each can fail)

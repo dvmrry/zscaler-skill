@@ -45,7 +45,7 @@ function links(g, id) {
 function withNames(text, aliases = [], former = []) {
   const names = [aliases.length && `Also called: ${aliases.join("; ")}`, former.length && `Former IDs: ${former.join(", ")}`].filter(Boolean);
   if (!names.length) return text;
-  const at = text.indexOf("\n");
+  const at = text.includes("\n") ? text.indexOf("\n") : text.length;
   return `${text.slice(0, at)}\n${names.join("\n")}${text.slice(at)}`;
 }
 
@@ -101,7 +101,8 @@ export function sync(root, want, { check = false } = {}) {
     }
   }
   const out = path.join(root, DIR);
-  const have = fs.existsSync(out) ? fs.readdirSync(out, { recursive: true }).filter((f) => fs.statSync(path.join(out, f)).isFile()) : [];
+  // Only what this writes: a stray file (an editor's or Finder's) is neither stale nor removed.
+  const have = fs.existsSync(out) ? fs.readdirSync(out, { recursive: true }).filter((f) => f.endsWith(".md") && fs.statSync(path.join(out, f)).isFile()) : [];
   for (const f of have) {
     const rel = `${DIR}/${f.split(path.sep).join("/")}`;
     if (want[rel]) continue;

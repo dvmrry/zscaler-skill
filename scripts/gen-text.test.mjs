@@ -43,6 +43,8 @@ test("a subject's file is what read prints for it, with its names, its area and 
   const linked = new Set([...text.matchAll(/^- [a-z-]+ references\/_meta\/text\/(?:types\/)?(?:[a-z0-9-]+\/)?(\S+)\.md \(/gm)].map((m) => m[1]));
   assert.deepEqual([...linked].sort(), [...reached].sort());
   assert.match(text, /^- decided-by references\/_meta\/text\/zia\/zia\.url-categories\.membership\.md \(.+\): .+ \[zia\.url-categories\.membership:resolved-before-rules\]$/m);
+  // A link in a prose table's first row is a link like any other.
+  assert.match(files[textFile.subject("shared.admin-rbac")], /^- [a-z-]+ references\/_meta\/text\/shared\/shared\.admin-rbac\.zia\.md \(/m);
   // An old ledger ID someone cites finds the subject it became.
   const [old, to] = [...g.formerIds].find(([, t]) => g.nodes.get(t)?.kind === "subject");
   assert.match(files[textFile.subject(to)], new RegExp(`^Former IDs: (.+, )?${old}(,|$)`, "m"));
@@ -63,7 +65,17 @@ test("read --company prints only the company records, the hop's too, and takes f
   assert.ok(!out.includes(`[${id}:first-match]`), "no public text");
   assert.ok(!out.includes("## Linked subjects"), "no hop heading");
   assert.match(out, /^Live tier: zscalerctl is declared; each config type \(references\/_meta\/text\/types\/<type id>\.md\) names its read-only command$/m);
-  assert.match(read("--overlay", OVERLAY, "--company", "zdx.score"), /^No company records are about zdx\.score, what it binds or what it links to\.$/m);
+  // A subject stands for its area, as the areas agents used to read did: no leaf loses a record its area gave.
+  const area = records(read("--overlay", OVERLAY, "zia.url-filtering"));
+  for (const n of g.nodes.values()) {
+    if (n.kind !== "subject" || !n.id.startsWith("zia.url-filtering.")) continue;
+    const leaf = records(read("--overlay", OVERLAY, "--company", n.id));
+    for (const r of area) assert.ok(leaf.includes(r), `${n.id} keeps ${r}`);
+  }
+  assert.ok(records(read("--overlay", OVERLAY, "--company", "shared.cloud-architecture.service-edges")).includes("- [company.zia.splunk-web-mapping]"));
+  assert.deepEqual(records(read("--overlay", OVERLAY, "--company", textFile.subject("zia.url-categories"))), records(read("--overlay", OVERLAY, "--company", "zia.url-categories")), "an area index file's path is its area");
+  assert.match(read("--overlay", OVERLAY, "--company", "zdx.score"), /^No company records are about zdx\.score, its area, what it binds or what it links to\.$/m);
+  assert.match(read("--overlay", OVERLAY, "--company", "AST_MT_SETUP_ERR_NO_DNS_TO_SERVER"), /^No company records are about AST_MT_SETUP_ERR_NO_DNS_TO_SERVER,/m, "a code says it has none");
   const unknown = read("--overlay", OVERLAY, "--company", "references/_meta/text/zia/zia.nope.md");
   assert.match(unknown, /no subject, type, field or area has this ID/);
   assert.doesNotMatch(unknown, /No company records/, "an ID that names nothing is not reported as having no records");
@@ -79,10 +91,12 @@ test("sync writes, then --check finds missing, changed and no-longer-generated f
     assert.deepEqual(sync(root, want, { check: true }), []);
     fs.writeFileSync(path.join(root, "references/_meta/text/zia/zia.a.md"), "edited\n");
     fs.writeFileSync(path.join(root, "references/_meta/text/zia/zia.gone.md"), "old\n");
+    fs.writeFileSync(path.join(root, "references/_meta/text/zia/.DS_Store"), "");
     assert.deepEqual(sync(root, want, { check: true }).sort(), ["references/_meta/text/zia/zia.a.md", "references/_meta/text/zia/zia.gone.md"]);
     sync(root, { "references/_meta/text/zia/zia.a.md": "a\n" });
     assert.ok(!fs.existsSync(path.join(root, "references/_meta/text/types")), "a removed type's empty directory goes too");
     assert.ok(!fs.existsSync(path.join(root, "references/_meta/text/zia/zia.gone.md")));
+    assert.ok(fs.existsSync(path.join(root, "references/_meta/text/zia/.DS_Store")), "a file it did not write is left alone");
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

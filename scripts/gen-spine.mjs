@@ -66,7 +66,7 @@ export function spineFiles(g) {
       product: spine.product,
       generated_by: "scripts/gen-spine.mjs",
       open: `an area's subjects are in references/_meta/spine/${spine.product}/<area id>.json, e.g. references/_meta/spine/${spine.product}/${spine.areas[0].id}.json`,
-      size: "tokens is about what all of the area's subject files total, before links; open only the subjects the question needs",
+      size: "tokens is about what reading all of the area's subjects costs (their files add names and links); open only the subjects the question needs",
       ...(logTypes.length ? { log_fields: `a log type with every field: ${META}/text/types/<type id>.md` } : {}),
     }, { areas: spine.areas.filter((a) => !isRef(a)).map((a) => areaEntry(g, a)), log_types: logTypes, reference_areas: spine.areas.filter(isRef).map((a) => areaEntry(g, a)) });
     for (const a of spine.areas) {

@@ -36,6 +36,7 @@ Area: shared.log-export, its subjects in references/_meta/spine/shared/shared.lo
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.log-export.zdx.md (Getting ZDX data out: the ZDX API, its windows and delays)
 - links-to references/_meta/text/shared/shared.nss.collector.md (NSS Collector: third-party firewall and proxy logs into the SaaS Security Report)
+- links-to references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
 - links-to references/_meta/text/zcc/zcc.logs.client-log.md (What the Client Connector log on the device records)
 - links-to references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))
 - links-to references/_meta/text/zia/zia.casb.insights-logs.md (CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming)
@@ -45,7 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.log-correlation.md (Correlating ZIA, ZPA and Client Connector logs)
 - links-to references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
 - links-to references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)
-- links-to references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
 - links-to references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
 - links-to references/_meta/text/shared/shared.siem-mapping.md (Zscaler log types and where they land in a SIEM)
 - links-to references/_meta/text/zcc/zcc.logging.md (Client Connector logs: verbosity, user access and collection)

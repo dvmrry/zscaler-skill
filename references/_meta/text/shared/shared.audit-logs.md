@@ -60,6 +60,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.audit-logs.what-is-recorded.md (What the ZPA admin audit log records, how long it is kept, and whether it can be pulled)
 - links-to references/_meta/text/cloud-connector/cloud-connector.audit-logs.md (Cloud & Branch Connector audit logs in the console: what is recorded, retention, lockout, filters and CSV)
 - links-to references/_meta/text/shared/shared.legacy-api.zia-session.md (ZIA legacy API sessions: API key obfuscation, JSESSIONID and the cloud service API key)
+- links-to references/_meta/text/zia/zia.audit-logs.md (ZIA audit logs: who changed what)
 - links-to references/_meta/text/zia/zia.audit-logs.report-api.md (Exporting the ZIA admin audit log through the report API)
 - links-to references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))
 - links-to references/_meta/text/zidentity/zidentity.audit-logs.md (Authentication Service audit logs and log streaming: what is recorded, record fields, filters and export, and NSS streaming)

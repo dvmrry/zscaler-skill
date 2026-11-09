@@ -84,8 +84,8 @@ for a person to approve every shell command; the public graph needs none, and th
    files it finds. Each subject file lists its aliases under its title, and each status code and policy reason has
    its own file under `references/_meta/text/codes/`.
 4. **Company records.** Once per answer, after reading, run `node scripts/kb.mjs read --company <the subject and
-   type IDs you read>` (their file paths work too): the company records about them, the types they bind and the
-   subjects they link to, including records that narrow or contradict a public claim, with scope, confidence,
+   type IDs you read>` (their file paths work too): the company records about them and their areas, the types they
+   bind and the subjects they link to, including records that narrow or contradict a public claim, with scope, confidence,
    validated date, field map and IaC locations. When it says no overlay is configured, skip it for the rest of the
    conversation.
 5. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
@@ -103,7 +103,7 @@ runtime saves it to a file, open that file with your file tool.
 ```bash
 node scripts/kb.mjs map <product> ...                     # the spine as text, when a file read is not available
 node scripts/kb.mjs read --company <subject | type> ...    # the company records about them, with an overlay
-node scripts/kb.mjs read <area | subject | type> ...       # the text files' content in one call, with company records
+node scripts/kb.mjs read <area | subject | type> ...       # reading text in one call (an area reads whole), with company records; for scripts
 node scripts/kb.mjs resolve <id>                          # one subject or old ledger ID as a JSON bundle, with citations
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
 node scripts/kb.mjs releases <product> [--since <date>] [--grep <text>]   # the vendor's release notes, newest first
