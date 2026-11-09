@@ -1,5 +1,6 @@
 # Reading and deleting a deep trace through the API: the session record and its keys (zdx.diagnostics.session-records)
 Also called: get deeptrace; list deeptraces; delete deeptrace; deep trace session record; session_length; cloud_path_nane; stop a deep trace; deeptrace metrics after completion
+Former IDs: zdx-33
 
 After a start, the session is read back per device and trace, and its metric readers become useful once it has run. The list, get, delete and metric endpoints are generated (`node scripts/kb.mjs surface zdx`).
 

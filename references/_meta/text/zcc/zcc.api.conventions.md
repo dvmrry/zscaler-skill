@@ -1,5 +1,6 @@
 # Conventions of the ZCC v1 API: casing, query parameters, caching, status codes (zcc.api.conventions)
 Also called: zcc api camelcase; zcc page pageSize; zcc api caching dummy parameter; zcc getOtp stale; zcc api error codes; zcc 415 unsupported media type; zcc osType values; zcc get before put
+Former IDs: zcc-73
 
 This subject holds the rules that apply across the ZCC v1 endpoints rather than to one area. Path names and HTTP methods per endpoint are generated: run `node scripts/kb.mjs surface zcc`.
 

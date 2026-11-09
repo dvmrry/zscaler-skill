@@ -1,5 +1,6 @@
 # Cloud & Branch Connector DNS gateways: resolvers, failure behavior, predefined gateways (cloud-connector.dns.gateways)
 Also called: cloud connector dns gateway; dnsGateways; ztc_dns_gateway; failureBehavior; FAIL_RET_ERR; FAIL_ALLOW_IGNORE_DNAT; LAN CTR; WAN CTR; dns gateway servfail
+Former IDs: cloud-connector-13
 
 A DNS gateway is the redirect target a DNS policy rule can send queries to. Cloud & Branch Connector DNS gateways are a Cloud & Branch Connector feature with their own page (Zero Trust Cloud > Gateways > DNS Gateway): they redirect DNS requests received by the Connector to specific DNS servers. [cloud-connector.dns.gateways:cbc-gateways-differ] DNS gateways are meant to keep DNS highly available through primary and secondary DNS services and to meet requirements such as using a Protective DNS service. [cloud-connector.dns.gateways:benefits]
 

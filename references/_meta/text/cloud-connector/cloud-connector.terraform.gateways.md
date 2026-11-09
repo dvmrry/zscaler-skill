@@ -1,5 +1,6 @@
 # ZTC forwarding and DNS gateways in Terraform and the Go SDK: subclouds, manual proxies, and the two DNS gateway resources (cloud-connector.terraform.gateways)
 Also called: ztc_forwarding_gateway subcloud; subcloud_primary; ztc manual_primary; ztc_dns_gateway vs ztc_dns_forwarding_gateway; dns_forwarding_gateway package; dnsGatewayType; ztc dns gateway type
+Former IDs: cloud-connector-14, cloud-connector-15
 
 Gateways are where traffic and DNS forwarding rules send traffic. Their arguments and enum values are generated (`node scripts/kb.mjs surface ztc_forwarding_gateway`, `ztc_dns_gateway`, `ztc_dns_forwarding_gateway`); this subject holds what the provider and SDK do with them and where their sources disagree.
 

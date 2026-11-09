@@ -1,5 +1,6 @@
 # Client Connector's Firefox integration setting (zcc.firefox.integration)
 Also called: firefox integration; enable firefox integration; firefox use system proxy settings zcc; firefox bypasses zscaler; firefox not using zcc proxy; endpoint integration tab
+Former IDs: zcc-39, zcc-41, zcc-42, zcc-43
 
 Client Connector can set Firefox's proxy configuration for it, through one switch in the Admin Console. When Firefox integration is enabled, Client Connector attempts to configure Firefox on macOS and Windows devices to follow Zscaler settings, by enabling Firefox's "Use system proxy settings" feature. [zcc.firefox.integration:what-it-does]
 

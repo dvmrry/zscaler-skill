@@ -1,5 +1,6 @@
 # The AI Guard configuration API: behavior the contract states, limits and errors, and what the Python SDK covers (ai-security.ai-guard.admin-api)
 Also called: ai guard api; aiguard api; ai guard admin api; ai guard configuration api; /aiguard/v1; llm-provider-types; referential-check; regenerate application credential; deleteReferences; ai guard 409; ai guard rate limit; ai guard python sdk; client.aiguard; ai guard terraform; ai guard go sdk; ai guard automation
+Former IDs: ai-security-04, ai-security-07, ai-security-08
 
 The configuration API's paths, operations and request and response fields are generated from the captured contract and the Python SDK: run `node scripts/kb.mjs surface aiguard` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/aiguard.openapi.json`. This subject holds the behavior around them and where the sources disagree.
 

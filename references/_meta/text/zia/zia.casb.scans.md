@@ -1,5 +1,6 @@
 # CASB scan schedules: states, historical data, stop and restart (zia.casb.scans)
 Also called: saas security scan configuration; scan schedule; scan initialized; scan stopped; historical scan; duplicate results after restart; data at rest scan
+Former IDs: api-casb-03
 
 A scan schedule is what makes a policy inspect anything. The Data at Rest Scanning DLP and Malware Detection policies inspect content only through a SaaS Security scan schedule; the policy rules are configured first, and the schedule then selects the Data at Rest Scanning policy for a tenant. [zia.casb.scans:schedule-needs-policy]
 

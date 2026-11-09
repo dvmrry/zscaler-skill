@@ -1,5 +1,6 @@
 # Bandwidth Control limits: rules, classes, domains (zia.bandwidth-control.limits)
 Also called: bandwidth control rule limit; bandwidth class limit; 245 custom classes; 8 classes with domains; 25000 bandwidth class domains; 125 bandwidth rules
+Former IDs: zia-56
 
 Several counts matter for Bandwidth Control. An organization can have 125 Bandwidth Control policy rules. [zia.bandwidth-control.limits:rules-125] The Ranges and Limitations table lists 125 Bandwidth Control rules per organization, against 1,000 for URL Filtering and 1,024 for all other policy rules such as DLP and IPS Control. [zia.bandwidth-control.limits:rules-lower-than-other-policies] A per-department or per-application rule design therefore reaches the cap sooner.
 

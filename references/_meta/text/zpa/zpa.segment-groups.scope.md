@@ -1,5 +1,6 @@
 # Segment group limits, microtenant scope and managed groups (zpa.segment-groups.scope)
 Also called: segment group limit; segment groups microtenant; deception segment group; policyMigrated meaning; segment group sharing; segment group read only microtenant
+Former IDs: sg-05
 
 This subject covers segment group limits, microtenant scope and groups that Deception manages.
 

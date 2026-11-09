@@ -1,5 +1,6 @@
 # What a device record's fields mean, and how the list and detail calls return them (zcc.devices.record-fields)
 Also called: device details fields; getDeviceDetails; zcc device owner blank; machine hostname blank; last seen time zcc; device state integer or string; registrationState vs state; zdp vs zd fields; ziaHealth zpaHealth; device service status
+Former IDs: zcc-81, zcc-82, zcc-83
 
 The portal's Device Overview and Device Details pages, the device list call and the device details call show overlapping data under different names. Field names and types are in the API contract; this subject holds what the fields mean and where the sources disagree.
 

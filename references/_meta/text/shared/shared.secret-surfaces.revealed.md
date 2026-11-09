@@ -1,5 +1,6 @@
 # Zscaler API reads that return secret material (shared.secret-surfaces.revealed)
 Also called: provisioning key cleartext; keyValue; provUrlData; ztw api key read; zpa enrollment certificate private key; privateKeyPresent; zpa apiKeys clientSecret; getOtp getPasswords secrets; nonceValue
+Former IDs: shared-39
 
 ## ZPA provisioning keys
 

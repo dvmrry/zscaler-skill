@@ -1,5 +1,6 @@
 # Cloud Connector forwarding methods: ZIA, ZPA, Direct, Drop, Local, and their API tokens (cloud-connector.forwarding.methods)
 Also called: cloud connector forwarding method; forwardMethod; forward_method; ECZPA; LOCAL_SWITCH; ECSELF; PROXYCHAIN; ENATDEDIP; GEOIP; local forwarding method; cloud connector east-west; cloud connector snat dnat; wan selection; workload to workload access failing
+Former IDs: cloud-connector-09
 
 The Traffic Forwarding page shows each rule's forwarding method as one of Direct, ZIA, ZPA, Drop, or Local. [cloud-connector.forwarding.methods:console-methods] Each method is a different path for the matched traffic.
 

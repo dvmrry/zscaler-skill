@@ -1,5 +1,6 @@
 # ZTC traffic forwarding and DNS rules in Terraform: forward methods, ZPA segment IDs, workload groups, WAN selection and labels (cloud-connector.terraform.forwarding-rules)
 Also called: ztc_traffic_forwarding_rule forward_method; LOCAL_SWITCH; ztc local forwarding method terraform; ztc zpa_application_segments id; zparesources; ztc src_workload_groups id lookup; ztc_workload_groups data source; ztc wan_selection; ztc traffic forwarding rule labels; ztc_traffic_forwarding_dns_rule REDIR_ZPA; ztc_ip_pool_groups one cidr
+Former IDs: cloud-connector-17, cloud-connector-26
 
 The rule resources' arguments and validators are generated (`node scripts/kb.mjs surface ztc_traffic_forwarding_rule`); this subject holds where the forwarding-method value set, ID lookups and documented constraints differ between the provider, the SDKs and the API contract. How rules are ordered, protected and detached on delete is in [How the ZTC (Cloud Connector) Terraform provider applies rule order](kb:cloud-connector.terraform.rule-order), [Whether the ZTC Terraform provider protects predefined traffic rules](kb:cloud-connector.terraform.rule-protection) and [How the ZTC Terraform provider detaches references before deleting objects](kb:cloud-connector.terraform.delete-detach).
 

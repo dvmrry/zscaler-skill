@@ -1,5 +1,6 @@
 # Which application segments belong to a segment group (zpa.segment-groups.membership)
 Also called: segment_group_id; application segment without a segment group; move segment between groups; empty segment group; delete segment group with members; one segment group per application segment
+Former IDs: sg-02
 
 This subject covers how application segments belong to segment groups and what changes when a group is deleted.
 

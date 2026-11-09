@@ -1,5 +1,6 @@
 # ZCC end-user support options (App Supportability) (zcc.support-options)
 Also called: zcc support options; client connector support; app supportability; report an issue; enable support access; end user ticket submission to zscaler; client connector app logs; zcc self-service; prevent users disabling zcc; supportEnabled; supportTicketEnabled; disableLoggingControls
+Former IDs: zcc-34, zcc-36, zcc-37, zcc-38, zcc-65, zcc-91
 
 The App Supportability settings decide what users can do for themselves when Client Connector misbehaves, and what an admin can collect without them. Most of the mechanics live in the logging, password and app profile subjects linked below.
 

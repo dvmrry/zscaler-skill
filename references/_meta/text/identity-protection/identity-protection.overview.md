@@ -1,5 +1,6 @@
 # Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated (identity-protection.overview)
 Also called: identity protection; itdr; identity threat detection and response; zscaler itdr; ad posture scan; entra id posture scan; credential exposure scan; identity threat detection; identity protection api
+Former IDs: identity-protection-01
 
 Identity Protection detects anomalous activity such as compromised credentials, suspicious logins and sensitive data theft, and gives continuous, unified visibility into identity risks; its architecture page calls it an identity threat detection and response (ITDR) solution integrated with the SecOps platform. [identity-protection.overview:what-it-is] It is part of the Zscaler SecOps platform and works alongside UVM, AEM and SOC Workbench. [identity-protection.overview:secops-part]
 

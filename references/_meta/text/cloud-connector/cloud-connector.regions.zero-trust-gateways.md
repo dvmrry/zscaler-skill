@@ -1,5 +1,6 @@
 # Regions where Zero Trust Gateways are supported (AWS and GCP) (cloud-connector.regions.zero-trust-gateways)
 Also called: zero trust gateway regions; ztg supported regions; eu-central-2 zero trust gateway; zero trust gateway region not listed
+Former IDs: cloud-connector-27
 
 The supported-regions article is scoped to Zscaler Zero Trust Gateways and has two tables, Amazon Web Services and Google Cloud Platform. [cloud-connector.regions.zero-trust-gateways:scope] It is a list for Zero Trust Gateways, not for Cloud Connector VMs: [Cloud & Branch Connector regions: three region lists that must not be conflated](kb:cloud-connector.regions).
 

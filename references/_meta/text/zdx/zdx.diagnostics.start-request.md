@@ -1,5 +1,6 @@
 # Starting a deep trace through the API: the read chain, the request body, and where the clients disagree (zdx.diagnostics.start-request)
 Also called: start deeptrace; start_deeptrace; CreateDeepTraceSession; start a diagnostics session via api; deeptrace payload; cloud_path_probe_id; cloudpath_probe_id; session_length_minutes; deep trace session limit; how many deep traces at once; web_probe_id
+Former IDs: zdx-01, zdx-02, zdx-32
 
 A deep trace is started with one POST per device, and the request names an application and two probes that must be read first. The endpoint and the SDK functions are generated (`node scripts/kb.mjs surface zdx`); this subject holds the body and its pitfalls.
 

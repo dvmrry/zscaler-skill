@@ -1,5 +1,6 @@
 # Which application segment a destination maps to when several overlap (zpa.app-segments.matching)
 Also called: most specific segment wins; more granular application segment; port mismatch bypass; traffic goes direct instead of through zpa; wildcard segment not matching; specific fqdn segment removes host from wildcard; no match in this application segment; works by hostname but not by ip; ssh to ip address fails; raw ip not going through zpa
+Former IDs: zpa-04
 
 This subject covers how a destination is mapped to one application segment when several overlap.
 

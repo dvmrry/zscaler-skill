@@ -1,5 +1,6 @@
 # How Virtual Service Edges and their clusters upgrade (zia.virtual-service-edge.upgrades)
 Also called: vse upgrade; vse maintenance window; vse delay-upgrade; vse rolling upgrade; vse trial production upgrade order; vse cluster upgrade downtime
+Former IDs: zia-33
 
 The Zscaler service automatically upgrades Virtual Service Edges during scheduled maintenance windows. The dates are published in the Zscaler Trust Portal, and no admin or Zscaler Cloud Operations intervention is required. [zia.virtual-service-edge.upgrades:automatic-in-windows] Customers do not run the upgrade, but they can influence its timing.
 

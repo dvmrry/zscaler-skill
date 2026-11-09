@@ -1,5 +1,6 @@
 # ZDX geolocations: active geolocations, geo filters and coordinates (zdx.devices.geolocation)
 Also called: zdx geolocation; active_geo; zdx geo filter; geo_id; parent_geo_id; zdx geo_lat; geo_detection; list_geolocations; GetGeoLocations
+Former IDs: zdx-26
 
 Geolocation reaches ZDX from Client Connector, [Client Connector provides the device metrics at negligible additional CPU consumption, exchanges information with the Telemetry and Policy Gateway to receive ZDX configuration and report metrics, and provides latitude and longitude for geolocation if the operating system's location services are enabled.](kb:zdx.cloud-architecture:client-connector). The active-geolocations read lists all active geolocations for the time range, the last 2 hours if none is given; state and city data is retrieved only for the US. [zdx.devices.geolocation:active-geo]
 

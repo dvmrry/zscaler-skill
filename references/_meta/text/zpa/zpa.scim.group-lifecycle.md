@@ -1,5 +1,6 @@
 # What happens when SCIM users and groups are deleted or renamed (zpa.scim.group-lifecycle)
 Also called: scim delete user zpa; scim group deleted rule; dangling scim group; scim group renamed; okta deactivate zpa; browser access scim removal; all_entries scim groups
+Former IDs: zpa-63
 
 This subject covers what happens to users and groups after they leave the IdP.
 

@@ -1,5 +1,6 @@
 # Writing Analytics GraphQL queries: time range, units, limits, filters and open schema questions (shared.analytics.graphql-queries)
 Also called: zins query start_time end_time milliseconds; WebTrafficUnits; TRANSACTIONS BYTES traffic_unit; zins limit pagination; zins obfuscated flag; categorize_by LOCATION_ID; zins filter_by StringFilter in; zins mutation
+Former IDs: shared-31, shared-32, shared-33, shared-35, shared-36
 
 A single request can carry several queries across data domains, and the guide's example declares the query variables `$start_time`, `$end_time` and `$unit`, noting that the same start_time and end_time values can be used across all queries. [shared.analytics.graphql-queries:multi-domain-request]
 

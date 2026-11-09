@@ -1,5 +1,6 @@
 # ZCell wire notes: paging, time windows, SIM search, violations, audit search, SIM lock and tower history (zscaler-cellular.api.wire-notes)
 Also called: zcell pagination; zcell sims search page size; zcell violations empty; zcell tower locations; tower-location history; zcell days parameter; zcell sim lock imei; zcell audit search body; tower location history
+Former IDs: zscaler-cellular-02, zscaler-cellular-03
 
 These are the ZCell request and response details that decide whether a call returns what was asked for; field lists are in the contract.
 

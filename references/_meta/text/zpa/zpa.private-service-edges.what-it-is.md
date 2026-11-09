@@ -1,5 +1,6 @@
 # What a ZPA Private Service Edge is (zpa.private-service-edges.what-it-is)
 Also called: zpa private service edge; zpa pse; on-prem zpa broker; private service edge for private access; is the zpa pse the same as the zia pse; pse vs public service edge zpa
+Former IDs: zpa-50
 
 A ZPA Private Service Edge (PSE) is the customer-side session broker of Private Access; Internet & SaaS has its own Service Edges.
 

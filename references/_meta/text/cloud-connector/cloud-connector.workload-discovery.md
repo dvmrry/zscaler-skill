@@ -1,5 +1,6 @@
 # AWS workload discovery for Cloud Connector: what it is and how the pieces fit (cloud-connector.workload-discovery)
 Also called: workload discovery service; aws partner integrations; tag discovery service; aws account onboarding cloud connector; tag-based policy aws workloads; publicCloudInfo; aws workload discovery
+Former IDs: cloud-connector-02
 
 This subject walks the AWS integration that lets Cloud Connector policy match workloads by tag and cloud attribute. Each step has its own subject. The workload discovery service is a Zscaler-managed service that discovers workloads in an AWS account and fetches their user-defined tags and cloud-provider-generated attributes, which are used in security policies. [cloud-connector.workload-discovery:what-it-does] AWS partner integrations, which add AWS accounts so the Zscaler service can fetch their metadata and user-defined tags can be used in policies, are enabled by contacting Zscaler Support. [cloud-connector.workload-discovery:support-enabled]
 

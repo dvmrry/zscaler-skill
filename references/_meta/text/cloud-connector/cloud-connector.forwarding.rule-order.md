@@ -1,5 +1,6 @@
 # Cloud Connector traffic forwarding rule order, status, rank and rule type (cloud-connector.forwarding.rule-order)
 Also called: cloud connector forwarding rule order; ecRdr rule order; cloud connector rule precedence; cloud connector admin rank; EC_RDR; cloud connector disabled forwarding rule
+Former IDs: cloud-connector-10
 
 The Zscaler service evaluates traffic forwarding rules in ascending numerical order (Rule 1 before Rule 2), and a rule's order setting is its place in that order. [cloud-connector.forwarding.rule-order:ascending] When a rule is disabled the service skips it and moves to the next one, but the rule keeps its place in the rule order. [cloud-connector.forwarding.rule-order:disabled-keeps-place] Whether evaluation stops at the first matching rule is not stated in the Cloud & Branch Connector help [gap:cloud-connector.forwarding.rule-order:first-match].
 

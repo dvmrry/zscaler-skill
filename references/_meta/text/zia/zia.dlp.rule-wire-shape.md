@@ -1,5 +1,6 @@
 # Web DLP rule API fields, enums and fields the contract does not document (zia.dlp.rule-wire-shape)
 Also called: webDlpRules api; dlp rule action enum; dlp rule severity; withoutContentInspection; ocrEnabled; dlp receiver icapServer deprecated; dlpContentLocationsScopes; deeplyNestedContentEnabled; timeoutFailClosedEnabled; webDlpGlobalOptions; dlp matchOnly sdk docstring
+Former IDs: zia-58, zia-70
 
 This is the API view of a Web DLP rule. Reach for it when a question names a field, an enum value or an SDK call, or when the console and the API disagree.
 

@@ -1,5 +1,6 @@
 # EASM findings: the three drill-down levels, what the risk fields mean, statuses, ROI and the Admin Portal pages (easm.findings)
 Also called: easm findings; easm finding evidence; easm scan output; easm risk_level; easm cisa_likelihood; easm epss_likelihood; easm scan_type; easm is_stale
+Former IDs: easm-01, easm-02
 
 Findings are the risks EASM records against an organization's internet-facing assets. Their field list and types are in the contract; this subject holds what the fields mean and how to read deeper.
 

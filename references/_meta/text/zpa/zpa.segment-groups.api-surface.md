@@ -1,5 +1,6 @@
 # The segment group API, model fields and Terraform resource (zpa.segment-groups.api-surface)
 Also called: segmentGroup endpoint; update_group_v2; UpdateV2 segment group; policyMigrated; tcpKeepAliveEnabled; zpa_segment_group resource; terraform import zpa_segment_group; segment group data source
+Former IDs: sg-03, zpa-69, zpa-70, zpa-71, zpa-72
 
 This subject covers the segment group endpoints, model fields and the Terraform resource and data source.
 

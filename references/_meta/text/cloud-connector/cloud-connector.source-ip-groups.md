@@ -1,5 +1,6 @@
 # Cloud Connector source IP groups: what they are and what is unknown about them (cloud-connector.source-ip-groups)
 Also called: ip source groups cloud connector; ipSourceGroups; ztc_ip_source_groups; creatorContext; isNonEditable source group; source ip group limit
+Former IDs: cloud-connector-03, cloud-connector-04, cloud-connector-06
 
 Source IP groups are named sets of addresses that Cloud Connector rules reference by ID. Grouping source IP addresses makes them usable in policies: one security or forwarding policy can cover a group of workloads by their source addresses, and workloads can be added to or removed from the group without a new security policy. [cloud-connector.source-ip-groups:purpose] The Cloud & Branch Connector help places the Source IP Groups page under Internet Access > Resources > IP & FQDN Groups, on the Source IPv4 Groups tab. [cloud-connector.source-ip-groups:help-page-ipv4-tab]
 

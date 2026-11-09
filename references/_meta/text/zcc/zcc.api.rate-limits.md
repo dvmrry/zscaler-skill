@@ -1,5 +1,6 @@
 # ZCC API rate limits: 100 calls an hour, 3 a day for downloads, and how the SDKs back off (zcc.api.rate-limits)
 Also called: zcc rate limit; zcc 429; zcc 100 calls per hour; downloadDevices 3 per day; X-Rate-Limit-Retry-After-Seconds; X-Rate-Limit-Remaining; zcc too many requests; zcc download rate limit
+Former IDs: zcc-08, zcc-09, zcc-10, zcc-13
 
 The ZCC API limits calls per organization and source IP, with a much smaller daily allowance for the three CSV download endpoints. How each Python client reacts to a 429 differs, and both differ from the vendor's advice.
 

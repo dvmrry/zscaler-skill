@@ -1,5 +1,6 @@
 # DNS Gateway fields in the DNS log: slot, server protocol and flags (zia.logs.dns-gateway-fields)
 Also called: dnsgw_flags; dns gateway flags; FO_DEST_DROP; FO_DEST_ERR; dnsgw_slot; dns gateway log failover; resolver gateway column
+Former IDs: log-16
 
 Three fields carry the DNS Gateway outcome. The dnsgw_slot field is the name of the DNS Gateway rule, shown in Insights as Resolver Gateway, and dnsgw_srv_proto is the DNS Gateway server protocol, with TCP, UDP and HTTP as examples. [zia.logs.dns-gateway-fields:dnsgw-slot-proto] The DNS Insights Logs article describes the Resolver Gateway column differently [divergence:zia.logs.dns-gateway-fields:resolver-gateway-meaning]. The column text is in [The DNS Insights Logs article describes Resolver Gateway as the name of the DNS resolver (primary or secondary, within the configured DNS Gateway of the triggered rule) that was successfully used to resolve the DNS request, or the error resolution, if any.](kb:zia.logs.dns-outcome:resolver-gateway-column).
 

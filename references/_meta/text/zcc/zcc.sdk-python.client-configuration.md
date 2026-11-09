@@ -1,5 +1,6 @@
 # The Python SDK's two ZCC clients: OneAPI service and legacy helper (zcc.sdk-python.client-configuration)
 Also called: zcc python legacy client; LegacyZCCClient; LegacyZCCClientHelper; ZCC_CLIENT_ID; client.zcc secrets missing legacy; zcc python 3 calls per day error; zcc python login failed
+Former IDs: zcc-87
 
 The Python SDK reaches ZCC through either the OneAPI client or a legacy helper that signs in with ZCC portal keys. How each path authenticates is in [Reaching and signing in to the ZCC API: OneAPI gateway and legacy login](kb:zcc.api.authentication); this subject holds what the Python clients themselves do.
 

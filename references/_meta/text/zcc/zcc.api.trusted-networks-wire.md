@@ -1,5 +1,6 @@
 # What goes on the wire for ZCC trusted networks: the v1 webTrustedNetwork and v2 trusted-networks APIs (zcc.api.trusted-networks-wire)
 Also called: trustedNetworkContracts; webTrustedNetwork listByCompany; zcc trusted networks v2; trusted-networks type filter; zcc trusted network comma separated; zcc v1 vs v2 trusted networks
+Former IDs: zcc-80
 
 Trusted networks have two API families: the v1 verb-suffixed `webTrustedNetwork` endpoints, which the captured contract describes, and the RESTful v2 `trusted-networks` endpoints, which only the Go SDK and the Terraform provider use. Their record shapes differ.
 

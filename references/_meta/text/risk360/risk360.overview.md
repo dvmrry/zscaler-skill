@@ -1,5 +1,6 @@
 # Risk360: what it measures, which data it uses, how long it keeps logs, and what can be automated (risk360.overview)
 Also called: risk360; zscaler risk360; risk 360; cyber risk quantification; risk360 api; risk360 data sources; risk360 log retention; zra
+Former IDs: risk360-01
 
 Risk360 quantifies cyber risk from data the tenant's other Zscaler services already produce. Risk360 analyzes an organization's security data and provides real-time risk metrics at the organization level and for four attack stages: External Attack Surface, Compromise, Lateral Propagation and Data Loss. [risk360.overview:what-it-is]
 

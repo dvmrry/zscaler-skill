@@ -1,5 +1,6 @@
 # Addresses, NAT, IPv6 and ports a Private Service Edge needs (zia.private-service-edge.ip-requirements)
 Also called: pse ip addresses; pse public ip; pse nat; pse 1:1 nat; pse ipv6; pse switch ports; pse sfp; pse ntp dns; pse ipmi; pse mts ip; rfc 1918 pse
+Former IDs: zia-62
 
 **Everything is public.** The Private Service Edge IP addresses must be public. [zia.private-service-edge.ip-requirements:addresses-must-be-public]
 

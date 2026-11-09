@@ -1,5 +1,6 @@
 # Which tools a Zscaler MCP server registers: toolsets, entitlements and the write gate (shared.mcp-server.tool-inventory)
 Also called: --enable-write-tools; --write-tools; ZSCALER_MCP_WRITE_ENABLED; ZSCALER_MCP_WRITE_TOOLS; --toolsets; --disabled-toolsets; --no-entitlement-filter; ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER; mcp write tools missing; mcp tools disappeared; mcp entitlement filter; service-info prd; mcp tool annotations; readOnlyHint
+Former IDs: shared-40
 
 The set of tools a client sees is fixed when the server starts. Tool selection applies, in order: disabled tool-name patterns (highest precedence), service enable and disable, OneAPI entitlement downscoping, toolset selection, then the read/write gate. [shared.mcp-server.tool-inventory:precedence]
 

@@ -1,5 +1,6 @@
 # What happened to a DNS query: rules, actions, response values and errors (zia.logs.dns-outcome)
 Also called: dns reqaction resaction; dns log blocked query; dns log res field; EMPTY_RESP; dns log error code; request rule name response rule name; dns log domcat vs respipcat
+Former IDs: log-14, log-15
 
 Each query can carry a request-stage and a response-stage rule and action. The DNS NSS feed gives separate rule and action fields for the request (reqrulelabel, reqaction) and for the response (resrulelabel, resaction), mapped in DNS Insights Logs to Request Rule Name, Request Action, Response Rule Name and Response Action. [zia.logs.dns-outcome:request-response-pairs] The DNS field table lists REQ_ALLOW and RES_BLOC as the example values of reqaction, and gives no example for resaction. [zia.logs.dns-outcome:reqaction-examples] The DNS Insights Logs Request Action and Response Action show a Block value for block rules configured with either the Block or the Block with Response Code action. [zia.logs.dns-outcome:block-value] The value sets and whether both fire together are open [gap:zia.logs.dns-outcome:action-enum-open].
 

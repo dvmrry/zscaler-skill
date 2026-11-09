@@ -1,5 +1,6 @@
 # NSS servers for Cloud & Branch Connector: certificate, buffering and sizing (cloud-connector.nss-va.servers)
 Also called: nss server cloud connector; nss va certificate; nss client certificate; nss buffer; nss va sizing; nss va high availability; nss server state
+Former IDs: cloud-connector-20
 
 An NSS server is the Admin Console record of one NSS virtual machine. It decides how that VM authenticates, what it buffers and how it is sized.
 

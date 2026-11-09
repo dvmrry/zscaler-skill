@@ -1,5 +1,6 @@
 # Constraints the ZPA Terraform docs and provider code place on individual resources (zpa.terraform.resource-constraints)
 Also called: zpa terraform tcp_quick_ack inconsistent; zpa terraform provisioning key state; zpa_private_cloud_group site_id; zpa_ba_certificate import; zpa terraform inspection certificate_id HTTP; zpa_pra_approval_controller start_time
+Former IDs: zpa-77
 
 These are provider-side constraints the Terraform docs or code state for individual ZPA resources. Each resource's arguments, enums and defaults are generated from the provider code (`node scripts/kb.mjs surface <resource name>`); these are the constraints the schema does not show.
 

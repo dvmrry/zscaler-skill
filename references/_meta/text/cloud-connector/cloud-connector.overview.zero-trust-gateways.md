@@ -1,5 +1,6 @@
 # Zero Trust Gateways versus Cloud Connectors: who runs what, and where it is available (cloud-connector.overview.zero-trust-gateways)
 Also called: zero trust gateway; ztg; aws zero trust gateway; gcp zero trust gateway; azure zero trust gateway; is a zero trust gateway a cloud connector; managed cloud connector
+Former IDs: cloud-connector-29
 
 A Zero Trust Gateway is a separate deployment type from the Cloud Connector VM that the rest of this area describes.
 

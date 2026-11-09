@@ -1,5 +1,6 @@
 # DNS Control rule resource over the API (zia.dns-control.api-rules)
 Also called: firewallDnsRules; firewall dns rules api; dns rule put replace; isWebEUNEnabled; isWebEunEnabled; zpaIpGroup omitempty; enabled to state dns rule; dns rule protocols enum
+Former IDs: zia-71
 
 DNS rules use the dedicated endpoint `/zia/api/v1/firewallDnsRules`, separate from Firewall Filtering. [zia.dns-control.api-rules:endpoint] Updating a DNS rule is a PUT full replacement, not a patch. [zia.dns-control.api-rules:update-is-put] The MCP update tool builds its payload from the supplied fields and sends it straight to the SDK `update_rule`; it does not read the existing rule first. [zia.dns-control.api-rules:mcp-update-no-readback]
 

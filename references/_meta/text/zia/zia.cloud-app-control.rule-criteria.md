@@ -1,5 +1,6 @@
 # What a Cloud App Control rule matches on (zia.cloud-app-control.rule-criteria)
 Also called: cac rule criteria; cloud applications or risk profile; how does cac identify the app; url to cloud app mapping; cloud app lookup
+Former IDs: zia-09
 
 A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile]. [zia.cloud-app-control.rule-criteria:criteria-expression] Compare this with URL Filtering, where the criteria are URL categories rather than applications: [How URL Filtering rule criteria combine](kb:zia.url-filtering.criteria).
 

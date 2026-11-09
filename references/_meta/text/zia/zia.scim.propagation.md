@@ -1,5 +1,6 @@
 # How fast SCIM changes reach ZIA (zia.scim.propagation)
 Also called: scim sync delay; scim push model; force scim sync; group change not reflected; scim sync logs; scim first sync; idp provisioning cadence
+Former IDs: zia-44, zia-45
 
 "The group changed in the IdP, how long until ZIA policy sees it?" With SCIM, users and groups are provisioned through APIs. There is no wait for synchronization intervals or for the user to log in, a group or department change updates the Zscaler user database in near real time, and no inbound connection from Zscaler to the customer's directory or network is required. [zia.scim.propagation:push-near-real-time] ZIA does not poll the IdP: every change is made by a client calling Zscaler's SCIM server, so a delay or a missing change is on the IdP connector's schedule or scope, and the captured articles describe no ZIA-side way to force a resync. [zia.scim.propagation:no-zia-side-pull]
 

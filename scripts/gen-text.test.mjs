@@ -1,34 +1,41 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { codeFile, reasonFile, subjectFile, textFiles, typeFile } from "./gen-text.mjs";
+import { sync, textFiles } from "./gen-text.mjs";
 import { buildGraph, loadPublic } from "./kb-lib.mjs";
+import { spines, textFile } from "./kb-resolve.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const OVERLAY = path.join(ROOT, "scripts/fixtures/kb-overlay");
 const g = buildGraph(loadPublic(ROOT));
 const files = textFiles(g);
 const read = (...a) => execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", ...a], { encoding: "utf8" });
+const records = (out) => [...new Set(out.match(/^- \[company\.[a-z0-9.-]+\]/gm))].sort();
 
-test("every subject, type, status code and policy reason has a text file, and every link points at one", () => {
+test("every subject, type, status code, policy reason and spine area has a text file, and every link points at one", () => {
   for (const n of g.nodes.values()) {
-    if (n.kind === "subject") assert.ok(files[subjectFile(n.id)], n.id);
-    if (n.kind === "type") assert.ok(files[typeFile(n.id)], n.id);
+    if (n.kind === "subject") assert.ok(files[textFile.subject(n.id)], n.id);
+    if (n.kind === "type") assert.ok(files[textFile.type(n.id)], n.id);
   }
-  for (const code of g.statusCodes.keys()) assert.ok(files[codeFile(code)], code);
-  for (const key of g.policyReasons.keys()) assert.ok(files[reasonFile(key)], key);
+  for (const code of g.statusCodes.keys()) assert.ok(files[textFile.code(code)], code);
+  for (const key of g.policyReasons.keys()) assert.ok(files[textFile.reason(key)], key);
+  // The prompts say an area's ID names a file: its hub's, or an index of its subjects when it has no hub.
+  for (const spine of Object.values(spines(g))) for (const a of spine.areas) assert.ok(files[textFile.subject(a.id)], a.id);
+  assert.match(files[textFile.subject("zia.url-categories")], /^# zia\.url-categories: an area with no hub subject\n\nIts subjects .*\n- references\/_meta\/text\/zia\/zia\.url-categories\.[a-z0-9.-]+\.md \(/s);
   for (const [f, text] of Object.entries(files)) {
-    for (const [, to] of text.matchAll(/^- [a-z-]+ (references\/_meta\/text\/\S+\.md) \(/gm)) assert.ok(files[to], `${f} links to ${to}`);
+    for (const [, to] of text.matchAll(/^- (?:[a-z-]+ )?(references\/_meta\/text\/\S+\.md) \(/gm)) assert.ok(files[to], `${f} links to ${to}`);
   }
 });
 
-test("a subject's file is what read prints for it, with its aliases, its area and the links read follows", () => {
+test("a subject's file is what read prints for it, with its names, its area and the links read follows", () => {
   const id = "zia.url-filtering.rule-order";
-  const text = files[subjectFile(id)];
+  const text = files[textFile.subject(id)];
   const alone = read("--no-overlay", "--no-links", id).split("\n\n").slice(1).join("\n\n").trim();
   const [title, ...body] = alone.split("\n");
-  assert.ok(text.startsWith(`${title}\nAlso called: ${g.nodes.get(id).data.aliases.join("; ")}\n${body.join("\n")}`), "read's text, aliases under the title");
+  assert.ok(text.startsWith(`${title}\nAlso called: ${g.nodes.get(id).data.aliases.join("; ")}\nFormer IDs: zia-05\n${body.join("\n")}`), "read's text, names under the title");
   assert.match(text, /^Area: zia\.url-filtering, its subjects in references\/_meta\/spine\/zia\/zia\.url-filtering\.json$/m);
   // The links are the subjects read's hop reaches, read whole or listed, as file paths with the claim behind each.
   const hop = read("--no-overlay", id).split("## Linked subjects (one hop from what was read)")[1];
@@ -36,21 +43,47 @@ test("a subject's file is what read prints for it, with its aliases, its area an
   const linked = new Set([...text.matchAll(/^- [a-z-]+ references\/_meta\/text\/(?:types\/)?(?:[a-z0-9-]+\/)?(\S+)\.md \(/gm)].map((m) => m[1]));
   assert.deepEqual([...linked].sort(), [...reached].sort());
   assert.match(text, /^- decided-by references\/_meta\/text\/zia\/zia\.url-categories\.membership\.md \(.+\): .+ \[zia\.url-categories\.membership:resolved-before-rules\]$/m);
+  // An old ledger ID someone cites finds the subject it became.
+  const [old, to] = [...g.formerIds].find(([, t]) => g.nodes.get(t)?.kind === "subject");
+  assert.match(files[textFile.subject(to)], new RegExp(`^Former IDs: (.+, )?${old}(,|$)`, "m"));
 });
 
-test("codes, reasons and types read as read prints them, and a type points at its codes' files", () => {
-  assert.equal(files[codeFile("BRK_MT_TERMINATED")], read("--no-overlay", "--no-links", "BRK_MT_TERMINATED").split("\n\n").slice(1).join("\n\n"));
-  assert.match(files[reasonFile("bypassed due to missing config")], /^# Bypassed due to missing config: a policy reason of /);
-  assert.match(files[typeFile("zia/web-log")], /^- ssldecrypted /m);
-  assert.match(files[typeFile("zpa/user-activity-log")], /own file under references\/_meta\/text\/codes\//);
+test("codes, reasons and types read as read prints them, naming files instead of commands", () => {
+  assert.equal(files[textFile.code("BRK_MT_TERMINATED")], read("--no-overlay", "--no-links", "BRK_MT_TERMINATED").split("\n\n").slice(1).join("\n\n"));
+  assert.match(files[textFile.reason("bypassed due to missing config")], /^# Bypassed due to missing config: a policy reason of /);
+  assert.match(files[textFile.type("zia/web-log")], /^- ssldecrypted /m);
+  assert.match(files[textFile.type("zpa/user-activity-log")], /^- Status codes: \d+ .*; each has its own file, `references\/_meta\/text\/codes\/<code>\.md`$/m);
+  for (const f of Object.keys(files)) assert.doesNotMatch(files[f], /\(`read /, `${f} tells the reader to run read`);
 });
 
-test("read --company prints only the company records, or says there is no overlay", () => {
-  const out = read("--overlay", OVERLAY, "--company", "zia.url-filtering");
-  assert.match(out, /^Company records about zia\.url-filtering(\.[a-z0-9.-]+)?:\n- \[company\.zia\./m);
+test("read --company prints only the company records, the hop's too, and takes file paths", () => {
+  const id = "zia.url-filtering.rule-order";
+  const out = read("--overlay", OVERLAY, "--company", textFile.subject(id));
+  assert.deepEqual(records(out), records(read("--overlay", OVERLAY, id)), "the same records read gives with the text");
+  assert.ok(!out.includes(`[${id}:first-match]`), "no public text");
+  assert.ok(!out.includes("## Linked subjects"), "no hop heading");
   assert.match(out, /^Live tier: zscalerctl is declared; each config type \(references\/_meta\/text\/types\/<type id>\.md\) names its read-only command$/m);
-  assert.ok(!out.includes("[zia.url-filtering.rule-order:first-match]"), "no public text");
-  assert.ok(!out.includes("## Linked subjects"), "no hop");
-  assert.match(read("--overlay", OVERLAY, "--company", "zdx.overview"), /^No company records are about zdx\.overview or what it binds\.$/m);
-  assert.equal(read("--no-overlay", "--company", "zia.url-filtering"), "No company overlay is configured: there are no company records to read.\n");
+  assert.match(read("--overlay", OVERLAY, "--company", "zdx.score"), /^No company records are about zdx\.score, what it binds or what it links to\.$/m);
+  const unknown = read("--overlay", OVERLAY, "--company", "references/_meta/text/zia/zia.nope.md");
+  assert.match(unknown, /no subject, type, field or area has this ID/);
+  assert.doesNotMatch(unknown, /No company records/, "an ID that names nothing is not reported as having no records");
+  assert.equal(read("--no-overlay", "--company", id), "No company overlay is configured: there are no company records to read.\n");
+});
+
+test("sync writes, then --check finds missing, changed and no-longer-generated files", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gen-text-"));
+  try {
+    const want = { "references/_meta/text/zia/zia.a.md": "a\n", "references/_meta/text/types/zia/t.md": "t\n" };
+    assert.deepEqual(sync(root, want, { check: true }).sort(), Object.keys(want).sort(), "nothing written yet");
+    sync(root, want);
+    assert.deepEqual(sync(root, want, { check: true }), []);
+    fs.writeFileSync(path.join(root, "references/_meta/text/zia/zia.a.md"), "edited\n");
+    fs.writeFileSync(path.join(root, "references/_meta/text/zia/zia.gone.md"), "old\n");
+    assert.deepEqual(sync(root, want, { check: true }).sort(), ["references/_meta/text/zia/zia.a.md", "references/_meta/text/zia/zia.gone.md"]);
+    sync(root, { "references/_meta/text/zia/zia.a.md": "a\n" });
+    assert.ok(!fs.existsSync(path.join(root, "references/_meta/text/types")), "a removed type's empty directory goes too");
+    assert.ok(!fs.existsSync(path.join(root, "references/_meta/text/zia/zia.gone.md")));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });

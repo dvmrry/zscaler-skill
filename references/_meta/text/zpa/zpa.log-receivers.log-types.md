@@ -1,5 +1,6 @@
 # Log types a ZPA log receiver can carry, and their codes (zpa.log-receivers.log-types)
 Also called: lss log types; zpn_trans_log; zpn_auth_log; zpn_ast_auth_log; zpn_http_trans_log; zpn_sys_auth_log; zpn_ast_comprehensive_stats; zpn_pbroker_comprehensive_stats; zpn_waf_http_exchanges_log; zms_flow_log; zpn_sitec_auth_log; zpn_smb_inspection_log; zpn_auth_log_1id; sourceLogType values; source_log_type
+Former IDs: zpa-40, zpa-41
 
 The help, the API and the tools name the log types differently and accept different sets of them.
 

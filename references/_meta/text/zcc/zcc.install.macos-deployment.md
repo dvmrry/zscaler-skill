@@ -1,5 +1,6 @@
 # Deploying Client Connector on macOS: the package, the preference domain, updates and removal (zcc.install.macos-deployment)
 Also called: zcc macos pkg; com.zscaler.installparams; installation-parameters plist; com.zscaler.tunnelparams; clearDnsCacheOnT2Start; zccToForegroundDuringAuth; jamf zcc deployment; intune zcc macos; zcc macos uninstall; Uninstaller.sh; zcc app store update macos; macos install customization; zcc macos deployment
+Former IDs: zcc-16, zcc-17, zcc-18, zcc-21, zcc-22, zcc-23
 
 On macOS, Client Connector is a pkg delivered by an MDM, with its install parameters pushed as a managed preference. The vendor's macOS customization article is an index: deploying Client Connector with a pkg and PLIST settings from an MDM varies by MDM, and the steps are in the Microsoft Intune and Jamf Pro deployment guides. [zcc.install.macos-deployment:guides]
 

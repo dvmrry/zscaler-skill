@@ -1,5 +1,6 @@
 # The Client Connector acceptable use policy prompt (zcc.acceptable-use)
 Also called: zcc aup; acceptable use policy zcc; aup frequency; aup message; client connector aup; show users an acceptable use screen; aup custom days; client connector acceptable use policy; aup message html; aup not showing
+Former IDs: zcc-26, zcc-44, zcc-45, zcc-46, zcc-47, zcc-48, zcc-49, zcc-50, zcc-51, zcc-52, zcc-53, zcc-54, zcc-55
 
 The Client Connector AUP is a policy users must accept before they can connect to the internet or reach internal resources from devices protected by the app. [zcc.acceptable-use:gate] How the client renders it is not sourced [gap:zcc.acceptable-use:aup-rendering].
 

@@ -1,5 +1,6 @@
 # Sublocations: what they are, the auto-created other sublocations, naming and limits (zia.locations.sublocations)
 Also called: sublocation; sub-location; other sublocation; other6; nested location; sublocation limit; delete parent location; reparent sublocation; sublocation name uniqueness
+Former IDs: zia-17, zia-18, zia-19, zia-20
 
 A sublocation is a location nested under a parent location that references IP addresses encapsulated in a GRE or IPSec tunnel, or passed to the service in X-Forwarded-For headers. It is the same location object as a parent, distinguished by `parentId`: a missing or 0 `parentId` means a parent location. [zia.locations.sublocations:what-it-is] Sublocations let one tunnel carry several networks with different treatment: policy by IP address, authentication enforced on the corporate network and off for guest, bandwidth control per sublocation with unused bandwidth staying available at the parent, and separate reporting for networks or offices that share an egress IP. [zia.locations.sublocations:what-it-is-for]
 

@@ -1,5 +1,6 @@
 # Cloud Connector on GCP: MIG autoscaling, Health Monitor and Resource Sync (cloud-connector.gcp.mig-autoscaling)
 Also called: gcp mig cloud connector; managed instance group cloud connector; cloud connector autoscaling gcp; min_replicas; max_replicas; target_cpu_util_value; smedge_cpu_utilization gcp; cloud_connector_aggr_health gcp; health monitor cloud run function; resource sync cloud run function; resource sync cadence; resource_sync_entry; 16 cloud connectors per group; terraform-zscc-cloud-function-gcp
+Former IDs: cloud-connector-28
 
 On GCP, Cloud Connector autoscaling is a zonal Managed Instance Group per zone, scaled on a custom CPU metric, plus two Cloud Run functions that replace unhealthy connectors and reconcile the Admin Console with the groups. Help and the pinned Terraform module state different defaults for several of these values; the module's values are what a deployment made from it runs with.
 

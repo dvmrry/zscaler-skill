@@ -1,5 +1,6 @@
 # How the ZDX Score is calculated: 5-minute values, hourly lows and rollups per scope (zdx.score.calculation)
 Also called: zdx score calculation; lowest value within an hour; zdx hourly score; zdx application score; zdx organization score; zdx user score; zdx location score; zdx department score; divided by 25; page fetch time baseline; zdx regional baseline; zdx 7 day baseline; zdx score dropped; regions by zdx score
+Former IDs: zdx-16, zdx-36, zdx-37, zdx-38, zdx-39, zdx-40
 
 Each scope of the score is built from the 5-minute and hourly values with its own rule: a lowest value, an average of lowest values, or an average over intervals. Client Connector sends a probe to an application every 5 minutes; each 5-minute period's measurements are given a value from 0 to 100, and the lowest value within an hour becomes that hour's value. This is done for every defined application across all users, their devices and their locations. [zdx.score.calculation:hourly-lowest] The subscription table gives a different probing interval on Standard [divergence:zdx.score.calculation:probe-interval-scope]. In the subscription table the probing interval is 15 minutes on Standard and 5 minutes on Microsoft 365, Advanced and Advanced Plus. [zdx.score.calculation:probing-interval-by-tier]
 

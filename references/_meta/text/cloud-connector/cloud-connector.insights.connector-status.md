@@ -1,5 +1,6 @@
 # Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record (cloud-connector.insights.connector-status)
 Also called: cloud connector inactive; cloud connector status active; cloud connector disabled; operationalStatus; ecVMs status; cloud connector vm size; formFactor; cloud connector nat ip; status active but load balancer unhealthy
+Former IDs: log-22
 
 The console status of a connector reports its management-plane contact, not whether it forwards traffic. The API's per-VM record carries more state, with value spaces only partly documented.
 

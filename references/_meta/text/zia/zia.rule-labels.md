@@ -1,5 +1,6 @@
 # ZIA Rule Labels (zia.rule-labels)
 Also called: rule labels; rule label; policy label; label a rule; untagged label; ruleLabels; zia_rule_labels; tag policy rules
+Former IDs: zia-26, zia-30
 
 A rule label is an organizational group for policy rules: the feature has two parts, creating labels and associating them with policy rules. [zia.rule-labels:purpose] On the policy page, rules associated with a label are grouped under it and the group can be collapsed or hidden; rules with no label are grouped under the Untagged label. [zia.rule-labels:grouped-on-policy-page] The Rule Labels page (Internet Access > Resources > Rule Labels) lists each label with Name, Number of Policies and Rules Tagged, Last Modified By, Last Modified On and Description, sortable, and offers search, table modification, add, edit and delete. [zia.rule-labels:console-page]
 

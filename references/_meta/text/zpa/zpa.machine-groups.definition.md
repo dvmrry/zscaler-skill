@@ -1,5 +1,6 @@
 # What a ZPA machine group is and how machines join it (zpa.machine-groups.definition)
 Also called: machine group membership; how does a device join a machine group; machine group matching criteria; machine group limit; machine group provisioning key
+Former IDs: zpa-14
 
 This subject covers what a machine group is and how machines join it. A machine group is a set of an organization's internal, local machines that need to connect to Private Access, described as internal directories, such as Active Directory, that organizations want Private Access to connect to before Windows login. [zpa.machine-groups.definition:purpose] Machine groups let an admin associate Zscaler Client Connector with a machine group and enable Machine Tunnels for pre-Windows login, so a device can reach internal applications even when its Zscaler Client Connector is not connected to Private Access. [zpa.machine-groups.definition:benefits]
 

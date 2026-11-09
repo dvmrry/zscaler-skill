@@ -1,5 +1,6 @@
 # Trusted networks on ZPA Private Service Edge groups (zpa.trusted-networks.service-edge-groups)
 Also called: private service edge group trusted networks; publicly accessible private service edge; is_public service edge group; prefer on-prem private service edge; service edge group trusted_networks block
+Former IDs: zpa-81
 
 This subject covers trusted networks on Private Service Edge groups.
 

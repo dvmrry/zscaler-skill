@@ -1,5 +1,6 @@
 # Firefox traffic and certificate trust with and without the integration (zcc.firefox.proxy-and-trust)
 Also called: firefox certificate error zscaler; firefox ssl inspection; firefox sec_error_unknown_issuer zscaler; firefox z-tunnel 2.0; firefox z-tunnel 1.0; security.enterprise_roots.enabled
+Former IDs: zcc-40
 
 Two things decide whether Firefox is covered: whether its traffic reaches Zscaler at all, and whether it trusts the certificate Zscaler presents when it inspects that traffic.
 

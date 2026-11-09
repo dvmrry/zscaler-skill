@@ -1,5 +1,6 @@
 # Zscaler Cellular: Zscaler SIM, Cellular Edge and how SIM traffic reaches ZIA and ZPA policy (zscaler-cellular.overview)
 Also called: zscaler cellular; zcell; zscaler sim; cellular edge; iot sim zero trust; esim zscaler; cellular imei imsi policy
+Former IDs: zscaler-cellular-01
 
 Zscaler Cellular (ZCell) secures IoT and mobile devices through a Zscaler-issued SIM instead of an agent. This subject covers the architecture, Cellular Edge deployment and the setup sequence; SIMs, deployment credentials, monitoring and the API have their own subjects.
 

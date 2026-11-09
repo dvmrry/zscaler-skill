@@ -1,5 +1,6 @@
 # Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated (dspm.overview)
 Also called: dspm; data security posture management; zscaler dspm; dspm vs dlp; data at rest posture; dspm api
+Former IDs: dspm-01
 
 DSPM examines data at rest in cloud and on-premises stores, where inline DLP watches data in motion. DSPM is an AI-powered solution that protects data stored on-premises and in the cloud by continuously scanning it for misconfigurations, vulnerabilities and permissions that might contribute to attack vectors; it shows where sensitive data resides, classifies it, detects duplicate data and misconfigured stores holding it, and contextualizes exposure and posture. [dspm.overview:what-it-is]
 

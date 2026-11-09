@@ -1,5 +1,6 @@
 # ZIdentity API client secrets: creation, expiry, the two-secret limit, rotation and masked reads (zidentity.api-clients.secrets)
 Also called: api client secret rotation; add_api_client_secret; expiresAt client secret; zidentity secret expires_at; forgot api client secret; AddSecret GetSecrets
+Former IDs: zid-13
 
 Secrets belong to clients whose authentication type is `SECRET`. Creating a secret for an API client applies only when the client's authentication type is `SECRET`. [zidentity.api-clients.secrets:secret-auth-only]
 

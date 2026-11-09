@@ -1,5 +1,6 @@
 # SSL/TLS inspection rule order, predefined and default rules, limits (zia.ssl-inspection.rules)
 Also called: ssl rule order; ssl inspection rule limit; 255 ssl rules; predefined ssl rule; default ssl rule; ssl rule name length; zia-66
+Former IDs: zia-66
 
 Which SSL rule applies is a first-match question with three wrinkles: rules you did not write (predefined and default), read-only flags that break writes if echoed back, and a size ceiling on the rule set.
 

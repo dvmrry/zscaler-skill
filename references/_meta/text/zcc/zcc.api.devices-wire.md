@@ -1,5 +1,6 @@
 # ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords (zcc.api.devices-wire)
 Also called: zcc removeDevices; zcc forceRemoveDevices; zcc soft remove device; removal pending; zcc getOtp; zcc getPasswords; zcc uninstall password api; zcc downloadDevices csv
+Former IDs: zcc-11
 
 The device endpoints list and remove enrolled devices, export CSV reports, and hand out the one-time and profile passwords that unlock Client Connector on a device. Their parameters are generated from the contract; this subject holds what the operations do.
 

@@ -1,5 +1,6 @@
 # What the SDKs send and receive for ZPA Privileged Remote Access objects (zpa.api.pra-wire)
 Also called: credential pool waap-pra-config; pra console bulk; pra approval workingHours cron; credential move targetMicrotenantId; pra portal getcName; connectionSecurity NLA; credential password returned on GET
+Former IDs: zpa-23
 
 This subject records what the SDKs send and receive for Privileged Remote Access objects that is not a plain field list: base paths, keys, defaults and response handling. The product behavior is in [PRA components: portals, consoles, approvals, credentials, policies and limits](kb:zpa.pra.components), [PRA credentials, credential pools and the credentials policy](kb:zpa.pra.credentials) and [PRA approvals: requesting, reviewing and expiry](kb:zpa.pra.approvals), and the Python tooling in [PRA operations in the Python SDK and Ansible approvals](kb:zpa.pra.tooling).
 

@@ -1,5 +1,6 @@
 # The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API (portfolio.secops-platform)
 Also called: agentic secops platform; security operations platform; secops platform; data fabric for security; secops data sources; secops reporting api; secops report export; report export via api; secops graphql
+Former IDs: aem-01, aem.secops-platform, soc-workbench-01
 
 Asset Exposure Management, Unified Vulnerability Management, Agentic SOC and Identity Protection are applications on one platform that shares ingestion, data model and reporting. The Agentic SecOps Platform has four applications: Asset Exposure Management (AEM), Unified Vulnerability Management (UVM), Agentic SOC and Identity Protection. [portfolio.secops-platform:four-apps]
 

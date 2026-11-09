@@ -1,5 +1,6 @@
 # Use Untrusted Certificates and unauthenticated OPTIONS for Browser Access (zpa.browser-access.backend-options)
 Also called: trust_untrusted_cert; allow_options; trustUntrustedCert; allowOptions; use untrusted certificates; allow unauthenticated options request; browser access cors preflight; browser access untrusted backend certificate
+Former IDs: zpa-36
 
 Two per-application settings decide whether Browser Access tolerates an unverifiable backend certificate and whether it forwards a CORS preflight.
 

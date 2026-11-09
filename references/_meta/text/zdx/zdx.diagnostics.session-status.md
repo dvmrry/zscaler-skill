@@ -1,5 +1,6 @@
 # What a Diagnostics Session's status means, in the console and in the API (zdx.diagnostics.session-status)
 Also called: diagnostics session status; diagnostics session expired; diagnostics session incomplete; abort initiated; deep trace status; deeptrace not_started; why did my diagnostics session expire
+Former IDs: zdx-30
 
 A session moves through statuses shown in two console tables, and the API reports its own, shorter set.
 

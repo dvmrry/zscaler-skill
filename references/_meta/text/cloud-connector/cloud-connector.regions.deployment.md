@@ -1,5 +1,6 @@
 # Where a customer-deployed Cloud Connector VM can be deployed (cloud-connector.regions.deployment)
 Also called: cloud connector azure china; cloud connector govcloud; cloud connector azure government; cloud connector marketplace regions; cloud connector vm size; cloud connector gcp regions
+Former IDs: cloud-connector-22
 
 Apart from the AWS AMI table, the captured help has no region list for the Cloud Connector VM; what it does say is cloud-specific. The Zero Trust Gateway tables are not a VM allowlist: [Regions where Zero Trust Gateways are supported (AWS and GCP)](kb:cloud-connector.regions.zero-trust-gateways).
 

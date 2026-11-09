@@ -1,5 +1,6 @@
 # The ZMS GraphQL API: one endpoint, read-only clients, customer scoping and pagination (zms.api)
 Also called: zms graphql; /zms/graphql; zms api; client.zms; zmicroseg; zms pagination pagenum; zms fetchall; eyezid; zms mutations
+Former IDs: zms-01
 
 ZMS is programmed through GraphQL. The generated surface lists the Python SDK modules and methods (run `node scripts/kb.mjs surface zms`); this subject holds the conventions every query shares.
 

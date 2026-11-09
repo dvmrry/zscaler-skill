@@ -1,5 +1,6 @@
 # Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open (cloud-connector.overview.gateway-failover)
 Also called: cloud connector fail open; cloud connector fail close; cloud connector failover; cloud connector secondary gateway; cloud connector tertiary gateway; cloud connector cannot reach zia; cloud connector data plane; cloud connector zpa enrollment; cloud connector high availability; cloud connector ha
+Former IDs: cloud-connector-08
 
 Each Cloud Connector keeps its own tunnels to Zscaler Service Edges; the cloud load balancer in front of it is a different layer ([How cloud load balancers spread traffic across Cloud Connectors and take unhealthy ones out](kb:cloud-connector.overview.load-balancing)). The data plane processes and forwards workload traffic to Internet & SaaS and Private Access Service Edges, and is made of outbound connections from the service interface of each Cloud Connector. [cloud-connector.overview.gateway-failover:data-plane]
 

@@ -1,5 +1,6 @@
 # ZDX device health metrics and device events (zdx.devices.health-and-events)
 Also called: zdx health metrics; device health metrics; zdx cpu memory metrics; zdx wifi metrics; zdx device events; zdx events; device event categories; zdx network change event
+Former IDs: zdx-24
 
 Health metrics show what the device itself was doing; events show what changed on it. The device health-metrics read returns a device's health metrics trend, including CPU, Memory, Disk I/O, Network I/O, Wi-Fi and Network Bandwidth among others, for the last 2 hours if no time range is given. [zdx.devices.health-and-events:health-metrics] The complete category list is not published [gap:zdx.devices.health-and-events:health-category-list].
 

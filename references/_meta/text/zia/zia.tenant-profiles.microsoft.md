@@ -1,5 +1,6 @@
 # Microsoft Login Services tenant profiles: v1, v2, personal accounts (zia.tenant-profiles.microsoft)
 Also called: microsoft tenant restriction; ms_login_services_tr_v2; restrict_personal_o365_domains; tenant restrictions v2; Tenant Directory ID; Policy ID; login.live.com personal accounts; office 365 tenant restriction
+Former IDs: zia-67
 
 Microsoft Login Services is the profile with the most settings.
 

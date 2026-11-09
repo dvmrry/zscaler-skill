@@ -1,5 +1,6 @@
 # Authentication Service user groups: predefined and custom groups, dynamic groups, membership and limits (zidentity.groups)
 Also called: ZIdentity groups; Authentication Service groups; user groups; dynamic group; isDynamicGroup; dynamicGroup; Zscaler Global Administrators; Zscaler Emergency Access group; Dynamic Group Guest Domains; 1000 groups per user; replace group members
+Former IDs: zid-17, zid-18, zid-19, zid-20
 
 Groups are how users are handed entitlements and roles in bulk. A group is a logical entity of several users, created to assign many users to Zscaler services quickly; groups can be assigned to administrative entitlements, service entitlements and admin roles, and there are custom and predefined groups. [zidentity.groups:what-groups-are]
 

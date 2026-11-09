@@ -1,5 +1,6 @@
 # How clients are steered to a Private Service Edge and which country policy applies (zpa.private-service-edges.client-selection)
 Also called: trusted network private service edge; grace distance; public service edge proximity override; is_public; publicly accessible private service edge; why does my client use public service edge instead of pse; rfc 1918 country policy; private service edge location geoip; pse country code policy
+Former IDs: zpa-54
 
 Steering to a Private Service Edge is decided by three group settings, and the user's country policy is decided by a separate rule.
 

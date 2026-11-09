@@ -1,5 +1,6 @@
 # Registering SAML attributes in Private Access (zpa.saml-attributes.registration)
 Also called: saml attribute import; add saml attribute; saml attribute limit; session attributes; saml attribute name vs saml name; saml assertion not visible
+Former IDs: zpa-61
 
 This subject covers registering SAML attributes in Private Access. SAML attributes must be configured in the Admin Console before they can be used as policy rule criteria. [zpa.saml-attributes.registration:configure-first]
 

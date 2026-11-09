@@ -1,5 +1,6 @@
 # Which app profile a device gets: rule order, groups and the longest match (zcc.app-profiles.selection)
 Also called: app profile rule order; which app profile applies; app profile precedence; wrong app profile; app profile device group; default app profile; web policy rule order
+Former IDs: zcc-07
 
 Each platform has its own list of profile rules, and a device receives one of them. When a user enrolls, the app uses the order of precedence and the user's identity to download an app profile with the appropriate policy rule. [zcc.app-profiles.selection:enrollment-download] The rule order is the order of precedence among a platform's profile rules and helps determine which rule the app downloads for a user at enrollment; precedence is by ascending number. [zcc.app-profiles.selection:ascending-precedence] The vendor's example walks the rules in order: the app checks whether rule 1 applies to the user, moves on to rule 2 and, finding that it applies, downloads that rule's profile. [zcc.app-profiles.selection:first-applicable]
 

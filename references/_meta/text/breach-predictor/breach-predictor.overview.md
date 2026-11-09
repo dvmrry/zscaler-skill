@@ -1,5 +1,6 @@
 # Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with (breach-predictor.overview)
 Also called: breach predictor; zscaler breach predictor; breach probability score; overall breach probability; breach predictor siem; breach predictor splunk; breach predictor integrations; breach predictor api; predr
+Former IDs: breach-predictor-01
 
 Breach Predictor anticipates threats, provides context about them, and helps prevent threat actors from accessing sensitive data; its benefits are listed as Enhanced Attack Visibility, Proactive Breach Risk Reduction and Improved Security Posture. [breach-predictor.overview:what-it-is] It is designed to supplement, rather than replace, reactive security tools. [breach-predictor.overview:supplements]
 

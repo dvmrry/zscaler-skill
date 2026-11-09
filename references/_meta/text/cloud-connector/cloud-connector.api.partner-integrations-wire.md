@@ -1,5 +1,6 @@
 # Cloud Connector partner integration endpoints: AWS accounts in the contract, Azure and GCP outside it (cloud-connector.api.partner-integrations-wire)
 Also called: ztw partner integrations api; publicCloudInfo; publicCloudTenant; azure account api cloud connector; gcp workload discovery api; discoveryService
+Former IDs: cloud-connector-18
 
 Partner integrations register cloud accounts so that workload tags can be used in policy. The AWS account, account group and discovery paths are generated from the contract; this subject records what the API covers per cloud.
 

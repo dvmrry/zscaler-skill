@@ -1,5 +1,6 @@
 # The Business Insights API: custom applications, report configurations and report downloads (business-insights.api)
 Also called: business insights api; client.zbi; zbi python sdk; bi api; custom apps api; customapps; report configs; bi report download
+Former IDs: business-insights-01
 
 Paths and Python methods are generated: `node scripts/kb.mjs surface bi`; the Go SDK and the Terraform providers have no Business Insights entries there. In the Python SDK this API is `client.zbi`, which is not browser isolation: [In the Python SDK, the `zbi` service client is Zscaler Business Insights, not browser isolation.](kb:shared.terminology.product-names:zbi-is-business-insights).
 

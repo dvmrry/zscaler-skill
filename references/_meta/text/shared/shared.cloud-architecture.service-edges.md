@@ -1,5 +1,6 @@
 # Service Edges: the data plane, its form factors, and how traffic reaches one (shared.cloud-architecture.service-edges)
 Also called: service edge; public service edge; data plane; policy follows the user; geolocation nearest service edge; service edge form factors; zen
+Former IDs: shared-17, shared-18, shared-21
 
 Service Edges are where traffic is inspected and policy is enforced. Public Service Edges for Internet & SaaS are full-featured, inline internet security gateways that inspect all internet traffic bidirectionally for malware and enforce security and compliance policies. [shared.cloud-architecture.service-edges:zia-pse-definition]
 

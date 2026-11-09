@@ -49,7 +49,8 @@ Vendored provider and SDK source say what a tool can express, never what *we* de
 ## Using the knowledge graph
 
 Retrieval is file reads and searches: the spine, then the text files of the subjects you pick. Many runtimes stop
-for a person to approve every shell command, and the public graph needs none; only company records take one.
+for a person to approve every shell command; the public graph needs none, and the one command an answer takes is
+`read --company`, for company records.
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared` for cross-product material and log
@@ -82,11 +83,14 @@ for a person to approve every shell command, and the public graph needs none; on
    with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the
    files it finds. Each subject file lists its aliases under its title, and each status code and policy reason has
    its own file under `references/_meta/text/codes/`.
-4. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, run
-   `node scripts/kb.mjs read --company <the subject and type IDs you read>` once: the company records about them and
-   the types they bind (scope, confidence, validated date, field map and IaC locations), or a line saying no overlay
-   is configured. Open the IaC files the records locate, with your file tools, and search them for the objects the
-   question names (the app, rule, location or category). Give the file's `committed` date.
+4. **Company records.** Once per answer, after reading, run `node scripts/kb.mjs read --company <the subject and
+   type IDs you read>` (their file paths work too): the company records about them, the types they bind and the
+   subjects they link to, including records that narrow or contradict a public claim, with scope, confidence,
+   validated date, field map and IaC locations. When it says no overlay is configured, skip it for the rest of the
+   conversation.
+5. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
+   files the records locate, with your file tools, and search them for the objects the question names (the app,
+   rule, location or category). Give the file's `committed` date.
 
 Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
 with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a

@@ -1,5 +1,6 @@
 # What the SDKs and provider send for a ZPA log receiver (LSS) (zpa.api.lss-wire)
 Also called: lss config omitempty; lss entryValues; lss update returns nothing; log receiver policy rule IDP; lssPort string integer; zpn_client_type_browser_isolation lss; SIEM_POLICY policySetId lookup
+Former IDs: zpa-26
 
 This subject records what the SDKs and the Terraform provider put on the wire for a Log Streaming Service receiver that is not visible in the field list: dropped zero values, key spellings, response handling and where the tools disagree. The receiver's own behavior is in [What a ZPA log receiver holds and which fields are required](kb:zpa.log-receivers.configuration), its log types in [Log types a ZPA log receiver can carry, and their codes](kb:zpa.log-receivers.log-types) and its formats in [Log stream format and content templates for a ZPA log receiver](kb:zpa.log-receivers.formats).
 

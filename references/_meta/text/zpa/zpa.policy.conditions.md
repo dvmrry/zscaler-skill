@@ -1,5 +1,6 @@
 # Boolean logic and operand forms of ZPA policy conditions (zpa.policy.conditions)
 Also called: zpa and or logic; condition blocks; operands; entry_values; values vs entry_values; objectType; APP_GROUP; CLIENT_TYPE; POSTURE lhs rhs; PLATFORM rhs true; RISK_FACTOR_TYPE; CHROME_ENTERPRISE; empty conditions; rule with no conditions
+Former IDs: zpa-46, zpa-73
 
 A rule's conditions combine by fixed AND and OR logic, and each operand has one of two forms.
 

@@ -1,5 +1,6 @@
 # Cloud App Control versus URL Filtering: which applies (zia.cloud-app-control.precedence)
 Also called: cac vs url filtering; cloud app control precedence; allow cascading to url filtering; cascading; cac allows url filter blocks; why does cac allow override a url block
+Former IDs: zia-06, zia-10
 
 Neither "Cloud App Control always wins" nor "the stricter policy wins" holds. The rule that matters is about the allow path.
 

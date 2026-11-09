@@ -1,5 +1,6 @@
 # How the Public tier appears in the management API (zpa.public-service-edges.api-visibility)
 Also called: serviceEdge api public; upgradePriority; upgrade_priority; public service edge api; zscaler managed service edge api; service edge group fields public
+Former IDs: zpa-60
 
 The Public tier is visible to the API only indirectly.
 

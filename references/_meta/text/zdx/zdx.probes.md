@@ -1,5 +1,6 @@
 # ZDX probes: Web and Cloud Path probes, what they measure and how they run (zdx.probes)
 Also called: zdx probe; zdx probes; web probe; cloud path probe; cloudpath probe; cloud path; page fetch time; server response time; ttfb; dns time; zdx availability metric; zdx probe ssl inspection; zdx probe frequency; zdx monitor; hop count; zdx packet loss; zscaler managed probe; zscaler hosted probes; hosted probe; zscaler hosted monitoring; adaptive mode; adaptive probing
+Former IDs: zdx-20, zdx-41, zdx-42
 
 Probes are the measurements behind most ZDX data. The probe types ZDX supports are Web probes and Cloud Path probes; Web probes collect Page Fetch Time, DNS Time, Server Response Time and Availability, and Cloud Path probes give a summarized visualization between hop points of traffic. [zdx.probes:probe-types] Which probes an application needs is in [A custom application must have a Web probe created to be enabled; most applications have at least one Web probe and one Cloud Path probe, while network applications need only a single Cloud Path probe. Predefined applications have probes preconfigured by default, while custom applications need probes created manually.](kb:zdx.applications:probe-requirements), and which users a probe runs for is in [Who a ZDX probe runs for: probing and exclusion criteria](kb:zdx.probes.criteria).
 

@@ -1,5 +1,6 @@
 # Why a Microsoft 365 sign-in is still challenged or blocked with Source IP Anchoring (shared.m365.troubleshooting)
 Also called: m365 unexpected mfa behind zscaler; conditional access blocks sign-in sipa; named location app connector ip; app connector public ip changed; m365 sign-in intermittent mfa; sipa not anchoring m365
+Former IDs: shared-12, shared-13, shared-14, shared-15, shared-16
 
 The address Microsoft recorded for the failed sign-in decides which section below applies. Much of the Microsoft side is outside every captured source, so most of it stays open here.
 

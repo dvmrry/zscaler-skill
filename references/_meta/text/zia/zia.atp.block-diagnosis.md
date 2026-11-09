@@ -1,5 +1,6 @@
 # Diagnosing a Malware Protection or ATP block from the logs (zia.atp.block-diagnosis)
 Also called: blocked policy type malware protection; ruletype advanced threat protection; malwarecat; threatname; riskscore; which atp category blocked; security dashboard atp; cybersecurity dashboard atp; mp or atp block
+Former IDs: log-04
 
 For "was this block Malware Protection or ATP," the API does not give a verdict; the logged transaction does. Start from [Which engine blocked the file, and what a Sandbox verdict means](kb:zia.sandbox.verdicts), which holds the Blocked Policy Type boundary between Sandbox, Malware Protection and ATP and the absence of a per-transaction API. This subject covers the fields that then narrow it.
 

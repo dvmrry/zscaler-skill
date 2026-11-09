@@ -1,5 +1,6 @@
 # Go SDK ZDX services: where the structs and functions disagree with the contract (zdx.sdk-go.service-defects)
 Also called: zdx go sdk bugs; GetDeepTraceSession; CreateAnalysis; DeviceEvents instances; GetDeviceApp; go zdx trace_id string; go zdx device id int string
+Former IDs: zdx-06, zdx-07
 
 The Go SDK's ZDX packages decode responses into hand-written structs, and several of them differ from the published contract. The packages and functions are generated (`node scripts/kb.mjs surface zdx`); request handling shared by all Go products is in [How the Go SDK builds requests and interprets responses: client options, bodies, status codes, bulk deletes](kb:shared.sdk-go.request-handling).
 

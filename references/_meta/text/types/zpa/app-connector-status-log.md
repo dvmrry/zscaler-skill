@@ -37,6 +37,4 @@ Also called: zpn_ast_auth_log; app connector status log; connector status log
 - TotalBytesRx integer: The total bytes received (LSS formats: %[OPT]d %[OPT]x %[OPT]f %[OPT]o)
 - TotalBytesTx integer: The total bytes transmitted (LSS formats: %[OPT]d %[OPT]x %[OPT]f %[OPT]o)
 - MicroTenantID string: The Microtenant ID of the App Connector (LSS formats: %[OPT]s %[OPT]j)
-- Status codes: 3 listed for this log type in the LSS API's status-codes response; read one by its code (`read ZPN_STATUS_AUTH_FAILED`)
-
-Each status code and policy reason has its own file under references/_meta/text/codes/ (`<code>.md`, `reason-<the reason>.md`): search that directory for the code or the reason's text.
+- Status codes: 3 listed for this log type in the LSS API's status-codes response; each has its own file, `references/_meta/text/codes/<code>.md`

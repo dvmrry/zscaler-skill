@@ -1,5 +1,6 @@
 # Client Connector fail-open: captive portals, unreachable Service Edges and tunnel failures (zcc.forwarding-profiles.fail-open)
 Also called: fail open; fail-open policy; app fail open; captive portal detection; zia cloud not reachable; z-tunnel failover; user blocked at hotel wifi; strict enforcement notification; webFailOpenPolicy
+Former IDs: zcc-85
 
 Fail-open settings decide what the app does when it cannot protect traffic. They live in the tenant-wide App Fail Open settings and, on newer clients, in the app profile.
 

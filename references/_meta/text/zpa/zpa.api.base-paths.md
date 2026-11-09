@@ -1,5 +1,6 @@
 # ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig (zpa.api.base-paths)
 Also called: config.private.zscaler.com; mgmtconfig v1 v2; /zpa prefix legacy; customerId in every path; api.zsapi.net/zpa; userconfig scimgroup base; cbiconfig base; mgmtConfigV2; ZPA legacy host
+Former IDs: zpa-38
 
 Every ZPA route carries the tenant's customer ID in its path, and the same route is written with a /zpa prefix on OneAPI and without it on the legacy hosts. The endpoint and method listing itself is generated, not restated here.
 

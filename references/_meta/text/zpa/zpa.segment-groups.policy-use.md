@@ -1,5 +1,6 @@
 # How access policy rules use segment groups (zpa.segment-groups.policy-use)
 Also called: APP_GROUP operand; segment group in access policy rule; segment group OR application segment; disabled segment group policy effect; rename segment group policy
+Former IDs: sg-01
 
 This subject covers how access policy rules refer to segment groups.
 

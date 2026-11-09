@@ -1,5 +1,6 @@
 # Client Connector notification templates: per-profile notification settings (zcc.notifications.templates)
 Also called: notification templates; notification template; legacy notification settings template; notificationTemplateId; notificationTemplateContract; delay posture failure notifications; posture failure notification; zia firewall dns ips notifications; do not disturb button
+Former IDs: zcc-24, zcc-25, zcc-27
 
 Templates let different groups of users get different notification settings. A notification template holds Client Connector notification settings and is assigned to groups of users through the app profile. [zcc.notifications.templates:purpose] Templates work only with Client Connector 4.8 and later for Windows, need the Zscaler Notification Framework, and are enabled by Zscaler Support. [zcc.notifications.templates:availability] The app profile page offers templates on Android as well [divergence:zcc.notifications.templates:android-templates]. Enabling templates removes the End User Notifications tab and copies its settings into a Legacy Notification Settings template, whose name cannot be changed. [zcc.notifications.templates:replaces-tab]
 

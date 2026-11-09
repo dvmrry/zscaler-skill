@@ -1,5 +1,6 @@
 # Enrolling a Private Service Edge (zpa.private-service-edges.enrollment)
 Also called: pse enrollment; pse provisioning key; oauth2 user code private service edge; enrollment token; pse clone; private service edge deleted by mistake; pse not listed in console; enrollment_cert_id service edge
+Former IDs: zpa-48, zpa-55
 
 Enrolling a Private Service Edge is the step that gives an added instance its identity in a group.
 

@@ -1,5 +1,6 @@
 # macOS system extensions, VPN payloads and privacy profiles for Client Connector (zcc.install.macos-extensions)
 Also called: zcc system extension; TRPTunnel; com.zscaler.zscaler.TRPTunnel; com.zscaler.zscaler.pktfilter; PCBCQZJ7S7; zscaler team id; transparent proxy-based interception; route-based interception; zcc pppc full disk access; managed login items zcc; process-based application bypass macos
+Former IDs: zcc-15, zcc-19, zcc-20, zcc-75
 
 Beyond the package and its install parameters, depending on the interception mode and features, the guides add configuration profiles that approve Client Connector's network extensions and grant its privacy permissions.
 

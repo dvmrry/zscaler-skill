@@ -1,5 +1,6 @@
 # Which ZIA rule types accept rule labels (zia.rule-labels.rule-types)
 Also called: rule types with labels; labels attribute; which policies support rule labels; rule_label filter; ruleLabel parameter; label by id
+Former IDs: zia-31
 
 The ZIA Terraform provider documents a `labels` attribute on fifteen rule resources: firewall filtering, firewall DNS, firewall IPS, NAT control, traffic capture, URL filtering, SSL inspection, DLP web, file type control, Cloud App Control, forwarding control, sandbox, bandwidth control, and SaaS Security (CASB) DLP and malware. [zia.rule-labels.rule-types:terraform-rule-types-with-labels] The vendor help text speaks only of grouping "all your organization's policies" ([ZIA Rule Labels](kb:zia.rule-labels)), so the provider schema is the working enumeration; treat a type missing from it as unknown, not as unsupported.
 

@@ -1,5 +1,6 @@
 # Cloud & Branch Connector DNS policies: scope, criteria, actions, predefined rules (cloud-connector.dns.policies)
 Also called: cloud connector dns policy; cloud connector dns rule; dns forwarding rule; ecRules/ecDns; ztc_traffic_forwarding_dns_rule; REDIR_REQ; REDIR_ZPA; REDIR_RES; Default Connector DNS Rule; Redirect Resolution of Zscaler Domains to WAN CTR; ZPA Resolver
+Former IDs: cloud-connector-11, cloud-connector-12
 
 DNS policies are Cloud & Branch Connector's own DNS rule engine, separate from ZIA DNS Control. Cloud & Branch Connector has its own DNS Policies feature, configured on its own page (Zero Trust Cloud > Policy > DNS Forwarding), with rules evaluated in ascending order. [cloud-connector.dns.policies:cbc-has-dns-policies] DNS policies monitor and apply policy to all DNS requests and responses whatever the protocol and encryption, including UDP, TCP and DNS over HTTPS (DoH). [cloud-connector.dns.policies:scope-doh]
 

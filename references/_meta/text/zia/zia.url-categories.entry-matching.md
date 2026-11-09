@@ -1,5 +1,6 @@
 # How URL category entries match requests (wildcards) (zia.url-categories.entry-matching)
 Also called: wildcard matching; leading period wildcard; does *.example.com match example.com; asterisk wildcard; subdomain matching; url pattern matching; trailing slash
+Former IDs: zia-03, zia-14, zia-15
 
 ZIA's URL entry syntax looks like other products' and behaves differently, which is why intuitive answers go wrong here.
 

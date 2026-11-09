@@ -1,5 +1,6 @@
 # ZIA rule label API surface (zia.rule-labels.api-surface)
 Also called: ruleLabels endpoint; rule label fields; get_rule_type_label; ruleType endpoint; list_labels; referencedRuleCount; GetRuleLabelByName
+Former IDs: zia-50
 
 The OpenAPI contract defines list and create on `/ruleLabels` and get, update and delete on `/ruleLabels/{ruleLabelId}`. [zia.rule-labels.api-surface:crud-endpoints] The label itself is small and its server-set members are fixed: `lastModifiedTime`, `lastModifiedBy` and `createdBy` are documented read-only (ignored by PUT) in the Go SDK; `lastModifiedTime` is also documented as ignored by DELETE. `referencedRuleCount` is documented as the number of rules that reference the label. [zia.rule-labels.api-surface:read-only-fields]
 

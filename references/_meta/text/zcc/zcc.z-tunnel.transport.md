@@ -1,5 +1,6 @@
 # Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up (zcc.z-tunnel.transport)
 Also called: dtls or tls; z-tunnel 2.0 transport; primary transport selection; allow tls fallback; z-tunnel 2.0 setup failure behavior; tunnel2FallbackType; mtu for zscaler adapter; z-tunnel 2.0 udp 443 blocked; dtls instability
+Former IDs: zcc-101
 
 Selecting Z-Tunnel 2.0 in a forwarding profile opens its advanced settings, which decide how the tunnel connects and what happens when it cannot.
 

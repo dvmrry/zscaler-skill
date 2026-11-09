@@ -1,5 +1,6 @@
 # ZDX cloud architecture: components, the telemetry path and what is undocumented (zdx.cloud-architecture)
 Also called: zdx architecture; zdx central authority; zdx ca; telemetry and policy gateway; tpg; zdx analytics; azure data explorer; adx; zdx admin portal; call quality monitoring; zdx data residency; zdx data retention; zdx telemetry path
+Former IDs: zdx-15, zdx-17, zdx-18, zdx-19, zdx-21, zdx-22
 
 This subject lists the ZDX cloud's components as the vendor's architecture page describes them, and what is still open about each.
 

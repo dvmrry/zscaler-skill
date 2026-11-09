@@ -1,5 +1,6 @@
 # Authentication Service admin roles: predefined and custom roles, and how they relate to product roles (zidentity.admin-rbac)
 Also called: ZIdentity admin roles; Authentication Service admin roles; ZIdentity RBAC; Super Admin; View Only Admin; User Admin; CXO Insight User; ZIdentity custom roles; who can administer ZIdentity
+Former IDs: zid-02, zid-03, zid-04
 
 This covers the admin roles of Authentication Service itself and where they stop. Role-based administration assigns Authentication Service users or user groups admin roles and permissions that control their level of access to the Zscaler Admin Console. [zidentity.admin-rbac:role-based-administration]
 

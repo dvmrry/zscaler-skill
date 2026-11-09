@@ -1,5 +1,6 @@
 # ZDX administration API: department and location lookups (zdx.administration)
 Also called: zdx administration; zdx admin api; zdx departments; zdx locations; list_departments; list_locations; GetDepartments; GetLocations; zdx config departments; zdx admin users
+Former IDs: zdx-09, zdx-10
 
 Despite its name, the ZDX administration API is a lookup of departments and locations used to filter other reads. The help lists it that way, [The ZDX API gives programmatic access to administration (active locations and departments), alerts, software inventory, reports (ZDX Scores for applications and device health metrics and events) and troubleshooting (deep tracing on a user's device).](kb:shared.log-export.zdx:api-scope).
 

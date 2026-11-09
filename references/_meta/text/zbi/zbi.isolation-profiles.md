@@ -1,5 +1,6 @@
 # Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions (zbi.isolation-profiles)
 Also called: isolation profile; cbi profile; browser isolation profile; default isolation profile; defaultProfile; isDefault; cbiProfile; zpn_isolation_profile_id
+Former IDs: zbi-03, zbi-05, zbi-06
 
 Default isolation profiles are created automatically for every organization that has Cloud Browser, and admins can create multiple isolation profiles for both Internet & SaaS and Private Access in the Zscaler Admin Console. [zbi.isolation-profiles:default-profiles] Isolation profiles can be edited at any time, and each profile has a banner theme for the isolation end user notification and a choice of root certificates; the configuration guide gives these steps for Internet & SaaS and Private Access profiles alike. [zbi.isolation-profiles:per-profile-banner-cert]
 

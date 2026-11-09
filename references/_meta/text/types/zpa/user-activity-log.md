@@ -77,6 +77,4 @@ Also called: zpn_trans_log; user activity log; zpa access log; lss user activity
 - ZENTotalBytesTxConnector integer: The total bytes transmitted to the App Connector from the Public Service Edge (LSS formats: %[OPT]d %[OPT]x %[OPT]f %[OPT]o)
 - PRACapabilityPolicyID integer: Emitted by the default zpn_trans_log template; the field table does not list it.
 - PRASharedUsersList string: Emitted by the default zpn_trans_log template; the field table does not list it.
-- Status codes: 201 listed for this log type in the LSS API's status-codes response and the session status codes help article; read one by its code (`read BRK_MT_SETUP_FAIL_BIND_TO_AST_LOCAL_OWNER`)
-
-Each status code and policy reason has its own file under references/_meta/text/codes/ (`<code>.md`, `reason-<the reason>.md`): search that directory for the code or the reason's text.
+- Status codes: 201 listed for this log type in the LSS API's status-codes response and the session status codes help article; each has its own file, `references/_meta/text/codes/<code>.md`

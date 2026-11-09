@@ -1,5 +1,6 @@
 # CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming (zia.casb.insights-logs)
 Also called: saas security insights logs; casb logs; saas security report; shadow it report; insights log columns; run id; scan id; dlp identifier; cloud nss saas security; export 100K; 180 days
+Former IDs: api-casb-01, api-casb-02, log-17
 
 Insights logs are the record of what each scan did. SaaS Security Insights logs show every scan performed by the Zscaler SaaS Connector for a SaaS application tenant and are stored for 180 days on the Nanolog servers. [zia.casb.insights-logs:retention-180]
 

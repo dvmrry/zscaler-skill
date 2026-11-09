@@ -1,5 +1,6 @@
 # ZDX alerts: how rules trigger, what an alert's status means, and reading alerts through the API (zdx.alerts)
 Also called: zdx alerts; alert status; completed by modified rule; completed by exceeded time; alert rule throttling; alert only if repeated; ongoing alerts api; historical alerts api; affected devices; client.zdx.alerts; why did my zdx alert not fire
+Former IDs: zdx-31
 
 An alert is raised by a rule when a metric crosses a threshold under the rule's throttling criteria, and the API reads alerts but does not define rules. The alert endpoints and SDK functions are generated (`node scripts/kb.mjs surface zdx`).
 

@@ -1,5 +1,6 @@
 # Cloud Connector rule endpoints on the wire: which forwarding and DNS rule fields each client sends (cloud-connector.api.rules-wire)
 Also called: ecRules ecRdr; ecRules ecDns; ztw forwarding rule api fields; destWorkloadGroups; srcWorkloadGroups; ztw dns rule action enum; REDIR_RES; zpaAppSegments
+Former IDs: cloud-connector-23
 
 Traffic forwarding rules (`/ecRules/ecRdr`), DNS rules (`/ecRules/ecDns`) and log and control rules (`/ecRules/self`) share one rule shape, but the contract, the two SDKs and the Terraform provider each model a different subset of it. Paths and field lists are generated; this subject records where the clients disagree with the contract.
 

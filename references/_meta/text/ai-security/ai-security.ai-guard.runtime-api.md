@@ -1,5 +1,6 @@
 # Calling AI Guard at runtime: the proxy endpoint, the DAS detection API, its host, direction and policy ID, and throttling in the Python SDK (ai-security.ai-guard.runtime-api)
 Also called: execute-policy; resolve-and-execute-policy; ai guard detection api; ai guard das api; /v1/detection/execute-policy; api.zseclipse.net; proxy.zseclipse.net; LegacyAIGuardClient; policy_detection; ai guard direction IN OUT; ai guard policyId; ai guard throttling; retryAfterMillis; X-ApiKey; AIGUARD_CLOUD; ai guard api divergences
+Former IDs: ai-security-01, ai-security-02, ai-security-06, ai-security-09
 
 Applications reach AI Guard at runtime in one of two ways: as a proxy in front of the LLM provider, or by calling its detection API around their own LLM calls. These calls are not part of the OneAPI configuration API.
 

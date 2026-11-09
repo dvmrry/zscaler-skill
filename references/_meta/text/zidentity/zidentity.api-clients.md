@@ -1,5 +1,6 @@
 # ZIdentity API clients: what one is, how it authenticates, its resources and scopes, and its token lifetime (zidentity.api-clients)
 Also called: zidentity api client; oneapi api client; api client scopes; accessTokenLifeTime; access_token_life_time; clientResources selectedScopes; zs:config scope; ziam:0 scope; api client authType JWKS PUBKEYCERT SECRET; first api client bootstrap
+Former IDs: zid-11, zid-14
 
 An API client is the identity a script, SDK or provider uses to call any Zscaler API through OneAPI. API clients or AI agents can access Zscaler API resources; Authentication Service includes an OAuth 2.1 authorization server that validates authorization requests by API clients and AI Agents and issues access tokens that authorize clients accessing the API resources via the OneAPI server. [zidentity.api-clients:definition]
 

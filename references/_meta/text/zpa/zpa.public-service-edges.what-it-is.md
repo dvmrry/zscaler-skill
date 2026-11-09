@@ -1,5 +1,6 @@
 # What a ZPA Public Service Edge is (zpa.public-service-edges.what-it-is)
 Also called: zpa public service edge; control service edge; zscaler public service edge for private access; public service edge scale; virtual service edge zpa; public service edge safe mode
+Former IDs: zpa-58, zpa-59
 
 A Public Service Edge is the Zscaler-operated broker tier of Private Access, and it is not the ZIA product of the same name.
 

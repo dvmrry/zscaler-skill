@@ -1,5 +1,6 @@
 # PRA operations in the Python SDK and Ansible approvals (zpa.pra.tooling)
 Also called: get_credential_pool_info; expired_approval; add_bulk_console; credential_move; pra_approval working_hours; zpa_pra_approval ansible; pra bulk console; purge expired privileged approvals api
+Former IDs: zpa-82
 
 SDK and Ansible calls for PRA objects map onto a few operations. Terraform behavior for PRA is in the provider-defect subjects, and the segment reconciliation in Ansible is in [How the Ansible Browser Access, PRA and Inspection modules reconcile child applications](kb:zpa.app-segments.ansible-children).
 

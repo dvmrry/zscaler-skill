@@ -1,5 +1,6 @@
 # What the IoT Report discovers, and what it takes to get data (zia.iot.discovery)
 Also called: iot report; iot discovery; iot device discovery; iot report empty; location not in iot report; enable iot discovery; shadow iot; discovered devices
+Former IDs: zia.iot.discovery:discovery-scope, zia.iot.discovery:org-entitlement
 
 The IoT Report shows the device inventory discovered from unauthenticated web traffic; Zscaler's AI/ML engine classifies all unauthenticated devices automatically to help generate it. [zia.iot.discovery:report-scope] It is a device inventory and observation surface; whether any rule can act on it is in [How IoT traffic is targeted by policy](kb:zia.iot.policy-use), and how devices are labelled is in [How IoT devices are classified: type, category, classification](kb:zia.iot.classification).
 

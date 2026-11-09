@@ -1,5 +1,6 @@
 # Time windows versus time intervals (zia.time-intervals.time-windows)
 Also called: timeWindows endpoint; firewall time window data source; zia_firewall_filtering_time_window; Work hours Weekends Off hours; predefined time interval; terraform time interval resource
+Former IDs: zia-23, zia-25
 
 ZIA has two schedule objects with nearly the same shape. Time intervals are the ones an admin creates, in [Time interval fields: days, minutes and the single window](kb:zia.time-intervals.schema). The time window catalog is a second, separate list. `GET /timeWindows` and `GET /timeWindows/lite` list the time intervals used by the Firewall policy or the URL Filtering policy; they are separate from `/timeIntervals`. [zia.time-intervals.time-windows:catalog-endpoints] The time window catalog is read-only in the API specification: both paths expose only GET. [zia.time-intervals.time-windows:read-only]
 

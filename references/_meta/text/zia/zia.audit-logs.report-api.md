@@ -1,5 +1,6 @@
 # Exporting the ZIA admin audit log through the report API (zia.audit-logs.report-api)
 Also called: auditlogEntryReport; audit log api; export audit log csv; audit report statusId; AuditLogEntryRequest; adminauditlogs sdk
+Former IDs: zia-55
 
 The API report is a CSV of audit information for calls made to the cloud service API; whether it also includes console actions is open [gap:zia.audit-logs.report-api:api-report-scope], so do not assume it equals the console trail in [What the ZIA admin audit log records and how the console shows it](kb:zia.audit-logs.what-is-recorded). It is produced through a request/poll/download sequence, not a direct list call.
 

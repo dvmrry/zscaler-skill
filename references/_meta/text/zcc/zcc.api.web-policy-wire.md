@@ -1,5 +1,6 @@
 # What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate (zcc.api.web-policy-wire)
 Also called: zcc web policy edit; web/policy/edit success false id 0; zcc app profile api; zcc web policy snake_case keys; disable_password install_ssl_certs; ziaDRMethod ziaDRRecoveryMethod; zcc device_type number; web policy duplicate name; zcc web policy 400 extra os block; pac_url snake case; install_ssl_certs vs installCerts; web policy success false; IntOrString; SNAKE_CASE_KEYS; ziaDRMethod; ziaDRRecoveryMethod; web policy payload; web_policy_edit; UpdateWebPolicy; activate_web_policy; ActivateWebPolicy; web policy activate; create app profile api; application-profiles patch; GetWebPolicyByID; zcc device_type values
+Former IDs: zcc-77, zcc-78, zcc-79, zcc-88, zcc-89, zcc-90, zcc-98
 
 A ZCC web policy is the API object behind an app profile, written per platform through one edit endpoint. Its body mixes camelCase and snake_case keys, numbers and quoted strings, and form-state objects copied from the admin UI, and the sources disagree about several of them.
 

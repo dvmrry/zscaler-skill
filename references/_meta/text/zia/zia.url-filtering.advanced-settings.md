@@ -1,5 +1,6 @@
 # Advanced URL Filtering settings that change outcomes (zia.url-filtering.advanced-settings)
 Also called: advanced policy settings; newly registered domains; NROD; miscellaneous or unknown; embedded sites categorization; translated pages bypass; AI/ML content categorization; CIPA compliance; gen ai prompt capture; global ssl bypass policy evaluation
+Former IDs: zia-04, zia-65, zia-72
 
 Tenant-wide settings change URL Filtering outcomes without any rule changing.
 

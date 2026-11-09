@@ -1,5 +1,6 @@
 # The Zscaler MCP server's ZCell tools: 20 reads, the customer ID, time windows, prompts and gaps (zscaler-cellular.mcp)
 Also called: zcell mcp tools; zcell_list_sims; zcell_customer_id mcp; zcell prompts; zcell_review_anomaly_policies; zcell audit mcp object_id
+Former IDs: zscaler-cellular-04
 
 The MCP server wraps the Python SDK's ZCell reads; toolsets and entitlement filtering are shared with other products ([Which tools a Zscaler MCP server registers: toolsets, entitlements and the write gate](kb:shared.mcp-server.tool-inventory)), and whether the token's product value for Cellular is the one the filter expects is open in [The complete set of service-info prd values ZIdentity emits](kb:shared.mcp-server.tool-inventory:prd-alias-set).
 

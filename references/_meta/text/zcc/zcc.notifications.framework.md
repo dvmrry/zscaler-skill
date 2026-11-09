@@ -1,5 +1,6 @@
 # The Zscaler Notification Framework: Client Connector's own pop-ups (zcc.notifications.framework)
 Also called: zscaler notification framework; use zscaler notification framework; persistent notifications; custom timer; zia notification persistent; bring notification to focus; zcc notification timeout; useZscalerNotificationFramework
+Former IDs: zcc-31, zcc-32
 
 The framework is the pop-up system Client Connector can use on desktops instead of the operating system's. When enabled, the framework replaces the Windows and macOS notification systems, carrying the same informational messages. Only administrators can enable or disable it, and users cannot disable its notifications in Windows settings. [zcc.notifications.framework:overrides-os] Its settings exist for Windows and macOS only. [zcc.notifications.framework:windows-macos-only] It is switched on per app profile, by Use Zscaler Notification Framework in the Windows and macOS policies; the API carries it as `policyExtension.useZscalerNotificationFramework`. [zcc.notifications.framework:per-profile]
 

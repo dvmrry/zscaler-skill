@@ -1,5 +1,6 @@
 # DLP incident API wire behavior: list envelopes, paging, close, delete, triggers and evidence, and where the SDKs part from the contract (zwa.api.incidents-wire)
 Also called: zwa incident search; dlp incident api; FilterIncidentSearch; dlp_incident_search; zwa pagination; fetchTriggerContext; zwa evidence url; DeleteDLPIncident; incident_close; zwa go sdk empty results
+Former IDs: zwa-02, zwa-05
 
 These are the incident operations' behaviors beyond the generated paths and methods. The reference is the help API page; both SDKs call the same /dlp/v1/incidents family.
 

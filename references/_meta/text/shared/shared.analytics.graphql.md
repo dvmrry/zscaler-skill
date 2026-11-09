@@ -1,5 +1,6 @@
 # The Analytics (Z-Insights) GraphQL API: endpoint, access and scope (shared.analytics.graphql)
 Also called: zins graphql; z-insights api; zinsights; analytics api graphql; api.zsapi.net/zins/graphql; zscaler insights reader; graphql introspection production; zdx graphql api
+Former IDs: shared-30, shared-34
 
 The Analytics API gives programmatic access to Zscaler analytics data for custom dashboards, trends and insights on SaaS Security, Shadow IT, IoT Security, Zero Trust Firewall, cybersecurity posture and web traffic. [shared.analytics.graphql:what-it-is] It is a GraphQL API reached through the OneAPI gateway, with a single endpoint that takes queries across multiple data domains. [shared.analytics.graphql:single-endpoint]
 

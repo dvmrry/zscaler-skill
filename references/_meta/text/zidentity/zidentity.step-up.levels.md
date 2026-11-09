@@ -1,5 +1,6 @@
 # Authentication levels: the level tree, validity periods, acr mapping and the message to users (zidentity.step-up.levels)
 Also called: authentication levels; AL1; AL2; AL4; authentication level tree; authentication level validity; sub-level validity must be greater; acr mapping; message to the user step-up
+Former IDs: zid-28, zid-30
 
 Policies ask for a level, and a level sits in a tree. The help gives AL1 to AL4 as an example of authentication levels, representing increasing strength; each level's name is entered by the admin when the level is created. [zidentity.step-up.levels:al-naming]
 

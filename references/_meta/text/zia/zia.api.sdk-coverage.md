@@ -1,5 +1,6 @@
 # Which ZIA services the Go and Python SDKs cover, and where (zia.api.sdk-coverage)
 Also called: go sdk only zia; python sdk missing zia; scim_api go; device groups write python; email_profiles; advancedthreatsettings vs atp_policy; cross sdk parity; go sdk parity; python only service; go sdk missing zia service; sdk changelog incomplete; does go sdk support risk profiles; go sdk sandbox rules; go sdk casb dlp rules; go sdk dns gateways; go sdk custom file types; go sdk dedicated ip gateways; go sdk gov cloud; zscaler-sdk-go zidentitygov; legacy client missing accessor; ZIAService vs legacy client; attribute error client.zia endpoint_dlp_rules; outbound email dlp python list; http header profile ids url rule; python unified ziaservice; legacy client accessor; web_dlp_global_options; shadow it exportCsv entity; legacy endpoints notes; list_vips where; idmprofile path; list_vips_by_datacenter; where are the VIP calls; list_dlp_idm_profiles
+Former IDs: zia-51
 
 SDK presence is a statement about code, not about whether a tenant can use the endpoint. The Go and Python SDKs do not wrap the same ZIA endpoints, and the difference moves with each release.
 

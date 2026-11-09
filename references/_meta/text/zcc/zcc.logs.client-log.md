@@ -1,5 +1,6 @@
 # What the Client Connector log on the device records (zcc.logs.client-log)
 Also called: zcc log contents; zsatunnel log; zsafw; zcc log format; does the zcc log show blocks; zcc log rotation
+Former IDs: zcc-66, zcc-67
 
 No captured vendor article describes the client log's records or fields; what is known comes from the log modes and from a few features that name a log.
 

@@ -1,5 +1,6 @@
 # Cloud App Control actions and action discovery (zia.cloud-app-control.actions)
 Also called: cac actions; granular actions; availableActions; allAvailableActions; zia_cloud_app_control_rule_actions; ALLOW_AI_ML_CHAT; cac custom eun; isolate actions cannot be mixed
+Former IDs: zia-49, zia-53
 
 **Console actions.** An AI & ML applications rule for Cloud App Control offers the console actions Allow, Caution, Block, Conditional and Isolate; Isolate is available only if Zero Trust Browser is enabled for the organization. [zia.cloud-app-control.actions:console-actions] Prerequisites for Isolate and Conditional are the same ones URL Filtering has: [URL Filtering actions and their prerequisites](kb:zia.url-filtering.actions).
 

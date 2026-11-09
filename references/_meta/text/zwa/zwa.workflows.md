@@ -1,5 +1,6 @@
 # Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover (zwa.workflows)
 Also called: zwa workflow; workflow templates; workflow mapping; auto notify; auto escalate; auto close incident; zwa automation api
+Former IDs: zwa-01
 
 Admins remediate incidents either manually from the Incidents and Incident Details pages (for example investigate, notify user, escalate, create ticket, close) or through predefined and custom workflows that automatically perform actions such as notify user, escalate, create ticket and close incident, and can use both. [zwa.workflows:manual-or-automatic] Users, managers and approvers respond to actions a workflow generates in the same way as to the same actions performed manually. [zwa.workflows:same-responses]
 

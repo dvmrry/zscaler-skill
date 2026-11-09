@@ -1,5 +1,6 @@
 # Administrative and service entitlements: who administers and who may use each Zscaler service (zidentity.entitlements)
 Also called: ZIdentity entitlements; administrative entitlements; admin entitlements; service entitlements; end user entitlements; admin-entitlements; service-entitlements; which services can this user use; is this user an admin of ZIA
+Former IDs: zid-05, zid-08
 
 Authentication Service keeps two kinds of entitlement per user, and they answer different questions. A user can be given admin entitlements, which make them an administrator of a Zscaler service such as ZIA or ZPA, or service entitlements, which let them authenticate to a Zscaler service as an end user. [zidentity.entitlements:two-kinds]
 

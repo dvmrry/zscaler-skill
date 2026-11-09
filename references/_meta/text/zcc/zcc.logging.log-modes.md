@@ -1,5 +1,6 @@
 # Client Connector log modes as users and the API see them: Verbose, user choice, logMode and logLevel (zcc.logging.log-modes)
 Also called: zcc log mode; zcc log level; logLevel vs logMode; zcc debug logging; zcc verbose logging; change log mode in zcc
+Former IDs: log-21, zcc-56, zcc-57
 
 What each of Error, Warn, Info and Debug records, the per-profile override of the global default, and the log file size are in [App profile log mode and log file size](kb:zcc.app-profiles.logging). A fifth mode, Verbose, logs when invoked by external events such as a Firebase push notification or Mobile Manager flags, and exists only in Client Connector 1.5 and later for Android. [zcc.logging.log-modes:verbose-android]
 

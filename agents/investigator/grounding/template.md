@@ -56,7 +56,7 @@ author-status: draft
 
 - The overlay's IaC for `<product>/<type-id>` (when `overlay.json` declares `iac`)
 - `zscalerctl <product> <type-id> list` (live, read-only; only when IaC cannot answer or for drift)
-- `node scripts/kb.mjs read <product>/<type-id>` for field shapes
+- `references/_meta/text/types/<product>/<type-id>.md` for field shapes
 
 ## Use runtime logs only when
 

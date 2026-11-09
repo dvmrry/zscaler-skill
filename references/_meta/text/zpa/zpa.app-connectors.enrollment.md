@@ -1,5 +1,6 @@
 # App Connector enrollment, certificates and re-enrollment (zpa.app-connectors.enrollment)
 Also called: app connector enrollment; connector will not enroll; oauth user code enrollment; enrollment certificate; connector certificate; app connector allow list; re-enroll app connector; delete app connector re-enroll; clone app connector vm
+Former IDs: zpa-28
 
 How an App Connector gets its identity: the two enrollment methods, the certificate it receives, and what blocks or repeats enrollment.
 

@@ -1,5 +1,6 @@
 # What PAC forwarding leaves uncovered: non-web applications, mobile users and private-application destinations (shared.pac-files.coverage)
 Also called: pac non-browser clients; pac curl python docker; pac mobile users; pac ios android; pac ipv6; pac and zpa; pac browser access bypass; pac road warriors
+Former IDs: shared-26, shared-27
 
 A PAC file only steers applications that read it, so its coverage is decided on the client. What PAC forwarding cannot do inside the service (no Bandwidth Control or Firewall, no sublocations without XFF) is in [PAC forwarding cannot use features that need a tunnel (Bandwidth Control and Firewall), covers only applications that support PAC files, can be bypassed by end users disabling the file, loses internal IP visibility and sublocation policy unless XFF headers are inserted (group and user policy still apply), and can affect SLAs and performance without GRE or IPSec.](kb:zia.traffic-forwarding.pac:limitations).
 

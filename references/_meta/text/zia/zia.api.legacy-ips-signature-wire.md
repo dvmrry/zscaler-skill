@@ -1,5 +1,6 @@
 # Custom IPS signature rules: export, validate and import wire behavior in the legacy API (zia.api.legacy-ips-signature-wire)
 Also called: ipsSignatureRules export; ipsSignatureRules import; validateRuleText; custom ips signature csv; ips signature import 415; ips signature multipart
+Former IDs: zia-52
 
 The legacy custom IPS signature endpoints have wire rules that the SDK source records only in comments. Export and validate work as described below; import is disabled in the SDK and unconfirmed.
 

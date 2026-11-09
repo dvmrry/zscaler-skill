@@ -1,5 +1,6 @@
 # ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ (zcc.api.forwarding-profile-wire)
 Also called: forwarding profile edit POST; lbsZpaProbeInterval; latencyBasedZpaServerEnablement; isSameAsOnTrustedNetwork pointer; webForwardingProfile edit; enableLWFDriver contract type; forwarding profile wire format; networkType values; actionType values; conditionType values; primaryTransport values; forwarding profile enum; unified tunnel; enableUnifiedTunnel; actionTypeZIA; forwarding profile get vs post; trustedNetworkIdsSelected
+Former IDs: zcc-01, zcc-02, zcc-03, zcc-04
 
 The forwarding profile is one large object read from `listByCompany` and written whole with one `edit` call. Field names and the API paths are in the generated surface; this subject holds what the field list does not say.
 

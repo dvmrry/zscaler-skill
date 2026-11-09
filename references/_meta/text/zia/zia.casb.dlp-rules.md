@@ -1,5 +1,6 @@
 # CASB Data at Rest Scanning DLP rules (zia.casb.dlp-rules)
 Also called: casbDlpRules; data at rest scanning dlp; saas dlp rule; OFLCASB_DLP_REPORT_INCIDENT; casb dlp action; collaboration scope; trusted users trusted domains; saas security dlp policy
+Former IDs: api-casb-04
 
 A Data at Rest Scanning DLP rule is read in four steps: where it sits, who and what it scopes, what it inspects, and what it does.
 

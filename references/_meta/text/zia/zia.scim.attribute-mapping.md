@@ -1,5 +1,6 @@
 # ZIA SCIM attribute mapping (zia.scim.attribute-mapping)
 Also called: scim attributes; scim department attribute; enterprise user extension; scim externalId; name.givenName; scim custom attributes; scim required attributes; scim userName login
+Former IDs: zia-43
 
 "The user is in ZIA but the department rule misses them" is an attribute-mapping question. ZIA maps these SCIM user attributes: id to a Zscaler-generated unique ID; externalId to scim_externalid; userName to the user ID (login_name) in user@domain form; displayName to the display name (user_name); groups to Groups; active to enabled or disabled; department to Department; name.givenName and name.familyName to first and last name; emails.value to scim_emails. [zia.scim.attribute-mapping:user-fields] ZIA maps these SCIM group attributes: id to a Zscaler-generated unique ID, externalId to scim_externalid (kept in the Zscaler database), and displayName to the group Name. [zia.scim.attribute-mapping:group-fields]
 

@@ -1,5 +1,6 @@
 # Network services (port criteria) (zia.firewall.network-services)
 Also called: network service; networkServices; nw_services; service type; srcTcpPorts; destTcpPorts; service tag; port tuple; uppercase service names
+Former IDs: zia-60
 
 A network service is the port criterion that Firewall Filtering and IPS rules reference. A network service in the API carries, among other members, `name`, `type`, `tag` and four port arrays: `srcTcpPorts`, `destTcpPorts`, `srcUdpPorts` and `destUdpPorts`. [zia.firewall.network-services:object-shape] The API returns a network service's `type` as STANDARD, PREDEFINED or CUSTOM. The Go SDK model holds it as a free-form string. [zia.firewall.network-services:type-values] What STANDARD, PREDEFINED and CUSTOM mean is open [gap:zia.firewall.network-services:type-meanings]. The API's `tag` field is an enumeration of network service identifiers, such as HTTP, HTTPS, DNS, FTP, SSH, plus ICMP_ANY, UDP_ANY, TCP_ANY and OTHER_NETWORK_SERVICE. [zia.firewall.network-services:tag-values]
 

@@ -1,5 +1,6 @@
 # Private Cloud Controllers and Private Clouds as the Business Continuity layer (zpa.private-service-edges.private-cloud-controller)
 Also called: private cloud controller; privatecloudcontroller; private cloud group; private cloud; zpa business continuity; restart_private_controller; zpa_private_cloud_group; is a private cloud controller a pse group
+Former IDs: zpa-52
 
 A Private Cloud Controller is the Business Continuity controller; it is not a Private Service Edge group type.
 

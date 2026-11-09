@@ -1,5 +1,6 @@
 # ZPA legacy endpoint wiring: shared paths, schedules, user codes and step-up levels (zpa.api.legacy-endpoints)
 Also called: usercodes path; associationType usercodes; connectorSchedule; assistantSchedule; stepupauthlevel; application endpoint shared by segment types; zpa-37; zpa-38; zpa-39
+Former IDs: zpa-37, zpa-39
 
 The ZPA endpoint inventory is generated; this subject keeps only the places where a route is shared, renamed or wired differently by the sources. The base paths are in [ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig](kb:zpa.api.base-paths).
 

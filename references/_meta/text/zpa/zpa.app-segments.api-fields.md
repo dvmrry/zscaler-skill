@@ -1,5 +1,6 @@
 # Application segment fields in the API and SDK models (zpa.app-segments.api-fields)
 Also called: tcpPortRange vs tcpPortRanges; dual port range formats; tcp_keep_alive string; zpnErId; hbrEnabled stickyEntity stickyGroup guestDetails; inconsistentConfigDetails; readOnly zscalerManaged restrictionType; weightedLoadBalancing fqdnDnsCheck healthCheckType; defaultIdleTimeout defaultMaxAge; appRecommendationId
+Former IDs: zpa-74, zpa-75, zpa-83
 
 This subject covers the field names and wire types of an application segment as the API, the SDK models and Terraform expose them.
 

@@ -1,5 +1,6 @@
 # How locations land in groups: location type, defaults, exclusion flags and Terraform support (zia.locations.group-assignment)
 Also called: location type group; exclude_from_dynamic_groups; exclude_from_manual_groups; static_location_groups; dynamic_location_groups; profile default; policy scope changes without edit; other sublocation in dynamic group; terraform dynamic location groups
+Former IDs: zia-46
 
 A location can end up in a group, and so in a rule's scope, without anyone choosing that membership.
 

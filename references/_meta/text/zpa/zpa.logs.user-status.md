@@ -1,5 +1,6 @@
 # What a ZPA User Status log record says and does not say (zpa.logs.user-status)
 Also called: zpn_auth_log record; user status log fields; SessionStatus ZPN_STATUS_AUTHENTICATED; PosturesMiss PosturesHit; TrustedNetworks; FQDNRegisteredError; SAMLAttributes; user cannot connect to ZPA log
+Former IDs: log-19
 
 The User Status log (zpn_auth_log) records a Zscaler Client Connector session with Private Access: its status, location, posture and trusted-network results. Several of its field examples disagree with its field table.
 

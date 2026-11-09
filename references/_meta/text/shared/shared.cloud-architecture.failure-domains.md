@@ -1,5 +1,6 @@
 # What happens when a Zscaler component fails: edges, Central Authority, cloud, feeds, logs (shared.cloud-architecture.failure-domains)
 Also called: blast radius; zscaler outage; what happens when the central authority fails; service edge down; nanolog outage; feed central outage; cloud unreachable
+Former IDs: shared-20
 
 The architecture articles describe redundancy for each component; fewer sources say what a failure looks like from the tenant's side. This subject collects what is stated and what is open, per component.
 

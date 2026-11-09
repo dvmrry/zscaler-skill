@@ -1,5 +1,6 @@
 # Authentication Service users: where they come from, status, bulk actions and admin-side actions (zidentity.users)
 Also called: ZIdentity users; Authentication Service users; user source; SCIM user; JIT user; deactivate user; disable user ZIdentity; skip MFA for user; reset user password ZIdentity; bulk delete users
+Former IDs: zid-32
 
 The Authentication Service user directory is shared by every subscribed service. Users are added to Authentication Service either by creating them locally in it or through an external identity provider. [zidentity.users:created-locally-or-idp]
 

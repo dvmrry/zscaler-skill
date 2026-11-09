@@ -39,6 +39,4 @@ Also called: zpn_sys_auth_log; private service edge status log; pse status log
 - PublicIP string: Emitted by the default zpn_sys_auth_log template; the field table does not list it.
 - TimestampUnAuthentication string: Emitted by the default zpn_sys_auth_log template; the field table does not list it.
 - HostUpTime string: Emitted by the default zpn_sys_auth_log template; the field table does not list it.
-- Status codes: 3 listed for this log type in the LSS API's status-codes response; read one by its code (`read ZPN_STATUS_AUTH_FAILED`)
-
-Each status code and policy reason has its own file under references/_meta/text/codes/ (`<code>.md`, `reason-<the reason>.md`): search that directory for the code or the reason's text.
+- Status codes: 3 listed for this log type in the LSS API's status-codes response; each has its own file, `references/_meta/text/codes/<code>.md`

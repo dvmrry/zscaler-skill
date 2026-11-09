@@ -1,5 +1,6 @@
 # ZPA Private Service Edge and private cloud controller calls: what is sent and where the sources differ (zpa.api.service-edges-wire)
 Also called: private cloud controller restart path; service edge ipAcl; service edge schedule python bug; upgradeNowOnce; zpnSubModuleUpgradeList; service edge provisioningKeyId
+Former IDs: zpa-22
 
 This is the wire behavior of the Private Service Edge, private cloud controller and schedule calls that field listings do not show. Field names and types come from the surface layer (`node scripts/kb.mjs surface`) and the deployment behavior from [Private Service Edge groups: membership, software updates and version profiles](kb:zpa.private-service-edges.groups).
 

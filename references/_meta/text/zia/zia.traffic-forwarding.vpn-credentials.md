@@ -1,5 +1,6 @@
 # VPN credentials for IPSec: types, immutability and keys (zia.traffic-forwarding.vpn-credentials)
 Also called: vpn credentials; ufqdn; xauth; pre-shared key; vpncredentials api; ipsec credential type
+Former IDs: shared-38
 
 IPSec identity is a credential object with its own /vpnCredentials endpoint ([What a ZIA location is and what the console enforces for it](kb:zia.locations.model) lists it among the things a location holds). Tunnel behavior is in [IPSec tunnels to ZIA: limits, IKE and device settings](kb:zia.traffic-forwarding.ipsec).
 

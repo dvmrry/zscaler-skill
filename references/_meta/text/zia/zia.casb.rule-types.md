@@ -1,5 +1,6 @@
 # CASB rule types: the eight categories and their separate rule lists (zia.casb.rule-types)
 Also called: OFLCASB_DLP_ITSM; OFLCASB_AVP_REPO; casb rule type; ruleType; casb rule category; data at rest rule order; dlp vs malware rule namespace
+Former IDs: api-casb-05
 
 A rule belongs to one of eight categories, set by its `type`. A Data at Rest Scanning DLP rule has a `type` that selects one of eight categories, OFLCASB_DLP_ followed by FILE, EMAIL, CRM, ITSM, COLLAB, REPO, STORAGE or GENAI; the API also accepts ANY and NONE. [zia.casb.rule-types:dlp-type-tokens] A Data at Rest Scanning Malware Detection rule has a `type` in the same eight categories with the prefix OFLCASB_AVP_, plus ANY and NONE. [zia.casb.rule-types:malware-type-tokens] For DLP rules, the Terraform provider and the Ansible module list only the eight category tokens for `type`, not ANY or NONE; for malware rules the Ansible module omits them too, but the Terraform resource accepts ANY and NONE. [zia.casb.rule-types:terraform-omits-any-none]
 

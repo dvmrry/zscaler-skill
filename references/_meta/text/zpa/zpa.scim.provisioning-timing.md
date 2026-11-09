@@ -1,5 +1,6 @@
 # When SCIM data is ready for ZPA policy (zpa.scim.provisioning-timing)
 Also called: scim 48 hours; scim initial sync; scim rollout policy; okta scim connection error; scim groups per user limit; scim sync lag; scim user not recognized
+Former IDs: zpa-67
 
 This subject covers when SCIM data is ready for ZPA policy.
 

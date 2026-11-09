@@ -1,5 +1,6 @@
 # ATP API: one settings object, two URL lists, and the field-name traps (zia.atp.api-surface)
 Also called: advancedThreatSettings; update_atp_settings; get_atp_settings; fileFormatVunerabilitesBlocked; cookieStealingPCAPEnabled; atp put replace; atp settings api; zia_advanced_threat_settings
+Former IDs: zia-61
 
 Reading or writing ATP through the API has three endpoints and several traps. ATP is three endpoints under cyberThreatProtection: advancedThreatSettings (one settings object), securityExceptions (the allowlist) and maliciousUrls (the denylist). The settings object and the allowlist are read with GET and written with PUT; the denylist is written with an action parameter. [zia.atp.api-surface:endpoints]
 

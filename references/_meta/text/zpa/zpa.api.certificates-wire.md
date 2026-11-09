@@ -1,5 +1,6 @@
 # Enrollment and Browser Access certificate API: wire keys, paths and client quirks (zpa.api.certificates-wire)
 Also called: enrollment certificate getcName; zrsaencryptedprivatekey; BaCertificate update PUT; clientlessCertificate issued deprecated; enrollment cert csr generate; browser access certificate upload CertBlob
+Former IDs: zpa-25
 
 Enrollment (signing) certificates and Browser Access certificates are separate API objects with different quirks. Browser Access certificate use is in [Certificates for Browser Access applications: wildcards, managed and custom](kb:zpa.browser-access.certificates); connector enrollment is in [App Connector enrollment, certificates and re-enrollment](kb:zpa.app-connectors.enrollment).
 

@@ -1,5 +1,6 @@
 # One-time passwords for an enrolled device (zcc.passwords-and-otp.otp)
 Also called: getOtp; get_otp; GetOtp; zcc otp; uninstall otp; logout otp; anti-tampering otp; antiTemperingDisableOtp; zcc_get_device_otp; one-time password zcc
+Former IDs: zcc-76
 
 Each enrolled device has a set of one-time passwords an admin can hand a user in place of the app profile's passwords. One API call returns the whole set for one device.
 

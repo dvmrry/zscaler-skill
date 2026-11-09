@@ -1,5 +1,6 @@
 # PAC file forwarding: limits, versions and what it cannot cover (zia.traffic-forwarding.pac)
 Also called: pac file; hosted pac; pac limits; pac versions; last known good; pac vs zcc; explicit proxy pac; kerberos pac
+Former IDs: shared-23, shared-24, shared-25
 
 A PAC file points browsers at the service; how that traffic is treated once it arrives is in [Explicit proxy mode: CONNECT and the PAC file](kb:zia.proxy-mode.explicit). A PAC file is a text file that directs the browser to forward traffic to a Public Service Edge; it can exclude destinations (for example intranet sites) so they go direct, and it can be installed per user to cover them outside the corporate network. [zia.traffic-forwarding.pac:what-it-is] PAC files are supported by all major browsers, protect users on and off the corporate network, can be enforced through Active Directory Group Policy for Internet Explorer settings, make exclusions easy, and allow a location when traffic comes from a static public IP; Surrogate IP can be used if the router can use XFF headers and that is enabled at the location. [zia.traffic-forwarding.pac:benefits]
 

@@ -1,5 +1,6 @@
 # Client Connector notifications: which surface the user saw (zcc.notifications)
 Also called: zcc notifications; client connector notifications; zcc end user notifications; zcc eun; block page vs zcc notification; zcc pop-up; zcc toast; zpa reauth notification; notify users before zpa authentication expires; per-app vpn tunnel notification; end-user notifications
+Former IDs: zcc-28, zcc-29
 
 Three different things reach a Client Connector user as a notification, and each is configured in a different place. The Client Connector notification settings cover the notifications users receive by default (in the system tray and in the Zscaler Notification Framework), the Acceptable Use Policy, a custom IT-support banner, a reminder for SecureAgent users, and notification templates, which are for Windows only. [zcc.notifications:notification-page]
 

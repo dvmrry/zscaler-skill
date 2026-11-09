@@ -1,5 +1,6 @@
 # Value encodings and caveats of ZIA web log fields (zia.logs.web-field-semantics)
 Also called: sip 0.0.0.0; respcode 403 blocked; cip vs cintip; host vs url field; domain fronting fields; riskscore threatseverity; dlprulename trig_dlprulename; byte counters web log; prompt_req; urlcat urlsupercat urlclass; reason field
+Former IDs: log-06, log-07, log-08, log-09, log-10
 
 Several web log fields have encodings, fallbacks and conditions that the field list alone does not show. These are the ones the vendor field CSV states.
 

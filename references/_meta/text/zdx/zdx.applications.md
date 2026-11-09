@@ -1,5 +1,6 @@
 # ZDX applications: predefined, custom and network applications, and the application API (zdx.applications)
 Also called: zdx application; zdx applications; zdx apps; predefined applications zdx; custom application zdx; network application zdx; zdx app score api; zdx app metrics; metric_name; most impacted region; zdx application configuration api; zdx application users; pending onboard; unified communication applications; teams transport relay
+Former IDs: zdx-11, zdx-12, zdx-14
 
 An application is the unit ZDX probes and scores. The service provides predefined applications, or a customized application can be configured; the console configures Custom Applications (customizable SaaS or web applications created and onboarded for the organization) and Network Applications (network applications whose Cloud Path is monitored), and each application is designed to have probes associated with it. [zdx.applications:app-kinds] The subscription table gives the total number of Internet Web Applications as 512 on Standard, Microsoft 365, Advanced and Advanced Plus. [zdx.applications:internet-web-app-limit]
 

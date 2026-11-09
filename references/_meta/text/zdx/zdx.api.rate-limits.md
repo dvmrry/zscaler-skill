@@ -1,5 +1,6 @@
 # ZDX API rate limits: the license tiers, the headers, and how the clients pace themselves (zdx.api.rate-limits)
 Also called: zdx rate limit; zdx 429; x-ratelimit-remaining-second; zdx rate limit headers; zdx api tier; zdx throttling sdk
+Former IDs: zdx-04, zdx-05
 
 ZDX limits requests per tenant tier, and each client paces itself in its own way. The server side is documented once for all OneAPI products.
 

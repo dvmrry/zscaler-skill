@@ -1,5 +1,6 @@
 # How the Python SDK turns ZDX arguments into query parameters and bodies (zdx.sdk-python.request-shaping)
 Also called: zdx_params; since hours; zdx since parameter; location_id loc; score_bucket; exclude_loc; user_ids userids; zdx query parameters camelcase; python zdx filters not applied; zdx software inventory; software inventory; list_softwares; list_software_keys
+Former IDs: zdx-43
 
 Most Python ZDX list and report methods carry the `zdx_params` decorator, which renames a few shorthand arguments to the API's query names before the request executor applies its own key conversion. The methods and their endpoints are generated (`node scripts/kb.mjs surface zdx`).
 

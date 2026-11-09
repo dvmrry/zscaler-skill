@@ -882,8 +882,29 @@ export function readSubject(g, id) {
   return parts.filter(Boolean).join("\n\n");
 }
 
-/** A type as reading text: one line per field, or per field in `paths`. */
-export function readType(g, id, paths = null) {
+// Where scripts/gen-text.mjs writes each node's reading text, relative to the repo root: the paths an agent opens.
+const TEXT = `${META}/text`;
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export const textFile = {
+  subject: (id) => `${TEXT}/${id.split(".")[0]}/${id}.md`,
+  type: (id) => `${TEXT}/types/${id}.md`,
+  code: (code) => `${TEXT}/codes/${code}.md`,
+  reason: (key) => `${TEXT}/codes/reason-${slug(key)}.md`,
+};
+
+/** What a reading-text file is about (subject, type, status code or policy reason), so `read` takes its path too. */
+function fromTextFile(g, arg) {
+  const m = arg.match(/(?:^|\/)references\/_meta\/text\/(?:types\/(.+)|codes\/reason-(.+)|codes\/(.+)|[^/]+\/(.+))\.md$/);
+  if (!m) return arg;
+  if (m[2]) return [...g.policyReasons.keys()].find((k) => slug(k) === m[2]) ?? arg;
+  return m[1] ?? m[3] ?? m[4];
+}
+
+/**
+ * A type as reading text: one line per field, or per field in `paths`. `files` names the status code and policy
+ * reason files under references/_meta/text/ where the text would otherwise say to `read` one.
+ */
+export function readType(g, id, paths = null, { files = false } = {}) {
   const t = g.nodes.get(id).data;
   const head = [];
   const names = Object.entries(t.names || {}).map(([k, v]) => `${k} \`${v}\``);
@@ -893,9 +914,9 @@ export function readType(g, id, paths = null) {
   const lines = Object.entries(t.fields).filter(([p]) => !paths || paths.includes(p)).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
   // A log type's status codes are too many to print with its fields; each reads by name.
   const codes = Object.keys(t.status_codes || {});
-  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; read one by its code (\`read ${codes[0]}\`)`);
+  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; ${files ? `each has its own file, \`${TEXT}/codes/<code>.md\`` : `read one by its code (\`read ${codes[0]}\`)`}`);
   const reasons = Object.keys(t.policy_reasons || {});
-  if (reasons.length) lines.push(`- Policy reasons: ${reasons.length} reason strings from the Policy Reasons help article, which the reason field points to; read one by its text (\`read "${reasons[0]}"\`)`);
+  if (reasons.length) lines.push(`- Policy reasons: ${reasons.length} reason strings from the Policy Reasons help article, which the reason field points to; ${files ? `each has its own file under \`${TEXT}/codes/\`: search there for the reason's text` : `read one by its text (\`read "${reasons[0]}"\`)`}`);
   return [`# ${t.title || id} (${id})`, ...head, ...lines].join("\n");
 }
 
@@ -1013,16 +1034,14 @@ function edgesOf(g, id) {
  * read next, the ones most of the reading set points to first, until `budget` tokens; every other neighbour prints as
  * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
  * about it. `company` keeps only those records, for a reader that has the public text already (scripts/gen-text.mjs
- * writes it as files): no hop, and an area reads every subject under it however large.
+ * writes it as files): the records about what is named and about every subject one hop away, and an area reads every
+ * subject under it however large.
  *
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
  */
 export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS, company = false } = {}) {
-  if (company) {
-    hops = 0;
-    areaTokens = Infinity;
-  }
+  if (company) areaTokens = Infinity;
   const out = [];
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
@@ -1033,6 +1052,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   const seen = new Set();
   const shown = new Set(); // company records already printed in this read
   let records = 0;
+  const named = []; // the arguments that name a subject, type or field, for a reader told there are no records
   const emit = (id) => {
     seen.add(id);
     const n = g.nodes.get(id);
@@ -1049,7 +1069,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   for (const given of args) {
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
-    let arg = given.replace(/^(gap|divergence):/, "");
+    let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
       if (!company) out.push(readStatusCode(g, arg));
       continue;
@@ -1067,6 +1087,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     const node = g.nodes.get(arg);
     if (node?.kind === "field") {
+      named.push(given);
       fields.set(node.type, [...(fields.get(node.type) || []), node.path]);
       continue;
     }
@@ -1075,6 +1096,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     const ids = node?.kind === "type" ? [arg]
       : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
     if (!ids.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
+    else named.push(given);
     const cost = new Map(ids.map((id) => [id, g.nodes.get(id).kind === "subject" ? Math.round(readSubject(g, id).length / 4) : 0]));
     const total = [...cost.values()].reduce((a, b) => a + b, 0);
     if (ids.length > 1 && total > areaTokens) {
@@ -1096,11 +1118,15 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
       records++;
     }
   }
-  if (company && ov && !records) out.push(`No company records are about ${args.join(", ")} or what it binds.`);
   for (let hop = 0; hop < hops; hop++) {
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
+    // Records alone are short: every neighbour's, with no budget and no heading.
+    if (company) {
+      for (const [id] of ranked) emit(id);
+      continue;
+    }
     out.push(`## Linked subjects (one hop from what was read)`);
     let spent = 0;
     const listed = [];
@@ -1117,6 +1143,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     if (listed.length) out.push(fit("Linked, not read here (each with the claim that links it; read one by ID for the rest):", listed, 12000, "linked subjects"));
   }
+  if (company && ov && named.length && !records) out.push(`No company records are about ${named.join(", ")}, what it binds or what it links to.`);
   return `${out.join("\n\n")}\n`;
 }
 

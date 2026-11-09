@@ -1,5 +1,6 @@
 # Where SSL inspection sits in ZIA web policy evaluation (the two passes) (zia.ssl-inspection.pipeline)
 Also called: two-pass model; does ssl inspection happen before url filtering; sni pass; connect pass; do not inspect evaluate other policies; do not inspect bypass other policies; policy enforcement order
+Former IDs: zia-11, zia-12
 
 "Does SSL inspection happen before or after URL Filtering?" has no one-word answer, and the flat answer ("before") loses the behavior that matters most.
 

@@ -1,5 +1,6 @@
 # What each User Privacy setting collects or allows (zcc.web-privacy.collection)
 Also called: collect machine hostname; collectMachineHostname; collect device owner information; collectUserInfo; disable automatic crash reporting; disableCrashlytics; restrict remote packet capture; enable local packet capture; collect location info for zdx; collectZdxLocation; enforce secure pac urls; allow access to client connector logs folder; auto system info and log fetch; override z-tunnel 2.0 protocol settings; overrideT2ProtocolSetting
+Former IDs: zcc-59
 
 **Identity on the device record.** With Collect Machine Hostname Information on, the app collects the hostname of supported devices into the Admin Console database, where it shows as the device's Machine Hostname and is included in the device fingerprint CSV export; on iOS 16 and later the full hostname is no longer collected. [zcc.web-privacy.collection:hostname] With Collect Device Owner Information on, the default, the app collects the device owner name into the Admin Console database, shown as the Owner in the device fingerprint. [zcc.web-privacy.collection:device-owner] Whether these switches also change what appears in Internet & SaaS or Private Access logs is open [gap:zcc.web-privacy.collection:cloud-log-effect].
 

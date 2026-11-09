@@ -1,5 +1,6 @@
 # Conventions of the Cloud Connector API capture: base path, default responses, paging and decoding (cloud-connector.api.conventions)
 Also called: ztw api base url; ztw default response; zcloudconnector default response as success; cloud connector api conventions; /ztw/api/v1; ztw postman collection; ZTWBaseUrl; ztGateway api
+Former IDs: cloud-connector-25
 
 The captured Cloud & Branch Connector contract is a reconstruction of the vendor's published reference, and some of its structure is an artifact of that capture. This subject records the conventions an agent needs before reading a path or a response schema from it.
 

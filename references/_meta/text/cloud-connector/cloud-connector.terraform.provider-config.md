@@ -1,5 +1,6 @@
 # ZTC Terraform provider configuration: OneAPI or legacy credentials, environment variables, defaults and government clouds (cloud-connector.terraform.provider-config)
 Also called: ztc provider use_legacy_client; ZSCALER_USE_LEGACY_CLIENT ztc; ztc provider environment variables; ztc max_retries default; ztc provider fedramp; ztc zscaler_cloud gov; ztc_cloud; ztc oneapi only resources; ztc terraform version; zidentitygov ztc
+Former IDs: cloud-connector-16, cloud-connector-19
 
 The ZTC provider builds either a OneAPI client or a legacy ZTW client, chosen by one flag. The argument list and its validators are generated (`node scripts/kb.mjs surface provider:ztw`); this subject holds how the provider reads them, which defaults it really uses, and where its documentation disagrees with its code.
 

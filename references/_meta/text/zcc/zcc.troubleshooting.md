@@ -1,5 +1,6 @@
 # Troubleshooting Client Connector: from symptom to the subject that holds the answer (zcc.troubleshooting)
 Also called: zcc troubleshooting; client connector not working; zcc connected but no traffic; zcc stuck signing in; zcc api errors
+Former IDs: zcc-74
 
 A Client Connector report is worked from the symptom to the layer that holds the evidence.
 

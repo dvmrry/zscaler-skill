@@ -1,5 +1,6 @@
 # Early Access Terraform resources: extranet, data center exclusions, subclouds (zia.terraform.early-access)
 Also called: zia_extranet; zia_dc_exclusions; zia_sub_cloud; zia_url_categories_predefined; early access terraform zia; datacenter_id vs cloud_id; dc exclusion time window
+Former IDs: zia-68
 
 Several newer ZIA resources are labelled Early Access in the provider documentation. They cover extranet configuration and the exclusion of data centers or subclouds from serving traffic.
 

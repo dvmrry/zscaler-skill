@@ -1,5 +1,6 @@
 # Rule actions on ZPA policy types (zpa.policy.actions)
 Also called: allow access; block access; conditional access; require approval; allow with privileged approval; step-up authentication zpa; BYPASS INTERCEPT INTERCEPT_ACCESSIBLE; forwarding policy actions; inspection policy actions; pop-up message to user
+Former IDs: zpa-06
 
 The actions a rule can take depend on its policy type, and the access rule's third action has several names.
 

@@ -1,5 +1,6 @@
 # Which URL category a URL belongs to (zia.url-categories.membership)
 Also called: specificity rule; most specific category wins; custom category precedence; wildcard vs exact category; retain parent category; predefined vs custom category; which url category is a site in; is a site covered by a url category; url category for a domain
+Former IDs: zia-01, zia-02
 
 Category membership is resolved before rules are walked: a rule matches a URL through the category the URL resolved to, not through every category with a matching entry. [zia.url-categories.membership:resolved-before-rules]
 

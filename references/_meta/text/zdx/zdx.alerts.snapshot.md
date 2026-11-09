@@ -1,5 +1,6 @@
 # Sharing a ZDX snapshot of an alert or a user: the contract, the Python client and the path question (zdx.alerts.snapshot)
 Also called: share_snapshot; zdx snapshot; share alert snapshot; snapshot obfuscation; snapshot expiry; user snapshot; snapshot/alert; client.zdx.snapshot
+Former IDs: zdx-35, zdx-44
 
 A snapshot is a shareable, expiring view of one alert, or of one user's experience with an application on a device. Only the Python SDK calls the alert form, and only as a POST.
 

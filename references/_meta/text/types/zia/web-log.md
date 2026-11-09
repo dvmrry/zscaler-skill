@@ -180,6 +180,4 @@ Also called: nss web log; zia web logs; web insights logs; zia proxy logs
 - productversion string: The current version of the product. Useful for SIEMs whose format requires the product internal version to be sent in the log output. (Insights: This field is specific to NSS)
 - nsssvcip string: The service IP address of the NSS. Useful for syslog-format logs that require the origin host IP address to be specified. (Insights: This field is specific to NSS)
 - eedone string: Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded (Insights: This field is specific to NSS)
-- Policy reasons: 121 reason strings from the Policy Reasons help article, which the reason field points to; read one by its text (`read "Access denied due to bad server certificate"`)
-
-Each status code and policy reason has its own file under references/_meta/text/codes/ (`<code>.md`, `reason-<the reason>.md`): search that directory for the code or the reason's text.
+- Policy reasons: 121 reason strings from the Policy Reasons help article, which the reason field points to; each has its own file under `references/_meta/text/codes/`: search there for the reason's text

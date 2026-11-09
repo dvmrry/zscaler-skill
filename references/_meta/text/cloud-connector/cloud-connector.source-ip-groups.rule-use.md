@@ -1,5 +1,6 @@
 # Which Cloud Connector rules take source IP groups, and how the source criterion behaves (cloud-connector.source-ip-groups.rule-use)
 Also called: srcIpGroups; src_ip_groups ztc; source_ip_group_exclusion; sourceIpGroupExclusion cloud connector; srcIpv6Groups; src_ips vs src_ip_groups; log and control rule source ip group
+Former IDs: cloud-connector-05
 
 **Forwarding rules.** The forwarding rule criteria for source IP groups and inline source addresses are in [Source IP Groups can be any number of source IP address groups or App Connector source IP addresses (none selected applies to all); Source IP Addresses take an individual address, a subnet, or a range.](kb:cloud-connector.forwarding.criteria:source-ip), and the App Connector looping advice is [In the Private Access, Direct, Drop and Local procedures, the form advises preventing App Connector looping by excluding the IP addresses the App Connector uses to open connections, or including the IP addresses of all non-App Connector devices.](kb:cloud-connector.forwarding.criteria:app-connector-looping). How groups, inline addresses and workload groups combine as sources is not stated [gap:cloud-connector.source-ip-groups.rule-use:match-logic], nor how criteria combine in general: [How forwarding rule criteria combine](kb:cloud-connector.forwarding.criteria:combination-logic).
 

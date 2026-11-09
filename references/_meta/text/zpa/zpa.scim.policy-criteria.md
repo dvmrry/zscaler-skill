@@ -1,5 +1,6 @@
 # SCIM groups and attributes as ZPA policy criteria (zpa.scim.policy-criteria)
 Also called: SCIM_GROUP operand; scim operand; enable_scim_based_policy; scim attributes and groups for policy; scim rule never matches; scim criteria multiple idp; scim microtenant; scim source ip anchoring
+Former IDs: zpa-65, zpa-66, zpa-68
 
 SCIM criteria reach a rule through two operand types and a per-IdP setting.
 

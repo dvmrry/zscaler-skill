@@ -1,5 +1,6 @@
 # Workflow Automation audit logs: the customer audit search, what it records, and how the SDKs read it (zwa.audit-logs)
 Also called: zwa audit logs; workflow automation audit; customer audit; GetCustomerAudit; client.zwa.audit_logs; oldRowJson; zwa audit retention
+Former IDs: zwa-03
 
 Workflow Automation's admin audit trail is a search API, listed with the other products' audit paths in [Admin audit logs across Zscaler products: what exists and how to get it](kb:shared.audit-logs). The audit log search filters by time range and field values and returns audit information for every action admins take in the Workflow Automation Admin Portal and every action made through the APIs; the supported filter fields are Action, Resource, Admin and Module. [zwa.audit-logs:what-recorded]
 

@@ -1,5 +1,6 @@
 # Privileged Remote Access: what it is and where each question goes (zpa.pra)
 Also called: privileged remote access; pra; clientless rdp; clientless ssh; clientless vnc; pra vs browser access; does pra work without zcc; jump host bastion zpa; contractor rdp without password
+Former IDs: zpa-57
 
 PRA is the clientless path for RDP, SSH and VNC; Browser Access is the clientless path for web applications. This subject walks the PRA area and sends each question to the subject that holds it.
 

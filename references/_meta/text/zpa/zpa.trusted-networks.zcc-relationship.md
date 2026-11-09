@@ -1,5 +1,6 @@
 # Trusted networks in ZPA and in Client Connector (zpa.trusted-networks.zcc-relationship)
 Also called: zpa trusted network vs zcc trusted network; are zpa and zcc trusted networks the same; send trusted network result to zpa; where do zpa trusted networks come from; trusted network provisioning
+Former IDs: zpa-80
 
 This subject covers how ZPA trusted networks relate to Client Connector. Criteria fields and forwarding profile network types are in [How Client Connector decides it is on a trusted network](kb:zcc.trusted-networks.detection) and [The four network types Client Connector detects: On-Trusted, VPN-Trusted, Split VPN-Trusted, Off-Trusted](kb:zcc.forwarding-profiles.network-types).
 

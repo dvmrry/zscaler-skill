@@ -1,5 +1,6 @@
 # ZDX API hosts and sign-in: the OneAPI gateway, the direct ZDX host, and which paths go where (zdx.api.hosts-and-auth)
 Also called: zdx api host; api.zdxcloud.net; api.zsapi.net zdx; zdx oauth token; zdx api key auth; zdx v1 or v2 base url; zdx api roles; zdx legacy vs oneapi; zdx service desk; zdx admin roles; zdx service desk tier 1
+Former IDs: zdx-03
 
 ZDX is reached either through the OneAPI gateway with a ZIdentity client or directly on the ZDX host with a ZDX API key. The two use different hosts and path prefixes.
 

@@ -1,5 +1,6 @@
 # App profile passwords: logout, disable, exit and uninstall, per platform (zcc.passwords-and-otp.app-profile-passwords)
 Also called: uninstall password; logout password; disable password zia; disable password zpa; exit password; revert password; zcc cli disable password; fail-close exit password; profile passcode ios; password not prompting; disable password; prevent users from disabling zcc; zcc uninstall protection
+Former IDs: zcc-93, zcc-94
 
 An app profile can require a password before a user logs out of, disables, exits or uninstalls Client Connector. On Windows the app profile holds optional passwords that users must enter to log out, to disable Internet & SaaS, to disable Private Access, to exit the app from the system tray (3.5 and later), to uninstall, to disable ZDX and to disable Endpoint DLP. [zcc.passwords-and-otp.app-profile-passwords:optional-passwords]
 

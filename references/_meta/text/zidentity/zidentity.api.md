@@ -1,5 +1,6 @@
 # The ZIdentity (Authentication Service) admin API from a client's side: route, coverage and wire notes (zidentity.api)
 Also called: zidentity api; ziam api; authentication service api; ziam admin api v1; how to automate zidentity; zidentity api divergences; client.zid
+Former IDs: zid-15, zid-16
 
 Endpoint lists, HTTP methods, request and response fields, and the Go and Python SDK functions for ZIdentity are generated from the captured contract and the SDKs: run `node scripts/kb.mjs surface zid` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/zid.openapi.json`. This subject family holds only the behavior around them and the places where those sources disagree.
 

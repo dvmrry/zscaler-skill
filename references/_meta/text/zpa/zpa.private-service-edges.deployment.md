@@ -1,5 +1,6 @@
 # Private Service Edge platforms, host OS maintenance, capacity and limits (zpa.private-service-edges.deployment)
 Also called: private service edge platforms; pse vm image; pse sizing; pse host os update; pse capacity; pse high availability; how many private service edges; pse limits; pse n+1; rhel 9 pse; pse image distribution
+Former IDs: zpa-47, zpa-49, zpa-56
 
 Planning a Private Service Edge deployment is a question of platform, host maintenance, capacity and limits.
 

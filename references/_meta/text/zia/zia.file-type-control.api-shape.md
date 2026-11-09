@@ -1,5 +1,6 @@
 # File Type Control API shape: rules, categories and custom types (zia.file-type-control.api-shape)
 Also called: file type control api; fileTypeRules; filteringAction; fileTypeCategories; customFileTypes; file type enum; ftp protocols token FOHTTP_RULE; zia_file_type_control_rules
+Former IDs: zia-57
 
 **The rule resource.** File Type Control is a rule resource: `GET` and `POST` on `/fileTypeRules`, and `GET`, `PUT` and `DELETE` on `/fileTypeRules/{ruleId}`, with a reduced `GET /fileTypeRules/lite`. [zia.file-type-control.api-shape:rule-crud] `filteringAction` takes BLOCK, CAUTION or ALLOW. `operation` takes UPLOAD, DOWNLOAD or UPLOAD_DOWNLOAD, and `state` takes ENABLED or DISABLED. [zia.file-type-control.api-shape:filtering-action-enum] `minSize`, `maxSize` and `sizeQuota` are in KB; `timeQuota` is in minutes. `minSize` and `maxSize` default to 0 in the Python model. [zia.file-type-control.api-shape:size-in-kb]
 

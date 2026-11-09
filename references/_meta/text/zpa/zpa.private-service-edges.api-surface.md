@@ -1,5 +1,6 @@
 # Management API endpoints for Private Service Edges, groups and schedules (zpa.private-service-edges.api-surface)
 Also called: serviceEdge api; serviceEdgeGroup endpoint; serviceEdgeSchedule; bulkDelete service edges; privateCloudController api; service edge api create; service edge auto delete api; pse api
+Former IDs: zpa-53
 
 The management API addresses instances, groups and the auto-delete schedule as separate resources.
 

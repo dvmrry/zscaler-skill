@@ -1,5 +1,6 @@
 # How a tenant profile is enforced: the headers ZIA inserts (zia.tenant-profiles.wire-mechanic)
 Also called: tenant restriction headers; Restrict-Access-To-Tenants; Restrict-Access-Context; X-GoogApps-Allowed-Domains; sec-Restrict-Tenant-Access-Policy; anthropic-allowed-org-ids; ChatGPT-Allowed-Workspace-Id; how tenant restriction works; tenant restriction mechanism; CiscoSpark-Allowed-Domains
+Former IDs: zia-08
 
 The documented cases follow. Read together they suggest (inferred, see `header-insertion` below) that ZIA adds the vendor's own tenant-restriction header rather than deciding tenant ownership itself.
 

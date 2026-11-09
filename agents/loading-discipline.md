@@ -66,16 +66,16 @@ artifact that can answer the current question, then stop.
    worklist) is reference-grade reconciliation data, not raw vendor source —
    search it like `references/**`, not like a vendor tree.
 5. **Treat `_data/` as scoped evidence, not reference background.** Open the
-   IaC files `read` locates (its "IaC repos" header and each company record's
-   IaC lines), search `_data/cases/`, or run the read-only `zscalerctl` command
-   a type names, only when the question is tenant-specific, case-specific, or
-   deployment-specific. Company records arrive through `read`; do not search
-   the overlay's record files. Operational knowledge
+   IaC files `read --company` locates (its "IaC repos" header and each company
+   record's IaC lines), search `_data/cases/`, or run the read-only `zscalerctl`
+   command a type names, only when the question is tenant-specific,
+   case-specific, or deployment-specific. Company records arrive through
+   `read --company`; do not search the overlay's record files. Operational knowledge
    follows the narrower v1 rule below.
-6. **One-pass answer budget.** For ad-hoc Q&A, aim for one `read` call with the
-   areas and subjects the question turns on, plus one follow-up read for a
-   subject it names. Add more only when the user asks for a comparison,
-   conflict, or cross-product behavior.
+6. **One-pass answer budget.** For ad-hoc Q&A, open the 3 to 6 subject files
+   the question turns on, plus a linked file only when the answer needs it, and
+   run `read --company` once. Read more only when the user asks for a
+   comparison, conflict, or cross-product behavior.
 7. **Record what mattered.** Procedural roles with artifacts should record the
    files actually used, not every file considered. Rejected broad searches do
    not belong in evidence ledgers.

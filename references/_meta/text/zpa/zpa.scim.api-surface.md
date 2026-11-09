@@ -1,5 +1,6 @@
 # The SCIM API, SDK and Terraform read surface in ZPA (zpa.scim.api-surface)
 Also called: scimgroup endpoint; scimattribute endpoint; userconfig vs mgmtconfig; zpa_scim_groups; zpa_scim_attribute_header; list_scim_groups; SearchValues; idpGroupId
+Former IDs: zpa-64
 
 The SCIM read surface is split across two base paths.
 

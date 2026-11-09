@@ -1,5 +1,6 @@
 # Which time zone a time interval is evaluated in (zia.time-intervals.timezone)
 Also called: time interval time zone; rule fires at the wrong hour; remote user time based policy; client connector time zone policy; time rule london paris; time interval dst
+Former IDs: zia-21
 
 The time zone used to evaluate an interval depends on who the user is, not on where they are. If the user's traffic comes from a known location, a time-bound policy is applied on the time zone configured for that location. [zia.time-intervals.timezone:known-location] A remote user, including a Zscaler Client Connector user with no matching location, is evaluated on the time at the Public Service Edge they are connected to, not on the user's own clock. [zia.time-intervals.timezone:remote-user]
 

@@ -1,5 +1,6 @@
 # The SAML attribute API, SDK and Terraform surface (zpa.saml-attributes.api-surface)
 Also called: samlAttribute endpoint; saml-attr-controller; list saml attributes by idp; zpa_saml_attribute data source; samlName; add_saml_attribute
+Former IDs: zpa-62
 
 The SAML attribute API is documented as read-only, while the SDKs also write.
 

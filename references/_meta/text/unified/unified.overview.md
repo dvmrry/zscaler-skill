@@ -1,5 +1,6 @@
 # Zscaler Experience Center: the unified admin console, what it consolidates, and how it is automated (unified.overview)
 Also called: experience center; zscaler experience center; unified console; unified admin console; experience center api; help.zscaler.com/unified; zscaler copilot
+Former IDs: unified-01
 
 Experience Center is the console, not a separate service with its own data plane or API. Zscaler Experience Center is a unified, AI-powered administrative and operations console that consolidates management, configuration and monitoring of the Zero Trust Exchange into a single interface, and is the hub for services including ZIA, ZPA, ZDX and Client Connector. [unified.overview:what-it-is]
 

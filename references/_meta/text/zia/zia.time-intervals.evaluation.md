@@ -1,5 +1,6 @@
 # What a rule does outside its time interval (zia.time-intervals.evaluation)
 Also called: rule skipped outside hours; after hours allow rule; time based rule falls through; holiday exception rule; overnight time interval; midnight spanning interval
+Former IDs: zia-24
 
 In the Time Intervals help example, a remote user's request is evaluated at the Public Service Edge's time (6:30 PM in Paris), which is outside the rule's Monday-to-Friday 9:00 AM - 5:00 PM interval, so the policy is not triggered and the user is allowed. [zia.time-intervals.evaluation:outside-window-not-triggered] A rule with a time interval does not trigger when the resolved time falls outside the interval. [zia.time-intervals.evaluation:outside-window-generalized] That matters for rule order, because the rule leaves the decision to whatever comes after it. An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule. [zia.time-intervals.evaluation:falls-through] For the order mechanics see [URL Filtering rule order and first match](kb:zia.url-filtering.rule-order); for which clock decides "outside", see [Which time zone a time interval is evaluated in](kb:zia.time-intervals.timezone).
 

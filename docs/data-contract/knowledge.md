@@ -96,7 +96,9 @@ fails a resolve. The contract check below is the strict gate.
 ## At answer time
 
 `node scripts/kb.mjs read` follows each subject, type or field it reads with every active record whose `about`
-touches it or the types it binds; `resolve <id | text>` merges the same records into its bundle as `layer: company`
+touches it or the types it binds, and `read --company` prints only those records, for the named subjects and the
+ones they link to (agents read the public text from `references/_meta/text/` and run it once per answer);
+`resolve <id | text>` merges the same records into its bundle as `layer: company`
 facets, and ranks text queries on the records' words too. When an answer uses one:
 
 1. Attribute it as company knowledge, never as vendor-documented behavior.

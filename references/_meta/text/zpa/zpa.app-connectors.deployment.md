@@ -1,5 +1,6 @@
 # App Connector deployment, redundancy and limits (zpa.app-connectors.deployment)
 Also called: app connector deployment; app connector outbound only; app connector n+1; how many app connectors; app connector platforms; app connector limit 100; app connector sizing; app connector ssl interception
+Former IDs: zpa-29
 
 Where an App Connector runs, what it needs from the network, and how many a deployment needs.
 

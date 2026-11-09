@@ -1,5 +1,6 @@
 # Which rule decided a web transaction, from the logs (zia.logs.web-rule-attribution)
 Also called: which rule fired in the logs; rulelabel empty; urlfilterrulelabel; apprulelabel; validate precedence with logs; siem rule attribution
+Former IDs: log-05
 
 Logs are the empirical check on a precedence answer, but the obvious field is a trap. `rulelabel` and `ruletype` are filled only when a Block rule applied; an allowed transaction has neither, so an empty `rulelabel` does not mean no rule matched. [zia.logs.web-rule-attribution:rulelabel-block-only] Use the per-layer fields instead. URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty. [zia.logs.web-rule-attribution:separate-layer-labels]
 

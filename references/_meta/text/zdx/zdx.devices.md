@@ -1,5 +1,6 @@
 # ZDX devices: the device list, device detail and per-device application scores (zdx.devices)
 Also called: zdx devices; zdx device; zdx device inventory; zdx device detail; os_build; wifi_adapter; ssid; bssid; zdx device network; zdx device apps; zdx device app score trend; get_device_app
+Former IDs: zdx-23, zdx-29
 
 A device is the endpoint whose Client Connector reports ZDX data; the API reads devices as a list and one at a time. The device list returns all active devices with basic details, for the last 2 hours if no time range is given; the contract notes that the JSON must contain the user's ID and email address to associate a device with the user. [zdx.devices:device-list]
 

@@ -1,5 +1,6 @@
 # The Client Connector trusted network object and its v1 API (zcc.trusted-networks.object)
 Also called: zcc trusted network object; webTrustedNetwork; trustedNetworkContracts; trusted network create returns no id; trusted network condition type; zcc trusted network csv; zcc_trusted_network
+Former IDs: zcc-06
 
 A trusted network is a named, reusable set of detection criteria that forwarding profiles select as predefined trusted networks. The v1 API under `webTrustedNetwork` is in the generated surface; this subject holds its behavior.
 

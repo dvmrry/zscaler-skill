@@ -1,5 +1,6 @@
 # What a ZPA machine tunnel needs before it can connect (zpa.machine-tunnels.requirements)
 Also called: machine tunnel prerequisites; enable machine tunnel for all; machine tunnel platforms; ZPA machine authentication; mtAuthRequired; policyToken machine tunnel; machine tunnel macos; machine tunnel webview2
+Former IDs: zpa-43
 
 This subject covers what a machine tunnel needs before it can connect.
 

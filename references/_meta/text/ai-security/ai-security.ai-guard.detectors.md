@@ -1,5 +1,6 @@
 # AI Guard's detectors: the capabilities Help lists and the detectors the policy editor configures (ai-security.ai-guard.detectors)
 Also called: ai guard detectors; ai guard detector list; prompt injection detection; jailbreak detection; toxicity detector; refusal detection; competitor detection; finance advice detector; legal advice detector; url reachability; ai guard pii detector; how many detectors does ai guard have; how does zscaler protect against prompt injection; ai guard custom detectors
+Former IDs: ai-security-03
 
 Two sources describe AI Guard's detectors: the product's What Is page lists capabilities, and the policy editor names the detectors with their own settings. They are not the same list.
 

@@ -1,5 +1,6 @@
 # How ZIA and ZPA evaluate policy, side by side (shared.policy-evaluation)
 Also called: policy evaluation; zia vs zpa policy; default allow vs default block; first match; rule precedence across products; why was this allowed; why was this blocked; policy evaluation order
+Former IDs: shared-06, shared-19
 
 The two services share first-match rule lists but differ in what happens when nothing matches, where evaluation runs, and how many policies one request meets. The defaults are opposite: ZIA allows a request that no policy blocks, while ZPA blocks access when no access rule matches or none is defined. [shared.policy-evaluation:default-contrast]
 

@@ -1,5 +1,6 @@
 # What a ZIA firewall log record is: aggregates, action and field names (zia.logs.firewall-records)
 Also called: firewall log record; aggregated session; last session in the aggregate; firewall action allowed blocked; nwapp nwsvc; firewall log vs web log field names; inbytes outbytes; threat_severity
+Former IDs: log-11, log-12, log-13
 
 A firewall log record describes a firewall session, and one record can stand for several aggregated sessions. Field names also differ from the web log for the same data.
 

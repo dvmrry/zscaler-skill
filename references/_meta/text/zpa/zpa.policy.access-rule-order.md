@@ -1,5 +1,6 @@
 # Access policy rule order (zpa.policy.access-rule-order)
 Also called: rule order; ruleOrder; why does my allow rule win; block rule after allow; reorder zpa rule; zpa rule precedence; deception rule order; priority vs rule_order
+Former IDs: zpa-07
 
 Access policy rules are evaluated by their order number, and the first matching rule decides.
 

@@ -1,5 +1,6 @@
 # Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud (cloud-connector.forwarding.log-and-control)
 Also called: log and control forwarding; log and control gateway; ecRules/self; ztc_traffic_forwarding_log_rule; cloud connector enrollment traffic; cloud connector logs not reaching zscaler; ECSELF gateway
+Former IDs: cloud-connector-24
 
 What the policy governs: [The Log and Control Forwarding policy controls how a connector's traffic logs and operational messages are forwarded to the Zscaler cloud, covering enrollment, policy changes, software updates and sending logs.](kb:cloud-connector.nss-va.log-control-path:lc-scope). A default Log and Control Forwarding rule with a default gateway action is created automatically, and it cannot be duplicated or deleted. [cloud-connector.forwarding.log-and-control:default-rule] The policy configures the primary and secondary gateways used to set up control channels and forward logs. [cloud-connector.forwarding.log-and-control:gateways]
 

@@ -1,5 +1,6 @@
 # ZPA Terraform policy rule resources: v1 and v2 conditions, operand types and provider changes (zpa.terraform.policy-rule-resources)
 Also called: duplicate.operand.found; operator.or.not.supported.policy.rule; zpa_policy_access_rule_v2 operator; EDGE_CONNECTOR_GROUP BRANCH_CONNECTOR_GROUP terraform; device_posture_failure_notification_enabled; zpa_policy_capabilities_rule join_session
+Former IDs: zpa-10
 
 The provider exposes a v1 and a v2 resource for most policy rule types; the pages below record what the docs and code say about them, and each resource's arguments, operand object types and other enums are generated from the provider code (`node scripts/kb.mjs surface <resource name>`). Field-level write behavior is in [What the ZPA Terraform provider sends and loses when writing policy rules](kb:zpa.terraform.policy-rule-writes) and ordering in [How the ZPA Terraform provider applies policy rule order (BulkReorder)](kb:zpa.terraform.rule-order).
 

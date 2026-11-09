@@ -1,5 +1,6 @@
 # Step-up authentication: when Authentication Service asks for a stronger login, and why a prompt may not appear (zidentity.step-up)
 Also called: step-up authentication; ZIdentity step-up; step-up not prompting; Conditional Access step-up; require authentication level; re-authenticate with MFA for sensitive app; step-up with SAML
+Former IDs: zid-29, zid-31
 
 Step-up is configured in Authentication Service and demanded by ZIA and ZPA policy; the ZIA-side subject [Step-up authentication and ZIdentity authentication levels](kb:zia.authentication.step-up) holds the core statements this one builds on.
 

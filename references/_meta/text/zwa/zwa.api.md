@@ -1,5 +1,6 @@
 # The Workflow Automation API from a client's side: hosts, the Python and Go clients, and what neither SDK covers (zwa.api)
 Also called: zwa api; workflow automation api; zsworkflow; client.zwa; LegacyZWAClient; ZWA_API_KEY_ID; ZWA_CLIENT_ID; zwa sdk; zwa mcp; workflow automation mcp
+Former IDs: zwa-04
 
 Methods and paths of both SDKs are generated: `node scripts/kb.mjs surface zwa`; no OpenAPI capture of this API is in the generated layer, so the reference is the help API page. Signing in with an API key is in [Workflow Automation's API is enabled with its subscription; a POST of `key_id` and `key_secret` to /v1/auth/api-key/token on `https://api.us1.zsworkflow.net` returns 201 with a bearer token and its `expires_in` (43200 in the example), and a call after the token expires returns 401.](kb:shared.legacy-api.auth-models:wa-token), [A Workflow Automation API key expires only when its Expire after option is enabled, and its key secret is visible only when the key is first created.](kb:shared.legacy-api.auth-models:wa-key-expiry) and [A failed Workflow Automation token request returns 401 when the API key is expired or disabled and 500 when the request is corrupt.](kb:shared.legacy-api.auth-models:wa-errors).
 

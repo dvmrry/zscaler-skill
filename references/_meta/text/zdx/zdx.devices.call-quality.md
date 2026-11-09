@@ -1,5 +1,6 @@
 # ZDX call-quality metrics per device and meeting (zdx.devices.call-quality)
 Also called: zdx call quality; call quality metrics; cqm; zdx teams call quality; zdx zoom call quality; call-quality-metrics; meet_id
+Former IDs: zdx-28
 
 Call quality comes from the meeting platforms rather than from probes, [The ZDX cloud integrates with the Microsoft Graph API or Zoom to read meeting and call quality data, and customer-specific onboarding is needed before ZDX can read it.](kb:zdx.cloud-architecture:call-quality), once a tenant is onboarded, [For unified communication applications a tenant must be onboarded before their probes can be configured; the onboarding articles cover Microsoft Teams, Webex and Zoom call quality.](kb:zdx.applications:uc-tenant-onboarding). The call-quality read returns the Call Quality metric trend for a device for a CQM application, for the last 2 hours if no time range is given. [zdx.devices.call-quality:cqm-read]
 

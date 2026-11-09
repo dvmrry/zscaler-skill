@@ -1,5 +1,6 @@
 # Automating browser isolation: where the API surface lives across Internet & SaaS and Private Access (zbi.api)
 Also called: zbi api; cbi api; browser isolation api; isolation profile api; cbiconfig; cbizpaprofile; isolationprofile; zero trust browser sdk; browser isolation terraform; browser isolation ansible
+Former IDs: zbi-02, zbi-04
 
 Browser isolation has no API of its own: profile lookup is an Internet & SaaS operation, profiles, banners, certificates and regions are Private Access CBI configuration operations, and isolation rules are Private Access policy rules. Paths, SDK functions and Terraform resources are generated: `node scripts/kb.mjs surface /browserIsolation/profiles` and `node scripts/kb.mjs surface cbiconfig`.
 

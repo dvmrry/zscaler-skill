@@ -1,5 +1,6 @@
 # Machine groups through the ZPA API, SDKs and Terraform (zpa.machine-groups.api-surface)
 Also called: can I create a machine group with terraform; machine group api; zpa_machine_group data source; machine group sdk; machine group read only; machine group summary
+Former IDs: zpa-11
 
 This subject covers machine groups in the API, the SDKs and Terraform.
 

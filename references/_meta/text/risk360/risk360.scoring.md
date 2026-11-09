@@ -1,5 +1,6 @@
 # How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates (risk360.scoring)
 Also called: risk360 score; risk360 severity ranges; risk360 factors; risk360 factor count; risk360 asset risk; risk360 monte carlo; risk360 financial risk; risk360 peer score; exclude risk360 factor; risk360 dashboard; top 10 factors; risk360 top factors
+Former IDs: risk360-02
 
 ## The organization score
 

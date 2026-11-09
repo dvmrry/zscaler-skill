@@ -1,5 +1,6 @@
 # How a session is assigned to an App Connector (zpa.app-connectors.selection)
 Also called: which app connector is used; app connector selection; closest app connector; connector affinity 15 minutes; app connector load not balanced; app connector id zero; NO_CONNECTOR_AVAILABLE; wrong app connector
+Former IDs: zpa-27
 
 Which connector a session lands on, and what a missing or zero connector in the logs means.
 

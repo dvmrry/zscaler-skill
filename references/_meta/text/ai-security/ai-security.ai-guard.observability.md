@@ -1,5 +1,6 @@
 # AI Guard dashboards, Insights, Token Usage and log exports (ADX, CrowdStrike, S3, Splunk) (ai-security.ai-guard.observability)
 Also called: ai guard dashboard; ai guard insights; ai guard token usage; ai guard log export; ai guard siem; ai guard splunk; ai guard crowdstrike; ai guard s3 export; ai guard adx event hub; export tools field; ai guard conversation view; reveal prompt; ai guard detection latency; crwd siem export; crwd event export; ai guard release notes
+Former IDs: release-notes
 
 AI Guard reports on its own console and exports events to SIEMs and storage. Help documents a Users version and an Apps and Infrastructure version of each page.
 

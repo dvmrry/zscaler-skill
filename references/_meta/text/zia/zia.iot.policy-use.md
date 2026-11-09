@@ -1,5 +1,6 @@
 # How IoT traffic is targeted by policy (zia.iot.policy-use)
 Also called: iot device group; enforce iot policy control; iot policy status; iot traffic group; block iot devices; iot firewall rule; iot url filtering; iot_enforce_policy_set
+Former IDs: zia.iot.policy-use:enforce-iot-policy-control
 
 "Can I write a rule for IoT devices?" has three parts: how a rule selects IoT traffic, what the location must enable first, and what the predefined rules are for.
 

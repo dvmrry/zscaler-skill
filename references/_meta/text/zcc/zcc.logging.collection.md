@@ -1,5 +1,6 @@
 # Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures (zcc.logging.collection)
 Also called: report an issue; fetch logs; fetch lightweight logs; zcc log location; where are zcc logs; zcc packet capture; client connector app logs; zcc support bundle
+Former IDs: zcc-60, zcc-61, zcc-62, zcc-63, zcc-69, zcc-70, zcc-71, zcc-72
 
 Logs reach support three ways: the user sends them, an admin fetches them, or the user exports them.
 

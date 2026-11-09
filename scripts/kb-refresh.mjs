@@ -259,6 +259,10 @@ function main(argv) {
   step(process.execPath, ["scripts/gen-surfaces.mjs", "all"]);
   // A refetched release-note page adds its new releases.
   step(process.execPath, ["scripts/gen-releases.mjs"]);
+  // Regenerated log types and requoted claims reach the spine and the reading text (types, status codes and policy
+  // reasons carry the captures' field descriptions and line numbers).
+  step(process.execPath, ["scripts/gen-spine.mjs"]);
+  step(process.execPath, ["scripts/gen-text.mjs"]);
   step(process.execPath, ["scripts/kb.mjs", "manifest"]);
   // verified exits 1 when a citation fails, which is what the review below reports; it writes the record either way.
   step(process.execPath, ["scripts/kb.mjs", "verified"], { ok: [0, 1] });

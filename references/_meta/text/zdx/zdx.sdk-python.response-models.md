@@ -1,5 +1,6 @@
 # What the Python SDK's ZDX results contain: envelopes, missing fields and paging (zdx.sdk-python.response-models)
 Also called: python zdx none fields; zdx model attributes none; form_response_body zdx; zdx next_offset python; zdx pagination python; call quality metrics python; MostImpactedRegion; python zdx as_dict
+Former IDs: zdx-08
 
 The Python ZDX methods turn each response into model objects whose attributes mirror the API's snake_case keys. How they get there decides which attributes survive.
 

@@ -1,5 +1,6 @@
 # How SCIM groups and departments land in ZIA (zia.scim.groups-and-departments)
 Also called: scim group; scim department name match; scim_group operand zia; group not in policy dropdown; scim group members; department auto-create
+Former IDs: zia-39
 
 Groups and departments are two different ZIA objects, and SCIM fills both, in different ways. A SCIM group becomes a Zscaler group: its displayName is the group Name, its externalId is kept as scim_externalid, and Zscaler generates its ID. Members are added by user ID in the members list. [zia.scim.groups-and-departments:group-object] The department is a user attribute, mapped in [ZIA SCIM attribute mapping](kb:zia.scim.attribute-mapping); what the department string must resolve to is open [gap:zia.scim.groups-and-departments:department-no-match].
 

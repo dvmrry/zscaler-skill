@@ -1,5 +1,6 @@
 # How NSS feeds encode and deliver ZIA log fields (zia.logs.nss-feed-format)
 Also called: nss feed format; feed escape character; nss hex encoding; cloud nss json; nss field limit; nss time zone; eedone
+Former IDs: log-01, log-02, log-03
 
 **Feed shape.** Zscaler recommends no more than 50 fields in an NSS feed, to fit syslog message size limits; a SIEM that can ingest larger messages can take more. [zia.logs.nss-feed-format:field-limit] NSS field names are case-sensitive. [zia.logs.nss-feed-format:case-sensitive] The tz field is the time zone specified when the NSS feed was configured, and the time field excludes the time zone. [zia.logs.nss-feed-format:tz-config] What differs between formats is open [gap:zia.logs.nss-feed-format:format-field-presence].
 

@@ -1,5 +1,6 @@
 # AppProtection through the API and the Python SDK: versions, Active Directory controls, attach and detach (zpa.appprotection.api-surface)
 Also called: app_protection python sdk; predefined_controls_version OWASP_CRS 3.3.0; list_predef_controls version required; list_predef_control_adp; ADP_PREDEFINED; associateAllPredefinedControls; inspectionControls api
+Former IDs: zpa-09
 
 The profile and control calls are the programmable form of [AppProtection profiles: control selection, paranoia level, actions and the default profile](kb:zpa.appprotection.profiles) and [AppProtection controls: kinds, OWASP groups and versions](kb:zpa.appprotection.controls). Names in the SDK and API follow [AppProtection and the older Inspection names](kb:zpa.appprotection.naming).
 

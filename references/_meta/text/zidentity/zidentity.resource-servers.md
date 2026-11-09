@@ -1,5 +1,6 @@
 # ZIdentity resource servers (API resources): a read-only registry of the scopes API clients can select (zidentity.resource-servers)
 Also called: zidentity resource servers; api resources zidentity; list_resource_servers; serviceScopes; defaultApi resource server; primaryAud; zapsOnboarded; create resource server
+Former IDs: zid-23, zid-24, zid-25
 
 Resource servers are what the console calls API resources: the scopes an API client can be given. API resources are the Zscaler APIs available through the OneAPI gateway: collections of Zscaler API endpoints representing data entities, services or functions that API clients can access. [zidentity.resource-servers:definition]
 

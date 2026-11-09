@@ -1,5 +1,6 @@
 # The TRUSTED_NETWORK operand in ZPA policy rules (zpa.trusted-networks.policy-operand)
 Also called: TRUSTED_NETWORK operand; trusted network policy condition; trusted network rhs false; lhs network_id; trusted network rule never matches; client connector trusted networks criterion
+Former IDs: zpa-78
 
 This subject covers the TRUSTED_NETWORK policy operand.
 

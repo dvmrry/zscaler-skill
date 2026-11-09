@@ -1,5 +1,6 @@
 # Using a machine group in a ZPA policy rule (zpa.machine-groups.policy-use)
 Also called: MACHINE_GRP operand; machine group policy condition; machine group and client type; machine tunnel policy scope; which rules accept machine groups
+Former IDs: zpa-13
 
 This subject covers machine group conditions in policy rules.
 

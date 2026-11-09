@@ -1,5 +1,6 @@
 # ZIA rule label limits and constraints (zia.rule-labels.constraints)
 Also called: rule label name length; rule label description length; rule label limit; max rule labels; duplicate label names; rule label name unique; 1024 labels
+Former IDs: zia-27, zia-28, zia-29, zia-32
 
 Sizes first. The Ranges & Limitations page lists "Rule Labels" at 1,024 labels, in the group of limits headed "All Policy Rule Types". [zia.rule-labels.constraints:tenant-limit-listed] What that number counts is not clear from the page (gap `tenant-cap`), and there is a separate per-rule question (gap `per-rule-label-cap`), so size label schemes well under 1,024 until it is settled.
 

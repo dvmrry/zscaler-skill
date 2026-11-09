@@ -1,5 +1,6 @@
 # Streaming ZPA audit logs to a SIEM: log type, fields, filtering (zpa.audit-logs.streaming)
 Also called: zpn_audit_log; lss audit log; audit log fields; auditOldValue; auditNewValue; auditOperationType; clientAuditUpdate; stream zpa audit logs to splunk; siem policy audit
+Former IDs: zpa-32, zpa-33, zpa-34, zpa-35
 
 Audit logs are streamed by a log receiver of the Audit Logs type; the receiver mechanics are in [ZPA log receivers and the Log Streaming Service](kb:zpa.log-receivers).
 

@@ -1,5 +1,6 @@
 # How Client Connector decides it is on a trusted network (zcc.trusted-networks.detection)
 Also called: trusted network criteria; trusted network detection; why is the user off-trusted in the office; why is the user on-trusted at home; condition match any all; evaluate trusted network; predefined trusted networks; split vpn trusted detection; skip trusted criteria match
+Former IDs: zcc-95, zcc-96
 
 Trusted-network detection decides whether a device is On-Trusted, which in turn picks the forwarding action. It is configured on the forwarding profile, either inline or by selecting predefined trusted networks.
 

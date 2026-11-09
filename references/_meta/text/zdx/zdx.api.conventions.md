@@ -1,5 +1,6 @@
 # ZDX API conventions: time ranges, paging, reporting delay and how API numbers differ from the console (zdx.api.conventions)
 Also called: zdx time range; zdx from to; zdx 2 hour window; zdx next_offset; zdx pagination; zdx score -1; zdx api data delay; zdx api does not match ui; zdx look-back
+Former IDs: zdx-34
 
 Most ZDX report and alert endpoints take a time window as `from` and `to` in epoch seconds and page with an opaque offset. The per-endpoint parameters are in the contract (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json`); this subject gathers the rules that apply across them.
 

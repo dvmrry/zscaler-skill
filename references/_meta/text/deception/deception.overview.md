@@ -1,5 +1,6 @@
 # Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated (deception.overview)
 Also called: deception; zscaler deception; decoys; lures; landmine; zero trust network decoys; ztn decoys; decoy connector; threatparse; miragemaker; deception api; zscaler deception rule
+Former IDs: deception-01
 
 Deception is an active-defense product with its own admin portal; it touches Private Access and Client Connector but is managed separately. Zscaler Deception is a targeted threat detection solution that uses lures and decoys to detect and disrupt threats that bypass traditional defenses, such as APTs, exploits, reconnaissance, lateral movement, Active Directory and supply-chain attacks, human-operated ransomware, and SCADA and ICS attacks. [deception.overview:what-it-is] As an integral part of the Zscaler Zero Trust Exchange, Deception tracks the full attack sequence and initiates automated response actions across the Zscaler platform. [deception.overview:zte-response]
 

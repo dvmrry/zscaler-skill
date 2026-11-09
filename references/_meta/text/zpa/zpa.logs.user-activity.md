@@ -1,5 +1,6 @@
 # What a ZPA User Activity log record says and does not say (zpa.logs.user-activity)
 Also called: zpn_trans_log record; user activity log fields; ConnectionStatus Open Close Active; ZENBytes since last transaction log; ServerSetupTime; ConnectionSetupTime; multi-segment match LSS; PRAFileTransferList; ClientZEN ConnectorZEN; ConnectionID SessionID
+Former IDs: zpa-01, zpa-16, zpa-17, zpa-18, zpa-19
 
 The User Activity log (zpn_trans_log) carries one record per application connection, but several things about how records relate are not stated in the vendor help.
 

@@ -1,5 +1,6 @@
 # App Connector health, status values and telemetry (zpa.app-connectors.health)
 Also called: app connector disconnected; connection health; controlChannelStatus; runtime_status; ZPN_STATUS_AUTHENTICATED; AliveTargetCount; app connector metrics log; app connector status log; connector paused; lss retransmit 15 minutes; app connector cpu memory
+Former IDs: zpa-20
 
 Where an App Connector's health is reported, which fields mean what, and which status values come from which source.
 

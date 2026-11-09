@@ -1,5 +1,6 @@
 # Cloud Connector Insights pages and Insights logs: time range, aggregation and limits (cloud-connector.insights.analytics)
 Also called: session insights; dns insights; tunnel insights; insights logs download; insights 92 days; tunnel insights bytes; dpd received
+Former IDs: cloud-connector-21
 
 The Insights pages chart connector traffic, and each has a Logs tab with the underlying records. Their limits shape what an investigation in the console can show.
 

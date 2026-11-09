@@ -347,4 +347,4 @@ Redact. The tenant schema is for confirming "what's queryable in this environmen
 - [`shared.splunk`](kb:shared.splunk) — Splunk field names and validation searches (fields and checks, not SPL); the TA's CIM mapping is an open gap there
 - [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook
 - ZIA log schemas (canonical) — [`../references/zia/types/`](../references/zia/types/)
-- ZPA log types (canonical) — [`zpa.log-receivers.log-types`](kb:zpa.log-receivers.log-types); fields per type with `node scripts/kb.mjs read zpa/<type>-log`
+- ZPA log types (canonical) — [`zpa.log-receivers.log-types`](kb:zpa.log-receivers.log-types); fields per type in `references/_meta/text/types/zpa/<type>-log.md`

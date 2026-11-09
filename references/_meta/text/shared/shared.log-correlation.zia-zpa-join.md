@@ -1,5 +1,6 @@
 # Joining ZIA logs to ZPA User Activity logs (shared.log-correlation.zia-zpa-join)
 Also called: correlate zia and zpa logs; zia to zpa join; zpa_app_seg_name; same user in zia and zpa logs; trace a request across zia and zpa; user activity join key; cross-product log correlation; user session timeline across products
+Former IDs: shared-22
 
 A request that passes through both ZIA and ZPA leaves a ZIA NSS record and a ZPA User Activity record. Nothing in either record points at the other.
 

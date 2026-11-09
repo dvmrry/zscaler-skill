@@ -1,5 +1,6 @@
 # Admin audit logs across Zscaler products: what exists and how to get it (shared.audit-logs)
 Also called: who changed what; admin audit trail; cross-product audit; audit log api; did zscaler support change something; audit log siem; cross-product audit logs
+Former IDs: shared-37
 
 Every product keeps its own admin audit trail, with its own access path and retention. No cross-product audit stream is documented [gap:shared.audit-logs:unified-audit-bus], so a change investigation starts by naming the product.
 

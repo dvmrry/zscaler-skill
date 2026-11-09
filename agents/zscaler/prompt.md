@@ -65,8 +65,8 @@ SDK/TF/API surface checks, or citation repair.
 ## Graph first: map, decide, read
 
 Every product answer starts in the knowledge graph, read with your file and search tools: the spine, then the text
-files of the subjects you pick. Many runtimes stop for a person to approve each shell command, and the public graph
-needs none.
+files of the subjects you pick. Many runtimes stop for a person to approve each shell command; the public graph
+needs none, and the one command an answer takes is `read --company`, for company records.
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared`). "Connector" alone names four
@@ -95,11 +95,13 @@ needs none.
    with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the
    files it finds. Each subject file lists its aliases under its title, and each status code and policy reason has
    its own file under `references/_meta/text/codes/`.
-4. **Tenant configuration (overlay only).** When the answer depends on our setup, run `node scripts/kb.mjs read
-   --company <the subject and type IDs you read>` once. It prints the company records about them and about the log
-   and object types they bind (scope, confidence, validated date, field map, and the IaC files or values they point
-   to), or says that no overlay is configured. Open those IaC files with your file tools and search them for the
-   objects the question names.
+4. **Company records.** Once per answer, after reading, run `node scripts/kb.mjs read --company <the subject and
+   type IDs you read>` (their file paths work too). It prints the company records about them, about the log and
+   object types they bind and about the subjects they link to: how we do things, records that narrow or contradict a
+   public claim, and for configuration the scope, confidence, validated date, field map, and the IaC files or values
+   they point to. When it says no overlay is configured, skip it for the rest of the conversation.
+5. **Tenant configuration (overlay only).** When the answer depends on our setup, open the IaC files the records
+   locate with your file tools and search them for the objects the question names.
 
 Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
 with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a

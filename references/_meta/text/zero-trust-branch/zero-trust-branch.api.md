@@ -1,5 +1,6 @@
 # Automating Zero Trust Branch: the Python SDK client, its API-key sign-in, and what no other client covers (zero-trust-branch.api)
 Also called: ztb api; zero trust branch api; ztb python sdk; LegacyZTBClient; client.ztb; ztb api key; goairgap api; ztb terraform; ztb oneapi
+Former IDs: zero-trust-branch-01, zero-trust-branch-02
 
 The Python SDK's `ztb` package is the only Zero Trust Branch client in the vendored sources; its modules, methods and paths are generated: run `node scripts/kb.mjs surface ztb`. This subject holds how that client signs in and where its own documentation and code disagree.
 

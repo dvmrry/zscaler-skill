@@ -1,5 +1,6 @@
 # What a ZPA Browser Access log record says and does not say (zpa.logs.browser-access)
 Also called: zpn_http_trans_log record; browser access log fields; ConnectionReason browser access; TotalTimeServerResponse; TotalTimeConnectionSetup; CorsToken Origin; Exporter unset; browser access nameid vs username
+Former IDs: log-20
 
 The Browser Access log is the HTTP-level log for clientless access; its log type and NameID identity field are in [Browser Access in LSS: log type and identity field](kb:zpa.browser-access.logs). The record is only loosely specified and its example departs from its table.
 

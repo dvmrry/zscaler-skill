@@ -1,5 +1,6 @@
 # What sends traffic to Cloud Browser: Internet & SaaS rules, Smart Isolation and the Private Access isolation policy (zbi.policy)
 Also called: isolate action; browser isolation policy; how to isolate traffic; zbi policy integration; cloud browser configuration; isolate rule not working; isolation prerequisites; enable cloud browser
+Former IDs: zbi-01
 
 Zero Trust Browser has no policy engine of its own in the captured sources: other products' rules send traffic to it, each naming an isolation profile. The Cloud Browser configuration guide's prerequisites are access to an Internet & SaaS or Private Access tenant, a Zero Trust Browser subscription, supporting Private Access infrastructure such as App Connector, and an identity provider with conditional access capabilities; Cloud Browser is enabled for an organization by contacting Zscaler Support. [zbi.policy:enable-prereqs] After creating isolation profiles, the guide maps policies to them: for Internet & SaaS, configuring Internet & SaaS for Cloud Browser, the Cloud App Control policy, the Smart Browser Isolation policy and the Sandbox integration; for Private Access, learning about the isolation policy, configuring isolation policies, the access policy for Cloud Browser and secure SaaS access from unmanaged devices through the User Portal. [zbi.policy:policy-steps]
 

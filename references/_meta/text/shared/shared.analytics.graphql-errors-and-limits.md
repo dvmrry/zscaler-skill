@@ -1,5 +1,6 @@
 # Analytics GraphQL errors and rate limits: errors under HTTP 200, status codes, 1,000 calls a second (shared.analytics.graphql-errors-and-limits)
 Also called: zins errors array; graphql 200 with errors; zins rate limit; analytics api 1000 per second; zins 403 insights reader; zins user-agent format; zdx graphql rate limit tier
+Former IDs: shared-29
 
 **Errors under 200.** A request can return HTTP 200 while one or more of its GraphQL queries failed; the errors are in the `errors` array of the response body. Causes include an upstream service failure for one data domain, a malformed query, invalid parameters such as `start_time`, `end_time` or `limit`, or requesting domains or fields the API client's role does not permit. [shared.analytics.graphql-errors-and-limits:errors-under-200] Each error carries `message`, `locations`, `path` and `extensions` with a `code`, an `http_status` and a `classification`; the example shows a `FORBIDDEN` 403 for one query under `data` that still holds an empty result. [shared.analytics.graphql-errors-and-limits:error-shape]
 
