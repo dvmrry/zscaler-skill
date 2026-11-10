@@ -13,12 +13,69 @@
   "ztb-release-upgrade-summary-2026.json": {
    "title": "Release Upgrade Summary (2026)",
    "url": "https://help.zscaler.com/zero-trust-branch/release-upgrade-summary-2026",
-   "captured_at": "2026-11-04",
-   "releases": 10,
-   "entries": 11
+   "captured_at": "2026-11-10",
+   "releases": 11,
+   "entries": 12
   }
  },
  "releases": [
+  {
+   "date": "2026-11-06",
+   "page": "ztb-release-upgrade-summary-2026.json",
+   "entries": [
+    {
+     "status": "Feature in Limited Availability",
+     "title": "Zero Trust Branch 8.1.2-P2",
+     "body": [
+      "Zero Trust Branch 8.1.2 includes all features introduced in 8.1.1. If you are upgrading from a version prior to 8.1.1, review the Zero Trust Branch 8.1.1 Release Notes before upgrading to assess potential impacts to your environment, especially the automatic advertisement for IP-based application segments to the LAN-side Layer 3 devices.",
+      "# New Features and Enhancements",
+      "The following enhancements were added as part of the Zero Trust Branch 8.1.2-P2 release:",
+      "## Optimized load balancing between Private Access cloud and App Connectors",
+      "Added more entropy information from Zero Trust Branch appliances, enabling Private Access cloud to smoothly distribute traffic over multiple App connectors. Previously, private application traffic originating from multiple Zero Trust Branch appliances converged on a single App connector.",
+      "## Usability and RASS Enhancements",
+      "The following usability and Remote Access Service Segmentation (RASS) enhancements were added as part of the Zero Trust Branch 8.1.2-P2 release:",
+      "### ZCLI Commands to enable/disable wanmon fast convergence",
+      "Added the following set of ZCLI (Appliance Admin Console) commands to enable/disable fast convergence for wanmon:",
+      "- config wanmon fast-convergence enable",
+      "- config wanmon fast-convergence disable",
+      "- show wanmon status",
+      "When the change needs to be applied immediately, use the optional --restart flag as follows:",
+      "- config wanmon fast-convergence enable --restart",
+      "- config wanmon fast-convergence disable --restart",
+      "### Traffic log export from management VRF",
+      "Added the ability to export the appliance traffic logs from management Virtual Routing and Forwarding (VRF), whereas previously traffic logs were exported only from WAN interfaces.",
+      "### Log Throttling setting renamed",
+      "Previously labeled “Disable Log Throttling” in the security policy configuration page, this setting is now called “Log Throttling.” Choose Enabled or Disabled to control whether log throttling is on or off.",
+      "See Image.",
+      "# Resolved Issues",
+      "## Zero Trust Branch SD-WAN",
+      "The following SD-WAN issues were resolved as part of the Zero Trust Branch 8.1.2-P2 release:",
+      "- Fixed an issue where users encountered provisioning template errors when activating Datagram Transport Layer Security (DTLS) tunnels if the template name was greater than 128 characters. The back end now allows DTLS tunnels to be activated with longer location names. The fix includes changes to the back end.",
+      "- Fixed an issue where incoming AppC traffic received by an on standby WAN did not reach the app on the active appliance's LAN, due to missing routes or improper PBR rules. Routes and PBR rules now properly route LAN to WAN and WAN to LAN private application access. The fix includes changes to the appliance.",
+      "- Fixed an issue where IPSec tunnels were deleted after a complete WAN outage where the network poller had previously crashed or restarted. There is now configuration retention of the last known good IPSec state so that the internal state of the appliance's IPSec tunnel is restored when a poller restarts. The fix includes changes to the appliance.",
+      "- Fixed an issue where the UDP response was truncated and the Transmission Complete (TC) bit was set, when DNS responses contained many DNS service records (SRV records). This created unresolved DNS queries when using that appliance. The DNS proxy falls back to TCP if the response is truncated and the TC bit is set, and it no longer caches such information locally, forcing retransmission or fallback. The fix includes changes to the appliance.",
+      "- Fixed an issue where PBR cleanup removed active DTLS route tables due to a failed IPSec reconciliation arising from a misconfigured forwarding policy. Cleanup now prevents the last known good DTLS PBR configuration for the appliance from being removed during failures due to partial reconciliation. The fix includes changes to the appliance.",
+      "## Zero Trust Branch Platform",
+      "The following Zero Trust Branch platform issues were resolved as part of the Zero Trust Branch 8.1.2-P2 release:",
+      "- Fixed an issue where users could not delete a VRF instance when it was associated with an untagged VLAN interface, due to an incorrect configuration template. The appliance now handles the configuration template for untagged interfaces associated with VRFs. The fix includes changes to the appliance.",
+      "- Fixed an issue where VRF-assigned interfaces ignored user-provided IP addresses when interfaces were configured with different IP addresses than the subnet start IP address. The appliance now uses the user-provided IP address as the interface IP address. The fix includes changes to the appliance.",
+      "- Fixed an issue during RMA where the replacement appliance sometimes did not retain the NAT configuration of the replaced appliance. The backend now retains the NAT configuration after RMA. The fix includes changes to the back end.",
+      "- Fixed an issue where the RMA process deleted all associated PBR rules and policies when an appliance was decommissioned, incorrectly disabling the policies when they were subsequently re-assigned to the replacement appliance. The back end now preserves PBR and security rules after RMA. The fix includes changes to the back end.",
+      "- Fixed an issue where, after RMA, new appliances did not populate the necessary configuration, resulting in DTLS tunnels not forming due to DTLS configuration and certificate and provisioning failures. RMA logic now retains DTLS resource mapping from the previous appliance. The fix includes changes to the back end.",
+      "## Usability and RASS",
+      "The following usability and RASS issues were resolved as part of the Zero Trust Branch 8.1.2-P2 release:",
+      "- Fixed an issue where the serial number dropdown for site deployment showed no more than 10 serial numbers. The dropdown now shows as many serial numbers as are applicable. The fix includes changes to the UI.",
+      "- Fixed an issue where WANMon scores did not trigger main route table route changes in version 8.1.2-P1. The main route table is now correctly updated for WANMon-triggered route updates. The fix includes changes to the appliance.",
+      "- Fixed an issue where retained IP addresses on standby appliances' VLAN interface caused OSPF state flapping if the appliance was newly activated. The interface configuration in the routing system now updates appropriately to reflect the interface IP address based on the current appliance role. The fix includes changes to the appliance.",
+      "- Fixed an issue where primary WAN deployments with VLAN tags looked for the WAN IP address on the parent interface instead of the VLAN sub-interface, leading to a lack of site IP address visibility, limited debugging capability, and limited telemetry during activation and start-up. Appliances now correctly detect the sub-interface WAN IP address. The fix includes changes to the appliance.",
+      "- Fixed an issue where appliances generated continuous duplicate alarms when a PBR rule was configured with an invalid or unreachable nexthop appliance under a balanced, i.e., ECMP policy. Alarm throttling has been added for misconfiguration-driven alarms. The fix includes changes to the appliance.",
+      "- Fixed an issue where a Zero Trust Branch AppC container uses a loopback IP address (127.0.0.1) as the source IP address for DNS queries. Loopback (lo) was added back to 'local-interface-ip' object. The fix includes changes to the appliance.",
+      "- Fixed an issue where appliance traffic went to a previously programmed server location after switching from a server location to a workload location. Appliances now receive the new IPSec configuration from the back end. The fix includes changes to the back end.",
+      "- Fixed an issue where appliances went into a pending activation state after rebooting due to long host names. Devices now reboot without the issue. The fix includes changes to the appliance."
+     ]
+    }
+   ]
+  },
   {
    "date": "2026-09-17",
    "page": "ztb-release-upgrade-summary-2026.json",
@@ -27,6 +84,7 @@
      "status": "Feature Available",
      "title": "Zero Trust Branch 8.1.2-P1",
      "body": [
+      "Zero Trust Branch 8.1.2 includes all features introduced in 8.1.1. If you are upgrading from a version prior to 8.1.1, review the Zero Trust Branch 8.1.1 Release Notes before upgrading to assess potential impacts to your environment, especially the automatic advertisement for IP-based application segments to the LAN-side Layer 3 devices.",
       "# Enhancements",
       "## China Connection Proxy Support for Appliance Management (Preview)",
       "Added support for Zero Trust Branch appliances deployed in mainland China to use dedicated China Connection Proxies instead of connecting directly to back-end infrastructure. Zero Trust Branch appliances in mainland China might not be able to reliably connect to their cloud back-end infrastructure, which can affect registration, receiving policy updates, reporting telemetry, and downloading upgrade images. The Zero Trust Branch back end now includes dedicated China Connection Proxies that use reliable premium connectivity to facilitate appliance-to-back end connectivity.",
