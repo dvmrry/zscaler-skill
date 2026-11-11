@@ -5,17 +5,17 @@
   "source": {
     "url": "https://help.zscaler.com/uvm/configuring-jira-outegration",
     "node": "1527961",
-    "revision": "3233167",
-    "updated": "2026-10-20",
+    "revision": "3253834",
+    "updated": "2026-11-09",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-04",
+  "captured_at": "2026-11-10",
   "blocks": [
     {
-      "text": "The Jira outegration is used to dispatch tickets from the Zscaler Security Operations (SecOps) platform applications (e.g., UVM) to your Jira project, creating a Jira issue that can then be tracked, assigned, and managed by your remediation teams working with Jira."
+      "text": "The Jira outegration is used to dispatch tickets from Agentic Security Operations Platform (Agentic SecOps Platform) applications (e.g., UVM) to your Jira project, creating a Jira issue that can then be tracked, assigned, and managed by your remediation teams working with Jira."
     },
     {
-      "text": "This article is a step-by-step guide to setting up the Jira work management outegration. The process involves setting up authentication, outegration visibility in the platform, outegration mapping, and when relevant, configuring a Jira webhook to enable bidirectional synchronization."
+      "text": "This article is a step-by-step guide to setting up the Jira work management outegration. The process involves setting up authentication, outegration visibility in the Agentic SecOps Platform, outegration mapping, and when relevant, configuring a Jira webhook to enable bidirectional synchronization."
     },
     {
       "text": "Each Jira issue type (e.g., Bug, Task, Feature) requires a separate outegration configuration."
@@ -35,8 +35,390 @@
       "depth": 0
     },
     {
+      "item": "Obtain the following required parameters for the Jira Cloud outegration:",
+      "depth": 0
+    },
+    {
+      "item": "Jira Organization Domain",
+      "depth": 1
+    },
+    {
+      "item": "The Jira organization domain is the unique domain that identifies your organization's Jira instance, in the format <Domain Name>.atlassian.net. For example, if your Jira Cloud URL is https://acme.atlassian.net, then your Jira organization domain is acme.atlassian.net.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Project Key",
+      "depth": 1
+    },
+    {
+      "item": "Your Jira project key is the shortened version of the Jira project name that you want the platform to dispatch tickets to.",
+      "depth": 1
+    },
+    {
+      "item": "Your project key can be found in the following locations:",
+      "depth": 1
+    },
+    {
+      "item": "All Projects list: The Key column displays the project key for each of your projects.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Jira Issue ID Prefix: The project key is often used as a prefix for issue IDs (e.g., PROJ-123).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Project URL: The project key is included in the URL of your project, after /projects/. For example, the project key in the URL https://acme.atlassian.net/projects/PROJ/summary is PROJ.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Choose one of the following authentication methods and retrieve the necessary parameters:",
+      "depth": 0
+    },
+    {
+      "item": "Email Password Domain",
+      "depth": 1
+    },
+    {
+      "item": "For the Email Password Domain authentication method, you'll need to provide the email and password (API Token) associated with a Jira user account. This account is used to authenticate with Jira and will be displayed as the issue reporter in Jira by default, unless an alternative reporter is specified in the Jira mapping.",
+      "depth": 1
+    },
+    {
+      "item": "API Key Domain",
+      "depth": 1
+    },
+    {
+      "item": "For the API Key Domain authentication method, you'll need to provide the Jira API key that was generated using a Jira user account. To learn more, refer to the Jira Atlassian documentation.",
+      "depth": 1
+    },
+    {
+      "item": "To generate an API key:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to your Jira instance using an admin account.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click your avatar in the bottom left of the management interface.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Click API info.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Create key.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Enter a key name that clearly indicates its association with the Agentic SecOps Platform application (e.g., UVM, AEM).",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Click Confirm.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Copy and securely save the key to be used in the Connect step.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Service Account Credentials",
+      "depth": 1
+    },
+    {
+      "item": "To use a service account in authentication, you must create one before creating an API token for the service account. When you create an API token for a service account, the service account can authenticate and run scripts for the applications you give them access to.",
+      "depth": 1
+    },
+    {
+      "item": "To create an API token for a service account:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to your Jira instance using an admin account.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Select your organization if you have more than one.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Select Directory > Service accounts.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          19,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "For the service account, select Actions > Create credential.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          32,
+          39
+        ],
+        [
+          42,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Select Authentication type > API token.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          29,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Select the following API scopes to decide what the API token can do in your application:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "read:me read:account read:jira-work read:jira-user read:attachment:jira read:comment:jira write:jira-work write:comment:jira write:attachment:jira",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the API token.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Copy your API token and save it in a safe location. You cannot recover the API token later.",
+      "depth": 2,
+      "number": 8
+    },
+    {
       "item": "Jira Data Center",
       "depth": 0
+    },
+    {
+      "item": "Before proceeding, make sure a Zscaler Gateway has been configured. To learn more, see Configuring the Agentic Security Operations Platform Gateway.",
+      "depth": 0
+    },
+    {
+      "item": "Obtain the following required parameters for the Jira Data Center outegration:",
+      "depth": 0
+    },
+    {
+      "item": "Jira Organization Domain",
+      "depth": 1
+    },
+    {
+      "item": "The Jira organization domain is the unique domain that identifies your organization's Jira instance, typically the domain name or host name of your Jira server. For example, if your Jira Data Center URL is https://jira.acme.com, your Jira organization domain is jira.acme.com.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The domain for Jira Data Center can vary depending on how your Jira instance is configured and hosted.",
+      "depth": 1
+    },
+    {
+      "item": "Project Key",
+      "depth": 1
+    },
+    {
+      "item": "Your Jira project key is the shortened version of the Jira project name that you want the Agentic SecOps Platform to dispatch tickets to.",
+      "depth": 1
+    },
+    {
+      "item": "Your project key can be found in the following locations:",
+      "depth": 1
+    },
+    {
+      "item": "All Projects list: The Key column displays the project key for each of your projects.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Jira Issue ID Prefix: The project key is often used as a prefix for issue IDs (e.g., PROJ-123).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Project URL: The project key is included in the URL of your project, after /projects/. For example, the project key in the URL https://acme.atlassian.net/projects/PROJ/summary is PROJ.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Choose one of the following authentication methods and retrieve the necessary parameters:",
+      "depth": 0
+    },
+    {
+      "item": "Email Password Domain",
+      "depth": 1
+    },
+    {
+      "item": "For the Email Password Domain authentication method, you'll need to provide the email and password (API Token) associated with the Jira admin account. This account is used to authenticate with Jira and will be displayed as the issue reporter in Jira by default, unless an alternative reporter is specified in the Jira mapping.",
+      "depth": 1
+    },
+    {
+      "item": "API Key Domain",
+      "depth": 1
+    },
+    {
+      "item": "For the API Key Domain authentication method, you'll need to provide the Jira API key that was generated using a Jira admin account. To learn more, refer to the Jira Atlassian documentation.",
+      "depth": 1
+    },
+    {
+      "item": "To generate an API key:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to your Jira account as an admin.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click your avatar in the bottom left of the management interface.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Click API info.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Create key.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Enter a key name that clearly indicates its association with the Agentic SecOps Platform application (e.g., UVM, AEM).",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Click Confirm.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Copy and securely save the key to be used in the Connect step.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Gateway",
+      "depth": 1
+    },
+    {
+      "item": "Jira Data Center users must first set up a gateway and then proceed to follow the standard Jira outegration setup process. To learn more, see Configuring the Agentic Security Operations Platform Gateway.",
+      "depth": 1
+    },
+    {
+      "item": "If you already have a gateway configured, select the gateway from the drop-down menu.",
+      "depth": 1
     },
     {
       "heading": "Creating the Jira Outegration",
@@ -50,19 +432,1159 @@
       "depth": 0
     },
     {
+      "item": "The first step in setting up your Jira outegration is to authenticate using valid credentials to establish a secure connection with your Jira project. With the required parameters retrieved in the prerequisites, you can begin the Jira outegration setup in the Agentic SecOps Platform.",
+      "depth": 0
+    },
+    {
+      "item": "To create an outegration:",
+      "depth": 0
+    },
+    {
+      "item": "In the Agentic SecOps Platform Admin Portal, click Configure.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Outegrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Connect a New Outegration page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select either Jira Cloud or Jira Data Center, depending on your organization's Jira deployment.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          14,
+          24
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "The Connect step appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the Details section:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Display Name: Enter a name for your outegration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Active: Enable to activate the Jira outegration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Project Key: Enter the key of the Jira project where the tickets should be created.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Authentication: Select an existing authentication, or click Create New to set up a new authentication and enter the required parameters you retrieved earlier into the corresponding fields. To learn more, see Configuring Authentication for Data Sources and Outegrations.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          60,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Browser Domain: Enter a browser domain to support authentication using service account credentials. This field is used to build links to Jira issues.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Test in the bottom-right corner of the page to verify the connection. Invalid credentials trigger error messages to assist with troubleshooting connectivity issues.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the test passes, click Next to advance to the Settings step.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          29,
+          33
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
       "item": "Step 2: Configure the Outegration Visibility and Behavior (Settings)",
       "depth": 0
+    },
+    {
+      "item": "In the Settings step of the outegration setup wizard, configure your Jira outegration's visibility and behavior within the relevant application in the Agentic SecOps Platform (e.g., UVM, AEM). In this step, you'll set the Agentic SecOps entity that triggers the Jira issue dispatch (e.g., ticket, violation ticket), the Jira Issue Type that the Agentic SecOps ticket should be dispatched to, and when the Create Jira Ticket button should appear in the application. The Create Jira Ticket button allows end users with access to Agentic SecOps tickets to dispatch these tickets to a Jira project directly from the Agentic SecOps ticket drawer or from the Agentic SecOps tickets page.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the outegration's visibility and behavior:",
+      "depth": 0
+    },
+    {
+      "item": "In the Advanced Settings section:",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Create Jira item from: Select the entity that you want to configure the outegration for. This selection affects the view you'll configure in the <Entity> View step (e.g., selecting Ticket displays the Tickets View setting).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          154,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "UVM: Select Ticket.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "AEM: Select Violation Ticket.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Other entity types might be visible depending on the apps enabled in your account.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Issue Type: Select the Jira issue type that the ticket should be dispatched to (e.g., Task, Bug). The schema associated with the selected issue type will be retrieved from your Jira project and made available for mapping in the Mapping step.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          86,
+          90
+        ],
+        [
+          92,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the <Entity> View section, select how the Agentic SecOps ticket should display the Create Jira Ticket button. This setting can be modified at any time.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          16,
+          20
+        ],
+        [
+          86,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Always: Select to display the button in all tickets, allowing users to dispatch tickets to a Jira issue without exception.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Never: Select to hide the button in all tickets. This is useful during the outegration setup process to hide the button from users while still keeping the outegration active.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "For specific tickets: Define custom conditions to control when the button is displayed, allowing you to target specific tickets. For example, if your organization uses multiple ticketing systems, you can grant access to the button only to users who work with Jira, while excluding those who use other ticketing systems (e.g., ServiceNow).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Map to advance to the Mapping step.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          28,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "The Create Jira Ticket button appears in two locations:",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the individual entity drawer (e.g., in the UVM ticket drawer, in the AEM violation ticket drawer).",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the entity page in the relevant application (e.g., on the Tickets page in UVM, on the Violation Tickets page in AEM).",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
     },
     {
       "item": "Step 3: Map the Outegration Fields (Mapping)",
       "depth": 0
     },
     {
+      "item": "The third step in setting up your Jira outegration is configuring the field mapping between your Agentic SecOps tickets and Jira issues. This defines how data is exchanged and synchronized between the two systems upon initial dispatch and subsequent updates. The Agentic SecOps Platform's unique mapping capabilities allow for flexible mapping of any custom field or logic to any field in your Jira projects, facilitating highly customized workflows that align with your organization's requirements.",
+      "depth": 0
+    },
+    {
+      "item": "The main objective of the mapping process is to map values to fields. To map values to fields, configure values on the left to populate the fields selected on the right.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "There are three mapping components:",
+      "depth": 0
+    },
+    {
+      "item": "Tickets initially dispatched to Jira: Map Agentic SecOps ticket fields (left) to Jira fields (right) for the initial dispatch of a ticket to a Jira issue. You can also add an attachment to your Jira issue. Commonly mapped fields include Summary, Description, Assignee, Priority, Due Date, and Status.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Sync from ticket to Jira: Map Agentic SecOps ticket fields (left) to Jira fields (right) for syncing ticket updates to Jira, including configuring comments and adding an attachment to your Jira issue. Commonly mapped fields include Status and Due Date.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Sync from Jira to ticket: Map Jira fields (left) to Agentic SecOps ticket fields (right) for syncing Jira updates to tickets. This step also requires setting up a Jira webhook. Commonly mapped fields include Ticket Status and Ticket SLA.",
+      "depth": 1
+    },
+    {
+      "item": "The initial Jira outegration mapping includes preconfigured default mappings for each part, based on common use cases and industry best practices. These defaults can be modified and customized as needed.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Mapping",
+      "level": 2
+    },
+    {
+      "item": "In each of the three mapping components, you’ll need to select a field on the right, and then configure the corresponding field value on the left.",
+      "depth": 0
+    },
+    {
+      "item": "To create a new mapping:",
+      "depth": 0
+    },
+    {
+      "item": "Select a field (right):",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select a field on the right.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "The field's schema details open on the right of the page. The schema lists available Jira fields to be used during mapping. This is the list of fields configured in your Jira project for the Issue Type selected in the Settings step (e.g., Bug).",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The following details are specified for fields, when available:",
+      "depth": 2
+    },
+    {
+      "item": "Required",
+      "depth": 3
+    },
+    {
+      "item": "The Required attribute is TRUE if a field is required by Jira. If a field is not required, the attribute is not displayed. A required Jira field is also indicated by a red asterisk (*) on the Jira field in the first mapping step.",
+      "depth": 3
+    },
+    {
+      "item": "Required Jira fields must be mapped before saving the outegration.",
+      "depth": 3
+    },
+    {
+      "item": "Input Type",
+      "depth": 3
+    },
+    {
+      "item": "The Input Type specifies the data type of the Jira field, such as TEXT (e.g., Summary), DATE (e.g., Due Date), or NUMBER (e.g., Risk Score). This indicates the format that the selected source field must match in order to successfully map to the Jira field.",
+      "depth": 3
+    },
+    {
+      "item": "Available Options",
+      "depth": 3
+    },
+    {
+      "item": "For Jira fields with fixed values, the Available Options column displays the available values. For example, if the Jira field Priority is configured to include the following fixed values—High, Low, Medium, Lowest, Highest—the corresponding values in the Ticket Severity field can be mapped to these values.",
+      "depth": 3
+    },
+    {
+      "item": "Configure the field value (left):",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Click Add value on the left.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Field Editor, select one of the following methods to configure the value of the field:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Field (Dictionary)",
+      "depth": 3
+    },
+    {
+      "item": "Select a field on the left to populate the field on the right.",
+      "depth": 3
+    },
+    {
+      "heading": "Dictionary",
+      "level": 3
+    },
+    {
+      "item": "The field dictionary allows you to create mappings between specific values from the field on the right and values of the field on the left. To use the dictionary, you must first select a field on the right and a field to populate it with on the left.",
+      "depth": 3
+    },
+    {
+      "item": "For example, if your Jira Priority field includes the following fixed values—Highest, High, Medium, Low, Lowest—you can use the dictionary to map the corresponding Ticket Severity values to each of the Priority field values.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Smart Text",
+      "depth": 3
+    },
+    {
+      "item": "Configure the field value using free text, or create a template using a combination of free text and selected fields. This allows you to dynamically insert specific field values (e.g., Ticket SLA, Ticket Assignee, or Asset Name) into customized free text sentences or paragraphs.",
+      "depth": 3
+    },
+    {
+      "item": "To add a Smart Text field, enclose it in double curly brackets (e.g., {{Ticket Assignee}}). The field's display name automatically translates to its system name.",
+      "depth": 3
+    },
+    {
+      "item": "This option is commonly used to configure the value of fields like Ticket Title and Ticket Description.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Script",
+      "depth": 3
+    },
+    {
+      "item": "For use cases that require more advanced configuration than either of the two methods above, you can use Python scripts to configure the field value to be mapped to the target field.",
+      "depth": 3
+    },
+    {
+      "item": "Repeat the mapping process for all required Jira fields and for any other fields you want to map.",
+      "depth": 0
+    },
+    {
+      "item": "In addition to the mapping of fields on the right to fields on the left, you can perform a set of actions when setting up the Jira outegration mapping, each relevant to a specific part of the mapping.",
+      "depth": 0
+    },
+    {
+      "item": "Set a ticket field as mandatory.",
+      "depth": 1
+    },
+    {
+      "item": "You can set an Agentic SecOps ticket field as mandatory, by selecting the Set as Mandatory checkbox in the Column Menu to the right of the mapping. Some fields can be set as mandatory by default.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Setting a field as mandatory guarantees that critical fields (e.g., Ticket Assignee) are always populated before a ticket is dispatched to Jira, so Jira issues are always actionable for your remediation teams. Attempts to dispatch a ticket without a value in a mandatory field will trigger an error message.",
+      "depth": 1
+    },
+    {
+      "item": "Required fields are defined by your Jira schema, whereas Mandatory fields are mandatory for Agentic SecOps ticket dispatch.",
+      "depth": 1
+    },
+    {
+      "item": "Add attachments to the ticket dispatch.",
+      "depth": 1
+    },
+    {
+      "item": "You can create a file attachment that summarizes your ticket content and set the trigger to automatically add it to your Jira issue. Adding an attachment to your Jira issue simplifies the review and management of findings dispatched from a ticket.",
+      "depth": 1
+    },
+    {
+      "item": "You can configure file attachments in two of the mapping steps:",
+      "depth": 1
+    },
+    {
+      "item": "Initial ticket dispatch",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Sync from Ticket to Jira",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "When configured in the Ticket to Jira sync section, the attachment is included in the Jira issue alongside existing attachments as a downloadable file in the selected format.",
+      "depth": 1
+    },
+    {
+      "item": "Use the File Format drop-down menu on the top left of the attachment page to select from the available formats (CSV, PDF, JSONL, Excel).",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To provide your Jira remediation teams with a comprehensive view of the findings in the ticket, consider including the following fields in your attachment:",
+      "depth": 1
+    },
+    {
+      "item": "Recommended Attachment Fields",
+      "depth": 2
+    },
+    {
+      "item": "Finding Severity",
+      "depth": 3
+    },
+    {
+      "item": "Finding Title",
+      "depth": 3
+    },
+    {
+      "item": "Finding CVE",
+      "depth": 3
+    },
+    {
+      "item": "Component Name",
+      "depth": 3
+    },
+    {
+      "item": "Asset Name",
+      "depth": 3
+    },
+    {
+      "item": "Asset Operating System",
+      "depth": 3
+    },
+    {
+      "item": "Finding Optimal Fix",
+      "depth": 3
+    },
+    {
+      "item": "Finding Description",
+      "depth": 3
+    },
+    {
+      "item": "Finding Sources",
+      "depth": 3
+    },
+    {
+      "item": "Configure comments synchronization.",
+      "depth": 1
+    },
+    {
+      "item": "In the Ticket to Jira sync step, you can configure how ticket comments are synchronized with Jira issue comments. To configure comments, click Comment Sync.",
+      "depth": 1,
+      "strong": [
+        [
+          143,
+          155
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Sync Comments",
+      "level": 2
+    },
+    {
+      "item": "Enable Sync Comments to automatically push comments from the ticket's Comments tab to the corresponding Jira issue.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Trigger Comments",
+      "level": 2
+    },
+    {
+      "item": "Enable Sync Trigger Comments and set conditions to trigger a comment when specific fields are modified. Syncing trigger comments is useful when you want to be notified of important changes to tickets without updating the corresponding Jira issue. For example, you can configure a trigger to post a comment in Jira when the Ticket Severity changes from Medium to Critical.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To add a trigger condition:",
+      "depth": 1
+    },
+    {
+      "item": "Select the field you want to monitor (e.g., Severity).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Set the value change that should trigger the comment:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "From: Select the original value.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "To: Select the updated value.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "When the specified change occurs in the ticket, a comment is automatically created and added to the Jira issue. The following is an example of a trigger comment:",
+      "depth": 1
+    },
+    {
+      "item": "Linked UVM ticket updated: Ticket severity changed from: MEDIUM to: CRITICAL <URL to ticket>",
+      "depth": 1
+    },
+    {
+      "heading": "Mapping Ticket Title to Summary",
+      "level": 2
+    },
+    {
+      "item": "To illustrate the mapping process, consider the mapping of the required Jira Summary field. The final result of the mapping process should show the Summary field on the right, and the Ticket Title field on the left.",
+      "depth": 0
+    },
+    {
+      "item": "To map the Ticket Title field to the Summary field:",
+      "depth": 0
+    },
+    {
+      "item": "Select Summary as the Jira field on the right.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Selecting the Jira Summary field opens the field's details in the schema. The schema specifies that the field is required and thus must be mapped before the outegration can be saved, and that the field expects a TEXT input type. Therefore, the field for which a value is being configured must also be of TEXT type.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the Ticket Title field on the left:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Under the Field tab, select the Ticket Title field, which is the equivalent to the Jira Summary field.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          15
+        ],
+        [
+          32,
+          44
+        ],
+        [
+          88,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Previewing the Ticket to Jira Mapping",
+      "level": 2
+    },
+    {
+      "item": "After completing the Agentic SecOps ticket to Jira dispatch mapping, preview the mapping to review the configuration. This helps ensure that Agentic SecOps ticket dispatch is behaving as expected and that the Jira issue fields are populated correctly.",
+      "depth": 0
+    },
+    {
+      "item": "To preview the mapping, click Preview on the bottom right of the ticket initially dispatched to Jira section. The Mapping Preview window appears. On the left of the Mapping Preview window, there is a sample of the Agentic SecOps tickets in your account, organized by ticket ID. You can select, filter, or search tickets and preview the mapping to their corresponding Jira issue. You can also open the actual Agentic SecOps ticket in a new tab for a more in-depth review.",
+      "depth": 0,
+      "strong": [
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Common Mapping Examples",
+      "level": 2
+    },
+    {
+      "item": "These mapping examples highlight commonly used field configurations in your outegration. While some might be preconfigured by default, Zscaler recommends reviewing and customizing them to ensure they align with your workflow.",
+      "depth": 0
+    },
+    {
+      "item": "Ticket to Jira Description",
+      "depth": 1
+    },
+    {
+      "item": "When dispatching tickets to Jira, map the Jira Description field with a summary of the Ticket content to provide remediation teams with a brief overview of the ticket.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the Ticket to Jira Description mapping:",
+      "depth": 1
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Description as the field on the right.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value on the left.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Field Editor, select Smart Text.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          28,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Enter a ticket description, including dynamic fields (e.g., {{SLA}}).",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Tickets dispatched to Jira will now include the configured description.",
+      "depth": 1
+    },
+    {
+      "item": "Ticket SLA to Jira Due Date Sync",
+      "depth": 1
+    },
+    {
+      "item": "In the Ticket to Jira sync, map the Jira Due Date field to keep timelines in sync with Ticket SLA changes.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the Ticket SLA to Jira Due Date mapping:",
+      "depth": 1
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Due Date as the field on the right.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value on the left.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Field Editor, select Field, and select Ticket SLA as the field on the left.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          28,
+          33
+        ],
+        [
+          46,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Ticket SLA changes will now automatically update Jira issue due dates.",
+      "depth": 1
+    },
+    {
+      "item": "Jira to Ticket Status Sync",
+      "depth": 1
+    },
+    {
+      "item": "In the Jira to Ticket sync, map the Ticket Status field to ensure it's updated when remediation teams change the Jira Issue Status.",
+      "depth": 1
+    },
+    {
+      "item": "To configure the Jira to Ticket Status mapping:",
+      "depth": 1
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Ticket Status as the field on the right.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value on the left.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Field Editor, select Field, and select Status as the field on the left. Use the Dictionary to map your Jira Status types to Ticket Status types.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          28,
+          33
+        ],
+        [
+          46,
+          52
+        ],
+        [
+          87,
+          97
+        ],
+        [
+          115,
+          121
+        ],
+        [
+          131,
+          144
+        ]
+      ]
+    },
+    {
+      "item": "Jira issue Status changes will now automatically update the Ticket Status.",
+      "depth": 1
+    },
+    {
       "item": "Step 4: Configure the Jira Webhook",
       "depth": 0
     },
     {
-      "text": "When the outegration setup is complete, you can begin dispatching SecOps tickets using the Create Jira Ticket button that appears in the Create Ticket menu within individual tickets, as well as in the Create Issue menu in the Tickets View. To learn more, see Creating & Managing Third-Party Tickets."
+      "item": "The Jira outegration webhook enables automatic syncing of Jira issue updates (e.g., Status or SLA changes) to their corresponding Agentic SecOps tickets, reducing the need for manual changes. This step is required when configuring the Jira to Ticket mapping to keep issues and tickets in sync. To learn more, see Configuring the Jira Outegration Webhook.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "A Jira webhook is only needed to sync updates from Jira to the ticket. It is not required for the initial ticket dispatch or for syncing updates from the ticket to Jira.",
+      "depth": 0
+    },
+    {
+      "text": "When the outegration setup is complete, you can begin dispatching Agentic SecOps tickets using the Create Jira Ticket button that appears in the Create Ticket menu within individual tickets, as well as in the Create Issue menu in the Tickets View. To learn more, see Creating & Managing Third-Party Tickets."
     }
   ]
 }
