@@ -38,12 +38,13 @@ test("version comparison and doctor enforce the Node 24.19 boundary", () => {
   assert.equal(checkNodeVersion("24.18.9").status, "FAIL");
 });
 
-test("Node runtime declarations match the doctor minimum", () => {
+test("Node runtime declarations agree with the doctor minimum", () => {
   const root = path.resolve(import.meta.dirname, "..");
   const versionFile = fs.readFileSync(path.join(root, ".node-version"), "utf8").trim();
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 
-  assert.equal(versionFile, MIN_NODE_VERSION);
+  // .node-version is what CI installs and may be newer; the node-floor job tests the minimum itself.
+  assert.ok(versionAtLeast(versionFile), `.node-version ${versionFile} is below ${MIN_NODE_VERSION}`);
   assert.equal(packageJson.engines.node, `>=${MIN_NODE_VERSION}`);
 });
 

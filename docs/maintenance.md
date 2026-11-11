@@ -205,6 +205,15 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
   exact released tag, so claims cite a version that shipped. Nothing here runs
   the vendored modules or providers; a bump of any of them is reviewed with
   `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
+- Renovate keeps `.node-version`, the Node that CI and version managers
+  install, at the newest release of its LTS line, so Node security fixes arrive
+  as ordinary update PRs on the Monday schedule. A new major waits for
+  Dependency Dashboard approval.
+  The supported floor is separate: `MIN_NODE_VERSION` in `scripts/doctor.mjs`,
+  equal to `engines` in `package.json`. The `node-floor` job in
+  `check-hygiene.yml` runs the fast gate on it, so a script that needs a newer
+  Node fails there. Raising the floor is a deliberate change to both and to the
+  install docs.
 - On a Renovate bump PR, `bump-regenerate.yml` regenerates the layers built
   from vendored sources on the bump's branch and commits them:
   - the API surfaces;
