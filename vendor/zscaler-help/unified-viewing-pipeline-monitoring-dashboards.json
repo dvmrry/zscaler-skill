@@ -1,0 +1,639 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Viewing the Pipeline Monitoring Dashboards",
+  "source": {
+    "url": "https://help.zscaler.com/unified/viewing-pipeline-monitoring-dashboards",
+    "node": "1547269",
+    "revision": "3254275",
+    "updated": "2026-11-10",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-11",
+  "blocks": [
+    {
+      "text": "The Pipeline Monitoring dashboards in the Agentic Security Operations Platform (Agentic SecOps Platform) provide a centralized view of the health and performance of your data ingestion and aggregation processes. By correlating technical performance with critical outcomes like data freshness and data accuracy, these dashboards allow Agentic SecOps Platform admins to verify the reliability of their security data through granular, process-level visibility into the end-to-end data lifecycle. Use these dashboards to triage pipeline failures, identify performance bottlenecks, and monitor long-term volumetric trends to ensure your security environment remains current and complete."
+    },
+    {
+      "text": "The Pipeline Monitoring dashboards are in limited availability. To learn more, contact your Zscaler Account team or Zscaler Support."
+    },
+    {
+      "text": "To provide this level of visibility, the dashboards monitor the platform's underlying data pipeline cycle, which includes two primary stages:"
+    },
+    {
+      "item": "Source ingestion runs: The platform retrieves data from your configured data sources (e.g., ServiceNow, CrowdStrike) and normalizes it through initial mapping.",
+      "depth": 0
+    },
+    {
+      "item": "Aggregator run: The platform performs entity-based data unification by deduplicating entities, reconciling attribute conflicts, and enriching data to create a single, trusted source of truth.",
+      "depth": 0
+    },
+    {
+      "text": "To support both immediate troubleshooting and long-term optimization, Pipeline Monitoring is divided into two dashboards:"
+    },
+    {
+      "item": "Pipeline Monitoring Status: A current diagnostic view of recent data processing cycles. The latest run represents the current health, accuracy, and freshness of ingested data, while previous runs provide historical context. Use this dashboard to identify why a specific run failed, assess data integrity, and access remediation steps.",
+      "depth": 0
+    },
+    {
+      "item": "Pipeline Monitoring Trends: A historical performance view that displays pipeline performance trends over time. Use this dashboard to detect gradual latency drift, volume anomalies, and recurring stability issues across different data sources.",
+      "depth": 0
+    },
+    {
+      "text": "To view the Pipeline Monitoring dashboards, in the Agentic SecOps Platform Admin Portal go to Configure > Pipeline Monitoring."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "To access the Pipeline Monitoring dashboards, your assigned role must include the Read, Create, Edit, and Delete permissions under the Platform - Model Management resource and the Read permission under the Platform - Data Source resource. To learn more, see Creating Custom Roles and Managing User Roles."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Monitoring the Status Dashboard",
+      "level": 1
+    },
+    {
+      "text": "The Pipeline Monitoring Status dashboard serves as the real-time monitoring interface for the data pipeline health and reliability. Its primary function is to track the progress of the latest source and aggregator runs and verify that the data reflects the current state of your security environment. On this dashboard, you can identify ingestion anomalies, connector failures, or aggregation errors that might impact the integrity of the data in the platform."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "To use the Status dashboard effectively for real-time troubleshooting and health checks, complete the following workflow:"
+    },
+    {
+      "item": "Step 1: Check High-Level Indicators",
+      "depth": 0
+    },
+    {
+      "item": "Start by reviewing the high-level indicators at the top of the dashboard. These provide an immediate pulse check on the latest pipeline cycle. The state of the pipeline is determined by the outcome of the latest run (i.e., Complete, Partially Complete, or Failed) and is measured with three indicators: Severity, Freshness, and Accuracy. A successful run results in a healthy, fresh, and accurate state. When a run does not complete successfully, these indicators are affected according to the specific failure scenario. Additional issues can be detected by anomalous run durations or ingestion volumes.",
+      "depth": 0
+    },
+    {
+      "heading": "Freshness and Accuracy",
+      "level": 2
+    },
+    {
+      "item": "The cycle's total outcome is determined by the level of freshness and accuracy of the data. Review the status in the top right of the latest run and its associated severity at the top left of the page.",
+      "depth": 0
+    },
+    {
+      "item": "Complete (Healthy): The pipeline is functioning normally.",
+      "depth": 1
+    },
+    {
+      "item": "Failed (Medium Severity): The system preserved old data because the latest update failed.",
+      "depth": 1
+    },
+    {
+      "item": "Partially Complete (High or Medium Severity): Some data was updated, but gaps exist.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Freshness",
+      "level": 3
+    },
+    {
+      "item": "Freshness tracks whether the latest data pipeline cycle (i.e., the scheduled data source runs and aggregation run) has completed successfully within its expected cadence, indicating that the platform is displaying the most up-to-date data. If the scheduled pipeline cycle fails to complete successfully, the data is no longer considered fresh.",
+      "depth": 0
+    },
+    {
+      "item": "Fresh: The data maintains integrity because no partial or unverified records have been introduced. This occurs when the last aggregation cycle successfully processed all entities, or when a failed run preserved the previously aggregated data instead of overwriting it with incomplete results. In the latter case, the data remains accurate but is no longer fresh.",
+      "depth": 1
+    },
+    {
+      "item": "Partially Fresh: The latest scheduled pipeline cycle completed successfully, but the data in the platform is not fully up-to-date because unresolved issues remain (e.g., failed entities from a previous cycle that have not yet been reprocessed by the aggregator, or a previously failed run has not run successfully since).",
+      "depth": 1
+    },
+    {
+      "item": "Non-fresh (Stale): The data in the platform is no longer up-to-date (e.g., the aggregator run failed, the aggregator didn't run within the expected interval, or all sources failed so no current data could be aggregated).",
+      "depth": 1
+    },
+    {
+      "heading": "Accuracy",
+      "level": 3
+    },
+    {
+      "item": "Accuracy tracks whether the latest data processing pipeline produced a complete aggregation of the scheduled source runs, and whether each source has a recent successful full ingestion to serve as the baseline for subsequent incremental updates.",
+      "depth": 0
+    },
+    {
+      "item": "Accurate: The data maintains integrity because the last successful aggregation cycle processed all entities, or because the pipeline failed to update the current state, preventing the introduction of partial or unverified data.",
+      "depth": 1
+    },
+    {
+      "item": "Potentially Not Accurate: An incremental update is successfully processed for a source that lacks a verified full ingestion baseline within the rolling 14-day history.",
+      "depth": 1
+    },
+    {
+      "item": "Not Accurate: A successful pipeline cycle fails to reprocess or include all entities from a previous failed aggregator run, resulting in a state of incomplete entity coverage.",
+      "depth": 1
+    },
+    {
+      "item": "The combination of these indicators results in a total run status indicated in the right corner of the run. Each total outcome is assigned a severity level based on the impact on data reliability.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Total Outcome",
+          "Status",
+          "Freshness",
+          "Accuracy",
+          "What It Means"
+        ],
+        [
+          "Complete",
+          "Healthy",
+          "Fresh",
+          "Accurate",
+          "Successful source and aggregator runs."
+        ],
+        [
+          "Partially Completed",
+          "Severity: High",
+          "Partially Fresh",
+          "Not Accurate",
+          "The aggregator run was partially complete or failed to reprocess entities from a previous failure."
+        ],
+        [
+          "Partially Completed",
+          "Severity: Low",
+          "Fresh",
+          "Potentially Not Accurate",
+          "The latest incremental source run succeeded, but integrity is unverified due to a previous full run failure."
+        ],
+        [
+          "Partially Completed",
+          "Severity: Low",
+          "Partially Fresh",
+          "Potentially Not Accurate",
+          "The latest full run failed and hasn't been reprocessed since."
+        ],
+        [
+          "Failed",
+          "Severity: Medium",
+          "Not Fresh",
+          "Inherited from previous run",
+          "The aggregator failed. No new data was processed, so the data and accuracy from the previous pipeline cycle is preserved."
+        ],
+        [
+          "Failed",
+          "Severity: Medium",
+          "Not Fresh",
+          "Inherited from previous run",
+          "The aggregator did not run, potentially because a source didn't trigger it. No new data was processed, so the data and accuracy from the previous pipeline cycle is preserved."
+        ]
+      ]
+    },
+    {
+      "heading": "Duration and Volume",
+      "level": 2
+    },
+    {
+      "item": "In addition to the source and aggregator run status, the Status dashboard monitors the performance health of the source ingestion and aggregation lifecycle. By comparing the latest run process duration and volume against a 7-day rolling average, the platform identifies anomalies in processing time and data throughput that might signal underlying connectivity issues or configuration drift. These indicators act as a diagnostic layer to catch silent failures, which are instances where a pipeline process completes successfully but produces results that are statistically outside of normal operational parameters.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Last Run Process Duration",
+      "level": 3
+    },
+    {
+      "item": "The Last Run Process Duration metric tracks the total run time of the latest pipeline cycle compared to its historical performance. The dashboard displays the duration of the latest run (e.g., 62min) alongside the AVG (the historical average over the last 7 days). A run is flagged as anomalous (indicated by an orange warning icon) if the duration varies from the 7-day average by more than 25%.",
+      "depth": 0
+    },
+    {
+      "item": "High duration: Significantly longer runs can indicate network latency, source API bottlenecks, or unusually high data payloads.",
+      "depth": 1
+    },
+    {
+      "item": "Low duration: A run that finishes unexpectedly fast can indicate a hollow ingestion, where the system successfully connected to the source but failed to retrieve the full scope of data.",
+      "depth": 1
+    },
+    {
+      "heading": "Last Run Record Ingestion Volume",
+      "level": 3
+    },
+    {
+      "item": "The Last Run Record Ingestion Volume metric provides visibility into the volume of data processed, comparing the count of new records versus updated records. The volume is compared against a rolling average to identify significant spikes or drops in data throughput. This helps detect unexpected data loss. For example, if a source consistently reports an average of 1,000 new records but the last run reports 40, the volume metric flags an anomaly even if the connection status is successful.",
+      "depth": 0
+    },
+    {
+      "item": "Volume drops: Sudden decreases can signal silent source failures, such as credential permission changes that limit the platform's access to specific data objects or modified filters on the source side.",
+      "depth": 1
+    },
+    {
+      "item": "Volume spikes: Massive surges can indicate configuration drift, such as the addition of a new high-volume log source or data duplication issues that can impact long-term system capacity.",
+      "depth": 1
+    },
+    {
+      "item": "Dramatic shifts in either direction can also result from intentional configuration changes. For example, introducing a suppression rule can cause a drop, while broadening an ingestion filter can cause a spike.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Gather Diagnostic Context",
+      "depth": 0
+    },
+    {
+      "item": "If the high-level indicators signal a failure or performance anomaly, use the run widget to pinpoint exactly where the issue occurred. This widget provides a matrix-style Gantt view of the end-to-end pipeline, allowing you to trace the root cause of an incomplete total run outcome to specific underlying processes (e.g., a specific data source run or the aggregation run).",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The run widget is identified by its unique run ID (e.g., Run-2026-0001) and displays the total run's start time, end time, and total duration. A status on the far right indicates the total outcome: Complete, Partially Completed, or Failed. Each row within the expanded widget represents a stage in the pipeline, including specific source ingestions and the aggregation step.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The status and duration of each process is represented by colored bars plotted along a time axis indicating the duration of the run:",
+      "depth": 0
+    },
+    {
+      "item": "Green bar: The process completed successfully.",
+      "depth": 1
+    },
+    {
+      "item": "Orange or red bars: The process failed, was interrupted, or has an associated integrity warning.",
+      "depth": 1
+    },
+    {
+      "item": "Warning icons: The run succeeded, but there are underlying issues affecting the result.",
+      "depth": 1
+    },
+    {
+      "item": "Following the latest run, you can view and expand previous runs. Investigating previous runs can help uncover the source of an issue in the latest cycle. For example, if the current aggregator run is successful but displays a warning icon, analyzing previous runs might reveal that a specific source ingestion failed in a prior cycle and the data has not yet been reprocessed.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Investigating Failures and Warnings",
+      "level": 2
+    },
+    {
+      "item": "When an underlying process fails or triggers a warning, the widget provides the technical context required for troubleshooting. Use the interactive layers of the widget to gather diagnostic evidence:",
+      "depth": 0
+    },
+    {
+      "item": "Tooltips: Hover over warning icons or colored status bars to view tooltips that explain why a process is flagged. This provides a summary of the anomaly, such as minor integrity warnings or significant partial failures.",
+      "depth": 1
+    },
+    {
+      "item": "Information banners: Review colored banners for high-level obstacles, such as a run failing to initiate. These banners often include a Click to see more details link that opens a drawer with additional context. The details drawer provides the specific error title and technical information required for remediation:",
+      "depth": 1
+    },
+    {
+      "item": "Failed sources: If a source ingestion failed, the drawer provides a direct link to the source's See Runs page where you can investigate raw retrieval errors (e.g., authentication or authorization issues).",
+      "depth": 2
+    },
+    {
+      "item": "Failed aggregator runs: If the aggregator is the point of failure, the drawer identifies the specific internal stage, such as Mapping or Merge, where the breakdown occurred. This helps you determine if the issue lies with the data format or the reconciliation logic.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Troubleshoot",
+      "depth": 0
+    },
+    {
+      "item": "After pinpointing the failing stage and gathering the technical diagnostic context, you can proceed with remediation. Troubleshooting typically branches into two paths depending on whether the failure occurred during data ingestion or during the final system aggregation.",
+      "depth": 0
+    },
+    {
+      "heading": "Addressing Source Ingestion Issues",
+      "level": 2
+    },
+    {
+      "item": "If the failure or interruption occurred during the data source ingestion stage, the issue can be rooted somewhere in the chain between the external vendor and the platform's data mapping. The problem can originate with the vendor (e.g., an API outage), the connection between systems (e.g., authentication failures or network timeouts), or the final mapping configuration within the platform.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve these failures:",
+      "depth": 0
+    },
+    {
+      "item": "On the failed source row, click the Click to see more details link to open a details drawer displaying the exact error that occurred and the steps to resolve it.",
+      "depth": 1
+    },
+    {
+      "item": "Go directly to the source's See Runs page to view the error, resolution steps, and a history of attempts to fetch data from that specific source. To learn more, see Tracking Data Source Runs.",
+      "depth": 1
+    },
+    {
+      "item": "To manage source authentication and configuration, see Configuring Authentication for Data Sources and Outegrations, Creating Data Sources, and the Source Configuration Guides.",
+      "depth": 0
+    },
+    {
+      "heading": "Addressing Aggregator Issues",
+      "level": 2
+    },
+    {
+      "item": "If the source ingestion was successful, but the aggregator failed or produced completed runs with warnings or anomalies, the issue is likely related to the platform's data processing (e.g., normalizing, mapping, or merging data).",
+      "depth": 0
+    },
+    {
+      "item": "To resolve these issues, on the failed aggregator row, click the Click to see more details link to open a drawer displaying the exact error that occurred and the steps to resolve it. For more context, including a full history of previous runs, you can click Open Runs Screen to go to the Entity Management Runs page.",
+      "depth": 0
+    },
+    {
+      "item": "Review the following configuration areas:",
+      "depth": 0
+    },
+    {
+      "item": "Data mapping: Verify that source fields are correctly mapped and that any custom scripts are producing the expected values.",
+      "depth": 1
+    },
+    {
+      "item": "Unification logic: Review your settings for entity merging (how the platform deduplicates records) and field reconciliation and enrichment (how the platform decides the value that wins when data conflicts or enriches values with your business context).",
+      "depth": 1
+    },
+    {
+      "item": "Source configuration: Check source-specific settings, including suppression rules and remediation detection settings, to ensure data is being filtered and aged correctly.",
+      "depth": 1
+    },
+    {
+      "item": "Asset and finding aging: Review the aging in your account to ensure it aligns with your source's scanning frequency, so active records are not aged prematurely.",
+      "depth": 1
+    },
+    {
+      "item": "If more context is needed, you can view the Logs page to search and explore the raw data collected by the platform before any processing occurs. This can help identify if an issue is rooted in the source data itself or within your mapping and transformation logic. To learn more, see Building Queries and Searching Logs.",
+      "depth": 0
+    },
+    {
+      "item": "If the error persists, or if you encounter an error that you cannot resolve, contact Zscaler Support. Provide the error title, the full technical message, and the specific Run ID.",
+      "depth": 0
+    },
+    {
+      "heading": "Validating the Resolution",
+      "level": 2
+    },
+    {
+      "item": "After applying a fix (e.g., updating an API key, adjusting a firewall rule, or correcting a mapping script), reprocess the run and verify that the pipeline has returned to a healthy state:",
+      "depth": 0
+    },
+    {
+      "item": "Reprocess failed runs:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Source: Trigger a manual run of that failed or interrupted data source to refresh the data for the next aggregator run. To learn more, see Managing Data Sources.",
+      "depth": 2
+    },
+    {
+      "item": "Aggregator: Trigger a manual aggregator run after all source data runs are successful. To learn more, see Managing Entity Unification and Managing Field Unification.",
+      "depth": 2
+    },
+    {
+      "item": "Return to the Status dashboard to verify indicators and ensure that the data is healthy.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "heading": "Monitoring the Trends Dashboard",
+      "level": 1
+    },
+    {
+      "text": "The Pipeline Monitoring Trends dashboard provides a historical perspective on the health, performance, and stability of the data pipeline over time. While the Status dashboard focuses on real-time diagnostics for the latest run, the Trends dashboard allows you to identify long-term patterns, performance degradation, and recurring bottlenecks that might not be apparent in a single cycle. By analyzing data across a selected timeframe, you can distinguish between isolated incidents and systemic configuration drift."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "You can adjust the data displayed in the dashboard by using the filters at the top of the page. These filters affect all relevant widgets; where a widget displays a top 10 calculation, the top 10 is recalculated by the filtered values. The Entity Volume Variance and Step Reliability History widgets are not affected by the source filters. To learn more, see Using Filters."
+    },
+    {
+      "text": "The Trends dashboard is divided into three primary areas of analysis: Top Indicators, Performance, and Stability."
+    },
+    {
+      "item": "Detecting Volatility with Top Indicators",
+      "depth": 0
+    },
+    {
+      "item": "The Top Indicators widgets are the primary entry point for identifying which sources or entities are experiencing the most significant fluctuations in behavior. These widgets offer visibility into volatile sources, such as those with the highest variance between their maximum and minimum values during the selected period.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Log Ingestion Volume by Source",
+      "level": 2
+    },
+    {
+      "item": "The Log Ingestion Volume by Source widget tracks the volume of log records ingested across the 10 sources with the highest volume variance during the selected time frame. Variance is calculated as the difference between the maximum and minimum daily record counts for each source.",
+      "depth": 0
+    },
+    {
+      "item": "View the total log record counts (Y-axis) against a timeline (X-axis) to pinpoint specific dates where a source experienced unusual spikes or drops.",
+      "depth": 0
+    },
+    {
+      "item": "Sharp drops: Indicates potential data gaps or connectivity interruptions, such as a source-side failure, network outage, or expired authentication credentials that prevent the platform from fetching data.",
+      "depth": 1
+    },
+    {
+      "item": "Sharp spikes: Indicates abnormal data surges or increased logging activity, such as a configuration change or a significant security event generating a burst of logs.",
+      "depth": 1
+    },
+    {
+      "item": "Dramatic shifts in either direction can also result from intentional configuration changes. For example, introducing a suppression rule can cause a drop, while broadening an ingestion filter can cause a spike.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Pipeline Duration by Source",
+      "level": 2
+    },
+    {
+      "item": "The Pipeline Duration by Source widget tracks the time required for the ETL process across the 10 sources with the highest duration variance during the selected time frame. Variance is calculated as the difference between the maximum and minimum duration for each source.",
+      "depth": 0
+    },
+    {
+      "item": "View the duration (Y-axis) against a timeline (X-axis) to identify when processing durations fluctuated. You can switch between two views:",
+      "depth": 0
+    },
+    {
+      "item": "Source Specific Steps: Isolates the duration of processes related only to the source runs (data fetching and initial mapping). If a source appears here with high variance, it can point to inconsistent vendor API response times or network-level latency.",
+      "depth": 1
+    },
+    {
+      "item": "Full Pipeline: Reflects the full pipeline duration, including source runs and the aggregator run (merging and reconciliation). If a source surfaces in this view but not in the source-specific view, it indicates that the volatility is being driven by internal platform processes, such as complex data deduplication or high-volume merging cycles.",
+      "depth": 1
+    },
+    {
+      "item": "Because the top 10 list of sources is dynamically calculated based on the duration delta, different sources might be displayed for each of the views.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Entity Volume Variance",
+      "level": 2
+    },
+    {
+      "item": "The Entity Volume Variance widget compares the total records processed for top entity types (e.g., Assets or Findings) in the selected time frame, against the previous identical time frame. The delta percentage helps identify significant shifts in data throughput between the current and previous cycles for top entities.",
+      "depth": 0
+    },
+    {
+      "item": "View the current period alongside the previous period to identify significant shifts in throughput. A visible discrepancy between the two bars indicates a change in data volume for a specific entity type, which can suggest a shift in the source-side data schema or filtering logic compared to the previous cycle.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Analyzing Performance and Volumetrics",
+      "depth": 0
+    },
+    {
+      "item": "The Performance widgets focus on the performance of the data ingestion and the internal processing steps. They help determine if the pipeline is scaling effectively and identify specific stages where delays occur.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Source Efficiency Correlation",
+      "level": 2
+    },
+    {
+      "item": "The Source Efficiency Correlation widget maps source runs based on log ingestion volume (X-axis) and total duration (Y-axis). In a healthy environment, most sources should follow a linear trajectory, so that as the volume of records increases, the duration required to process them should increase at a consistent, predictable rate.",
+      "depth": 0
+    },
+    {
+      "item": "View correlations to distinguish between normal scaling and two specific types of performance anomalies:",
+      "depth": 0
+    },
+    {
+      "item": "Upper-left outliers (low volume/high duration): Represent sources with low log ingestion volume but high processing duration. This indicates a high cost-per-record, where the pipeline is consuming disproportionate resources for a minimal data return. This can suggest bottlenecks such as high-latency API responses from the vendor, aggressive rate limiting, or complex mapping logic that is struggling to parse even small datasets.",
+      "depth": 1
+    },
+    {
+      "item": "Bottom-right outliers (high volume/low duration): Represent sources with high log ingestion volume but unusually low processing duration. While this might look like high efficiency, it can signal that data is being passed through without undergoing the required processing depth. For example, if a typically slow source suddenly finishes in minutes while volume remains high, it might indicate that internal validation steps such as deep deduplication or enrichment are being bypassed or are failing silently.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Ingestion Volume by Source",
+      "level": 2
+    },
+    {
+      "item": "The Ingestion Volume by Source widget tracks the daily volume of records processed for a specific entity across the 10 sources with the highest volume variance. Select an entity from the drop-down menu to populate the widget and view the top 10 sources exhibiting the highest volatility for that selected entity during the selected time frame.",
+      "depth": 0
+    },
+    {
+      "item": "This widget can help uncover entity-specific data loss and identify transformation gaps. A transformation gap occurs when a source connection remains healthy and raw logs are flowing, but those logs are failing to generate valid mapped records. This can indicate that a vendor might have updated their data schema, or that the internal mapping logic is no longer compatible with the incoming log format. While the Log Ingestion Volume widget measures and represents the ingestion volume of raw logs per source, this widget measures post-mapping records per source.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Ingestion Volume Trends",
+      "level": 2
+    },
+    {
+      "item": "The Ingestion Volume Trends widget displays the composition of processed records for a specific source and entity. It distinguishes between new records and total volume, allowing users to verify if a high volume of data actually contains new records or is primarily composed of existing records.",
+      "depth": 0
+    },
+    {
+      "item": "This comparison indicates the ingestion efficiency of a specific connector and can highlight the gap between raw processing effort and actual data output. A widening gap, where total volume spikes but new records remain flat, is a clear indicator of a hollow ingestion. This can suggest a source-side configuration error where a connector is sending a full data dump or redundant records instead of incremental changes. Conversely, when both metrics trend upward, it confirms a legitimate surge in environmental data such as during an initial ingestion or a large-scale security event.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Internal Step Breakdown (AVG per day)",
+      "level": 2
+    },
+    {
+      "item": "The Internal Step Breakdown (AVG per day) widget provides a daily average of the time spent in each stage of the pipeline during the selected time frame, including Retrieval, Mapping, Merge, and Data Manipulation. A sudden shift in the ratio of these steps can indicate that an issue occurred in the process. For example, a merge step that is significantly shorter than the historical average can indicate a failure during reconciliation.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Evaluating Data Stability",
+      "depth": 0
+    },
+    {
+      "item": "The Stability widgets track the success and failure rates of the pipeline to identify which components are the least reliable over time.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Process Outcome by Source",
+      "level": 2
+    },
+    {
+      "item": "The Process Outcome by Source widget displays the ratio of Success, Failure, and Partial Success outcomes for the top 10 sources with the lowest success rates. You can switch between the Source Specific Steps view to display the ratio for source steps only, or the Full Pipeline view to display the aggregator run result associated with each source.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Step Reliability History",
+      "level": 2
+    },
+    {
+      "item": "The Step Reliability History widget provides a health check for each internal pipeline step (Retrieval, Mapping, Merge, and Data Manipulation). It displays the percentage of time each step failed versus succeeded, helping to isolate whether failures are occurring during the initial data fetch or during internal platform processing.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "For added context on the scale of these rates, hover over a data point to view the absolute number of runs behind each percentage. This is useful for gauging the actual impact of a given rate and prioritizing your investigation accordingly. For example, a 100% failure rate can indicate a single failed run within a narrow time frame, or a systemic issue affecting many runs over a longer period.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}
