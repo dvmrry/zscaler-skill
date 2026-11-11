@@ -310,6 +310,86 @@ def test_a_full_check_reports_a_registered_unavailable_page_that_serves_again(tm
     assert help_capture.check(["missing.json"], replace=False) == 0
 
 
+def test_a_check_fetches_help_pages_in_parallel_and_reports_them_in_file_order(tmp_path, monkeypatch, capsys):
+    import json as _json
+    import threading
+    import time as _time
+
+    import help_capture
+
+    title, blocks = render(ARTICLE)
+    names = [f"p{i}.json" for i in range(8)]
+    for name in names:
+        help_capture.write(tmp_path / name, document(title, f"https://help.zscaler.com/zia/{name[:-5]}", blocks, "12", "34", "2026-10-18"))
+    monkeypatch.setattr(help_capture, "HELP", tmp_path)
+    monkeypatch.setattr(help_capture, "WORKERS", 4)
+    monkeypatch.setattr(help_capture, "PROGRESS_EVERY", 3)
+    lock, running, peak = threading.Lock(), [0], [0]
+
+    def page(url):
+        with lock:
+            running[0] += 1
+            peak[0] = max(peak[0], running[0])
+        # The first pages finish last, so the report has to restore file order.
+        _time.sleep(0.05 * (8 - int(url.rsplit("p", 1)[1])))
+        with lock:
+            running[0] -= 1
+        return {"kind": "help-article", "url": url, "nid": "12", "rev": "35", "html": ARTICLE.replace("Allow", f"Allow {url[-2:]}")}
+
+    monkeypatch.setattr(help_capture, "page", page)
+    assert help_capture.check([], replace=False, as_json=True) == 8
+    out = capsys.readouterr()
+    assert [p["file"] for p in _json.loads(out.out)["pages"]] == names
+    assert peak[0] == 4
+    # Progress goes to stderr, so stdout stays one JSON report.
+    assert out.err.splitlines() == [f"help_capture check: {n} of 8 captures, {n} drifted" for n in (3, 6, 8)]
+
+
+def test_a_check_fetches_only_a_few_pages_ahead_and_a_bad_worker_setting_falls_back(monkeypatch):
+    import threading
+
+    import help_capture
+
+    started, lock = [], threading.Lock()
+
+    def page(url):
+        with lock:
+            started.append(url)
+        return {"url": url}
+
+    monkeypatch.setattr(help_capture, "page", page)
+    monkeypatch.setenv("HELP_CAPTURE_WORKERS", "2")
+    urls = [f"https://help.zscaler.com/zia/p{i}" for i in range(40)]
+    for i, pg in enumerate(help_capture._pages(urls)):
+        assert pg["url"] == urls[i]
+        assert len(started) <= i + 1 + 4 * 2, "no more than four pages per worker are fetched ahead"
+    for junk in ("", "0", "-3", "many"):
+        monkeypatch.setenv("HELP_CAPTURE_WORKERS", junk)
+        assert help_capture._workers() == help_capture.WORKERS
+
+
+def test_a_check_fetches_automate_and_www_pages_one_at_a_time_on_the_main_thread(tmp_path, monkeypatch):
+    import threading
+
+    import help_capture
+
+    title, blocks = render(ARTICLE)
+    urls = {"a.json": "https://help.zscaler.com/zia/a", "b.json": "https://automate.zscaler.com/docs/b",
+            "c.json": "https://www.zscaler.com/c"}
+    for name, url in urls.items():
+        help_capture.write(tmp_path / name, document(title, url, blocks, "12", "34", "2026-10-18"))
+    monkeypatch.setattr(help_capture, "HELP", tmp_path)
+    on_main = {}
+
+    def page(url):
+        on_main[url] = threading.current_thread() is threading.main_thread()
+        return {"kind": "help-article", "url": url, "nid": "12", "rev": "34", "html": ARTICLE}
+
+    monkeypatch.setattr(help_capture, "page", page)
+    assert help_capture.check([], replace=False, as_json=True) == 0
+    assert on_main == {urls["a.json"]: False, urls["b.json"]: True, urls["c.json"]: True}
+
+
 def test_an_index_keeps_the_articles_of_nested_subcategories(monkeypatch):
     import help_capture
 
