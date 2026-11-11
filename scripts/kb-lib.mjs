@@ -274,7 +274,7 @@ function lineOf(text, index) {
  * markers are ignored on both sides: help captures keep the vendor's bold (it can mark the
  * recommended value in a table) and a quote need not reproduce it.
  */
-function anchorIn(text, ev, label, { emphasis = false } = {}) {
+export function anchorIn(text, ev, label, { emphasis = false } = {}) {
   const errors = [];
   const anchors = [];
   if (ev.pointer !== undefined) {
