@@ -205,6 +205,10 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
   exact released tag, so claims cite a version that shipped. Nothing here runs
   the vendored modules or providers; a bump of any of them is reviewed with
   `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
+- Renovate does not bump `.node-version`. It is the supported Node floor, equal
+  to `MIN_NODE_VERSION` in `scripts/doctor.mjs` and to `engines` in
+  `package.json`, so CI runs on the oldest Node a user may have. Raising it is
+  a change to all three and to the install docs.
 - On a Renovate bump PR, `bump-regenerate.yml` regenerates the layers built
   from vendored sources on the bump's branch and commits them:
   - the API surfaces;
