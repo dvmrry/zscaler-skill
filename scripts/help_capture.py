@@ -50,6 +50,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -327,6 +328,9 @@ def text_of(blocks: list[dict]) -> str:
 
 HELP = ROOT / "vendor" / "zscaler-help"
 API = "https://help.zscaler.com/zapi/fetch-data"
+# A check fetches this many pages at a time, unless HELP_CAPTURE_WORKERS names another positive number. One at a time,
+# a full check of every capture outgrew the weekly refresh job's time limit; a few at once stay gentle on the site.
+WORKERS = 4
 # The older Markdown capture header, read only by `migrate`.
 MD_HEADER = re.compile(
     r"\A# (?P<title>.*)\n\n\*\*Source:\*\* (?P<url>\S+)\n\*\*Captured:\*\* (?P<date>\S+)[^\n]*\n"
@@ -653,6 +657,48 @@ def changes(old: str, new: str) -> dict:
     return {"changed_lines": sorted(changed), "removed": removed, "diff": diff}
 
 
+def _workers() -> int:
+    """HELP_CAPTURE_WORKERS, or WORKERS when it is unset or not a positive whole number."""
+    try:
+        n = int(os.environ.get("HELP_CAPTURE_WORKERS") or WORKERS)
+    except ValueError:
+        return WORKERS
+    return n if n >= 1 else WORKERS
+
+
+def _pages(urls: list[str]):
+    """page() for each URL, in the order given. A page that is unavailable or gone yields its Unavailable or
+    SystemExit; any other failure is raised when its turn comes, and the pages not yet fetched are dropped.
+
+    Help-site pages are fetched _workers() at a time, a few pages per worker ahead of the one being handled, so a
+    long check holds only those in memory. Automate and www.zscaler.com pages are fetched one at a time when their
+    turn comes: their fetchers keep state that is not safe across threads (a site map, and the spacing between
+    requests that www.zscaler.com's rate limit needs), and they are few.
+    """
+    def one(url: str) -> dict | SystemExit:
+        try:
+            return page(url)
+        except SystemExit as e:
+            return e
+
+    workers = _workers()
+    pool = ThreadPoolExecutor(max_workers=workers)
+    ahead: dict[int, object] = {}
+    queued = 0
+    try:
+        for i, url in enumerate(urls):
+            while queued < len(urls) and queued < i + 4 * workers:
+                if urllib.parse.urlparse(urls[queued]).netloc == "help.zscaler.com":
+                    ahead[queued] = pool.submit(one, urls[queued])
+                queued += 1
+            yield ahead.pop(i).result() if i in ahead else one(url)
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
+
+
+PROGRESS_EVERY = 250
+
+
 def check(names: list[str], replace: bool, as_json: bool = False) -> int:
     """Refetch each capture; return how many drifted.
 
@@ -663,29 +709,34 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
     `as_json`, print one JSON report instead of text:
     {"pages": [{file, status, from?, to?, changed_lines?, removed?, diff?, message?}]}, the input of
     scripts/kb-drift.mjs. With `replace`, the moved captures are rewritten only after every page was checked, so
-    a run that fails part way leaves every capture as it was and the next run reports the same drift.
+    a run that fails part way leaves every capture as it was and the next run reports the same drift. Pages are
+    fetched several at a time (see _pages) and handled in file order; with `as_json`, progress goes to stderr every
+    PROGRESS_EVERY captures, so a long check shows in a job log.
     """
     drifted = 0
     report: list[dict] = []
     rewrites: list[tuple[Path, dict]] = []
     say = (lambda *_: None) if as_json else print
-    files = [HELP / n for n in names] or sorted(HELP.glob("*.json"))
-    for path in files:
+    docs = []
+    for path in [HELP / n for n in names] or sorted(HELP.glob("*.json")):
         doc = read(path)
-        if not doc:
-            if names:
-                say(f"skip {path.name}: not a help_capture.py capture")
-            continue
+        if doc:
+            docs.append((path, doc))
+        elif names:
+            say(f"skip {path.name}: not a help_capture.py capture")
+    progress = (lambda n: print(f"help_capture check: {n} of {len(docs)} captures, {drifted} drifted",
+                                file=sys.stderr, flush=True)) if as_json else (lambda n: None)
+    for n, ((path, doc), pg) in enumerate(zip(docs, _pages([d["source"]["url"] for _, d in docs]), strict=True)):
+        if n and n % PROGRESS_EVERY == 0:
+            progress(n)
         src = doc["source"]
-        try:
-            pg = page(src["url"])
-        except Unavailable as e:
-            say(f"UNAVAILABLE {path.name}: {e}")
-            report.append({"file": path.name, "status": "unavailable", "message": str(e)})
+        if isinstance(pg, Unavailable):
+            say(f"UNAVAILABLE {path.name}: {pg}")
+            report.append({"file": path.name, "status": "unavailable", "message": str(pg)})
             continue
-        except SystemExit as e:
-            say(f"GONE  {path.name}: {e}")
-            report.append({"file": path.name, "status": "gone", "message": str(e)})
+        if isinstance(pg, SystemExit):
+            say(f"GONE  {path.name}: {pg}")
+            report.append({"file": path.name, "status": "gone", "message": str(pg)})
             continue
         same_rev = ("revision" in src and pg.get("rev") == src["revision"] and pg.get("entries") == src.get("entries")
                     and pg.get("file_url", src.get("file_url")) == src.get("file_url"))
@@ -717,6 +768,8 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
             sys.stdout.write(delta["diff"])
         if replace:
             rewrites.append((path, with_aliases(build(pg), src["url"], *src.get("aliases", []))))
+    if docs:
+        progress(len(docs))
     # A page the site would not serve when it was captured another way waits in the static-captures register
     # as `unavailable`; a full check tries it again, so its return is reported rather than remembered.
     for name, entry in ({} if names else _unavailable()).items():
