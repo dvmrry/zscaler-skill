@@ -4,6 +4,7 @@ name: Doc hygiene
 # and strict lint, the generated-layer --check runs, the retrieval regression, every Node and Python test,
 # and the doc-hygiene, link and capture-freshness checks. One list of checks, kept in check-full.mjs and
 # check-fast.mjs, so CI and a maintainer's machine run the same gate. Advisory checks report without failing.
+# The full gate runs on .node-version; the node-floor job runs the fast gate on the supported minimum Node.
 #
 # Triggers:
 #   - Every PR. This workflow is a required check, so path filtering would leave
@@ -80,3 +81,37 @@ jobs:
 
       - name: Full gate
         run: node scripts/check-full.mjs
+
+  node-floor:
+    # .node-version takes Renovate's bumps within its LTS line and may be ahead of the supported minimum
+    # (docs/maintenance.md), so the fast gate also runs on the minimum itself: package.json engines, which
+    # doctor.test.mjs holds equal to MIN_NODE_VERSION. A script that needs a newer Node fails here.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # check-release-state.mjs compares VERSION with all repository tags.
+          fetch-depth: 0
+
+      - name: Initialize submodules
+        # Some Node tests read vendored sources (the zscalerctl readers read vendor/zscalerctl).
+        run: git submodule update --init --recursive
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          prune-cache: false
+
+      - name: Read the minimum
+        id: floor
+        run: echo "version=$(jq -r '.engines.node | ltrimstr(">=")' package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js at the minimum
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.floor.outputs.version }}
+
+      - name: Fast gate
+        run: node scripts/check-fast.mjs
