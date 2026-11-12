@@ -1050,47 +1050,74 @@ function listRecords(g, listed) {
   return [head, ...lines, ...more].join("\n");
 }
 
-// The most characters of an IaC value a read prints. A pointer can resolve to a whole exported object, kilobytes of
-// JSON, and a read prints every record's pointers.
+// The most characters of an IaC value a read prints as JSON. A pointer can resolve to a whole exported object,
+// kilobytes of JSON, and a read prints every record's pointers: a longer value prints its shape in about as many.
 const IAC_VALUE_CHARS = 300;
 
-/** An IaC value as JSON, its long parts cut and marked `…`, saying so; the line names its source. */
+// What an IaC line's date adds: " (committed YYYY-MM-DD)".
+const DATE_CHARS = 23;
+
+// A member of a long object prints its value in the object's shape when the value is this short as JSON.
+const SHORT_VALUE_CHARS = 40;
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+/**
+ * An IaC value as JSON, or when long its shape. Exported objects list their keys alphabetically, so the first few
+ * hundred characters are mostly metadata; a prefix hides the part a record is about and reads as the whole of it. The
+ * shape names what the source holds, so the reader knows what to open.
+ */
 function iacValue(value) {
   const s = JSON.stringify(value);
-  if (s.length <= IAC_VALUE_CHARS) return s;
-  // A value whose one item has no part to cut (a number under a long key) prints whole, a little past the room.
-  const kept = jsonPrefix(value, IAC_VALUE_CHARS);
-  return kept === s ? s : `${kept} (cut: ${s.length} characters in all; the source has the whole value)`;
+  return s.length <= IAC_VALUE_CHARS ? s : shapeOf(value, IAC_VALUE_CHARS, `${s.length} characters; the source has the whole value`);
 }
 
 /**
- * About `room` characters of a value as JSON, never part of an item: an array or object keeps the whole items that
- * fit and marks the rest `…`, cutting into its first item only when none fits whole (into its key, when the key alone
- * fills the room); a string keeps whole characters, counted as JSON writes them; a number, boolean or null is short
- * and prints whole.
+ * A long value in about `room` characters: an object names its keys, with each short value and each list's length
+ * (only the keys and lengths, as many as fit, when those do not fit); an array gives its length and the whole items
+ * that fit, else the first item's shape; a string gives its length and opening. `note` says how long the whole is.
  */
-function jsonPrefix(value, room) {
-  const s = JSON.stringify(value);
-  if (s.length <= room) return s;
-  if (value && typeof value === "object") {
-    const array = Array.isArray(value);
-    const items = array ? value.map((v) => [null, v]) : Object.entries(value);
+function shapeOf(value, room, note) {
+  const about = note ? ` (${note})` : "";
+  if (typeof value === "string") return `a string${about}: ${cutString(value, room)}`;
+  if (Array.isArray(value)) {
     const kept = [];
-    let size = 5; // the brackets and ", …"
-    for (const [k, v] of items) {
-      const key = k === null ? "" : `${JSON.stringify(k)}:`;
-      const whole = key + JSON.stringify(v);
-      if (size + whole.length + 1 <= room) {
-        kept.push(whole);
-        size += whole.length + 1;
-        continue;
-      }
-      if (!kept.length) kept.push(key.length + 10 > room - size ? `${jsonPrefix(k, room - size - 2)}:…` : key + jsonPrefix(v, room - size - key.length));
-      break;
+    let size = 0;
+    for (const v of value) {
+      const j = JSON.stringify(v);
+      if (size + j.length + 2 > room) break;
+      kept.push(j);
+      size += j.length + 2;
     }
-    return `${array ? "[" : "{"}${kept.join(",")}${items.length > kept.length ? ", …" : ""}${array ? "]" : "}"}`;
+    const head = `an array of ${plural(value.length, "item")}${about}`;
+    if (!kept.length) return `${head}; the first is ${shapeOf(value[0], room)}`;
+    return `${head}, ${kept.length < value.length ? `the first ${kept.length}` : "all of them"}: ${kept.join(", ")}`;
   }
-  if (typeof value !== "string") return s;
+  if (!value || typeof value !== "object") return JSON.stringify(value);
+  const keys = Object.keys(value);
+  const head = `an object of ${plural(keys.length, "key")}${about}`;
+  const name = (k) => (/^[\w.$@-]+$/.test(k) ? k : JSON.stringify(k));
+  const sized = (v) => (Array.isArray(v) ? ` [${plural(v.length, "item")}]` : v && typeof v === "object" ? ` {${plural(Object.keys(v).length, "key")}}` : "");
+  const full = keys.map((k) => {
+    const v = value[k];
+    const j = JSON.stringify(v);
+    return `${name(k)}${sized(v) || (j.length <= SHORT_VALUE_CHARS ? ` ${j}` : ` (a string of ${v.length} characters)`)}`;
+  }).join(", ");
+  if (full.length <= room) return `${head}: ${full}`;
+  const brief = [];
+  let size = 0;
+  for (const k of keys) {
+    const b = `${name(k)}${sized(value[k])}`;
+    if (size + b.length + 2 > room) break;
+    brief.push(b);
+    size += b.length + 2;
+  }
+  if (!brief.length) return `${head}, its first key: ${cutString(keys[0], room)}`;
+  return `${head}, its keys${brief.length < keys.length ? ` (the first ${brief.length})` : ""}: ${brief.join(", ")}`;
+}
+
+/** A string's opening as JSON in about `room` characters, counted as JSON writes them, whole characters, marked `…`. */
+function cutString(value, room) {
   let kept = "";
   let size = 3; // the quotes and "…"
   for (const ch of value) {
@@ -1270,8 +1297,8 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // The linked subjects' records, since every link out of an area brings its records, and a large area links to up
     // to 61 subjects. Each prints whole while it fits in `linkedRecords` tokens, the most strongly linked subject's
     // first, so one long record lists only itself; the rest print one line each. A record is sized with its subject's
-    // heading and without its IaC dates (a few characters each), so one only listed costs no `git log`. Types are not
-    // followed, as in a full read, where a type never fits the budget.
+    // heading, and with room for each IaC date rather than the date, so one only listed costs no `git log`. Types are
+    // not followed, as in a full read, where a type never fits the budget.
     if (company) {
       if (!ov) break;
       let spent = 0;
@@ -1287,7 +1314,9 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
         const whole = [];
         for (const data of found) {
           shown.add(data.id);
-          const cost = ((whole.length ? 0 : head.length + 2) + recordText(facetOf(ov, data, { dated: false }), ids).length + 1) / 4;
+          const undated = facetOf(ov, data, { dated: false });
+          const dates = (undated.iac || []).filter((p) => !p.error).length * DATE_CHARS;
+          const cost = ((whole.length ? 0 : head.length + 2) + recordText(undated, ids).length + dates + 1) / 4;
           if (spent + cost <= linkedRecords) {
             spent += cost;
             whole.push(data);

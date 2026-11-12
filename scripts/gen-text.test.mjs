@@ -105,7 +105,7 @@ test("read --company prints only the company records, the hop's too, and takes f
   assert.equal(read("--no-overlay", "--company", id), "No company overlay is configured: there are no company records to read.\n");
 });
 
-test("read --company lists linked subjects' records past its budget, reads one by ID, and cuts long IaC values", () => {
+test("read --company lists linked subjects' records past its budget, reads one by ID, and gives long IaC values' shapes", () => {
   // ai-security.ai-guard reaches the SIEM mapping only through a linked subject.
   const ov = usableOverlay(g, loadOverlay(g, OVERLAY));
   const whole = readText(g, ["ai-security.ai-guard"], ov, { company: true });
@@ -136,41 +136,44 @@ test("read --company lists linked subjects' records past its budget, reads one b
     fs.rmSync(states, { recursive: true, force: true });
   }
 
-  // A pointer that resolves to a whole export prints the whole items that fit, marks the rest, and says how long it
-  // is; resolve keeps the whole value.
+  // A pointer that resolves to a whole export prints its shape: what it holds and how long it is, never a part that
+  // reads as the whole; resolve keeps the whole value.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kb-overlay-"));
   try {
     fs.cpSync(OVERLAY, dir, { recursive: true });
     const rules = Array.from({ length: 40 }, (_, i) => ({ name: `rule-${i}`, action: "BLOCK", enabled: i % 2 === 0 }));
+    const domains = Array.from({ length: 42 }, (_, i) => `site-${i}.example.com`);
     const notes = {
       first: `Allow, ${"x".repeat(600)}`,
       big: [{ description: `${"long words, ".repeat(60)}end`, enabled: false }],
       lines: "\n".repeat(1000),
       key: { ["k".repeat(400)]: 12345 },
-      num: { ["k".repeat(280)]: 1.2345678901234568e22 },
+      // As a tfvars export writes a rule: its keys in order, metadata first, the lists a record is about later.
+      rule: { action: "BLOCK", api_protection_enabled: false, block_override: false, description: "d".repeat(100), domain_names: domains, order: 3, source_groups: [1, 2, 3] },
+      wide: Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`field_${String(i).padStart(2, "0")}`, `value-${i}`])),
     };
     fs.writeFileSync(path.join(dir, "iac/rules.json"), JSON.stringify({ rules, notes }));
     const record = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
     record.id = "company.zia.url-filtering-export";
-    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/num"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
+    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/rule", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
     fs.writeFileSync(path.join(dir, "knowledge/zia/company.zia.url-filtering-export.json"), JSON.stringify(record));
     const out = read("--overlay", dir, "--company", "zia/url-filtering-rules");
-    const cut = (label) => out.match(new RegExp(`^ {2}- IaC ${label}: iac:rules\\.json#/${label} = (.+) \\(cut: (\\d+) characters in all; the source has the whole value\\)`, "m"));
-    const r = cut("rules");
+    const value = (label) => out.match(new RegExp(`^ {2}- IaC ${label}: iac:rules\\.json#/${label} = (.+)$`, "m"))?.[1];
+    const long = (json) => `(${JSON.stringify(json).length} characters; the source has the whole value)`;
+    const r = value("rules").match(/^an array of 40 items (\(.+?\)), the first (\d+): (.+)$/);
     assert.ok(r, out);
-    assert.ok(r[1].length <= 300, `${r[1].length} characters printed`);
-    assert.equal(Number(r[2]), JSON.stringify(rules).length);
-    const kept = JSON.parse(r[1].replace(/, …\]$/, "]"));
-    assert.deepEqual(kept, rules.slice(0, kept.length), "only whole rules, each with every field");
-    assert.ok(kept.length > 3);
-    assert.match(cut("notes/first")[1], /^"Allow, x+…"$/, "a string keeps more than its first comma");
-    assert.match(cut("notes/big")[1], /^\[\{"description":"long words, .+…"(, …)?\}\]$/, "an item too long to fit is cut inside, and says so");
-    assert.ok(cut("notes/lines")[1].length <= 300, "a string is cut at its length as JSON writes it");
-    assert.match(cut("notes/key")[1], /^\{"k+…":…\}$/, "a key too long to fit is cut");
-    assert.ok(cut("notes/key")[1].length <= 300);
-    const num = out.match(/^ {2}- IaC notes\/num: iac:rules\.json#\/notes\/num = (\{.*\})$/m);
-    assert.ok(num, "a value with nothing to cut prints whole, and is not called cut");
-    assert.deepEqual(JSON.parse(num[1]), notes.num, "a number is never cut into a string");
+    assert.equal(r[1], long(rules));
+    assert.ok(r[3].length <= 300, `${r[3].length} characters of items`);
+    assert.deepEqual(JSON.parse(`[${r[3]}]`), rules.slice(0, Number(r[2])), "only whole rules, each with every field");
+    assert.ok(Number(r[2]) > 3);
+    assert.match(value("notes/first"), /^a string \(\d+ characters; the source has the whole value\): "Allow, x+…"$/, "a string gives its opening");
+    assert.match(value("notes/big"), /^an array of 1 item \(\d+ characters; the source has the whole value\); the first is an object of 2 keys: description \(a string of 723 characters\), enabled false$/, "an item too long to print is described");
+    assert.ok(value("notes/lines").replace(/^a string \(.+?\): /, "").length <= 300, "a string is cut at its length as JSON writes it");
+    assert.match(value("notes/key"), /^an object of 1 key \(410 characters; the source has the whole value\), its first key: "k+…"$/, "a key too long to name is cut");
+    assert.equal(value("notes/rule"), `an object of 7 keys ${long(notes.rule)}: action "BLOCK", api_protection_enabled false, block_override false, description (a string of 100 characters), domain_names [42 items], order 3, source_groups [3 items]`, "an object names every key, its short values and its lists' lengths");
+    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters; the source has the whole value\), its keys \(the first \d+\): field_00, field_01, field_02, .+$/, "too many keys for their values: as many keys as fit");
+    assert.doesNotMatch(value("notes/wide"), /value-/);
+    assert.doesNotMatch(out, /\(cut: /);
     assert.match(out, /^ {2}- IaC checks we added: iac:coverage\.json#\/resources\/zia_url_filtering_rules\/checks = \["assert-clean after import for the imported addresses only"\]/m, "a short value prints whole");
     const bundle = JSON.parse(execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--overlay", dir, "zia/url-filtering-rules"], { encoding: "utf8" }));
     const facet = [bundle, ...(bundle.types || [])].flatMap((b) => b.company || []).find((f) => f.id === "company.zia.url-filtering-export");
