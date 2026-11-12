@@ -111,14 +111,18 @@ export function approvals(calls) {
 export const shellCalls = (calls) => calls.filter((c) => c.name === "Bash").length;
 
 /**
- * The judge's verdict from `claude -p --output-format json`: one result object, or, under some versions and
- * settings, a list of events that ends in one. Null when there is none to read.
+ * The judge's verdict on `count` facts from `claude -p --output-format json`: one result object, or, under some
+ * versions and settings, a list of events that ends in one. Null when there is none to read: no result, an error
+ * result, or a reply that does not give every fact its true or false (an API error's JSON, a reply cut short).
  */
-export function verdictOf(res) {
+export function verdictOf(res, count) {
   try {
     const parsed = JSON.parse(res);
-    const result = (Array.isArray(parsed) ? parsed.findLast((m) => m?.type === "result") : parsed)?.result;
-    return JSON.parse(result.match(/\{[\s\S]*\}/)[0]);
+    const last = Array.isArray(parsed) ? parsed.findLast((m) => m?.type === "result") : parsed;
+    if (last?.is_error) return null;
+    const verdict = JSON.parse(last.result.match(/\{[\s\S]*\}/)[0]);
+    for (let i = 1; i <= count; i++) if (typeof verdict[String(i)] !== "boolean") return null;
+    return verdict;
   } catch {
     return null;
   }
@@ -209,7 +213,7 @@ async function judge({ out, jobs }) {
     const facts = q.facts.map((x, i) => `${i + 1}. ${x.fact}`).join("\n");
     const res = await claude(["-p", JUDGE.replace("{turn}", q.turn).replace("{answer}", answer).replace("{facts}", facts),
       "--model", model, "--output-format", "json", "--no-session-persistence", "--tools", ""], { cwd: out, stdout: true });
-    const verdict = verdictOf(res);
+    const verdict = verdictOf(res, q.facts.length);
     // An unreadable verdict is not recorded as "states nothing": the run stays unjudged, and the next judge retries it.
     if (!verdict) return unreadable.push(f);
     judged[f] = Object.fromEntries(q.facts.map((x, i) => [x.id, verdict[String(i + 1)] === true]));

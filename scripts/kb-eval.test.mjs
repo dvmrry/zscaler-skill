@@ -35,11 +35,19 @@ test("shell calls count every Bash call, read-only or not", () => {
 
 test("a verdict reads from a result object or from a list of events, and is null when there is none", () => {
   const result = { type: "result", result: 'Here it is: {"1": true, "2": false}' };
-  assert.deepEqual(verdictOf(JSON.stringify(result)), { 1: true, 2: false });
-  assert.deepEqual(verdictOf(JSON.stringify([{ type: "system", subtype: "init" }, { type: "assistant" }, result])), { 1: true, 2: false });
-  assert.equal(verdictOf(JSON.stringify([{ type: "system" }])), null, "a list with no result");
-  assert.equal(verdictOf(JSON.stringify({ type: "result", result: "no JSON here" })), null);
-  assert.equal(verdictOf(""), null, "no output at all");
+  assert.deepEqual(verdictOf(JSON.stringify(result), 2), { 1: true, 2: false });
+  assert.deepEqual(verdictOf(JSON.stringify([{ type: "system", subtype: "init" }, { type: "assistant" }, result]), 2), { 1: true, 2: false });
+  assert.equal(verdictOf(JSON.stringify([{ type: "system" }]), 2), null, "a list with no result");
+  assert.equal(verdictOf(JSON.stringify({ type: "result", result: "no JSON here" }), 2), null);
+  assert.equal(verdictOf("", 2), null, "no output at all");
+});
+
+test("an API error or a verdict that skips a fact is no verdict, so the run is judged again", () => {
+  const error = { type: "result", is_error: true, result: 'API Error: 529 {"type":"error","error":{"type":"overloaded_error"}}' };
+  assert.equal(verdictOf(JSON.stringify(error), 2), null, "an error result");
+  assert.equal(verdictOf(JSON.stringify({ ...error, is_error: false }), 2), null, "an error's JSON in a result not marked as one");
+  assert.equal(verdictOf(JSON.stringify({ type: "result", result: '{"1": true}' }), 2), null, "a fact left out");
+  assert.equal(verdictOf(JSON.stringify({ type: "result", result: '{"1": true, "2": "yes"}' }), 2), null, "a fact not true or false");
 });
 
 test("a holder is reached by its printed ID, or by its key inside its subject file", () => {
