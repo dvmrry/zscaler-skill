@@ -76,9 +76,9 @@ for a person to approve every shell command; the public graph needs none, and th
    subject file gives its claims inline with their citable ID in brackets
    (`[zia.url-filtering.rule-order:first-match]`), then further facts, inferred (Tier B) claims with their
    conditions, sources that disagree with each side, and open gaps with what would fill them. It ends with its links
-   as file paths, the most strongly linked first, each with the claim that establishes it, then what configures it (a
-   config type with its fields and Terraform names, a Terraform subject) and related subjects, by title: open one only
-   if the answer needs it; for a change, open its config type.
+   as file paths, the most strongly linked first, each with the claim that establishes it, then the files of what
+   configures it (a config type with its fields and Terraform names, a Terraform or API subject) and of related
+   subjects, with their titles: open one only if the answer needs it; for a change, open its config type.
    **Something pasted or named that the spine does not show** (an error message, a ZPA LSS status code such as
    `AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`, a ZIA policy reason, a feature's nickname): search `references/_meta/text/`
    with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the

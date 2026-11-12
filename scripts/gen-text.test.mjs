@@ -55,10 +55,13 @@ test("a subject's file lists every edge read does not follow, by title, so a cha
   for (const n of g.nodes.values()) {
     if (n.kind !== "subject") continue;
     const text = files[textFile.subject(n.id)];
+    // Each file a subject links to is listed once, in Linked or in the block after it.
+    const paths = [...text.matchAll(/^- [a-z-]+ (references\/_meta\/text\/\S+\.md) \(/gm)].map((m) => m[1]);
+    assert.equal(new Set(paths).size, paths.length, `${n.id} lists a file twice`);
     for (const e of n.data.related || []) {
       if (!["configured-via", "see-also"].includes(e.rel)) continue;
       const to = g.nodes.get(e.to).kind === "type" ? textFile.type(e.to) : textFile.subject(e.to);
-      assert.ok(text.includes(` ${to} (`), `${n.id} does not list its ${e.rel} ${e.to}`);
+      assert.ok(paths.includes(to), `${n.id} does not list its ${e.rel} ${e.to}`);
     }
   }
   const listed = files[textFile.subject("zia.url-filtering")].split("\n\nConfigured via and see also (open one only if the answer needs it):\n")[1];

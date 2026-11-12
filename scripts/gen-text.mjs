@@ -43,9 +43,11 @@ function links(g, id) {
   });
   const shown = new Set(ranked.map(([to]) => to));
   const order = { "configured-via": 0, "see-also": 1 };
+  // Sorted first, so a target that is both says configured-via.
   const listed = (g.nodes.get(id).data.related || [])
-    .filter((e) => !FOLLOW[e.rel] && !shown.has(e.to) && shown.add(e.to))
+    .filter((e) => !FOLLOW[e.rel])
     .sort((a, b) => order[a.rel] - order[b.rel])
+    .filter((e) => !shown.has(e.to) && shown.add(e.to))
     // Most config types have no title but their ID, which the path already gives.
     .map((e) => `- ${e.rel} ${fileOf(g, e.to)} (${titleOf(g, e.to) === e.to ? `${g.nodes.get(e.to).data.kind} type` : titleOf(g, e.to)})`);
   return [
