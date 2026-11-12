@@ -228,7 +228,8 @@ test("read --company prints the most strongly linked subjects' records up to its
     for (const id of ids) assert.ok(out.includes(`[${id}]`) || byId.includes(id), `${id} is named`);
     const pasted = more[0][2].split(" ");
     const again = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", dir, "--company", ...pasted], { encoding: "utf8", env });
-    for (const id of pasted) assert.match(again, new RegExp(`^Company record ${id.replace(/\./g, "\\.")}:$`, "m"), "a by-ID line pastes as arguments");
+    const heads = again.split("\n");
+    for (const id of pasted) assert.ok(heads.includes(`Company record ${id}:`), `${id}: a by-ID line pastes as arguments`);
     assert.ok(!fs.existsSync(log) || !fs.readFileSync(log, "utf8").includes("last.json"), "a listed record's IaC file is not dated");
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
