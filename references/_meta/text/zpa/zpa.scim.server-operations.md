@@ -30,3 +30,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.scim.operations.md (ZIA SCIM server operations, paging and rate limit)
 - links-to references/_meta/text/zpa/zpa.api.idp-scim-wire.md (IdP, SCIM and SAML attribute API: wire keys, types and the Go SCIM client)
 - links-to references/_meta/text/zpa/zpa.scim.setup.md (Enabling SCIM for Private Access: endpoint, token, policy setting and IdP guides)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.scim.md (ZPA SCIM groups and attributes in policy)

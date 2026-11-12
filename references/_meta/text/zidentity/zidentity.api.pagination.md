@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths), from zidentity.api: The ZIdentity contract declares the server https://api.zsapi.net/ziam/admin/api/v1, described as the Authentication Service endpoint. [zidentity.api:contract-server]
 - links-to references/_meta/text/zidentity/zidentity.sdk-go.md (Go SDK for ZIdentity (ziam services): name lookups, write models and where its paths depart from the contract)
 - links-to references/_meta/text/zidentity/zidentity.sdk-python.md (Python SDK for ZIdentity (client.zid): where its models and keys depart from the API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.api.md (The ZIdentity (Authentication Service) admin API from a client's side: route, coverage and wire notes)
+- see-also references/_meta/text/zidentity/zidentity.api.query-filters.md (ZIdentity list filters on the wire: key spelling, [like] matching and list values)

@@ -24,3 +24,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.interoperability.security-software.md (Allowlisting Client Connector in antivirus and host firewalls: paths, processes, firewall directions and the 100.64 range)
 - links-to references/_meta/text/zcc/zcc.interoperability.vpn-clients.md (Running Client Connector with a corporate VPN client: forwarding action per platform and VPN mode, detection, DNS behavior)
 - links-to references/_meta/text/zcc/zcc.pac-files.md (Client Connector's two PAC files: what the forwarding profile PAC and the app profile PAC do in Tunnel and Tunnel with Local Proxy modes, and the forwarding PAC in Enforce Proxy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)
+- see-also references/_meta/text/shared/shared.pac-files.variables.md (Zscaler PAC file variables: gateways, hosts, load-balancing tokens, subclouds and Client Connector)

@@ -9,3 +9,6 @@ Not known (open gaps):
 - What the runbook's MTR and Cloud Performance Test output images show [gap:zia.troubleshooting.performance-runbook.mtr:mtr-screenshots]: settled by source-read
 
 Area: zia.troubleshooting, its subjects in references/_meta/spine/zia/zia.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.performance-runbook.md (How the Internet & SaaS performance troubleshooting runbook scopes a slowness case and routes it to its pages)

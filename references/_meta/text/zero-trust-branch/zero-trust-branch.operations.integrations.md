@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.md (Where Zero Trust Branch operations are documented: forwarding, Routed Tunnels, segmentation, integrations, logging, monitoring, the Debug Console, troubleshooting and upgrades)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.logging.md (How Zero Trust Branch logs traffic: architecture, log types and formats, retention and limits, throttling and tenant isolation)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.segmentation.md (How Zero Trust Branch segments devices: Airgap, Airgap-Lite and Airgap+ protection, /32 incompatibilities, assets, tags, the NAC MAC list and the Ransomware Kill Switch)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)

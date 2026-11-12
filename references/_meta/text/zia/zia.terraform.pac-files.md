@@ -25,3 +25,6 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.terraform.activation-methods.md (Activating ZIA changes from Terraform: methods, session end and concurrent applies)

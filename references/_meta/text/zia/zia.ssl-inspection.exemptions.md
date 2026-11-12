@@ -48,3 +48,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes): Policy evaluation for traffic on the global SSL bypass list is a separate switch (`enableEvaluatePolicyOnGlobalSSLBypass`) that defaults to off, so URL Filtering rules may not apply to globally bypassed traffic. [zia.url-filtering.advanced-settings:global-ssl-bypass-evaluation]
 - links-to references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection)
 - links-to references/_meta/text/zia/zia.ssl-inspection.uninspectable.md (What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)

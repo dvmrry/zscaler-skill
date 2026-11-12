@@ -46,3 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.endpoint-settings.md (Endpoint settings (installer, lure refresh, update groups, safe processes) and Admin Portal settings (audit, error and debug logs, license, event and evidence export and delete, retention))
 - links-to references/_meta/text/deception/deception.landmine-agents.md (Landmine agent and agentless: install, requirements, proxies, management and OS feature support)
 - links-to references/_meta/text/identity-protection/identity-protection.server-agents.md (What the ITDR Admin Portal help describes for server agents on domain controllers: domains, session tracking, password analysis, remediation, threat detection, install and update groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)

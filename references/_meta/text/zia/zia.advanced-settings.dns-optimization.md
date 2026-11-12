@@ -21,3 +21,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)
 - links-to references/_meta/text/zia/zia.advanced-settings.http-tunnel-control.md (HTTP CONNECT tunnel control and the domain fronting blocks in Advanced Settings)
 - links-to references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.dns-resolution.md (Who resolves DNS for each forwarding method)
+- see-also references/_meta/text/zia/zia.api.advanced-settings-wire.md (Advanced settings: SNI handling lists and a misdocumented global SSL bypass setting)

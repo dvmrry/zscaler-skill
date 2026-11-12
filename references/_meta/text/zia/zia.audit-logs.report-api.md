@@ -51,3 +51,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))
 - links-to references/_meta/text/zia/zia.audit-logs.what-is-recorded.md (What the ZIA admin audit log records and how the console shows it)
 - links-to references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.audit-logs.event-log-report.md (The ZIA event log report and how it differs from the admin audit report)
+- see-also references/_meta/text/zia/zia.sdk-go.service-defects.md (ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input)

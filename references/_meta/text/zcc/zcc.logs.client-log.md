@@ -27,3 +27,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zcc/zcc.logging.log-modes.md (Client Connector log modes as users and the API see them: Verbose, user choice, logMode and logLevel): `logMode` in the API is the console's Log Mode: the API reference describes it as the scope of the logs, the console's own words for that setting. `logLevel`, which the API reference describes as a three-step severity (Low 0, Normal 1, High 2), has no counterpart in the captured console articles; `logFileSize` is the maximum log file size. [zcc.logging.log-modes:log-mode-is-console-mode]
 - links-to references/_meta/text/zcc/zcc.logging.collection.md (Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures)
 - links-to references/_meta/text/zia/zia.logs.web-rule-attribution.md (Which rule decided a web transaction, from the logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.logging.md (Client Connector logs: verbosity, user access and collection)
+- see-also references/_meta/text/zcc/zcc.logs.flow-logging.md (Client Connector flow logging on Windows)

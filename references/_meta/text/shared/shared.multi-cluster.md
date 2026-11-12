@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.cloud-architecture.service-edges.md (Service Edges: the data plane, its form factors, and how traffic reaches one)
 - links-to references/_meta/text/shared/shared.subclouds.md (Subclouds: restricting which Service Edges handle a tenant's traffic)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.load-balancing.md (How a Virtual Service Edge cluster spreads and returns traffic)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.multi-cluster.egress-addresses.md (Which Zscaler source addresses a destination can see, and what to allowlist)
+- see-also references/_meta/text/zia/zia.private-service-edge.cluster-architecture.md (How a Private Service Edge cluster is built and fails over)

@@ -46,3 +46,7 @@ Area: zcc.end-user, its subjects in references/_meta/spine/zcc/zcc.end-user.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.endpoint-settings.md (Endpoint Data Scan configuration: scan reporting, End User Reports, continuous and real-time classification, exemption, trusted applications, channel exceptions, activation)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.end-user.md (The Client Connector app as users see it: Classic UI and Modern UI menus, status, enrollment and notifications, by OS where the pages cover it)
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.network-types.md (The four network types Client Connector detects: On-Trusted, VPN-Trusted, Split VPN-Trusted, Off-Trusted)

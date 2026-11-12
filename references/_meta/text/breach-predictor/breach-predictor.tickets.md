@@ -35,3 +35,8 @@ Not known (open gaps):
 - Which ticket priority values and workflow status values exist [gap:breach-predictor.tickets:ticket-values]: settled by source-read or support-ticket
 
 Area: breach-predictor.tickets, its subjects in references/_meta/spine/breach-predictor/breach-predictor.tickets.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/breach-predictor/breach-predictor.overview.md (Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with)
+- see-also references/_meta/text/breach-predictor/breach-predictor.findings.md (Breach Predictor Findings: the MITRE ATT&CK Mapping page, the Threat page, severity scores and attack stages)
+- see-also references/_meta/text/breach-predictor/breach-predictor.portal.md (Breach Predictor portal: licensing, ZIA prerequisite, sign-in, profile and theme)

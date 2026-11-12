@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zia.md (ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule)
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-api-roles.md (ZIA API roles, SD-WAN partner API roles and SD-WAN partner API clients)
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-obfuscation.md (Who sees real user names, device information and Gen AI prompts in ZIA: role obfuscation and auditors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)

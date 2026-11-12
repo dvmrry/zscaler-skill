@@ -48,3 +48,11 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.casb.quarantine.md (CASB quarantine and tombstone files)
 - links-to references/_meta/text/zia/zia.casb.insights-logs.md (CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming)
 - links-to references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.casb.scans.md (CASB scan schedules: states, historical data, stop and restart)
+- see-also references/_meta/text/zia/zia.casb.tenants.md (CASB tenants: connecting a SaaS application, states and reauthorization)
+- see-also references/_meta/text/zia/zia.casb.limits.md (CASB limits: scan capacity, log field length and rule text)
+- see-also references/_meta/text/portfolio/portfolio.copilot-data-protection.md (Microsoft Copilot data protection: Zscaler Copilot Security for Microsoft)
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/zia/zia.app-governance.md (3rd-Party App Governance: governing third-party apps, add-ons and extensions connected to SaaS platforms, and its portal, roles and dashboard)

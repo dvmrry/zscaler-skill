@@ -36,3 +36,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zidentity/zidentity.overview.external-idps.md (External IdPs in Authentication Service: OIDC and SAML, primary and secondary, limits and retention), from zidentity.step-up: Step-up authentication is supported only with OIDC-based external IdP integrations; when an external IdP is used via OIDC, each authentication level must be mapped to its acr value in the IdP. [zia.authentication.step-up:oidc-only]
 - links-to references/_meta/text/zpa/zpa.api.legacy-endpoints.md (ZPA legacy endpoint wiring: shared paths, schedules, user codes and step-up levels)
 - links-to references/_meta/text/zpa/zpa.api.policy-wire.md (ZPA policy rule wire behavior: routes, request fields and ordering)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.step-up.md (Step-up authentication: when Authentication Service asks for a stronger login, and why a prompt may not appear)

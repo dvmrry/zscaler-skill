@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.policy.access-rule-order.md (Access policy rule order), from zpa.segment-groups: An allow rule for all applications for Marketing, listed above a rule denying Marketing the Operations Apps segment group, leaves Marketing with access to that group, because Private Access stops at the first matching rule. [zpa.policy.access-rule-order:segment-group-allow-shadows-deny]
 - links-to references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-selection.md (Which object a ZPA Terraform data source actually returns)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.data-source-fidelity.md (What ZPA Terraform data sources return, drop, or get wrong)

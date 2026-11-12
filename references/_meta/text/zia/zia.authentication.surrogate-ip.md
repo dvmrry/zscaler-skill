@@ -51,3 +51,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.authentication: A user who is logged in can still have a transaction judged as the location rather than as the user, when the transaction is one that cannot carry the authentication cookie; a user rule does not match that transaction. [zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule]
 - links-to references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- see-also references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)

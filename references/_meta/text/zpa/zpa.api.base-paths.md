@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.api.authentication.md (How a client authenticates to the ZPA API: OneAPI, legacy and government clouds), from zpa.api: The ZPA OpenAPI document declares the server https://api.zsapi.net/zpa, described as "ZPA Endpoints", and an HTTP bearer security scheme. [zpa.api.authentication:oneapi-server]
 - links-to references/_meta/text/zpa/zpa.b2b-federation.api-routes.md (B2B Federation API routes)
 - links-to references/_meta/text/zpa/zpa.log-receivers.api.md (Managing ZPA log receivers through the API and SDKs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.api.legacy-endpoints.md (ZPA legacy endpoint wiring: shared paths, schedules, user codes and step-up levels)
+- see-also references/_meta/text/zpa/zpa.api.policy-wire.md (ZPA policy rule wire behavior: routes, request fields and ordering)

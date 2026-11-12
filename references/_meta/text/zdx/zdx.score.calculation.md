@@ -57,3 +57,7 @@ Area: zdx.score, its subjects in references/_meta/spine/zdx/zdx.score.json
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zdx/zdx.probes.md (ZDX probes: Web and Cloud Path probes, what they measure and how they run): Client Connector sends a probe to an application every 5 minutes; each 5-minute period's measurements are given a value from 0 to 100, and the lowest value within an hour becomes that hour's value. This is done for every defined application across all users, their devices and their locations. [zdx.score.calculation:hourly-lowest]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.score.md (The ZDX Score: scale, bands, score types and what lowers it)
+- see-also references/_meta/text/zdx/zdx.devices.geolocation.md (ZDX geolocations: active geolocations, geo filters and coordinates)

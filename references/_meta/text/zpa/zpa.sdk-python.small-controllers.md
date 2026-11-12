@@ -15,3 +15,8 @@ What to check:
 3. Whether an OAuth user-code call went to usercodes or usercodes/status, since the status route is on a method called add_provisioning_key.
 
 Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.sdk-python.provisioning-keys.md (How the Python SDK builds provisioning key calls)
+- see-also references/_meta/text/zpa/zpa.api.sdk-coverage.md (Which ZPA services the Go and Python SDKs cover differently, and the Go packages behind Python-only module names)
+- see-also references/_meta/text/zpa/zpa.sdk-python.endpoint-versions.md (Which ZPA base path each Python SDK method uses)

@@ -31,3 +31,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.posture-profiles.evaluation.md (When and how often posture is evaluated), from zcc.device-posture: Zscaler Client Connector evaluates device posture profiles every 15 minutes, new connections are established on the updated posture, and existing connections are not affected by updates to security postures. [zpa.posture-profiles.evaluation:cadence]
 - interacts-with references/_meta/text/zpa/zpa.posture-profiles.policy-operand.md (The POSTURE operand in ZPA policy rules), from zcc.device-posture: In the console each posture profile in a condition set is set to VERIFIED, meaning Zscaler Client Connector verified the device against the profile's criteria, or VERIFICATION FAILED, meaning it was unable to verify the device against them. [zpa.posture-profiles.policy-operand:console-states]
 - links-to references/_meta/text/zcc/zcc.device-posture.check-types.md (Device posture check types: what each checks, where it applies, and how it passes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.device-posture.md (ZCC device posture profiles)

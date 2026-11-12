@@ -33,3 +33,6 @@ Area: shared.sdk-go, its subjects in references/_meta/spine/shared/shared.sdk-go
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-go.legacy-retry-classification.md (How the Go legacy ZIA client decides which 5xx to retry and what it returns)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))

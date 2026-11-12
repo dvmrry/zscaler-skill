@@ -28,3 +28,7 @@ Area: shared.terminology, its subjects in references/_meta/spine/shared/shared.t
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.multi-cluster.md (Multi-Cluster Load Sharing: several Public Service Edge clusters behind one VIP)
 - links-to references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.terminology.md (Zscaler terminology: where each term is defined)
+- see-also references/_meta/text/shared/shared.cloud-architecture.service-edges.md (Service Edges: the data plane, its form factors, and how traffic reaches one)

@@ -11,3 +11,7 @@ Not known (open gaps):
 - Asset type values, the default reconciliation function, system-saved views and how crown jewels are set [gap:soc-workbench.assets:asset-details]: settled by source-read or lab-test
 
 Area: soc-workbench.assets, its subjects in references/_meta/spine/soc-workbench/soc-workbench.assets.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/soc-workbench/soc-workbench.overview.md (SOC Workbench (Agentic SOC): alert unification, correlation and prioritization, and what can be automated)
+- see-also references/_meta/text/soc-workbench/soc-workbench.alerts.md (Alerts in Agentic SOC: the Alerts page, severity score composition, alert-score factors and severity categories)

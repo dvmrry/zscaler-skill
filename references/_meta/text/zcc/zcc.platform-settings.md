@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.authentication-options.md (Install parameters for how users sign in to Client Connector)
 - links-to references/_meta/text/zcc/zcc.install.windows-unattended.md (Silent install, upgrade, revert and uninstall parameters, and launch behavior)
 - links-to references/_meta/text/zcc/zcc.logging.log-modes.md (Client Connector log modes as users and the API see them: Verbose, user choice, logMode and logLevel)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)

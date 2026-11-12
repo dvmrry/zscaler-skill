@@ -8,3 +8,9 @@ The ThreatLabz data source retrieves the data ThreatLabz maintains on how CVEs a
 **Labels.** In the platform the Internet & SaaS service is displayed as ZIA, as in the Vulnerability Mitigation Products and Asset Mitigation Products field values. [unified.secops-platform.data.threatlabz:tl-zia-label]
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.unification.md (Entity and field unification in the Agentic SecOps Platform: merge rules, field rule sets, reconciliation defaults and precedence over grouping and incident rules)
+- see-also references/_meta/text/uvm/uvm.data-sources.md (UVM data sources: shared connector facts, availability, and the Jira, Zscaler, Okta, Code42, NetBox, runZero, SecurityScorecard and SFTP connectors)
+- see-also references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)

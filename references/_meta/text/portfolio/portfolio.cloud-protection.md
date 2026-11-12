@@ -26,3 +26,6 @@ Area: portfolio.cloud-protection, its subjects in references/_meta/spine/portfol
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.md (Cloud & Branch Connector: what Cloud Connector is and where each area is described)
 - links-to references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.platform.md (Zscaler platform pillars: Zero Trust Exchange, Data Fabric for Security, Agentic SecOps and the customer-segment framing)

@@ -32,3 +32,7 @@ Area: zms.policies, its subjects in references/_meta/spine/zms/zms.policies.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.policy-recommendations.md (How Microsegmentation flow-based policy recommendations are generated, organized and accepted)
 - links-to references/_meta/text/zms/zms.resources.md (What Microsegmentation resources, Kubernetes cluster resources and resource groups are, including ML recommendations)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/zms/zms.portal.md (The Microsegmentation portal: Application Catalog, ML tag recommendations, tags and AppZones)

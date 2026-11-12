@@ -76,3 +76,11 @@ Area: zpa.logs, its subjects in references/_meta/spine/zpa/zpa.logs.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.troubleshooting.log-fields.md (What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.user-activity-diagnostics.md (What a ZPA User Activity entry shows in Diagnostics and Live Logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.logs.user-status.md (What a ZPA User Status log record says and does not say)
+- see-also references/_meta/text/zpa/zpa.logs.app-connector-metrics.md (What the ZPA App Connector Metrics log reports and what it leaves open)
+- see-also references/_meta/text/zpa/zpa.logs.control-session-status.md (ZPA status logs for connectors, Private Service Edges and Private Cloud Controllers)
+- see-also references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.client-selection.md (How clients are steered to a Private Service Edge and which country policy applies)

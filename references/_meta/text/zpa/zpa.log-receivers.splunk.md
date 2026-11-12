@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors), from zpa.log-receivers: App Connectors must be deployed before a log receiver is configured. [zpa.log-receivers.architecture:connectors-first]
 - links-to references/_meta/text/zpa/zpa.log-receivers.formats.md (Log stream format and content templates for a ZPA log receiver)
 - links-to references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.md (ZPA log receivers and the Log Streaming Service)

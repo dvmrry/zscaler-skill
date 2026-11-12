@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say): Each User Activity record names the connector and the Public Service Edge that handled the session, so sessions can be grouped by connector and edge. [zpa.troubleshooting.intermittent:connector-zen-per-session]
 - links-to references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.signals.md (Where ZPA access evidence lives: console, client, connector, log streaming)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.log-fields.md (What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes)

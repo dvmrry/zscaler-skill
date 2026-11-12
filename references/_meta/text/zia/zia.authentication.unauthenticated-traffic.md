@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.ad-integration.provisioning-methods.md (ZIA provisioning methods and which authentication each allows), from zia.authentication: Each provisioning method allows only some authentication methods. SCIM: SAML only. Hosted User Database: passwords (default), Kerberos, one-time link, one-time token. Directory server synchronization: LDAP BIND, one-time link, one-time token. ZAB: Hosted User Database, SAML, LDAP BIND, one-time link, one-time token. [zia.ad-integration.provisioning-methods:auth-pairing]
 - links-to references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)
 - links-to references/_meta/text/zia/zia.advanced-settings.partial-configuration.md (Behavior When Partial Configuration Available: Fail Open, Fail Closed and Best Effort Policies)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-settings.md (config type)
+- see-also references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)

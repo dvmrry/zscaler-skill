@@ -27,3 +27,7 @@ Area: zia.sspm, its subjects in references/_meta/spine/zia/zia.sspm.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sspm.md (SaaS Security Posture Management (SSPM): the Admin Console policy page and Advanced SSPM)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sspm.policies.md (The SSPM policy page: predefined policies, compliance types, risk levels and statuses)
+- see-also references/_meta/text/zia/zia.casb.tenants.md (CASB tenants: connecting a SaaS application, states and reauthorization)

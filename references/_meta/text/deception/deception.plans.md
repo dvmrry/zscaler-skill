@@ -14,3 +14,7 @@ What to check:
 2. For a Deception entitlement that came with a ZIA or ZPA edition, whether the subscription has at least 1,000 users.
 
 Area: deception.plans, its subjects in references/_meta/spine/deception/deception.plans.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+- see-also references/_meta/text/deception/deception.mcp-server-decoys.md (Deception's MCP server decoy: an attacker-facing Gen AI service, not a management interface)

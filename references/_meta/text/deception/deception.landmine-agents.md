@@ -50,3 +50,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.landmine-decoys.md (Landmine decoy modules and lures: what each deploys, on which operating systems, and how it is tested)
 - links-to references/_meta/text/deception/deception.landmine-policies.md (Landmine policies: what they deploy, which endpoints they select, and how the Windows endpoint deployment is set up)
 - links-to references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.topology.md (Topology: subnets and interfaces, aggregator sinkholes, ZPA App Connectors and Windows high-interaction VM credentials)

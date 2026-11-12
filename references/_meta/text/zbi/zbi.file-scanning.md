@@ -24,3 +24,8 @@ Area: zbi.file-scanning, its subjects in references/_meta/spine/zbi/zbi.file-sca
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zbi/zbi.cloud-browser.md (How Cloud Browser isolates a page: remote browser, traffic flow, containers and the idle timeout)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.policy.md (What sends traffic to Cloud Browser: Internet & SaaS rules, Smart Isolation and the Private Access isolation policy)
+- see-also references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions)
+- see-also references/_meta/text/zbi/zbi.file-handling.md (Transferring and viewing files in isolation: file types, size limit, Protected Storage and printing)

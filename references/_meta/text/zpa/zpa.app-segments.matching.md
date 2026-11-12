@@ -47,3 +47,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.dns-search-domains.md (What DNS search domains do for application segments and how they must match)
 - links-to references/_meta/text/zpa/zpa.app-segments.private-link-domains.md (How private link domains route CNAME-matched traffic to private link resources)
 - links-to references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-segments.definition.md (What an application segment can contain: entries, wildcards and ports)

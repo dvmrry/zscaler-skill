@@ -15,3 +15,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.runbook.connectivity.md (How the App Connector runbook checks Public Service Edge connectivity: Diagnostics filter, MTR, TCP and TLS tests, packet capture TTL and control connection journal lines)
 - links-to references/_meta/text/zpa/zpa.app-connectors.runbook.resources.md (How the App Connector runbook checks high CPU, memory and disk utilization: process checks, thresholds, local memory endpoints and cleanup)
 - links-to references/_meta/text/zpa/zpa.app-connectors.runbook.upgrades.md (What the App Connector runbook checks for upgrade problems: the healthy status block, clean restart, update servers, revert to default version and rebuild)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors)
+- see-also references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.support-information.md (ZPA Support Information sessions: remote commands on App Connectors, Private Service Edges and Private Cloud Controllers)

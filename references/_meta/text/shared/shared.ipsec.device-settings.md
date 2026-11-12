@@ -32,3 +32,6 @@ Area: shared.ipsec, its subjects in references/_meta/spine/shared/shared.ipsec.j
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipsec.md (IPSec tunnels to ZIA: limits, IKE and device settings)
 - depends-on references/_meta/text/zia/zia.traffic-forwarding.vpn-credentials.md (VPN credentials for IPSec: types, immutability and keys), from shared.ipsec: In the reference architecture the FQDN credential has a user ID field while the IP credential simply uses the peer's public IP address, and both take a pre-shared key of up to 255 characters. [shared.ipsec:credential-types]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.ipsec.md (IPSec tunnels to Zscaler: where each question is answered)

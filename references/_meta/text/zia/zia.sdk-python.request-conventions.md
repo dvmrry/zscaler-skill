@@ -49,3 +49,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.api.rate-limits.md (ZIA API rate limits and how the Python SDK retries)
 - links-to references/_meta/text/zia/zia.sdk-python.pagination.md (Paging through ZIA lists with the Python SDK)
 - links-to references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)
+- see-also references/_meta/text/zia/zia.url-filtering.list-pagination.md (Listing URL Filtering rules and URL categories without truncation)

@@ -26,3 +26,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zia/zia.time-intervals.timezone.md (Which time zone a time interval is evaluated in): If the user's traffic comes from a known location, a time-bound policy is applied on the time zone configured for that location. [zia.time-intervals.timezone:known-location]
 - interacts-with references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match): An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule. [zia.time-intervals.evaluation:falls-through]
 - decided-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.time-intervals: If the user's traffic comes from a known location, a time-bound policy is applied on the time zone configured for that location. [zia.time-intervals.timezone:known-location]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/time-intervals.md (config type)
+- see-also references/_meta/text/zia/zia.time-intervals.schema.md (Time interval fields: days, minutes and the single window)
+- see-also references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many)

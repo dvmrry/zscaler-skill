@@ -22,3 +22,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.request-handling.md (How the Go SDK builds requests and interprets responses: client options, bodies, status codes, bulk deletes)
 - links-to references/_meta/text/zcc/zcc.sdk-go.paging-and-requests.md (How the Go SDK sends ZCC requests and pages v1 and v2 lists)
 - links-to references/_meta/text/zcc/zcc.sdk-python.return-shapes.md (What the Python SDK's ZCC methods return, and the ones that break the tuple convention)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)
+- see-also references/_meta/text/zcc/zcc.passwords-and-otp.password-api.md (Reading and setting app profile passwords through the API)

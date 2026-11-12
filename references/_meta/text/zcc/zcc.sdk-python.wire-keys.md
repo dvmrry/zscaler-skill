@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.api.conventions.md (Conventions of the ZCC v1 API: casing, query parameters, caching, status codes)
 - links-to references/_meta/text/zcc/zcc.api.forwarding-profile-wire.md (ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ)
 - links-to references/_meta/text/zcc/zcc.devices.exports.md (Device CSV exports: inventory, service status and disable reasons)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.sdk-python.return-shapes.md (What the Python SDK's ZCC methods return, and the ones that break the tuple convention)

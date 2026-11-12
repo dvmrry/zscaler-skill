@@ -16,3 +16,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.app-governance.md (3rd-Party App Governance: governing third-party apps, add-ons and extensions connected to SaaS platforms, and its portal, roles and dashboard)
 - links-to references/_meta/text/zia/zia.app-governance.platforms.md (Connecting SaaS platforms to 3rd-Party App Governance: supported platforms, platform admin roles, permissions requested and tenant status)
 - links-to references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.app-governance.app-risk.md (An app's status, risk score, findings and classification in 3rd-Party App Governance (the App Panel))

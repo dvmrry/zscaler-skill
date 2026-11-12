@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.software-components.md (ZPA software components: Manager software, OAuth enrollment, network settings and STIG images)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
 - links-to references/_meta/text/zpa/zpa.vpn.network-connectors.md (Network Connectors and Network Connector groups (VPN for Legacy Apps))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.app-connectors-wire.md (ZPA App Connector, group, schedule and version profile calls: what is sent and where the sources differ)
+- see-also references/_meta/text/zpa/zpa.app-connectors.runbook.md (How the Private Access App Connector support troubleshooting runbook is organized and which pages cover each topic)

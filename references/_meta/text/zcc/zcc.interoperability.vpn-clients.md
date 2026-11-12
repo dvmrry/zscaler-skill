@@ -40,3 +40,8 @@ Area: zcc.interoperability, its subjects in references/_meta/spine/zcc/zcc.inter
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.network-types.md (The four network types Client Connector detects: On-Trusted, VPN-Trusted, Split VPN-Trusted, Off-Trusted)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.interoperability.md (Client Connector alongside other software and networks: where each interoperability answer lives, plus debugging proxies, alternative cloud domains and iCloud Private Relay)
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.internet-actions.md (Forwarding profile actions for Internet & SaaS (ZIA): Tunnel, Tunnel with Local Proxy, Enforce Proxy, None)
+- see-also references/_meta/text/zcc/zcc.z-tunnel.bypasses.md (Bypasses for Z-Tunnel 2.0: VPN gateway bypasses, destination exclusions and inclusions, domain bypasses)

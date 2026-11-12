@@ -26,3 +26,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)): Under transparent forwarding, SSL inspection exemption policies are evaluated on the IP address as well as the SNI, and most IP addresses are categorized Miscellaneous or Unknown, so exempting that category exempts almost all traffic. Under explicit forwarding only the SNI is evaluated. [zia.ssl-inspection.pipeline:transparent-matches-destination-ip]
 - decided-by references/_meta/text/zia/zia.proxy-mode.forwarding-map.md (Which forwarding methods produce explicit or transparent mode), from zia.proxy-mode: Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode. [zia.proxy-mode.forwarding-map:not-a-setting]
 - links-to references/_meta/text/zia/zia.authentication.location-enforcement.md (Requiring authentication per location and sublocation)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent)

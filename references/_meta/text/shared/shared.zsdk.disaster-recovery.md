@@ -21,3 +21,9 @@ Not known (open gaps):
 - What the DR settings and TXT fields mean [gap:shared.zsdk.disaster-recovery:settings-meaning]: settled by source-read or support-ticket
 
 Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.private-service-edges.md (ZSDK Private Service Edges, groups, provisioning keys and enrollment)
+- see-also references/_meta/text/shared/shared.zsdk.applications.md (ZSDK application segments, segment groups, servers, server groups, device profiles and configuration graphs)
+- see-also references/_meta/text/shared/shared.zsdk.app-connectors.md (ZSDK App Connector sizing, provisioning keys, groups, settings, enrollment and deployment checklist)

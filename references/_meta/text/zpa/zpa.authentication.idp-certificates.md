@@ -29,3 +29,7 @@ Area: zpa.authentication, its subjects in references/_meta/spine/zpa/zpa.authent
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.authentication.idp-configuration.md (Configuring an IdP for Private Access single sign-on)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.authentication.md (ZPA authentication: IdP configuration, authentication settings and user risk scores)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.private-access-auth-errors.md (Private Access authentication errors Client Connector users might see during enrollment: 2008 and the 42xxx codes the vendor lists)

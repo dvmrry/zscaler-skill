@@ -29,3 +29,10 @@ Not known (open gaps):
 - Why Reset 2FA and Change Password need Disable Password Login selected [gap:deception.admin-portal:password-actions-condition]: settled by lab-test or support-ticket
 
 Area: deception.admin-portal, its subjects in references/_meta/spine/deception/deception.admin-portal.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+- see-also references/_meta/text/deception/deception.sso.md (Deception and ITDR single sign-on and authentication settings: Authentication Service, SAML and OpenID identity providers, password login, OTP and support access)
+- see-also references/_meta/text/deception/deception.api-tokens.md (Deception and ITDR API tokens: OpenAPI scope, token fields, expiry and one-time display)
+- see-also references/_meta/text/deception/deception.decoy-connectors.md (Decoy Connectors: platforms, sizing, connectivity, connection and credentials)
+- see-also references/_meta/text/deception/deception.landmine-agents.md (Landmine agent and agentless: install, requirements, proxies, management and OS feature support)

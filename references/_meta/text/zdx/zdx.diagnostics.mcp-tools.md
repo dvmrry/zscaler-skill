@@ -26,3 +26,6 @@ Area: zdx.diagnostics, its subjects in references/_meta/spine/zdx/zdx.diagnostic
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.mcp-server.md (The Zscaler MCP server: release, protocol and where its behavior is described): Write tools (create, update, delete) are registered only when both the master switch `--enable-write-tools` (`ZSCALER_MCP_WRITE_ENABLED`) and the allowlist `--write-tools` (`ZSCALER_MCP_WRITE_TOOLS`, fnmatch patterns) are set; then only write tools whose names match a pattern are registered. The rule is enforced in server construction, so the CLI, tests and embedding callers all fail closed. [shared.mcp-server.tool-inventory:write-gate]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.diagnostics.start-request.md (Starting a deep trace through the API: the read chain, the request body, and where the clients disagree)

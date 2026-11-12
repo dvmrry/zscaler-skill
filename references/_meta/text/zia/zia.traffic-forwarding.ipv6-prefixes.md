@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.traffic-forwarding: A location identifies a network from which the organization sends internet traffic; the service checks whether arriving traffic comes from a configured (known) location or an unknown one (remote user traffic), and processes known-location traffic by the location's settings. [zia.locations.model:identifies-networks]
 - interacts-with references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent), from zia.traffic-forwarding: Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode. [zia.proxy-mode.forwarding-map:not-a-setting]
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipv6.md (IPv6 through ZIA: forwarding per method, prerequisites, processing and policy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.dns-resolution.md (Who resolves DNS for each forwarding method)

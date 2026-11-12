@@ -70,3 +70,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.api.provisioning-wire.md (Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields), from cloud-connector.azure: The cloud provisioning URL is a prerequisite for deploying Cloud Connector as a VM in AWS, Azure and GCP, and is obtained by configuring a provisioning template; the same URL can be used multiple times. [cloud-connector.api.provisioning-wire:url-prerequisite]
 - reached-via references/_meta/text/cloud-connector/cloud-connector.azure.network.md (Cloud Connector on Azure: NICs, subnets, NSGs, NAT and routing), from cloud-connector.azure: After deployment, Help has the workload subnet's route table send 0.0.0.0/0 to next hop type Virtual appliance at the load balancer's front-end IP; the route table's Propagate gateway routes setting chooses whether gateway routes reach the subnet's interfaces. [cloud-connector.azure.network:help-workload-route]
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.azure.md (Cloud Connector on Azure: deployment methods, prerequisites and provisioning)
+- see-also references/_meta/text/cloud-connector/cloud-connector.azure.vmss.md (Cloud Connector on Azure: VMSS autoscaling, health monitoring and resource sync)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.terraform-modules.md (Zscaler's GCP Terraform package for Cloud Connector: image, NICs, Pub/Sub Editor, FIPS and zsec defects)

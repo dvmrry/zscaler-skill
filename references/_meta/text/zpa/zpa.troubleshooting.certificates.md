@@ -27,3 +27,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.browser-access.certificates.md (Certificates for Browser Access applications: wildcards, managed and custom): For each Browser Access application the admin chooses either a Custom certificate, where a web server certificate is selected, or a Zscaler-managed certificate. [zpa.browser-access.certificates:certificate-type]
 - interacts-with references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring): Double Encryption cannot be enabled when Browser Access or Source IP Anchoring is selected for any application, and should be disabled for extranet application segments. [zpa.app-segments.settings:double-encryption-exclusions]
 - links-to references/_meta/text/zpa/zpa.browser-access.hostnames.md (External versus internal hostname for a Browser Access application)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.browser-access.segment-constraints.md (Browser Access applications on a segment: per-application keys and where the constraints live)

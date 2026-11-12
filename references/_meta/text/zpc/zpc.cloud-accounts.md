@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
 - links-to references/_meta/text/zpc/zpc.roles.md (Who can do what in ZPC: administrators, groups, roles, modules, business units and API keys)
 - links-to references/_meta/text/zpc/zpc.vulnerability-scanning.md (How Posture Control vulnerability scanning works: integrations, scanning rules, supported systems and the Vulnerability Management page)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpc/zpc.alerts.md (How Posture Control alerts work: types, statuses, attributes, threat categories, alert rules, ignore filters and remediation)

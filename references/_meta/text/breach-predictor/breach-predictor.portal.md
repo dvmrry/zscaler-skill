@@ -19,3 +19,7 @@ Area: breach-predictor.portal, its subjects in references/_meta/spine/breach-pre
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/breach-predictor/breach-predictor.findings.md (Breach Predictor Findings: the MITRE ATT&CK Mapping page, the Threat page, severity scores and attack stages)
 - links-to references/_meta/text/breach-predictor/breach-predictor.overview.md (Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/breach-predictor/breach-predictor.dashboard.md (Breach Predictor Dashboard views and the Threat Landscape page)
+- see-also references/_meta/text/breach-predictor/breach-predictor.tickets.md (Breach Predictor Request and Support tickets: how they are created and what the Tickets page lists)

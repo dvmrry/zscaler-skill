@@ -24,3 +24,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.nss-va.md (NSS for Cloud & Branch Connector: how connector logs reach a SIEM)
 - links-to references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
 - links-to references/_meta/text/shared/shared.nss.vm-platforms.md (Deploying the NSS VM on AWS, GCP, Azure, Hyper-V, Nutanix and vSphere)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.azure-arm-template.md (Zscaler's ARM template for an NSS VM in Azure)
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)

@@ -34,3 +34,8 @@ Area: shared.admin-rbac, its subjects in references/_meta/spine/shared/shared.ad
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-permissions.md (ZIA admin role permissions: logs limit, dashboard, reporting, insights and alerts access, and the feature categories)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)
+- see-also references/_meta/text/shared/shared.admin-rbac.zia.md (ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule)
+- see-also references/_meta/text/zia/zia.insights.logs.md (ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns)

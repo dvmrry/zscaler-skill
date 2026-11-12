@@ -16,3 +16,6 @@ Inferred, not quoted (say so when an answer rests on one):
 - [zia.terraform.ueba-alerts:list-is-provider-boundary] Tier B: Inferred from the list being a constant in the provider; no source ties it to the backend's catalog.
 
 Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)

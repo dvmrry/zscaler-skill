@@ -39,3 +39,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.tenant-profiles.api-surface.md (Tenant profile API, SDK and Terraform behavior)
 - links-to references/_meta/text/zia/zia.tenant-profiles.limits.md (Tenant profile limits: per rule,, per organization)
 - links-to references/_meta/text/zia/zia.tenant-profiles.wire-mechanic.md (How a tenant profile is enforced: the headers ZIA inserts)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/tenancy-restriction-profiles.md (config type)
+- see-also references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)

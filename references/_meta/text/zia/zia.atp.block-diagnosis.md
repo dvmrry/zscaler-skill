@@ -36,3 +36,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.atp.categories.md (ATP detection categories and what each toggle covers)
 - links-to references/_meta/text/zia/zia.atp.page-risk.md (ATP Page Risk threshold and how the score is built)
 - links-to references/_meta/text/zia/zia.malware-protection.settings.md (Malware Protection categories: Allow or Block, Capture, and the settings object)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)

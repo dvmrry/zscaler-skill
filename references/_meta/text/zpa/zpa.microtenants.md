@@ -26,3 +26,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.microtenants.share-and-move.md (Sharing and moving between Microtenants)
 - links-to references/_meta/text/zpa/zpa.terraform.app-segment-lifecycle.md (What the ZPA Terraform provider sends, keeps and cleans up for application segments and their associations)
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-selection.md (Which object a ZPA Terraform data source actually returns)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.microtenants-wire.md (What the SDKs send and receive for ZPA Microtenants)

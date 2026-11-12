@@ -48,3 +48,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.private-service-edge.what-it-is.md (What a ZIA Private Service Edge is, who runs it, and what it is not)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.when-to-deploy.md (When a Private Service Edge is warranted)
 - links-to references/_meta/text/zpa/zpa.software-components.appliance.md (The ZPA appliance: models, hardware and power, ports, installation troubleshooting and enrollment)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)

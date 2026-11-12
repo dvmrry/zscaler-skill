@@ -29,3 +29,8 @@ Area: zms.provisioning-keys, its subjects in references/_meta/spine/zms/zms.prov
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.mcp.md (The Zscaler MCP server's ZMS tools: inventory, customer ID and known defects)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zms/zms.api.md (The ZMS GraphQL API: one endpoint, read-only clients, customer scoping and pagination)
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/shared/shared.secret-surfaces.md (Which Zscaler API reads return secrets: scoping a read-only API client)

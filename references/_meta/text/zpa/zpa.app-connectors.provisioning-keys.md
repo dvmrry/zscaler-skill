@@ -48,3 +48,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.provisioning-key-tooling.md (Provisioning key fields and tool behavior across SDKs, provider and MCP)
 - links-to references/_meta/text/zpa/zpa.private-infrastructure.cloud-branch-connectors.md (Cloud Connectors, Cloud Connector groups and Branch Connector groups under Private Access > Private Infrastructure)
 - links-to references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.provisioning-keys-wire.md (Provisioning key API: association types and update responses)

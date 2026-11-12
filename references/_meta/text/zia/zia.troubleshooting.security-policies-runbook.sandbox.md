@@ -21,3 +21,14 @@ Not known (open gaps):
 - What the Reporting and API rows of the Basic and Advanced Sandbox table cover [gap:zia.troubleshooting.security-policies-runbook.sandbox:basic-advanced-icon-rows]: settled by source-read
 
 Area: zia.troubleshooting, its subjects in references/_meta/spine/zia/zia.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.security-policies-runbook.md (How the Internet & SaaS security policies troubleshooting runbook scopes a case to Malware Protection, ATP or Sandbox and what support asks for)
+- see-also references/_meta/text/zia/zia.sandbox.md (ZIA Sandbox)
+- see-also references/_meta/text/zia/zia.sandbox.coverage.md (What Sandbox analyzes and why a file may not be)
+- see-also references/_meta/text/zia/zia.sandbox.quarantine.md (Files stuck in Sandbox quarantine)
+- see-also references/_meta/text/zia/zia.sandbox.rules.md (Sandbox rules: first-time file behavior and the default rule)
+- see-also references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)
+- see-also references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)
+- see-also references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+- see-also references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields)

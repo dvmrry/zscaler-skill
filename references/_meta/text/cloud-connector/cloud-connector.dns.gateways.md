@@ -36,3 +36,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.sdwan.device-modes.md (Zero Trust SD-WAN devices: gateway and one-arm modes, zero touch provisioning): In gateway mode, if the template dictates a WAN override the gateway uses WAN DNS resolvers; for non-gateway hardware devices the LAN DNS servers default to those configured in the forwarding interface section. [cloud-connector.dns.gateways:wan-override]
 - scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from cloud-connector.dns: The help names DNS conditions such as users, groups or departments, client locations, categorization of domains and IP addresses, DNS record types, and the location of resolved IP addresses. [cloud-connector.dns.policies:conditions]
 - logged-in references/_meta/text/types/ztw/dns-log.md (Cloud & Branch Connector DNS log (NSS feed)), from cloud-connector.dns: In DNS Insights logs the Response Action is always None, because the Zscaler service applies DNS policy only to requests; in the Response Rule Name column, a rule applied to the response is labeled None. [cloud-connector.logs:dns-response-none]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/dns-gateways.md (config type)
+- configured-via references/_meta/text/cloud-connector/cloud-connector.terraform.gateways.md (ZTC forwarding and DNS gateways in Terraform and the Go SDK: subclouds, manual proxies, and the two DNS gateway resources)
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)

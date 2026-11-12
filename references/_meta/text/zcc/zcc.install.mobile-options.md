@@ -16,3 +16,7 @@ Besides the shared enrollment keys, the iOS and Android parameter tables carry k
 - **SAML authentication hosts.** On Android from 4.2, httpAuthAllowedHosts lists the hosts allowed for HTTP Basic authentication in the SAML WebView and for client certificate requests during SAML authentication; requests from other hosts are cancelled. It is mandatory for those requests, takes FQDNs without scheme or path, rejects wildcards, and a listed domain also matches its subdomains. [zcc.install.mobile-options:android-http-auth-hosts]
 
 Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)

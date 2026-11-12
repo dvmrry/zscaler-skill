@@ -41,3 +41,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.z-tunnel.versions.md (Z-Tunnel 1.0 and 2.0: what each carries and how a profile selects one)
 - links-to references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields)
 - links-to references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.logs.client-log.md (What the Client Connector log on the device records)

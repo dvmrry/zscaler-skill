@@ -47,3 +47,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.private-service-edges.when-to-deploy.md (When a Private Service Edge is warranted)
 - links-to references/_meta/text/zpa/zpa.software-components.md (ZPA software components: Manager software, OAuth enrollment, network settings and STIG images)
 - links-to references/_meta/text/zpa/zpa.vpn.service-edges.md (VPN Service Edges: what they are, statuses, client IP pools, update schedule, BGP configuration mode and China)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.service-edges-wire.md (ZPA Private Service Edge and private cloud controller calls: what is sent and where the sources differ)

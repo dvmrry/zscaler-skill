@@ -28,3 +28,10 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.app-connectors.provisioning-keys.md (App Connector provisioning keys), from zpa.app-connectors: A provisioning key is a text string that enrolls an App Connector; it works as the connector's credential, letting the Private Access cloud verify the connector and complete deployment. [zpa.app-connectors.provisioning-keys:key-enrolls-connector]
 - logged-in references/_meta/text/zpa/zpa.logs.app-connector-metrics.md (What the ZPA App Connector Metrics log reports and what it leaves open), from zpa.app-connectors: The App Connector Metrics log reports TargetCount, the targets configured for access via the connector, and AliveTargetCount, the targets alive for access via it. [zpa.app-connectors.health:metrics-target-counts]
 - logged-in references/_meta/text/zpa/zpa.logs.control-session-status.md (ZPA status logs for connectors, Private Service Edges and Private Cloud Controllers), from zpa.app-connectors: The App Connector Status log's SessionType is ZPN_ASSISTANT_BROKER_CONTROL, the session from the connector to the closest Public Service Edge, and SessionStatus is one of ZPN_STATUS_AUTHENTICATED, ZPN_STATUS_AUTH_FAILED or ZPN_STATUS_DISCONNECTED. [zpa.app-connectors.health:status-log-control-session]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.runbook.md (How the Private Access App Connector support troubleshooting runbook is organized and which pages cover each topic)
+- see-also references/_meta/text/zpa/zpa.app-connectors.upgrades.md (App Connector software and host OS updates)
+- see-also references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)
+- see-also references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
+- see-also references/_meta/text/zpa/zpa.app-connectors.runbook.enrollment.md (What the App Connector runbook checks when enrollment fails: sizing, DNS, broker reachability, SSL interception, clock, provisioning key and VM moves)

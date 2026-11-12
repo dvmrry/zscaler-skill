@@ -37,3 +37,9 @@ Area: ai-security.asset-management, its subjects in references/_meta/spine/ai-se
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.cloud-accounts.md (How are onboarded AWS, Azure and GCP accounts managed in AI Security: the Cloud Accounts page, validation, status, issues, deletion, orchestrator changes and the orchestrator itself?)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding-aws.md (How AI Asset Management onboards AWS accounts and organizations: prerequisites, templates, CloudTrail, network and IAM roles)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding-gcp.md (How AI Asset Management onboards GCP organizations: prerequisites, templates, service account, network, IAM roles and errors)
+- see-also references/_meta/text/dspm/dspm.onboarding-azure.md (How a Microsoft Azure tenant, management group or subscription is onboarded to DSPM, and the Azure roles and API permissions it needs)
+- see-also references/_meta/text/dspm/dspm.onboarding-azure-errors.md (Which errors the vendor documents while onboarding Azure to DSPM, and the resolution each row gives)

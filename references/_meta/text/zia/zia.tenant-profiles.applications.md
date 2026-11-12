@@ -40,3 +40,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.tenant-profiles.app-specifics.md (Per-application options and traps in tenant profiles)
 - links-to references/_meta/text/zia/zia.tenant-profiles.limits.md (Tenant profile limits: per rule,, per organization)
 - links-to references/_meta/text/zia/zia.tenant-profiles.microsoft.md (Microsoft Login Services tenant profiles: v1, v2, personal accounts)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/tenancy-restriction-profiles.md (config type)
+- see-also references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)

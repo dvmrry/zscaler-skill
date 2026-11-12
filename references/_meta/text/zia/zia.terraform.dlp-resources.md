@@ -15,3 +15,7 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.url-categories.md (Terraform custom and predefined URL category resources)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.terraform.rule-resources.md (Constraints shared by ZIA Terraform rule resources: order and predefined rules)
+- see-also references/_meta/text/zia/zia.dlp.rules.md (Web DLP policy rules: order, criteria and actions)

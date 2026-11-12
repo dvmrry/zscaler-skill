@@ -18,3 +18,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control): FTP Control settings are configured within Firewall: the firewall policy help points to FTP Control for them. [zia.ftp-control.scope:ftp-sits-in-firewall]
 - interacts-with references/_meta/text/zia/zia.malware-protection.md (ZIA Malware Protection): Scanning of FTP over HTTP and native FTP traffic is enabled or disabled on the Malware Protection page; the FTP Control page allows or blocks that traffic. In Malware Protection, the Protocol Inspection section has Inspect FTP over HTTP and Inspect FTP toggles. Each scans all files, including those with up to 5 layers of recursive compression, in the direction the Traffic Inspection setting selects. [zia.ftp-control.scope:malware-toggles]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering): URL Filtering rules take precedence over the FTP Control policy. [zia.ftp-control.scope:ftp-url-filtering-precedence]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ftp-control-policy.md (config type)

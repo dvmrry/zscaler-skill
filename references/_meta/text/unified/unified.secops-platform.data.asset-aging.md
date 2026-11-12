@@ -10,3 +10,9 @@ Asset aging automatically transitions outdated assets to an inactive state; inac
 **Access.** Asset aging requires a role with Read, Create and Edit permissions under the Platform - Model Management resource. [unified.secops-platform.data.asset-aging:age-role]
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.model.md (The Agentic SecOps Platform data model: entity types, Data Model Management, field settings, processing and Entity Management Runs)
+- see-also references/_meta/text/unified/unified.secops-platform.data.unification.md (Entity and field unification in the Agentic SecOps Platform: merge rules, field rule sets, reconciliation defaults and precedence over grouping and incident rules)
+- see-also references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)

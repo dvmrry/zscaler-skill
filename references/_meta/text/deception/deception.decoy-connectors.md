@@ -38,3 +38,8 @@ Area: deception.decoy-connectors, its subjects in references/_meta/spine/decepti
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.topology.md (Topology: subnets and interfaces, aggregator sinkholes, ZPA App Connectors and Windows high-interaction VM credentials)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+- see-also references/_meta/text/deception/deception.network-decoys.md (Network decoys (Internal and Zero Trust Network): personalities, creation, AD join, MITM detection, RADIUS and management)
+- see-also references/_meta/text/deception/deception.admin-portal.md (Deception Admin Portal: sign-in, navigation, users and roles, account settings, allowed IPs and QoS events)

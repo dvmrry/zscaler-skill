@@ -44,3 +44,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.terraform.md (Terraform behavior of ZPA-method forwarding rules)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
 - links-to references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+- see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)
+- see-also references/_meta/text/zia/zia.getting-started.md (Getting started with Internet & SaaS: recommended provisioning and forwarding methods, deployment options and editing conventions)

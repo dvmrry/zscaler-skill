@@ -21,3 +21,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.bring-up.md (The Virtual Service Edge install sequence on the VM: image, certificate, network, build and verification)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.network-requirements.md (Addresses, interfaces, outbound connectivity and ports for a Virtual Service Edge)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.operations.md (Who runs a Virtual Service Edge: access, logging, hardening and monitoring)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

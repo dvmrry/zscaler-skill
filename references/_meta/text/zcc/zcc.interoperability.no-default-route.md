@@ -35,3 +35,8 @@ Not known (open gaps):
 - Which values in the article are examples only [gap:zcc.interoperability.no-default-route:example-values]: settled by tenant-data
 
 Area: zcc.interoperability, its subjects in references/_meta/spine/zcc/zcc.interoperability.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.interoperability.md (Client Connector alongside other software and networks: where each interoperability answer lives, plus debugging proxies, alternative cloud domains and iCloud Private Relay)
+- see-also references/_meta/text/zcc/zcc.pac-files.md (Client Connector's two PAC files: what the forwarding profile PAC and the app profile PAC do in Tunnel and Tunnel with Local Proxy modes, and the forwarding PAC in Enforce Proxy)
+- see-also references/_meta/text/zcc/zcc.app-profiles.advanced-settings.md (What the less common app profile settings do)

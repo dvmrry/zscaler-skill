@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token)
 - links-to references/_meta/text/shared/shared.oneapi.rate-limits.md (OneAPI rate limits by product, and how the Go SDK throttles)
 - links-to references/_meta/text/zia/zia.api.activation.md (How ZIA API changes become live: saving versus activating)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.oneapi.md (OneAPI: Zscaler's unified API gateway, and where each part of calling it is covered)
+- see-also references/_meta/text/shared/shared.oneapi.auth-selection.md (Choosing OneAPI or a legacy auth path for a tenant: cloud, products in scope, and whether a ZIdentity API client exists)

@@ -44,3 +44,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
 - links-to references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
 - links-to references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
+- configured-via references/_meta/text/types/zia/casb-malware-rules.md (config type)
+- configured-via references/_meta/text/types/zia/casb-tenants.md (config type)
+- see-also references/_meta/text/portfolio/portfolio.casb.md (CASB: ZIA inline controls plus out-of-band SaaS security, not one product)
+- see-also references/_meta/text/zia/zia.dlp.mip-labels.md (Microsoft Information Protection (MIP) accounts and label retrieval)

@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
 - links-to references/_meta/text/zpa/zpa.audit-logs.streaming.md (Streaming ZPA audit logs to a SIEM: log type, fields, filtering)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.diagnostics.md (ZPA Live Logs and Private Diagnostics: views, time ranges, retention, filters and export)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.audit-logs.what-is-recorded.md (What the ZPA admin audit log records, how long it is kept, and whether it can be pulled)
+- see-also references/_meta/text/zpa/zpa.log-receivers.architecture.md (How the Log Streaming Service reaches a SIEM)

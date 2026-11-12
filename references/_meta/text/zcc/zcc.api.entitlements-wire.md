@@ -30,3 +30,6 @@ Area: zcc.api, its subjects in references/_meta/spine/zcc/zcc.api.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.sdk-python.entitlements.md (The Python SDK's ZCC entitlement methods: what they read and why they cannot write)
 - links-to references/_meta/text/zcc/zcc.entitlements.md (ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)

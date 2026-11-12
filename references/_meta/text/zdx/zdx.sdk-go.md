@@ -19,3 +19,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.sdk-go.legacy-client.md (The Go SDK's direct (legacy) ZDX client: credentials, sign-in, retries and limits, and why the ZDX services do not use it)
 - links-to references/_meta/text/zdx/zdx.sdk-go.service-defects.md (Go SDK ZDX services: where the structs and functions disagree with the contract)
 - links-to references/_meta/text/zdx/zdx.sdk-python.request-shaping.md (How the Python SDK turns ZDX arguments into query parameters and bodies)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.sdk-python.md (The Python SDK for ZDX: where its ZDX behavior is covered)
+- see-also references/_meta/text/zdx/zdx.api.md (The ZDX API from a client's side: hosts, limits, conventions, coverage and wire notes)

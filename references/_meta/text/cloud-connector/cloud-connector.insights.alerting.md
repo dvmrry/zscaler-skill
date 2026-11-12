@@ -29,3 +29,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.nss-va.md (NSS for Cloud & Branch Connector: how connector logs reach a SIEM): Both Cloud Connector and Branch Connector can generate Session, DNS, Event and Metrics logs, and an NSS feed specifies which log data the NSS sends to the SIEM. [cloud-connector.nss-va:log-types]
 - links-to references/_meta/text/cloud-connector/cloud-connector.logs.md (Cloud Connector logs: which log types exist and where to read them)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.load-balancing.md (How cloud load balancers spread traffic across Cloud Connectors and take unhealthy ones out)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.insights.md (Monitoring Cloud Connectors: which surface answers which question)
+- see-also references/_meta/text/cloud-connector/cloud-connector.logs.metrics-records.md (Cloud Connector metrics logs: VM, instance and resource samples)

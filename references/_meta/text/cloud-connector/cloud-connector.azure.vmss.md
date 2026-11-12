@@ -58,3 +58,8 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/cloud-connector/cloud-connector.azure.network.md (Cloud Connector on Azure: NICs, subnets, NSGs, NAT and routing), from cloud-connector.azure: After deployment, Help has the workload subnet's route table send 0.0.0.0/0 to next hop type Virtual appliance at the load balancer's front-end IP; the route table's Propagate gateway routes setting chooses whether gateway routes reach the subnet's interfaces. [cloud-connector.azure.network:help-workload-route]
 - links-to references/_meta/text/cloud-connector/cloud-connector.azure.md (Cloud Connector on Azure: deployment methods, prerequisites and provisioning)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.azure.terraform-modules.md (Zscaler's Azure Terraform package for Cloud Connector: image, VM sizes, provider constraint, examples and FIPS)
+- see-also references/_meta/text/cloud-connector/cloud-connector.azure.load-balancing.md (Cloud Connector on Azure: internal load balancer, health probe and Gateway Load Balancer)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.mig-autoscaling.md (Cloud Connector on GCP: MIG autoscaling, Health Monitor and Resource Sync)

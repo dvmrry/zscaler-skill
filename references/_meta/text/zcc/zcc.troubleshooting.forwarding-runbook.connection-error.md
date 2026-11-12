@@ -13,3 +13,9 @@ Not known (open gaps):
 - What each getSmeProxyState value and the ZSCCM and ZSDDC status fields mean [gap:zcc.troubleshooting.forwarding-runbook.connection-error:state-values-undefined]: settled by source-read or lab-test
 
 Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.md (Client Connector forwarding runbook: the five errors and where each is worked (captive portal and driver error held here))
+- see-also references/_meta/text/zcc/zcc.z-tunnel.transport.md (Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.service-status-errors.md (Error messages in Client Connector's Service Status field and the action for each)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.endpoint-firewall.md (Runbook: Endpoint FW/AV Error and FIREWALL_BLOCK_ERROR, 100.64.0.0/24 health checks and the Windows firewall rule)

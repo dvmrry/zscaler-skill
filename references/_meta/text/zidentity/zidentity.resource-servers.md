@@ -41,3 +41,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.api.pagination.md (Paging ZIdentity lists: offset and limit, the list envelope, and how each SDK walks pages)
 - links-to references/_meta/text/zidentity/zidentity.sdk-go.md (Go SDK for ZIdentity (ziam services): name lookups, write models and where its paths depart from the contract)
 - links-to references/_meta/text/zidentity/zidentity.sdk-python.md (Python SDK for ZIdentity (client.zid): where its models and keys depart from the API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.api.md (The ZIdentity (Authentication Service) admin API from a client's side: route, coverage and wire notes)

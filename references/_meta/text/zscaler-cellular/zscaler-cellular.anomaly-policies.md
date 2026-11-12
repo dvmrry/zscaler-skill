@@ -19,3 +19,7 @@ Area: zscaler-cellular.anomaly-policies, its subjects in references/_meta/spine/
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zscaler-cellular/zscaler-cellular.monitoring.md (Cellular monitoring: network events, geofence anomaly detection and audit logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.overview.md (Zscaler Cellular: Zscaler SIM, Cellular Edge and how SIM traffic reaches ZIA and ZPA policy)
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.sdk-python.location-groups.md (Python SDK SIM location group writes: the geofence is dropped on create and snake_case keys are ignored)

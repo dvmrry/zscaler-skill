@@ -54,3 +54,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/firewall-log.md (ZIA firewall log (NSS firewall feed)), from zia.firewall: The firewall action field is described as the action the service took on the transaction: Allowed or Blocked. [zia.logs.firewall-records:action-two-values]
 - links-to references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
 - links-to references/_meta/text/zia/zia.firewall.limits.md (Firewall rule, criteria and group limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/network-services.md (config type)

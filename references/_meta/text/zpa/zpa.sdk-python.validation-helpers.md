@@ -17,3 +17,7 @@ Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.pra.tooling.md (PRA operations in the Python SDK and Ansible approvals)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.appprotection.api-surface.md (AppProtection through the API and the Python SDK: versions, Active Directory controls, attach and detach)
+- see-also references/_meta/text/zpa/zpa.sdk-python.return-shapes.md (What Python SDK ZPA calls return: model objects, snake_case dictionaries, bare values and raised errors)

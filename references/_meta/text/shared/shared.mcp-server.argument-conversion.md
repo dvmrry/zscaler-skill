@@ -16,3 +16,7 @@ Not known (open gaps):
 - Whether the ZTW country helper will reject ambiguous names [gap:shared.mcp-server.argument-conversion:country-ambiguity-fix]: settled by source-read. Blocks: passing free-text country names to ZTW destination-group tools
 
 Area: shared.mcp-server, its subjects in references/_meta/spine/shared/shared.mcp-server.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.mcp-server.tool-inventory.md (Which tools a Zscaler MCP server registers: toolsets, entitlements and the write gate)
+- see-also references/_meta/text/shared/shared.mcp-server.results.md (What a Zscaler MCP tool result contains: full records, untrusted-content banners, JMESPath and CSV)

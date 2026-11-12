@@ -14,3 +14,7 @@ Area: zcc.sdk-python, its subjects in references/_meta/spine/zcc/zcc.sdk-python.
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.api.entitlements-wire.md (ZCC entitlement calls: response and update body shapes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.sdk-python.return-shapes.md (What the Python SDK's ZCC methods return, and the ones that break the tuple convention)
+- see-also references/_meta/text/zcc/zcc.entitlements.md (ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group)

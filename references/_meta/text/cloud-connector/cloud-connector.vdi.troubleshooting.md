@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.insights.analytics.md (Cloud Connector Insights pages and Insights logs: time range, aggregation and limits)
 - links-to references/_meta/text/cloud-connector/cloud-connector.vdi.forwarding-profiles.md (VDI forwarding profiles: include and exclude lists, refresh, Private Access and DNS inclusion, Azure, FSLogix and Citrix bypasses)
 - links-to references/_meta/text/cloud-connector/cloud-connector.vdi.install.md (Installing Client Connector for VDI: download, MSI options, golden images, OnboardOnStart, Intune and processes to allowlist)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.vdi.md (Client Connector for VDI: the multi-session Windows agent that tunnels users' traffic to Cloud and Branch Connector)

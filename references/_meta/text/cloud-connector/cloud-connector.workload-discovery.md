@@ -47,3 +47,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.workload-discovery.update-path.md (How tag changes reach Cloud Connector: polling, EventBridge, SNS and SQS)
 - links-to references/_meta/text/zia/zia.workload-groups.expressions.md (What a workload group expression can contain)
 - links-to references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/public-cloud-accounts.md (config type)
+- configured-via references/_meta/text/types/ztw/account-groups.md (config type)

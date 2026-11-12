@@ -46,3 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/unified/unified.onboarding.md (Experience Center guided onboarding: adding users, traffic forwarding, and the security policy steps it walks through)
 - links-to references/_meta/text/unified/unified.secops-platform.md (Agentic Security Operations Platform console: data sources and outegrations, administration and analytics)
 - links-to references/_meta/text/unified/unified.zagent.md (ZAgent: the Admin Console's conversational AI, its agents, entitlements and history retention)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.terminology.md (Zscaler terminology: where each term is defined)

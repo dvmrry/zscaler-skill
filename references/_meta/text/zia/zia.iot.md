@@ -19,3 +19,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.iot.api-surface.md (IoT Report through the API: REST, Z-Insights GraphQL, SDKs, MCP)
 - links-to references/_meta/text/zia/zia.iot.classification.md (How IoT devices are classified: type, category, classification)
 - links-to references/_meta/text/zia/zia.iot.policy-use.md (How IoT traffic is targeted by policy)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/shared/shared.analytics.graphql.md (The Analytics (Z-Insights) GraphQL API: endpoint, access and scope)

@@ -13,3 +13,6 @@ Not known (open gaps):
 - What the asset and finding drawer tabs contain [gap:uvm.assets-findings:drawer-tabs]: settled by source-read
 
 Area: uvm.assets-findings, its subjects in references/_meta/spine/uvm/uvm.assets-findings.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)

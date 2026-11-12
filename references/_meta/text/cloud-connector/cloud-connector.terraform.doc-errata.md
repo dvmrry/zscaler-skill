@@ -33,3 +33,6 @@ Area: cloud-connector.terraform, its subjects in references/_meta/spine/cloud-co
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.forwarding-rules.md (ZTC traffic forwarding and DNS rules in Terraform: forward methods, ZPA segment IDs, workload groups, WAN selection and labels)
 - links-to references/_meta/text/zia/zia.locations.bandwidth.md (How a location and its sublocations share bandwidth limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.terraform.coverage.md (What the ZTC Terraform provider covers, and how existing objects are imported)

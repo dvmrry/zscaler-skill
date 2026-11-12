@@ -101,3 +101,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.cloud-connector.md (Cloud & Branch Connector admin roles: super admin, the eleven permission categories and Unified RBAC)
 - links-to references/_meta/text/zia/zia.locations.workload-scopes.md (AWS workload sublocation scopes (VPC endpoint, VPC, account, namespace))
 - links-to references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.terraform.md (The ZTC Terraform provider: where its behavior is described)

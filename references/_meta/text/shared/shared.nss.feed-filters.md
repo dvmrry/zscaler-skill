@@ -49,3 +49,8 @@ Area: shared.nss, its subjects in references/_meta/spine/shared/shared.nss.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.firewall-records.md (What a ZIA firewall log record is: aggregates, action and field names)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
+- see-also references/_meta/text/shared/shared.nss.feed-settings.md (NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS)
+- see-also references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)

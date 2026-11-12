@@ -46,3 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dns-control.tunnel-detection.md (DNS tunnel detection)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
 - links-to references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-dns-rules.md (config type)

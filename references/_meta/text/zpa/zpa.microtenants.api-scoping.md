@@ -46,3 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.microtenants.share-and-move.md (Sharing and moving between Microtenants)
 - links-to references/_meta/text/zpa/zpa.sdk-python.client-configuration.md (Python SDK settings for ZPA: credentials, tenant ID, microtenant, environment variables and the legacy client)
 - links-to references/_meta/text/zpa/zpa.sdk-python.microtenant-scoping.md (How the Python SDK sends the microtenant ID on ZPA calls)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)

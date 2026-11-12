@@ -23,3 +23,9 @@ Not known (open gaps):
 - Limits and roles for integrations [gap:zpc.integrations:integration-limits]: settled by source-read
 
 Area: zpc.integrations, its subjects in references/_meta/spine/zpc/zpc.integrations.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
+- see-also references/_meta/text/zpc/zpc.alerts.md (How Posture Control alerts work: types, statuses, attributes, threat categories, alert rules, ignore filters and remediation)
+- see-also references/_meta/text/portfolio/portfolio.cloud-protection.md (Zscaler Posture Control (ZPC) and Cloud Protection: what ZPC covered, and its end of life)
+- see-also references/_meta/text/dspm/dspm.integrations.md (What DSPM integrations do: cloud storage, ITSM, ChatOps and Amazon Security Lake export)

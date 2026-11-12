@@ -14,3 +14,6 @@ Not known (open gaps):
 - Whether app.avalor.io is the current login host for the Agentic SecOps Platform [gap:unified.secops-platform.console.sso:login-host-current]: settled by tenant-data or source-read
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.console.md (The Agentic SecOps Platform admin portal: supported browsers, egress IPs, status board, account settings, failure emails, AI capabilities and audit logs)

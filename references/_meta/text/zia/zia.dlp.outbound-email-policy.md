@@ -64,3 +64,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.outbound-email.md (Outbound Email DLP rules in the SDKs and Terraform provider)
 - links-to references/_meta/text/zia/zia.dlp.outbound-email-tenants.md (Outbound Email DLP email tenants and mail-server setup (SEG, Gmail, Exchange))
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.incident-forwarding.md (Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud)

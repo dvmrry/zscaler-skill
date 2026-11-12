@@ -17,3 +17,8 @@ Not known (open gaps):
 - Which asset sources the Tool Coverage and Gap dashboard offers [gap:aem.dashboards:asset-source-list]: settled by source-read or tenant-data
 
 Area: aem.dashboards, its subjects in references/_meta/spine/aem/aem.dashboards.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/aem/aem.overview.md (Asset Exposure Management (AEM): the asset inventory, coverage gaps and policies, and what can be automated)
+- see-also references/_meta/text/aem/aem.policy-templates.md (AEM Tool Coverage, CMDB Hygiene and OS End of Life policies, and updating CMDB asset records)
+- see-also references/_meta/text/aem/aem.violation-tickets.md (AEM violation tickets: the Violation Tickets page, drawer, split and merge, comments and activity log)

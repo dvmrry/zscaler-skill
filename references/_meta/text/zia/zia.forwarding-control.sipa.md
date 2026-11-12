@@ -35,3 +35,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.source-ip-anchoring.egress-options.md (A fixed egress address: Source IP Anchoring, Dedicated IP or BYOIP)
 - links-to references/_meta/text/zia/zia.forwarding-control.byoip.md (Customer-owned Dedicated IP addresses (BYOIP))
 - links-to references/_meta/text/zia/zia.forwarding-control.sipa-direct.md (Source IP Anchoring Direct during ZIA disaster recovery)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)
+- configured-via references/_meta/text/types/zia/zpa-gateways.md (config type)
+- see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)
+- see-also references/_meta/text/shared/shared.source-ip-anchoring.md (Source IP Anchoring across ZIA and Private Access: path, pieces and interactions)

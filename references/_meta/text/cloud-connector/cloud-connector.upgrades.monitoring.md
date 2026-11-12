@@ -20,3 +20,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/ztw/event-log.md (Cloud & Branch Connector Event log (NSS feed)): UPGRADE_START (Info) carries the current version, the new version and the package name; UPGRADE_END carries the current version, an upgrade status of Success for Info and Fail for Error, and the package name. [cloud-connector.logs.event-records:upgrade-events]
 - scoped-by references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling), from cloud-connector.upgrades: On the Cloud Connector Groups overview, selected groups or connectors can be given an upgrade schedule (a day and time for periodic software updates) or a new release channel, and each group shows its Upgrade Window. [cloud-connector.upgrades:group-actions]
 - links-to references/_meta/text/cloud-connector/cloud-connector.insights.connector-status.md (Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.upgrades.md (Cloud & Branch Connector software upgrades: weekly window, stagger and release channels)

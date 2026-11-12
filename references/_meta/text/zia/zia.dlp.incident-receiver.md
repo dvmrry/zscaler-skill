@@ -59,3 +59,9 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.dlp: For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention. [zia.dlp.evaluation:dlp-after-url-and-file-type]
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.dlp: dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename. [zia.logs.web-field-semantics:dlp-rule-fields]
 - links-to references/_meta/text/zia/zia.dlp.incident-forwarding.md (Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-incident-receiver-servers.md (config type)
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.icap-receivers.md (ICAP receivers for DLP: secure and unencrypted ICAP, the FCC cloud and mTLS)
+- see-also references/_meta/text/zia/zia.dlp.cloud-to-cloud-forwarding.md (Cloud-to-Cloud Incident Forwarding: storage onboarding for AWS, Google Cloud and Azure)

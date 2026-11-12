@@ -32,3 +32,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.load-balancing.md (How a Virtual Service Edge cluster spreads and returns traffic)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.network-requirements.md (Addresses, interfaces, outbound connectivity and ports for a Virtual Service Edge)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.upgrades.md (How Virtual Service Edges and their clusters upgrade)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-clusters.md (config type)
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)
+- see-also references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)

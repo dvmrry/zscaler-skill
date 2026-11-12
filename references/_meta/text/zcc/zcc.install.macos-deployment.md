@@ -42,3 +42,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.strict-enforcement.md (Strict enforcement, the policy token, and the fail-close configuration)
 - links-to references/_meta/text/zcc/zcc.install.windows-unattended.md (Silent install, upgrade, revert and uninstall parameters, and launch behavior)
 - links-to references/_meta/text/zcc/zcc.ssl-inspection.certificate-install.md (Who installs the SSL inspection certificate on Client Connector devices, per platform)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)

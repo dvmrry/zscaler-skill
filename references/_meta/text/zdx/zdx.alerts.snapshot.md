@@ -33,3 +33,7 @@ Area: zdx.alerts, its subjects in references/_meta/spine/zdx/zdx.alerts.json
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zdx/zdx.score.md (The ZDX Score: scale, bands, score types and what lowers it), from zdx.alerts: ZDX alerts monitor device, application, network performance and ZDX Score; admins create alert rules that trigger when a preset threshold is reached, and triggered alert details are sent by email or webhook. [zdx.alerts:about]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.alerts.md (ZDX alerts: how rules trigger, what an alert's status means, and reading alerts through the API)
+- see-also references/_meta/text/zdx/zdx.api.client-coverage.md (Which ZDX API operations the Python and Go SDKs cover, and the configuration API neither calls)

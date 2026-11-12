@@ -51,3 +51,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/shared/shared.oneapi.rate-limits.md (OneAPI rate limits by product, and how the Go SDK throttles): The OneAPI Client Connector page limits all endpoints to 100 calls per hour at the tenant level, except `/downloadDevices`, `/downloadServiceStatus` and `/downloadDisableReasons` at 3 calls per day, and sets `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset` when limits are enforced. [shared.oneapi.rate-limits:zcc-oneapi-page]
 - links-to references/_meta/text/shared/shared.sdk-go.retries.md (How the Go SDK retries requests (and replays writes))
 - links-to references/_meta/text/zcc/zcc.sdk-python.client-configuration.md (The Python SDK's two ZCC clients: OneAPI service and legacy helper)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.api.md (The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes)
+- see-also references/_meta/text/zcc/zcc.api.conventions.md (Conventions of the ZCC v1 API: casing, query parameters, caching, status codes)
+- see-also references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)

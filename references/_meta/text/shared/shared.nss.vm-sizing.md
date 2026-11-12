@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.azure-arm-template.md (Zscaler's ARM template for an NSS VM in Azure)
 - links-to references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
 - links-to references/_meta/text/shared/shared.nss.vm-platforms.md (Deploying the NSS VM on AWS, GCP, Azure, Hyper-V, Nutanix and vSphere)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity)

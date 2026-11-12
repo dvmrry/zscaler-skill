@@ -34,3 +34,7 @@ Area: zcc.partner-tenants, its subjects in references/_meta/spine/zcc/zcc.partne
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.notifications.pop-ups.md (Client Connector pop-up messages: type, meaning, user action and duplicate suppression)
 - links-to references/_meta/text/zpa/zpa.b2b-federation.md (ZPA Business-to-Business Federation)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.end-user.md (The Client Connector app as users see it: Classic UI and Modern UI menus, status, enrollment and notifications, by OS where the pages cover it)
+- see-also references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)

@@ -21,3 +21,7 @@ Not known (open gaps):
 - Which MTU values the runbook expects to try below 1400 [gap:zcc.troubleshooting.performance-runbook.path-mtu:mtu-test-value]: settled by source-read or lab-test
 
 Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.performance-runbook.md (How the Client Connector performance troubleshooting runbook classifies slowness by pattern and routes it to its pages)
+- see-also references/_meta/text/zcc/zcc.z-tunnel.transport.md (Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up)

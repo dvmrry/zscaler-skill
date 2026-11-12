@@ -28,3 +28,8 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment), from zia.private-service-edge: Deploying outside the corporate firewall: Zscaler highly recommends sending HTTP/HTTPS traffic through a GRE or IPSec tunnel from the firewall to the Private Service Edges, which needs no firewall changes for the Private Service Edge's communications. Only HTTP/HTTPS goes to the Private Service Edges, all other traffic goes directly to the internet, and the traffic sent through the tunnels should be un-NATed for visibility. [zia.private-service-edge.deployment:outside-firewall-tunnels]
 - reached-via references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover), from zia.private-service-edge: If the organization uses PAC files to forward traffic to the Zscaler service, the PAC variables that point to the Private Service Edges must specify the subcloud Zscaler configured for the organization. [zia.private-service-edge.deployment:pac-subcloud]
 - links-to references/_meta/text/zia/zia.virtual-service-edge.clusters.md (The Virtual Service Edge cluster: limits, object, build order and Location binding)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)
+- see-also references/_meta/text/zia/zia.private-service-edge.what-it-is.md (What a ZIA Private Service Edge is, who runs it, and what it is not)
+- see-also references/_meta/text/zia/zia.private-service-edge.deployment.md (Where to place a Private Service Edge and how to configure the network around it)

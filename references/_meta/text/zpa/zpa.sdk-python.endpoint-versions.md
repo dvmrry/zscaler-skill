@@ -19,3 +19,10 @@ Not known (open gaps):
 - Whether the /v1/admin/customers/{id}/v2 routes are documented API routes [gap:zpa.sdk-python.endpoint-versions:v2-suffix-routes]: settled by support-ticket or lab-test. Blocks: treating those three Python modules as calling published routes
 
 Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.saml-attributes.api-surface.md (The SAML attribute API, SDK and Terraform surface)
+- see-also references/_meta/text/zpa/zpa.scim.api-surface.md (The SCIM API, SDK and Terraform read surface in ZPA)
+- see-also references/_meta/text/zpa/zpa.trusted-networks.object.md (The ZPA trusted network object and how to fetch it)
+- see-also references/_meta/text/zpa/zpa.segment-groups.api-surface.md (The segment group API, model fields and Terraform resource)
+- see-also references/_meta/text/zpa/zpa.b2b-federation.sdk-contract.md (B2B Federation SDK coverage and contract differences)

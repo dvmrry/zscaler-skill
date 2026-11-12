@@ -29,3 +29,6 @@ Area: uvm.data-sources, its subjects in references/_meta/spine/uvm/uvm.data-sour
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)
 - links-to references/_meta/text/uvm/uvm.data-sources.md (UVM data sources: shared connector facts, availability, and the Jira, Zscaler, Okta, Code42, NetBox, runZero, SecurityScorecard and SFTP connectors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)

@@ -60,3 +60,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.segment-groups.membership.md (Which application segments belong to a segment group): Before moving a defined application segment, the target segment group and server group must be configured and the associated policy must be deleted; before moving a privileged credential, the associated privileged credential policy must be deleted. [zpa.microtenants.share-and-move:move-prerequisites]
 - depends-on references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it): Before moving a defined application segment, the target segment group and server group must be configured and the associated policy must be deleted; before moving a privileged credential, the associated privileged credential policy must be deleted. [zpa.microtenants.share-and-move:move-prerequisites]
 - links-to references/_meta/text/zpa/zpa.api.pra-wire.md (What the SDKs send and receive for ZPA Privileged Remote Access objects)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.app-segments-wire.md (Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds)
+- see-also references/_meta/text/zpa/zpa.microtenants.api-scoping.md (How an API call selects a Microtenant)
+- see-also references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)

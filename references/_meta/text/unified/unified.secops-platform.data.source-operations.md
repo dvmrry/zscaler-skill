@@ -27,3 +27,9 @@ Area: unified.secops-platform, its subjects in references/_meta/spine/unified/un
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/unified/unified.secops-platform.data.model.md (The Agentic SecOps Platform data model: entity types, Data Model Management, field settings, processing and Entity Management Runs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.mapping.md (Source mapping in the Agentic SecOps Platform: workspace, value methods, explode, minimum fields, keys, parser types and Explore)
+- see-also references/_meta/text/uvm/uvm.data-sources.md (UVM data sources: shared connector facts, availability, and the Jira, Zscaler, Okta, Code42, NetBox, runZero, SecurityScorecard and SFTP connectors)
+- see-also references/_meta/text/shared/shared.logs-fair-use.log-retention.md (How long Zscaler keeps the logs of the products on the Logs and Fair Use pages, and where it stores them)

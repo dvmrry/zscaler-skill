@@ -43,3 +43,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.alerts.snapshot.md (Sharing a ZDX snapshot of an alert or a user: the contract, the Python client and the path question)
 - links-to references/_meta/text/zdx/zdx.alerts.webhooks.md (ZDX alert webhooks: authentication, testing, platform guides and the payload fields the sample scripts read)
 - links-to references/_meta/text/zdx/zdx.api.conventions.md (ZDX API conventions: time ranges, paging, reporting delay and how API numbers differ from the console)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.diagnostics.md (ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered)

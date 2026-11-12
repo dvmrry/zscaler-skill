@@ -61,3 +61,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.platforms.md (App Connector deployment by VM and cloud platform)
 - links-to references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)
 - links-to references/_meta/text/zpa/zpa.software-components.stig-images.md (STIG-hardened ZPA images: password rules and the 2024 password-expiration issue)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors)

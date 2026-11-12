@@ -19,3 +19,7 @@ Not known (open gaps):
 - Reading blocked east-west flows as lateral movement [gap:zpa.logs.microsegmentation-flow:lateral-movement-reading]: settled by lab-test. Blocks: triaging blocked Microsegmentation flows
 
 Area: zpa.logs, its subjects in references/_meta/spine/zpa/zpa.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)

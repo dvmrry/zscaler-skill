@@ -39,3 +39,6 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/ai-security/ai-security.ai-guard.runtime-api.md (Calling AI Guard at runtime: the proxy endpoint, the DAS detection API, its host, direction and policy ID, and throttling in the Python SDK), from ai-security.ai-guard: In Proxy mode the application sends its model requests to AI Guard at `https://proxy.zseclipse.net` instead of to each provider, and AI Guard proxies them to the upstream LLM provider, sitting inline for routing, inspection and enforcement. [ai-security.ai-guard:proxy-single-destination]
 - reached-via references/_meta/text/ai-security/ai-security.ai-guard.zia-integration.md (Sending ZIA users' AI traffic to AI Guard by proxy chaining: prerequisites, proxy, QUIC rule and forwarding), from ai-security.ai-guard: ZIA can be configured to invoke AI Guard for processing users' AI traffic. [ai-security.ai-guard.zia-integration:invoke-from-zia]
 - links-to references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-guard.md (AI Guard: runtime guardrails on prompts and responses, its Proxy and DAS/API modes, and where each part is documented)

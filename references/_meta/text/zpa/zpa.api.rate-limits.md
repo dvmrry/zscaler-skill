@@ -16,3 +16,7 @@ Area: zpa.api, its subjects in references/_meta/spine/zpa/zpa.api.json
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.api.authentication.md (How a client authenticates to the ZPA API: OneAPI, legacy and government clouds), from zpa.api: The ZPA OpenAPI document declares the server https://api.zsapi.net/zpa, described as "ZPA Endpoints", and an HTTP bearer security scheme. [zpa.api.authentication:oneapi-server]
 - links-to references/_meta/text/zia/zia.api.rate-limits.md (ZIA API rate limits and how the Python SDK retries)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.retries.md (How the Go SDK retries requests (and replays writes))
+- see-also references/_meta/text/zpa/zpa.api.pagination.md (ZPA list pagination, search syntax and client-side filtering)

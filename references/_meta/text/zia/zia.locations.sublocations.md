@@ -53,3 +53,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-go.service-defects.md (ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input)
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
 - links-to references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)

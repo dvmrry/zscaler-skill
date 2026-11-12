@@ -45,3 +45,6 @@ Area: zcc.devices, its subjects in references/_meta/spine/zcc/zcc.devices.json
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.devices.cleanup.md (Automated device cleanup: device threshold, inactive removal, permanent deletion): Automatically Force Remove Inactive Devices After removes a device that has not connected to Internet & SaaS within the chosen period: 30, 60, 90, 120, 150 or 180 days, or Never, which is the default. [zcc.devices.cleanup:inactive-removal]
 - links-to references/_meta/text/zcc/zcc.devices.removal-api.md (Removing devices and machine tunnels through the API and SDKs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)

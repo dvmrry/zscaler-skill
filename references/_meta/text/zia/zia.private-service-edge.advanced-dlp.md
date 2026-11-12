@@ -24,3 +24,6 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover), from zia.private-service-edge: If the organization uses PAC files to forward traffic to the Zscaler service, the PAC variables that point to the Private Service Edges must specify the subcloud Zscaler configured for the organization. [zia.private-service-edge.deployment:pac-subcloud]
 - links-to references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references)
 - links-to references/_meta/text/zia/zia.private-service-edge.sizing.md (Choosing a Private Service Edge design and node count)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)

@@ -28,3 +28,7 @@ Area: zcc.audit-logs, its subjects in references/_meta/spine/zcc/zcc.audit-logs.
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zcc.md (Client Connector admin roles: the Administration Management page, Full, View Only, None and Customize, the permission sections and token obfuscation)
 - links-to references/_meta/text/shared/shared.audit-logs.md (Admin audit logs across Zscaler products: what exists and how to get it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.audit-logs.md (Cloud & Branch Connector audit logs in the console: what is recorded, retention, lockout, filters and CSV)
+- see-also references/_meta/text/zcc/zcc.support-options.md (ZCC end-user support options (App Supportability))

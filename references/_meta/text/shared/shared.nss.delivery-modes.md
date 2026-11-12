@@ -49,3 +49,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))
 - links-to references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity)
 - links-to references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.sentinel-module.md (Terraform module for Cloud NSS to Microsoft Sentinel)
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/shared/shared.siem-mapping.md (Zscaler log types and where they land in a SIEM)

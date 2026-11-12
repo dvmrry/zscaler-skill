@@ -41,3 +41,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.os-images.md (Cloud Connector OS upgrades: redeployment and the ZscalerOS 24 end of support)
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.repo-certificate.md (The pkg-repo.zscaler.com certificate renewal: minimum images, autoscaling templates and why connectors might not update automatically)
 - links-to references/_meta/text/zpa/zpa.app-connectors.upgrades.md (App Connector software and host OS updates)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ec-groups.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.upgrades.zsroot-rotation.md (Rotating the zsroot password on Cloud and Branch Connectors)

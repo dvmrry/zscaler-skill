@@ -38,3 +38,10 @@ Area: zpa.vpn, its subjects in references/_meta/spine/zpa/zpa.vpn.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.vpn.md (ZPA VPN (for Legacy Apps): what it is, its components and where each question goes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.vpn.network-connectors.enrollment.md (Network Connector enrollment: OAuth 2.0 tokens and provisioning keys)
+- see-also references/_meta/text/zpa/zpa.vpn.network-connectors.deployment.md (Network Connector platforms, sizing, prerequisites, firewall and install (VPN for Legacy Apps))
+- see-also references/_meta/text/zpa/zpa.vpn.redundancy.md (VPN redundancy: failure scenarios, BGP group settings, platform settings, replacing and migrating Network Connectors)
+- see-also references/_meta/text/zpa/zpa.vpn.bgp.md (BGP for VPN Service Edges and Network Connectors: AS numbers, failure detection, external routers)
+- see-also references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors)

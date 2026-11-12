@@ -22,3 +22,6 @@ Area: cloud-connector.regions, its subjects in references/_meta/spine/cloud-conn
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.gateway-failover.md (Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open)
 - links-to references/_meta/text/cloud-connector/cloud-connector.workload-discovery.namespaces.md (Namespaces and the zs:namespace VPC tag: overlapping IPs in workload discovery)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.regions.md (Cloud & Branch Connector regions: three region lists that must not be conflated)

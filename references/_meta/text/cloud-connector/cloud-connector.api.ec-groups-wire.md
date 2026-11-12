@@ -31,3 +31,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling)
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.coverage.md (What the Go SDK's ZTW packages leave out: commented-out functions, uncovered endpoints and activation)
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.monitoring.md (Watching Cloud Connector upgrades: VM record fields, upgrade metrics and upgrade events)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ec-groups.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.provisioning-wire.md (Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields)

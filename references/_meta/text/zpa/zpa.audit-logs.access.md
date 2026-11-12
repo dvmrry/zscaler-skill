@@ -19,3 +19,7 @@ Area: zpa.audit-logs, its subjects in references/_meta/spine/zpa/zpa.audit-logs.
 Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/shared/shared.admin-rbac.zpa.md (ZPA admin roles: feature permissions, effective access and propagation delay): Private Access has two predefined admin roles: ZPA Administrator, with read, add, edit and delete privileges, and ZPA Read Only Administrator, with read privileges only. [zpa.audit-logs.access:predefined-roles]
 - depends-on references/_meta/text/zpa/zpa.log-receivers.md (ZPA log receivers and the Log Streaming Service), from zpa.audit-logs: A log receiver's source log type for audit logs is `zpn_audit_log`; the Python SDK reaches it through the `audit_logs` key. [zpa.audit-logs.streaming:audit-source-type]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.audit-logs.what-is-recorded.md (What the ZPA admin audit log records, how long it is kept, and whether it can be pulled)
+- see-also references/_meta/text/zpa/zpa.log-receivers.admin-console.md (The Log Receivers page in the Admin Console)

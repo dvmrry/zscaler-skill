@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.zsdk.configuration.md (Configuring ZSDK: registered apps and app keys, segments and access policy)
 - links-to references/_meta/text/shared/shared.zsdk.error-codes.md (ZSDK error codes: SDK errors 9001-9505 and ZSDK API errors 2001-2999)
 - links-to references/_meta/text/shared/shared.zsdk.sdk-integration.md (Adding the ZSDK to an app: Android, iOS, React Native and SwiftUI packages, prerequisites and sample apps)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.architecture.md (ZSDK architecture: Service Edges, App Connectors and the mobile client)

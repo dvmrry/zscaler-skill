@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.api.rate-limits.md (ZIA API rate limits and how the Python SDK retries): An exceeded limit returns HTTP 429, and ZIA responses carry x-ratelimit-limit, x-ratelimit-remaining and x-ratelimit-reset, the last being the seconds left in the current window. [zia.api.rate-limits:zia-429-headers]
 - links-to references/_meta/text/zia/zia.terraform.activation-methods.md (Activating ZIA changes from Terraform: methods, session end and concurrent applies)
 - links-to references/_meta/text/zia/zia.terraform.sandbox-resources.md (Terraform sandbox resources: file submission and the MD5 blocklist)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.terraform.credential-handling.md (How the Zscaler Terraform providers store, log, and send secrets)

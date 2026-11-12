@@ -23,3 +23,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)
 - links-to references/_meta/text/zcc/zcc.install.precedence.md (Install parameters versus console settings: which wins, and what survives an update)
 - links-to references/_meta/text/zcc/zcc.install.windows-unattended.md (Silent install, upgrade, revert and uninstall parameters, and launch behavior)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)

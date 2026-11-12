@@ -23,3 +23,7 @@ Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.windows-driver.md (Windows filter driver install parameters (LWF))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.install.strict-enforcement.md (Strict enforcement, the policy token, and the fail-close configuration)

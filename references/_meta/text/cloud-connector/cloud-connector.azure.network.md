@@ -52,3 +52,7 @@ Area: cloud-connector.azure, its subjects in references/_meta/spine/cloud-connec
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.api.provisioning-wire.md (Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields), from cloud-connector.azure: The cloud provisioning URL is a prerequisite for deploying Cloud Connector as a VM in AWS, Azure and GCP, and is obtained by configuring a provisioning template; the same URL can be used multiple times. [cloud-connector.api.provisioning-wire:url-prerequisite]
 - interacts-with references/_meta/text/cloud-connector/cloud-connector.azure.load-balancing.md (Cloud Connector on Azure: internal load balancer, health probe and Gateway Load Balancer): Gateway Load Balancer deployments get a separate service NSG that allows inbound UDP only from the `AzureLoadBalancer` service tag on the configured VXLAN port range and denies all other inbound traffic, because VXLAN traffic comes only from the GWLB data plane. [cloud-connector.azure.network:gwlb-service-nsg]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.azure.terraform-modules.md (Zscaler's Azure Terraform package for Cloud Connector: image, VM sizes, provider constraint, examples and FIPS)
+- see-also references/_meta/text/cloud-connector/cloud-connector.azure.md (Cloud Connector on Azure: deployment methods, prerequisites and provisioning)

@@ -30,3 +30,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zcc/zcc.api.authentication.md (Reaching and signing in to the ZCC API: OneAPI gateway and legacy login): The legacy API is signed in to with a POST to `/papi/auth/v1/login` carrying `apiKey` and `secretKey`; the response's `jwtToken` is the token passed on subsequent calls. [zcc.api.authentication:legacy-login-request]
 - links-to references/_meta/text/zcc/zcc.api.rate-limits.md (ZCC API rate limits: 100 calls an hour, 3 a day for downloads, and how the SDKs back off)
 - links-to references/_meta/text/zia/zia.sdk-python.authentication.md (How the Python SDK authenticates to ZIA: OneAPI, government clouds and legacy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.sdk-go.legacy-routing.md (ZCC SDK calls in legacy-client mode routed to the ZIA client)

@@ -51,3 +51,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.incidents.details.md (The Incident Details drawer: fields by Source DLP type, actions and status changes, quarantine release errors, tickets and privacy gates)
 - links-to references/_meta/text/zwa/zwa.incidents.integrations.md (Workflow Automation integrations: DLP GCP privacy settings, Slack, Microsoft Teams, ServiceNow and Jira Software)
 - links-to references/_meta/text/zwa/zwa.settings.md (Workflow Automation account settings: notification expiry, digests and reminders, approver domains, user data source, obfuscation and quarantine release)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)

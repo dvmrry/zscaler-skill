@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection), from zia.file-type-control: These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System. [zia.ssl-inspection.bypass-impact:dependent-features]
 - links-to references/_meta/text/zia/zia.file-type-control.api-shape.md (File Type Control API shape: rules, categories and custom types)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/file-type-rules.md (config type)
+- see-also references/_meta/text/zia/zia.file-type-control.md (ZIA File Type Control)

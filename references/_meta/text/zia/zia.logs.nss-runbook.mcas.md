@@ -8,3 +8,7 @@ Also called: MCAS Feed; Microsoft Cloud App Security feed troubleshooting
 **Capture and escalation.** The runbook says to take a packet capture on the tap interface (service interface) to see the conversation between NSS and MCAS, to contact Zscaler Support if there are no anomalies but the MCAS logs continue to be missing, and that /sc/log/zbridge.log contains event logs related to the MCAS feed. [zia.logs.nss-runbook.mcas:capture-and-escalate]
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.diagnostics.md (NSS runbook data collection: health and network commands, packet capture and NSS log files)

@@ -31,3 +31,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)
 - links-to references/_meta/text/zcc/zcc.devices.lifecycle.md (Enrolled device states and what moves a device between them)
 - links-to references/_meta/text/zcc/zcc.partner-tenants.md (Private Access partner logins: who may log in to whose tenant, and what the user does and sees)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.devices.exports.md (Device CSV exports: inventory, service status and disable reasons)
+- see-also references/_meta/text/zcc/zcc.devices.record-fields.md (What a device record's fields mean, and how the list and detail calls return them)

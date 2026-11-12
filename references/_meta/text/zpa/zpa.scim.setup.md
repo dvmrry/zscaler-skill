@@ -30,3 +30,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.scim.attributes-and-groups.md (SCIM attributes and groups in Private Access)
 - links-to references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria)
 - links-to references/_meta/text/zpa/zpa.scim.server-operations.md (The Private Access SCIM server API: operations, paging and request rules)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.scim.md (ZPA SCIM groups and attributes in policy)
+- see-also references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token)

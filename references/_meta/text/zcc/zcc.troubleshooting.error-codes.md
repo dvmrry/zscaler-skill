@@ -24,3 +24,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.devices.lifecycle.md (Enrolled device states and what moves a device between them)
 - links-to references/_meta/text/zcc/zcc.logging.collection.md (Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures)
 - links-to references/_meta/text/zcc/zcc.troubleshooting.private-access-auth-errors.md (Private Access authentication errors Client Connector users might see during enrollment: 2008 and the 42xxx codes the vendor lists)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)

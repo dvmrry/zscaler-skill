@@ -16,3 +16,9 @@ Sources disagree (name both sides):
   Impact: Whether a Do Not Inspect rule can allow or block on an untrusted certificate depends on which page is read; the pages do not say whether the policy settings apply only with Evaluate Other Policies.
 
 Area: zia.troubleshooting-runbook, its subjects in references/_meta/spine/zia/zia.troubleshooting-runbook.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.diagnostics.md (Runbook diagnostics: HAR analysis, QUIC detection, XFF compatibility and SSL configuration checks)
+- see-also references/_meta/text/zia/zia.ssl-inspection.certificates.md (SSL/TLS inspection certificates: who signs, and where the root must be trusted)
+- see-also references/_meta/text/zia/zia.ssl-inspection.actions.md (What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings)

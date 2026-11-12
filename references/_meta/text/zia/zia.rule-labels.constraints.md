@@ -34,3 +34,7 @@ Area: zia.rule-labels, its subjects in references/_meta/spine/zia/zia.rule-label
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.rule-labels.api-surface.md (ZIA rule label API surface)
 - links-to references/_meta/text/zia/zia.rule-labels.rule-types.md (Which ZIA rule types accept rule labels)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/rule-labels.md (config type)
+- see-also references/_meta/text/zia/zia.rule-labels.md (ZIA Rule Labels)

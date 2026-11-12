@@ -18,3 +18,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.signals.md (Where ZPA access evidence lives: console, client, connector, log streaming)
 - links-to references/_meta/text/zpa/zpa.vpn.support-information.md (VPN Support Information: diagnostic sessions and commands on VPN Service Edges and Network Connectors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)

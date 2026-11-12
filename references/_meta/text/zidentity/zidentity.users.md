@@ -55,3 +55,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.users.provisioning.md (Getting users into and out of Authentication Service: JIT, SCIM, and what IdP removals do to admins)
 - links-to references/_meta/text/zidentity/zidentity.users.provisioning.scim.md (The Authentication Service SCIM server: operations, attribute mapping, authentication and rate limits)
 - links-to references/_meta/text/zidentity/zidentity.users.security-settings.md (A user's security settings in Authentication Service: initial password option, skipping second-factor authentication and MFA authenticators)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.migration.end-users.md (How end users are migrated to Authentication Service: eligibility, prerequisites, the wizard's audits, test users and rollback)

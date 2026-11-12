@@ -52,3 +52,9 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.bandwidth-control: Bandwidth Control is the final entry in the ordered policy lists the web module applies to HTTP GET and POST requests, to responses, and to the domain-only pass on CONNECT or SNI. [zia.bandwidth-control.pipeline-position:last-in-web-order]
 - links-to references/_meta/text/zia/zia.terraform.delete-detach.md (How the ZIA Terraform provider detaches references before deleting objects)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.registry.md (The ZIA provider's reorder registry: keys, locks and lifecycle across rule resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/bandwidth-classes.md (config type)
+- configured-via references/_meta/text/types/zia/bandwidth-control-rules.md (config type)
+- see-also references/_meta/text/zia/zia.bandwidth-control.classes.md (Bandwidth classes: what a class is and which exist)
+- see-also references/_meta/text/zia/zia.bandwidth-control.limits.md (Bandwidth Control limits: rules, classes, domains)

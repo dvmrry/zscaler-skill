@@ -26,3 +26,6 @@ Area: shared.mcp-server, its subjects in references/_meta/spine/shared/shared.mc
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)
 - links-to references/_meta/text/zpa/zpa.api.pagination.md (ZPA list pagination, search syntax and client-side filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.mcp-server.md (The Zscaler MCP server: release, protocol and where its behavior is described)

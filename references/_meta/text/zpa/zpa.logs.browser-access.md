@@ -36,3 +36,8 @@ Area: zpa.logs, its subjects in references/_meta/spine/zpa/zpa.logs.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.browser-access.logs.md (Browser Access in LSS: log type and identity field)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
+- see-also references/_meta/text/zpa/zpa.appprotection.logging.md (Where AppProtection events go: the LSS log type and its fields)

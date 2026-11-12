@@ -17,3 +17,10 @@ Area: zia.troubleshooting-runbook, its subjects in references/_meta/spine/zia/zi
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.troubleshooting-runbook.ssl-block-actions.md (Runbook: SSL and HTTP-tunnel block outcomes (bad SSL record, undecryptable traffic, server probe failure, domain fronting, HTTP tunnel))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.url-category-conflicts.md (Runbook: URL category conflicts, Miscellaneous and Newly Registered and Observed Domains handling)
+- see-also references/_meta/text/zia/zia.cloud-app-control.troubleshooting.md (Cloud App Control troubleshooting: blocked-but-allowed and allowed-but-blocked)
+- see-also references/_meta/text/zia/zia.ssl-inspection.actions.md (What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings)
+- see-also references/_meta/text/zia/zia.authentication.exemptions.md (Destinations that skip authentication)

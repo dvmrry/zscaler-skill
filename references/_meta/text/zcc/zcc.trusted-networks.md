@@ -21,3 +21,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.trusted-networks.detection.md (How Client Connector decides it is on a trusted network)
 - links-to references/_meta/text/zcc/zcc.trusted-networks.object.md (The Client Connector trusted network object and its v1 API)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.md (ZPA trusted networks)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/trusted-networks.md (config type)
+- configured-via references/_meta/text/zcc/zcc.api.trusted-networks-wire.md (What goes on the wire for ZCC trusted networks: the v1 webTrustedNetwork and v2 trusted-networks APIs)

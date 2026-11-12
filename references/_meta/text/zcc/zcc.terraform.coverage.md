@@ -18,3 +18,7 @@ Area: zcc.terraform, its subjects in references/_meta/spine/zcc/zcc.terraform.js
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.acceptable-use.md (The Client Connector acceptable use policy prompt)
 - links-to references/_meta/text/zcc/zcc.api.web-policy-wire.md (What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.notifications.templates.md (Client Connector notification templates: per-profile notification settings)
+- see-also references/_meta/text/zcc/zcc.api.entitlements-wire.md (ZCC entitlement calls: response and update body shapes)

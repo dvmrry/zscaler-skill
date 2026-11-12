@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/portfolio/portfolio.security-operations.md (Security Operations suite: Exposure Management, Threat Management, Red Canary MDR, managed threat hunting and CTEM)
 - links-to references/_meta/text/risk360/risk360.overview.md (Risk360: what it measures, which data it uses, how long it keeps logs, and what can be automated)
 - links-to references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.md (Zscaler cloud architecture)
+- see-also references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)

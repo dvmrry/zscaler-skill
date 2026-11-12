@@ -52,3 +52,10 @@ Area: zia.traffic-capture, its subjects in references/_meta/spine/zia/zia.traffi
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.firewall.ips.md (IPS Control)
+- see-also references/_meta/text/zia/zia.malware-protection.settings.md (Malware Protection categories: Allow or Block, Capture, and the settings object)
+- see-also references/_meta/text/zia/zia.atp.categories.md (ATP detection categories and what each toggle covers)
+- see-also references/_meta/text/zia/zia.file-type-control.actions.md (File Type Control actions, direction and defaults)
+- see-also references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)

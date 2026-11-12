@@ -43,3 +43,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.groups.md (Location groups: manual and dynamic, conditions, limits, predefined groups)
 - links-to references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.cloud-deployment.md (Deploying a Virtual Service Edge on Azure, AWS (with or without GWLB) and GCP)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)
+- see-also references/_meta/text/zia/zia.locations.automation.md (Locations through the API, SDK, Terraform and Ansible)
+- see-also references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it)
+- see-also references/_meta/text/zia/zia.locations.ip-scoping.md (Which IP addresses a sublocation matches, overlap rules and XFF)

@@ -18,6 +18,9 @@ import {
 } from "./check-full.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// A git hook (check-fast runs from pre-push) sets GIT_DIR for a linked worktree; the scratch repository below would
+// then be the outer one, and its 15,000 entries would land in that index. submodulePreflight inherits process.env.
+for (const key of ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"]) delete process.env[key];
 
 test("full gate includes both Node and Python checks", () => {
   assert.ok(FULL_CHECKS.some((check) => check.args.includes("scripts/check-fast.mjs")));

@@ -22,3 +22,8 @@ Not known (open gaps):
 - Which agent applies a credential cleanup [gap:identity-protection.credential-exposure:cleanup-agent]: settled by source-read
 
 Area: identity-protection.credential-exposure, its subjects in references/_meta/spine/identity-protection/identity-protection.credential-exposure.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.identity-details.md (Identity detail pages and Identity Search in Identity Protection: AD user, Entra ID identity, Okta enrichment and cross-platform search)
+- see-also references/_meta/text/identity-protection/identity-protection.ad-posture.md (Active Directory posture in Identity Protection: dashboard, issues, roadmap, reports, remediation, privileged account tracking and password analysis)

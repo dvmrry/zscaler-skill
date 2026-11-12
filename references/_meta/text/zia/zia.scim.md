@@ -30,3 +30,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.scim.sdk-coverage.md (What the Go and Python SDKs do for ZIA SCIM)
 - links-to references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token)
 - links-to references/_meta/text/zpa/zpa.scim.md (ZPA SCIM groups and attributes in policy)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/users.md (config type)
+- configured-via references/_meta/text/types/zia/groups.md (config type)
+- configured-via references/_meta/text/types/zia/departments.md (config type)

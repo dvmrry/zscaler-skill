@@ -23,3 +23,10 @@ Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubl
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.fail-open.md (Client Connector fail-open: captive portals, unreachable Service Edges and tunnel failures)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)
+- see-also references/_meta/text/zcc/zcc.app-profiles.advanced-settings.md (What the less common app profile settings do)
+- see-also references/_meta/text/zcc/zcc.support-options.restart-and-repair.md (Restart Service and Repair App for end users)
+- see-also references/_meta/text/zcc/zcc.app-profiles.failover.md (App profile failover: disaster recovery, cloud unreachable, captive portals)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.registry-keys.md (Client Connector state in the Windows registry: ZNW_State, ZPA_State, ZWS_State and ZPA_AuthState values)

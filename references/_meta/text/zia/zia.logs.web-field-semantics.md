@@ -56,3 +56,7 @@ Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.field-enablement.md (Which ZIA log fields are not logged until enabled)
 - links-to references/_meta/text/zia/zia.logs.web-rule-attribution.md (Which rule decided a web transaction, from the logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)
+- see-also references/_meta/text/zia/zia.atp.block-diagnosis.md (Diagnosing a Malware Protection or ATP block from the logs)

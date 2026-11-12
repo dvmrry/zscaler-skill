@@ -20,3 +20,10 @@ Not known (open gaps):
 - The full per-role permission matrix and its inconsistencies [gap:dspm.roles:permission-matrix]: settled by source-read or tenant-data
 
 Area: dspm.roles, its subjects in references/_meta/spine/dspm/dspm.roles.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/dspm/dspm.alerts.md (How DSPM alerts work: risk level, statuses, snooze and resolve, alert details, and the alert rules and ignore alert filters that act on them)
+- see-also references/_meta/text/dspm/dspm.on-premises.md (How DSPM covers on-premises data: data centers, scanner integrations and the scanner VM, and evidence settings)
+- see-also references/_meta/text/dspm/dspm.action-rules.md (How DSPM action rules apply Microsoft Purview sensitivity labels, and how SaaS tenants (Microsoft 365) are onboarded)
+- see-also references/_meta/text/zidentity/zidentity.entitlements.md (Administrative and service entitlements: who administers and who may use each Zscaler service)

@@ -16,3 +16,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.machine-groups.policy-use.md (Using a machine group in a ZPA policy rule)
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.md (ZPA machine tunnels)
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.provisioning-keys.md (Machine provisioning keys for ZPA machine tunnels)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.machine-groups-wire.md (Machine group list scoping and vpnConnectedUsers wire details)

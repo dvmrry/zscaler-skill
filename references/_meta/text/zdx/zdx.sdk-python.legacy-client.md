@@ -24,3 +24,8 @@ Area: zdx.sdk-python, its subjects in references/_meta/spine/zdx/zdx.sdk-python.
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-python.retries.md (How the Python SDK retries: budget, statuses, waits, re-authentication)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.sdk-python.md (The Python SDK for ZDX: where its ZDX behavior is covered)
+- see-also references/_meta/text/zdx/zdx.api.hosts-and-auth.md (ZDX API hosts and sign-in: the OneAPI gateway, the direct ZDX host, and which paths go where)
+- see-also references/_meta/text/zdx/zdx.sdk-go.legacy-client.md (The Go SDK's direct (legacy) ZDX client: credentials, sign-in, retries and limits, and why the ZDX services do not use it)

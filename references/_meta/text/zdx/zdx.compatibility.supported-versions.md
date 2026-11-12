@@ -42,3 +42,12 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.diagnostics.session-types.md (The four Diagnostics session types in the console: Deep Tracing, Hi-Fi Cloud Path, Bandwidth Test and Packet Capture Probing)
 - links-to references/_meta/text/zdx/zdx.probes.cloud-path.md (Reading the Cloud Path: the Hop View and Command Line View, tunnels, protocols, edges, and the error messages)
 - links-to references/_meta/text/zdx/zdx.remediation.md (ZDX Remediation: remote PowerShell scripts, jobs, signing, prerequisites and troubleshooting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.overview.md (ZDX at a glance: what it measures and which subject answers each question)
+- see-also references/_meta/text/zdx/zdx.cloud-architecture.module-upgrades.md (ZDX Module upgrades: automatic, delayed, frozen and manual rollout)
+- see-also references/_meta/text/zdx/zdx.applications.rum.md (Real User Monitoring in ZDX: prerequisites, the Real User Score and the RUM views)
+- see-also references/_meta/text/zdx/zdx.devices.inventory.md (Hardware, process, software and software patch inventory in the ZDX console)
+- see-also references/_meta/text/zdx/zdx.devices.health-and-events.md (ZDX device health metrics and device events)
+- see-also references/_meta/text/zdx/zdx.dashboards.wifi.md (The Wi-Fi Dashboard: access points, SSIDs and their metrics)
+- see-also references/_meta/text/zcc/zcc.install.system-requirements.md (Client Connector system requirements, resource usage, update intervals and deployment prerequisites)

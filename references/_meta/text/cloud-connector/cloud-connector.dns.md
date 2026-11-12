@@ -34,3 +34,9 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/ztw/dns-log.md (Cloud & Branch Connector DNS log (NSS feed)): In DNS Insights logs the Response Action is always None, because the Zscaler service applies DNS policy only to requests; in the Response Rule Name column, a rule applied to the response is labeled None. [cloud-connector.logs:dns-response-none]
 - links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.log-and-control.md (Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud)
 - links-to references/_meta/text/cloud-connector/cloud-connector.shared-objects.ip-pools.md (IP pools for Private Access DNS resolution in Cloud & Branch Connector: default pool, per-location pools and entries)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/traffic-dns-rules.md (config type)
+- configured-via references/_meta/text/types/ztw/dns-gateways.md (config type)
+- configured-via references/_meta/text/cloud-connector/cloud-connector.terraform.forwarding-rules.md (ZTC traffic forwarding and DNS rules in Terraform: forward methods, ZPA segment IDs, workload groups, WAN selection and labels)
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)

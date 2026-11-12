@@ -22,3 +22,9 @@ Not known (open gaps):
 - What Client Connector does with a stale SAML assertion after enrollment [gap:zcc.troubleshooting.private-access-auth-errors:stale-assertion-later]: settled by lab-test or support-ticket
 
 Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.authentication.md (Authentication failures and step-up prompt loops in ZPA)
+- see-also references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.error-codes.md (Client Connector error codes: cloud authentication, cloud, Admin Console and Report an Issue)

@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.terraform.provider-config.md (Configuring the ZCC Terraform provider: OneAPI credentials, environment variables and defaults)
 - links-to references/_meta/text/zia/zia.terraform.provider-modes.md (ZIA Terraform provider authentication, client modes and rate limiting)
 - links-to references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.terraform.md (The Zscaler Terraform providers: where their behavior is described)

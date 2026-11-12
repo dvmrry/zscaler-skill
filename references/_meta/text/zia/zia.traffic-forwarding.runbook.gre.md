@@ -27,3 +27,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.traffic-forwarding: A location identifies a network from which the organization sends internet traffic; the service checks whether arriving traffic comes from a configured (known) location or an unknown one (remote user traffic), and processes known-location traffic by the location's settings. [zia.locations.model:identifies-networks]
 - interacts-with references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent), from zia.traffic-forwarding: Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode. [zia.proxy-mode.forwarding-map:not-a-setting]
 - links-to references/_meta/text/zia/zia.traffic-forwarding.runbook.tunnel-path.md (Runbook: MTR collection, WinMTR for Client Connector and PAC, and latency checks for GRE and IPSec gateways)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.runbook.md (How the Internet & SaaS traffic forwarding troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.gre-failover.md (GRE tunnel health checks and failover)

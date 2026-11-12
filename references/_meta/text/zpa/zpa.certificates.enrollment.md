@@ -48,3 +48,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)
 - links-to references/_meta/text/zpa/zpa.browser-access.certificates.md (Certificates for Browser Access applications: wildcards, managed and custom)
 - links-to references/_meta/text/zpa/zpa.certificates.md (ZPA certificates: enrollment (CA) certificates and web server certificates)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.software-components.oauth-enrollment.md (OAuth 2.0 enrollment for ZPA software components and its troubleshooting)

@@ -29,3 +29,7 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions): For an ISOLATE rule the provider requires a cbi_profile, rejects the user agent type OTHER, and allows only HTTP and HTTPS protocols. [zia.terraform.url-filtering-rules:isolate-validation]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.terraform.rule-resources.md (Constraints shared by ZIA Terraform rule resources: order and predefined rules)
+- see-also references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)

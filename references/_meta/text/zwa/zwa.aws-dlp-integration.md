@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.aws-dlp-integration.manual-setup.md (Setting up the AWS DLP integration resources by hand: SNS access policy, buckets, trust policy, cross-account policies and customer-managed key policies)
 - links-to references/_meta/text/zwa/zwa.aws-dlp-integration.privacy-settings.md (The Hide privacy checkboxes on the AWS DLP integration: per-role defaults for admins, end users and managers or approvers, and their dependencies)
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.incident-forwarding.md (Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud)

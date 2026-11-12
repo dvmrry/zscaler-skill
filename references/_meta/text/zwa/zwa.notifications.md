@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.notifications.merge-tags.md (Merge tags in Workflow Automation notification templates: tag group names, example digest tags, per-notification caps and the special links)
 - links-to references/_meta/text/zwa/zwa.notifications.survey-templates.md (Workflow Automation survey (questionnaire) templates: the mandatory Reason question, default families, toolbox question types and edit rules)
 - links-to references/_meta/text/zwa/zwa.notifications.template-mappings.md (Workflow Automation incident and digest template mappings: which notification and survey templates are used per source type, source action and notification type)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+- see-also references/_meta/text/zwa/zwa.workflows.md (Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover)

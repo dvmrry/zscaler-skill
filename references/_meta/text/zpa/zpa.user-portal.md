@@ -40,3 +40,12 @@ Area: zpa.user-portal, its subjects in references/_meta/spine/zpa/zpa.user-porta
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.backup-restore.restore-semantics.md (What restoring a ZPA backup does: overwrite and removal, legacy backups, reports, the pre-restore backup, the documented inconsistencies and failure reasons)
 - links-to references/_meta/text/zpa/zpa.browser-access.certificates.md (Certificates for Browser Access applications: wildcards, managed and custom)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.browser-access.md (Browser Access: clientless ZPA access to web applications)
+- see-also references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
+- see-also references/_meta/text/zpa/zpa.saml-attributes.md (ZPA SAML attributes)
+- see-also references/_meta/text/zcc/zcc.acceptable-use.other-surfaces.md (Which acceptable use screen: ZCC, ZIA location, ZIA notifications or ZPA user portal)
+- see-also references/_meta/text/zpa/zpa.pra.components.md (PRA components: portals, consoles, approvals, credentials, policies and limits)
+- see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
+- see-also references/_meta/text/zpa/zpa.posture-profiles.md (ZPA posture profiles)

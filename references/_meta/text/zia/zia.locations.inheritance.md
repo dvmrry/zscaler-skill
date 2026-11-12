@@ -38,3 +38,9 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/zia/zia.virtual-service-edge.clusters.md (The Virtual Service Edge cluster: limits, object, build order and Location binding), from zia.locations: A Virtual Service Edge cluster, or a standalone Virtual Service Edge, is bound to a Location so the organization can enable authentication, firewall, SSL/TLS inspection and location-level policies; the service associates the traffic the Virtual Service Edge receives with that Location and applies its policies. [zia.virtual-service-edge.clusters:bind-to-location]
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.locations: When Zscaler Client Connector traffic matches none of a location's listed IP addresses, the location is tagged as Road Warrior in the logs. [zia.locations.model:road-warrior]
 - links-to references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- see-also references/_meta/text/zia/zia.locations.ip-scoping.md (Which IP addresses a sublocation matches, overlap rules and XFF)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)

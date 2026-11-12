@@ -27,3 +27,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
 - links-to references/_meta/text/zia/zia.reports.data-protection.md (DLP reports: Email Security (Email DLP), Endpoint DLP and Data Discovery)
 - links-to references/_meta/text/zwa/zwa.incident-analytics.md (Workflow Automation Incident Analytics dashboard: access by workflow permission, time ranges, KPI tiles, triage and resolve times, and top-10 views)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.analytics.md (Experience Center Analytics: the dashboard and report families and which subject owns each)
+- see-also references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)

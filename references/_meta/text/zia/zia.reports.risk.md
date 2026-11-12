@@ -42,3 +42,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection): Risk scores are calculated only for organizations with Advanced Threat Protection, which is available in the Internet & SaaS Business bundle and higher or sold separately. [zia.reports.risk:company-risk-needs-atp]
 - links-to references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine)
 - links-to references/_meta/text/risk360/risk360.scoring.md (How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- see-also references/_meta/text/zia/zia.sandbox.rules.md (Sandbox rules: first-time file behavior and the default rule)

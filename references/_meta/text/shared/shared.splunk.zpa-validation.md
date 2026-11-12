@@ -50,3 +50,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap)
 - links-to references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
 - links-to references/_meta/text/shared/shared.log-correlation.zia-zpa-join.md (Joining ZIA logs to ZPA User Activity logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.splunk.md (Searching Zscaler logs in Splunk: field names, placeholders and validation searches)

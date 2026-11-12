@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)), from zia.dlp: Payload-based checks, DLP among them, do not run on traffic that SSL inspection does not decrypt, so an SSL inspection bypass upstream silently removes DLP for that traffic. [zia.dlp.evaluation:decrypt-dependency]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.dlp: For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention. [zia.dlp.evaluation:dlp-after-url-and-file-type]
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.dlp: dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename. [zia.logs.web-field-semantics:dlp-rule-fields]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.email-profiles.md (DLP domain profiles and recipient profiles)
+- see-also references/_meta/text/zia/zia.dlp.outbound-email.md (Outbound Email DLP rules in the SDKs and Terraform provider)

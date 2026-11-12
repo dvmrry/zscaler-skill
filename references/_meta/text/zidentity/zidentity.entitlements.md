@@ -46,3 +46,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)
 - links-to references/_meta/text/zidentity/zidentity.api.client-coverage.md (Which clients cover which parts of the ZIdentity API: Python, Go and the MCP server)
 - links-to references/_meta/text/zidentity/zidentity.sdk-go.md (Go SDK for ZIdentity (ziam services): name lookups, write models and where its paths depart from the contract)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions)
+- see-also references/_meta/text/zidentity/zidentity.groups.md (Authentication Service user groups: predefined and custom groups, dynamic groups, membership and limits)
+- see-also references/_meta/text/zidentity/zidentity.admin-rbac.md (Authentication Service admin roles: predefined and custom roles, and how they relate to product roles)

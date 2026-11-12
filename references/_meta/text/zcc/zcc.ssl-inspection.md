@@ -52,3 +52,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.ssl-inspection.certificate-install.md (Who installs the SSL inspection certificate on Client Connector devices, per platform)
 - links-to references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection)
 - links-to references/_meta/text/zpa/zpa.appprotection.md (ZPA AppProtection)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.firefox.proxy-and-trust.md (Firefox traffic and certificate trust with and without the integration)

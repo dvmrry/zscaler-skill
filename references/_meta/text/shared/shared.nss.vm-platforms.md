@@ -32,3 +32,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.vm-network.md (NSS VM interfaces and firewall requirements: management and service roles, outbound-only, no SSL inspection)
 - links-to references/_meta/text/shared/shared.nss.vm-operations.md (Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks)
 - links-to references/_meta/text/shared/shared.nss.vm-sizing.md (NSS VM specs: cores, memory by user count, disk, bandwidth and the console's sizing inputs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity)

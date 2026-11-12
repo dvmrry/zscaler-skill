@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.browser-access.md (Browser Access: clientless ZPA access to web applications)
 - links-to references/_meta/text/zpa/zpa.log-receivers.md (ZPA log receivers and the Log Streaming Service)
 - links-to references/_meta/text/zpa/zpa.policy.forwarding-rules.md (ZPA client forwarding policy rules: actions, precedence and criteria)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)
+- see-also references/_meta/text/shared/shared.deployments.zpa.leading-practices.md (What the ZPA Leading Practices Guide recommends for connector sizing, segmentation rollout, application segments and Private Service Edges)

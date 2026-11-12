@@ -36,3 +36,8 @@ Area: zcc.web-privacy, its subjects in references/_meta/spine/zcc/zcc.web-privac
 
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.entitlements.zdx.md (Digital Experience (ZDX) entitlement): Collect Location Info for ZDX lets the app collect geolocation from ZDX-enabled devices; it works in conjunction with the ZDX service entitlement, is on by default, and is available only when ZDX is enabled for the company or selected groups. [zcc.web-privacy.collection:zdx-location]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zcc/zcc.api.web-privacy-wire.md (ZCC web privacy (User Privacy) calls: string flags, fields the contract lacks, and key casing)
+- see-also references/_meta/text/zcc/zcc.web-privacy.md (ZCC user privacy (web privacy): what the app collects and exposes)
+- see-also references/_meta/text/zcc/zcc.logging.user-access.md (What users can do with Client Connector logs: logging controls and readable exports)

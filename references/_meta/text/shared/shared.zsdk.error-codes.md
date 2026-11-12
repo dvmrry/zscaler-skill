@@ -41,3 +41,8 @@ Not known (open gaps):
 - Numeric values behind the iOS error constants [gap:shared.zsdk.error-codes:ios-numeric-codes]: settled by source-read or support-ticket. Blocks: mapping an iOS ZscalerSDKErrorCode constant to a code in the help table
 
 Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.developer-api.md (The ZSDK developer API: classes, tunnels, lifecycle and notifications)
+- see-also references/_meta/text/shared/shared.zsdk.configuration.md (Configuring ZSDK: registered apps and app keys, segments and access policy)
+- see-also references/_meta/text/shared/shared.zsdk.sdk-integration.md (Adding the ZSDK to an app: Android, iOS, React Native and SwiftUI packages, prerequisites and sample apps)

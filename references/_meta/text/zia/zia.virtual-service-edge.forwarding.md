@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.network-requirements.md (Addresses, interfaces, outbound connectivity and ports for a Virtual Service Edge)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

@@ -26,3 +26,6 @@ Area: zdx.diagnostics, its subjects in references/_meta/spine/zdx/zdx.diagnostic
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.diagnostics.mcp-tools.md (The MCP server's ZDX deep-trace tools and troubleshooting prompt: inputs, results and mismatches)
 - links-to references/_meta/text/zdx/zdx.sdk-go.service-defects.md (Go SDK ZDX services: where the structs and functions disagree with the contract)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.diagnostics.md (ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered)

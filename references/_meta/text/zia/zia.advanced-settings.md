@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.zpa-gateway.md (The Private Access gateway object in ZIA)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.proxy-chaining.md (Proxy chaining to ZIA: setup, XFF handling and limits)
 - links-to references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-settings.md (config type)

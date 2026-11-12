@@ -47,3 +47,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.private-access-actions.md (Forwarding profile actions for Private Access (ZPA): Tunnel or None per network type)
 - links-to references/_meta/text/zcc/zcc.z-tunnel.md (Z-Tunnel)
 - links-to references/_meta/text/zia/zia.forwarding-control.proxy-ports.md (Dedicated proxy ports)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)
+- configured-via references/_meta/text/zcc/zcc.terraform.field-fidelity.md (ZCC Terraform provider fields that are not sent, not read back, or collapsed)

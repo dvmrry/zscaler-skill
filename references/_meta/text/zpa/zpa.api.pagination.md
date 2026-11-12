@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.scim.api-surface.md (The SCIM API, SDK and Terraform read surface in ZPA)
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-selection.md (Which object a ZPA Terraform data source actually returns)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.object.md (The ZPA trusted network object and how to fetch it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.api.rate-limits.md (ZPA API rate limits)
+- see-also references/_meta/text/zia/zia.sdk-python.pagination.md (Paging through ZIA lists with the Python SDK)

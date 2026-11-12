@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.workload-scopes.md (AWS workload sublocation scopes (VPC endpoint, VPC, account, namespace))
 - links-to references/_meta/text/zia/zia.workload-groups.api-surface.md (Reading and writing workload groups: API, SDKs, Terraform, MCP)
 - links-to references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/workload-groups.md (config type)

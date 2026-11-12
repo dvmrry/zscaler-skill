@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)
 - links-to references/_meta/text/zpa/zpa.server-groups.discovery-mode.md (Dynamic discovery versus explicit servers on a server group)
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.terraform.md (The Zscaler Terraform providers: where their behavior is described)
+- see-also references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)

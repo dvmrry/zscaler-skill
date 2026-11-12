@@ -22,3 +22,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.forwarding-rules.md (ZTC traffic forwarding and DNS rules in Terraform: forward methods, ZPA segment IDs, workload groups, WAN selection and labels)
 - links-to references/_meta/text/cloud-connector/cloud-connector.workload-discovery.permission-status.md (AWS account permission status: Pending, Allowed, Denied, and refreshing it)
 - links-to references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdk-go.coverage.md (What the Go SDK's ZTW packages leave out: commented-out functions, uncovered endpoints and activation)
+- see-also references/_meta/text/cloud-connector/cloud-connector.forwarding.methods.md (Cloud Connector forwarding methods: ZIA, ZPA, Direct, Drop, Local, and their API tokens)

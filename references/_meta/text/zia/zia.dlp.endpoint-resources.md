@@ -27,3 +27,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.endpoint-dlp.md (Endpoint DLP API families in the SDKs and Terraform provider)
 - links-to references/_meta/text/zia/zia.dlp.endpoint-rules.md (Endpoint DLP policy rules: channels, criteria, actions (Allow, Block, Confirm, Protect) and notifications)
 - links-to references/_meta/text/zia/zia.endpoint-context.md (Endpoint Context: endpoint application telemetry from Client Connector, the policies that use it, and the Application Investigation page)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)

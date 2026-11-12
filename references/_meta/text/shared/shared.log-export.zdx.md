@@ -15,3 +15,6 @@ Not known (open gaps):
 - Whether ZDX data can be streamed to a SIEM [gap:shared.log-export.zdx:streaming-path]: settled by source-read. Blocks: recommending how to get ZDX data into a SIEM
 
 Area: shared.log-export, its subjects in references/_meta/spine/shared/shared.log-export.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.log-export.md (Where each Zscaler product's logs go and how to get them out)

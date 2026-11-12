@@ -27,3 +27,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))
 - links-to references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)
 - links-to references/_meta/text/zia/zia.time-intervals.time-windows.md (Time windows versus time intervals)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/time-intervals.md (config type)
+- see-also references/_meta/text/zia/zia.time-intervals.schema.md (Time interval fields: days, minutes and the single window)

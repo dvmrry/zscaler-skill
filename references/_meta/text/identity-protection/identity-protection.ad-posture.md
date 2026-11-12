@@ -48,3 +48,8 @@ Area: identity-protection.ad-posture, its subjects in references/_meta/spine/ide
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/identity-protection/identity-protection.change-detection.md (Active Directory and Entra ID change detection in Identity Protection: monitored issues, cycle, Impact values and remediation)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.identity-details.md (Identity detail pages and Identity Search in Identity Protection: AD user, Entra ID identity, Okta enrichment and cross-platform search)
+- see-also references/_meta/text/identity-protection/identity-protection.entra-posture.md (Entra ID posture in Identity Protection: dashboard, issues, roadmap, reports and remediation)

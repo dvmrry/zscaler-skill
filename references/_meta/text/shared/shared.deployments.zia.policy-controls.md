@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
 - links-to references/_meta/text/zia/zia.firewall.ips.md (IPS Control)
 - links-to references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)

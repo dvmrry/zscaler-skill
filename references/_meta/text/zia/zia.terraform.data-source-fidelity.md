@@ -78,3 +78,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-fidelity.md (What ZPA Terraform data sources return, drop, or get wrong)
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-selection.md (Which object a ZPA Terraform data source actually returns)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.zero-value-writes.md (Why Terraform cannot clear some fields: omitted zero values and empty objects in SDK writes)

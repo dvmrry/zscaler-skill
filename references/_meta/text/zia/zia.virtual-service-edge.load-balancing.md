@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.forwarding-control.sipa.md (Source IP Anchoring: what it needs on each side), from zia.virtual-service-edge: The Source IP Anchoring feature is not supported with Virtual Service Edges. [zia.virtual-service-edge.limits:no-sipa]
 - scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.virtual-service-edge: A Virtual Service Edge cluster, or a standalone Virtual Service Edge, is bound to a Location so the organization can enable authentication, firewall, SSL/TLS inspection and location-level policies; the service associates the traffic the Virtual Service Edge receives with that Location and applies its policies. [zia.virtual-service-edge.clusters:bind-to-location]
 - links-to references/_meta/text/zia/zia.private-service-edge.cluster-architecture.md (How a Private Service Edge cluster is built and fails over)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

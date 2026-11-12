@@ -28,3 +28,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.rules.md (Web DLP policy rules: order, criteria and actions)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.ad-integration.terraform.md (What Terraform manages for ZIA users and authentication settings)

@@ -985,7 +985,8 @@ function readCompany(ov, ids, shown = new Set()) {
 const AREA_TOKENS = 20000;
 
 // How strongly `read` follows each edge type: the mechanisms that settle an outcome first, prose links next.
-// see-also and configured-via are listed by title, not read; so is any type (a log's field list is long).
+// see-also and configured-via are not followed: the reading-text files list them by title (scripts/gen-text.mjs).
+// A type is listed, not read (a log's field list is long).
 export const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-on": 3, "reached-via": 3, "logged-in": 3, "links-to": 2, "configured-via": 0, "see-also": 0 };
 
 /**

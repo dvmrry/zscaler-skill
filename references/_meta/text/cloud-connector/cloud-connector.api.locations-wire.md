@@ -19,3 +19,8 @@ Area: cloud-connector.api, its subjects in references/_meta/spine/cloud-connecto
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.service-defects.md (Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/locations.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)
+- see-also references/_meta/text/zia/zia.locations.automation.md (Locations through the API, SDK, Terraform and Ansible)

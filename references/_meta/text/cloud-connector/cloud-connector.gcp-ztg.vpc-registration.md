@@ -23,3 +23,7 @@ Area: cloud-connector.gcp-ztg, its subjects in references/_meta/spine/cloud-conn
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.gcp-ztg.creation.md (Creating a GCP Zero Trust Gateway: region, zones, location, IAM principals)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp-ztg.md (GCP Zero Trust Gateway: managed service boundary and restrictions)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp-ztg.operations.md (Operating a GCP Zero Trust Gateway: health states, configuration rejection, traffic tests)

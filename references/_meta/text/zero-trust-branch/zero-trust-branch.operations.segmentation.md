@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.md (Where Zero Trust Branch operations are documented: forwarding, Routed Tunnels, segmentation, integrations, logging, monitoring, the Debug Console, troubleshooting and upgrades)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.integrations.md (How Zero Trust Branch integrates with other systems: API keys, SIEM syslog, CrowdStrike, Armis and SentinelOne)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.micro-subnets.md (How Zero Trust Branch Airgap+ micro-subnets work: address layout, DHCP server requirement, VLAN fields and CSV import)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)

@@ -42,3 +42,6 @@ Area: cloud-connector.sdwan, its subjects in references/_meta/spine/cloud-connec
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdwan.configuration-templates.md (Branch Connector configuration templates: VM and hardware settings, HA, WAN uplinks, LAN, DHCP and static routes)
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.os-images.md (Cloud Connector OS upgrades: redeployment and the ZscalerOS 24 end of support)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdwan.md (Zero Trust SD-WAN: what Zscaler means by it and what the sources leave open)

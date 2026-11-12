@@ -26,3 +26,8 @@ Area: shared.cloud-architecture, its subjects in references/_meta/spine/shared/s
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.oneapi.government-clouds.md (Reaching OneAPI on government (FedRAMP) and non-production clouds)
 - links-to references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.federal-clouds.md (Federal and government cloud editions: FedRAMP, DoD IL5 and other certifications as marketed)
+- see-also references/_meta/text/shared/shared.cloud-architecture.md (Zscaler cloud architecture)
+- see-also references/_meta/text/shared/shared.subclouds.md (Subclouds: restricting which Service Edges handle a tenant's traffic)

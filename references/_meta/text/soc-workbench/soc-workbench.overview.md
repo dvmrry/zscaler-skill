@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/soc-workbench/soc-workbench.alerts.md (Alerts in Agentic SOC: the Alerts page, severity score composition, alert-score factors and severity categories)
 - links-to references/_meta/text/soc-workbench/soc-workbench.assets.md (Assets in Agentic SOC: merged assets, Risk Score and Risk Mass, columns, filters and charts)
 - links-to references/_meta/text/soc-workbench/soc-workbench.incidents.md (Incidents in Agentic SOC: the Incidents page, detail tabs, verdicts, statuses, custom incidents and customization)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/breach-predictor/breach-predictor.overview.md (Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with)

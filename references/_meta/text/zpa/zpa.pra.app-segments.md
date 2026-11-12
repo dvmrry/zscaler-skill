@@ -47,3 +47,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.browser-access.segment-constraints.md (Browser Access applications on a segment: per-application keys and where the constraints live)
 - links-to references/_meta/text/zpa/zpa.peer-to-peer.md (Peer-to-peer connectivity: client-to-client and server-to-client remote assistance, their requirements and setup, and Client Connector IP assignment)
 - links-to references/_meta/text/zpa/zpa.terraform.app-segment-lifecycle.md (What the ZPA Terraform provider sends, keeps and cleans up for application segments and their associations)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.app-segments-wire.md (Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds)

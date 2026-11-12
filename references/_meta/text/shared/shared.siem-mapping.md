@@ -73,3 +73,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.logs.microsegmentation-flow.md (What a ZPA Microsegmentation Flow log record says and does not say)
 - links-to references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
 - links-to references/_meta/text/zpa/zpa.logs.user-status.md (What a ZPA User Status log record says and does not say)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.log-export.md (Where each Zscaler product's logs go and how to get them out)
+- see-also references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)

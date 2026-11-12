@@ -49,3 +49,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.public-service-edges.md (ZPA Public Service Edges), from zpa.private-service-edges: A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge. [zpa.private-service-edges.what-it-is:coexists-with-public]
 - links-to references/_meta/text/zpa/zpa.private-service-edges.reference-modules.md (Reference Terraform modules for Private Service Edges on AWS and Azure)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)

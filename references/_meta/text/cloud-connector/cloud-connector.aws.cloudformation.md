@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.aws.instance-sizing.md (Cloud Connector on AWS: VM size, EC2 instance type, and matching the provisioning template): The instance size given to the deployment (small, medium or large) must match the VM size of the cloud provisioning template; if the provisioning URL's sizing and the deployment template's sizing differ, the deployment is unsuccessful. [cloud-connector.aws.instance-sizing:size-must-match]
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.autoscaling.md (Cloud Connector Auto Scaling groups on AWS: scaling metric, policy, capacity limits)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.reference-modules.md (Zscaler's Terraform modules for Cloud Connector on AWS: examples, defaults, FIPS, Transit Gateway)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.gwlb.md (Cloud Connector behind AWS Gateway Load Balancer: target group, health probe, stickiness, cross-zone)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.security-groups.md (Cloud Connector on AWS: firewall requirements and the reference security groups)

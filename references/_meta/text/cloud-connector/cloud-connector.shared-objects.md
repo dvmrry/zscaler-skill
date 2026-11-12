@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.shared-objects.ip-pools.md (IP pools for Private Access DNS resolution in Cloud & Branch Connector: default pool, per-location pools and entries)
 - links-to references/_meta/text/cloud-connector/cloud-connector.shared-objects.network-services.md (Network services and network service groups in Cloud & Branch Connector)
 - links-to references/_meta/text/cloud-connector/cloud-connector.source-ip-groups.md (Cloud Connector source IP groups: what they are and what is unknown about them)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.locations-wire.md (Cloud Connector locations on the wire: the profile values and what Terraform can manage)

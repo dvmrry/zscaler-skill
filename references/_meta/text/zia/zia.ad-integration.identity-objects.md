@@ -50,3 +50,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.rules.md (Forwarding Control rule criteria, limits and ordering)
 - links-to references/_meta/text/zia/zia.scim.attribute-mapping.md (ZIA SCIM attribute mapping)
 - links-to references/_meta/text/zia/zia.scim.groups-and-departments.md (How SCIM groups and departments land in ZIA)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/users.md (config type)
+- configured-via references/_meta/text/types/zia/groups.md (config type)
+- configured-via references/_meta/text/types/zia/departments.md (config type)
+- see-also references/_meta/text/zia/zia.ad-integration.md (How users, groups and departments get into ZIA)

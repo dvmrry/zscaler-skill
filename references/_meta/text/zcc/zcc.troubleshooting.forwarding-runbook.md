@@ -19,3 +19,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.endpoint-firewall.md (Runbook: Endpoint FW/AV Error and FIREWALL_BLOCK_ERROR, 100.64.0.0/24 health checks and the Windows firewall rule)
 - links-to references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.network-error.md (Runbook: Network Error (Network Connection Failed. -8.), its log strings and DNS checks)
 - links-to references/_meta/text/zcc/zcc.troubleshooting.service-status-errors.md (Error messages in Client Connector's Service Status field and the action for each)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)
+- see-also references/_meta/text/zcc/zcc.interoperability.security-software.md (Allowlisting Client Connector in antivirus and host firewalls: paths, processes, firewall directions and the 100.64 range)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.runbook.md (How the Internet & SaaS traffic forwarding troubleshooting runbook triages a case and routes it to its pages)

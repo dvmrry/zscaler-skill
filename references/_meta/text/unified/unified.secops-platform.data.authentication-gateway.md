@@ -33,3 +33,8 @@ Not known (open gaps):
 - Gateway setup steps 1 to 5 and the zscaler-gateway.sh script body [gap:unified.secops-platform.data.authentication-gateway:gw-steps-not-captured]: settled by source-read
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/uvm/uvm.data-sources.md (UVM data sources: shared connector facts, availability, and the Jira, Zscaler, Okta, Code42, NetBox, runZero, SecurityScorecard and SFTP connectors)
+- see-also references/_meta/text/uvm/uvm.outegrations.md (UVM outegrations: setup procedure, storage and streaming, Splunk, Teams and Email, and Tenable scan outegrations)

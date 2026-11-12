@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.incident-receiver.md (Zscaler Incident Receiver: requirements per platform, storage, health check and VM commands)
 - links-to references/_meta/text/zia/zia.dlp.notification-templates.md (DLP notification templates: auditor email subject, macros, attachments and TLS)
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-icap-servers.md (config type)
+- configured-via references/_meta/text/types/zia/dlp-incident-receiver-servers.md (config type)
+- configured-via references/_meta/text/types/zia/dlp-notification-templates.md (config type)

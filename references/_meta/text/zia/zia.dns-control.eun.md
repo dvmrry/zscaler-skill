@@ -26,3 +26,8 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/dns-log.md (ZIA DNS log (NSS DNS feed)), from zia.dns-control: The DNS NSS feed gives separate rule and action fields for the request (reqrulelabel, reqaction) and for the response (resrulelabel, resaction), mapped in DNS Insights Logs to Request Rule Name, Request Action, Response Rule Name and Response Action. [zia.logs.dns-outcome:request-response-pairs]
 - links-to references/_meta/text/zia/zia.dns-control.actions.md (DNS Control actions and what each API action requires)
 - links-to references/_meta/text/zia/zia.dns-control.doh.md (DNS over HTTPS in DNS Control)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)
+- see-also references/_meta/text/zia/zia.eun.md (ZIA end user notifications: browser templates, browser appearance and the Client Connector-based route)
+- see-also references/_meta/text/zia/zia.eun.client-connector.md (Client Connector-based end user notifications from the ZIA side: prerequisites, channels, details, shared settings and languages)

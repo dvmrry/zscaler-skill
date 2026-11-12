@@ -34,3 +34,10 @@ Area: zpa.backup-restore, its subjects in references/_meta/spine/zpa/zpa.backup-
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.backup-restore.md (ZPA Backup and Restore: what a backup covers, the 10-backup limit, the golden backup, expiry, schedules and the PRA-tenant exclusion)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.backup-restore.restore-semantics.md (What restoring a ZIA restore point does and does not revert)
+- see-also references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks)
+- see-also references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)
+- see-also references/_meta/text/zpa/zpa.microtenants.md (ZPA Microtenants)
+- see-also references/_meta/text/zpa/zpa.user-portal.md (Private Access user portals and portal links: what they are, how users reach them, certificates and DNS, links, download links and the acceptable use policy)

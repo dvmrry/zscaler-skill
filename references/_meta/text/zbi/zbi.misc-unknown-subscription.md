@@ -16,3 +16,7 @@ Area: zbi.misc-unknown-subscription, its subjects in references/_meta/spine/zbi/
 
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering): An Internet & SaaS URL Filtering rule for the Miscellaneous & Unknown category is created automatically; it is disabled by default for existing tenants and enabled by default for new tenants. [zbi.misc-unknown-subscription:auto-rule]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions)
+- see-also references/_meta/text/zbi/zbi.policy.md (What sends traffic to Cloud Browser: Internet & SaaS rules, Smart Isolation and the Private Access isolation policy)

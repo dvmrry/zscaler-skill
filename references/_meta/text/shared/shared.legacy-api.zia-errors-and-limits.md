@@ -17,3 +17,7 @@ Area: shared.legacy-api, its subjects in references/_meta/spine/shared/shared.le
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.api.rate-limits.md (ZIA API rate limits and how the Python SDK retries)
 - links-to references/_meta/text/zia/zia.terraform.activation-methods.md (Activating ZIA changes from Terraform: methods, session end and concurrent applies)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.oneapi.response-codes.md (OneAPI status codes, ZIA maintenance read-only mode, and 403 and 409 causes)
+- see-also references/_meta/text/shared/shared.legacy-api.zia-session.md (ZIA legacy API sessions: API key obfuscation, JSESSIONID and the cloud service API key)

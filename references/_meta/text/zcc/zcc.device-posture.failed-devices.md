@@ -25,3 +25,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.device-posture.failure-modes.md (Why a device fails posture, and what the user sees)
 - links-to references/_meta/text/zcc/zcc.devices.dashboard.md (The Client Connector dashboard: Platform Details and Device Events widgets, license usage and what each needs)
 - links-to references/_meta/text/zcc/zcc.support-options.md (ZCC end-user support options (App Supportability))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.device-posture.md (ZCC device posture profiles)

@@ -52,3 +52,13 @@ Not known (open gaps):
 - Whether the columns articles' port-as-address wording is a vendor defect [gap:zia.insights.logs:port-described-as-address]: settled by source-read
 
 Area: zia.insights, its subjects in references/_meta/spine/zia/zia.insights.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.insights.md (ZIA Insights: the Admin Console's traffic charts, log viewer and dashboards)
+- see-also references/_meta/text/zia/zia.insights.data-types.md (ZIA Insights chart settings: units, chart types, top-N, filters, history and the data types that appear only on an Insights page)
+- see-also references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)
+- see-also references/_meta/text/zia/zia.logs.firewall-records.md (What a ZIA firewall log record is: aggregates, action and field names)
+- see-also references/_meta/text/zia/zia.logs.dns-outcome.md (What happened to a DNS query: rules, actions, response values and errors)
+- see-also references/_meta/text/zia/zia.logs.tunnel-records.md (What a ZIA tunnel log record is: log types, tunnel status, event reasons and sample counters)
+- see-also references/_meta/text/zia/zia.casb.insights-logs.md (CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming)
+- see-also references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)

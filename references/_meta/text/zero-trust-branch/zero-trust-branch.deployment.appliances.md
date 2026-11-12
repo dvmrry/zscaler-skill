@@ -20,3 +20,7 @@ Area: zero-trust-branch.deployment, its subjects in references/_meta/spine/zero-
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.md (How a Zero Trust Branch appliance is deployed: activation, ZTP, virtual machines, mainland China, upgrades and admin roles)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.high-availability.md (How Zero Trust Branch high availability works: standard HA, Enhanced WAN Edge HA, VRRP and ebond bonding interfaces)

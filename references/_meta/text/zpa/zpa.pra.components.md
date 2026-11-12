@@ -58,3 +58,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.emergency-access.scope.md (What Emergency Access covers: PRA only, approvals, audit and what stays unverified)
 - links-to references/_meta/text/zpa/zpa.pra.portals.md (PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login)
 - links-to references/_meta/text/zpa/zpa.terraform.delete-paths.md (What the ZPA Terraform provider does when deleting objects with dependents)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes)
+- see-also references/_meta/text/zpa/zpa.pra.file-transfer.md (PRA file transfer: in-console transfer, the PRA File Transfer System and the Sandbox integration)

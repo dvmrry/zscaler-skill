@@ -36,3 +36,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.api.activation-wire.md (Cloud Connector activation on the wire: activate, forced activate, and what the clients send)
 - links-to references/_meta/text/cloud-connector/cloud-connector.source-ip-groups.automation.md (Managing source IP groups with the ZTC Terraform provider and the Go SDK)
 - links-to references/_meta/text/cloud-connector/cloud-connector.source-ip-groups.rule-use.md (Which Cloud Connector rules take source IP groups, and how the source criterion behaves)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ip-source-groups.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.terraform.delete-detach.md (How the ZTC Terraform provider detaches references before deleting objects)
+- see-also references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads)

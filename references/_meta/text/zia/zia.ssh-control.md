@@ -24,3 +24,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.criteria.md (Firewall Filtering rule criteria)
 - links-to references/_meta/text/zia/zia.firewall.network-services.md (Network services (port criteria))
 - links-to references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
+- see-also references/_meta/text/zia/zia.file-type-control.md (ZIA File Type Control)

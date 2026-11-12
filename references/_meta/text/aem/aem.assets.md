@@ -17,3 +17,9 @@ Area: aem.assets, its subjects in references/_meta/spine/aem/aem.assets.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/uvm/uvm.easm-discovery.md (How EASM discovery profiles work: seeds and their formats, limits, scan cadence, permissions and reports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/aem/aem.overview.md (Asset Exposure Management (AEM): the asset inventory, coverage gaps and policies, and what can be automated)
+- see-also references/_meta/text/aem/aem.violation-tickets.md (AEM violation tickets: the Violation Tickets page, drawer, split and merge, comments and activity log)
+- see-also references/_meta/text/uvm/uvm.assets-findings.md (What UVM assets and findings are, what the Assets and Findings pages show, and how on-demand asset scans work)
+- see-also references/_meta/text/soc-workbench/soc-workbench.assets.md (Assets in Agentic SOC: merged assets, Risk Score and Risk Mass, columns, filters and charts)

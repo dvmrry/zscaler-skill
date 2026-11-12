@@ -23,3 +23,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.devices.removal-api.md (Removing devices and machine tunnels through the API and SDKs)
 - links-to references/_meta/text/zcc/zcc.logging.collection.md (Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures)
 - links-to references/_meta/text/zcc/zcc.passwords-and-otp.otp.md (One-time passwords for an enrolled device)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/devices.md (config type)
+- configured-via references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)

@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.entitlements.md (ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group), from zcc.app-profiles: Service entitlement selects which user groups or device groups can enroll into Private Access (ZPA), Digital Experience (ZDX) and Zscaler Deception; Internet & SaaS (ZIA) enrollment is enabled for all users by default. [zcc.entitlements:services-gated]
 - links-to references/_meta/text/zcc/zcc.install.macos-extensions.md (macOS system extensions, VPN payloads and privacy profiles for Client Connector)
 - links-to references/_meta/text/zcc/zcc.pac-files.md (Client Connector's two PAC files: what the forwarding profile PAC and the app profile PAC do in Tunnel and Tunnel with Local Proxy modes, and the forwarding PAC in Enforce Proxy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
+- see-also references/_meta/text/zcc/zcc.location-policies.md (Location-based policies: rulesets that steer traffic and set endpoint firewall rules by network type, and the lists they use)

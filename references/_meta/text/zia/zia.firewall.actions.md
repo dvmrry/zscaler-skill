@@ -42,3 +42,10 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover), from zia.firewall: For Z-Tunnel 1.0 and PAC traffic, the firewall must be enabled in Advanced Settings for this type of traffic: the option is Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors. [zia.firewall.traffic-path:ztunnel-pac-opt-in]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.firewall: If a web policy allows a transaction but a conflicting firewall policy blocks it, the firewall policy applies: for example, Cloud App Control allowing Box.com does not help when the firewall blocks it. [zia.firewall.traffic-path:firewall-beats-web-allow]
 - logged-in references/_meta/text/types/zia/firewall-log.md (ZIA firewall log (NSS firewall feed)), from zia.firewall: The firewall action field is described as the action the service took on the transaction: Allowed or Blocked. [zia.logs.firewall-records:action-two-values]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/ips-policies.md (config type)
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
+- see-also references/_meta/text/zia/zia.firewall.ips.md (IPS Control)
+- see-also references/_meta/text/zia/zia.url-filtering.actions.md (URL Filtering actions and their prerequisites)

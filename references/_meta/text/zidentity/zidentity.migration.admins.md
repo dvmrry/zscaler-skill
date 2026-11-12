@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/unified/unified.admin-console.sign-in.md (Signing in to the Zscaler Admin Console: URLs, sign-in methods, lockouts, password and MFA reset, and the upgrade to Experience Center)
 - links-to references/_meta/text/zidentity/zidentity.admin-rbac.md (Authentication Service admin roles: predefined and custom roles, and how they relate to product roles)
 - links-to references/_meta/text/zidentity/zidentity.migration.end-users.md (How end users are migrated to Authentication Service: eligibility, prerequisites, the wizard's audits, test users and rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)
+- see-also references/_meta/text/zidentity/zidentity.entitlements.md (Administrative and service entitlements: who administers and who may use each Zscaler service)

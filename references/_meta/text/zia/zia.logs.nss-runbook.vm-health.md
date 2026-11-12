@@ -17,3 +17,11 @@ Not known (open gaps):
 - Which runbook section 'Scope 2' and 'Zscaler Nanolog Server Connection Unstable' refer to [gap:zia.logs.nss-runbook.vm-health:alert-scope-2-anchor]: settled by source-read
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.connectivity.md (NSS runbook: connectivity failures between NSS and the Central Authority, Nanolog server and SIEM)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.diagnostics.md (NSS runbook data collection: health and network commands, packet capture and NSS log files)
+- see-also references/_meta/text/shared/shared.nss.vm-sizing.md (NSS VM specs: cores, memory by user count, disk, bandwidth and the console's sizing inputs)
+- see-also references/_meta/text/shared/shared.nss.vm-operations.md (Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks)
+- see-also references/_meta/text/shared/shared.nss.alerts.md (NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format)

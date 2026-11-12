@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.deployments.zpa.leading-practices.md (What the ZPA Leading Practices Guide recommends for connector sizing, segmentation rollout, application segments and Private Service Edges)
 - links-to references/_meta/text/shared/shared.deployments.zpa.operations.md (What the ZPA deployment and operations guides say about App Connector, Application Discovery, Browser Access, Client Forwarding Policy, log streaming and provisioning)
 - links-to references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.integrations.md (Cross-product hooks: where ZIA, ZPA and Client Connector reach into each other)

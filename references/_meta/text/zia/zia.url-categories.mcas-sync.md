@@ -29,3 +29,9 @@ Area: zia.url-categories, its subjects in references/_meta/spine/zia/zia.url-cat
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.feed-settings.md (NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS)
 - links-to references/_meta/text/shared/shared.nss.vm-operations.md (Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to)
+- see-also references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+- see-also references/_meta/text/zia/zia.cloud-app-control.md (ZIA Cloud App Control)
+- see-also references/_meta/text/shared/shared.nss.vm-sizing.md (NSS VM specs: cores, memory by user count, disk, bandwidth and the console's sizing inputs)

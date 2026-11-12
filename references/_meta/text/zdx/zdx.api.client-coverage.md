@@ -32,3 +32,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.diagnostics.analysis.md (ZDX Score analysis jobs through the API: starting one, polling it, and what the clients return)
 - links-to references/_meta/text/zdx/zdx.diagnostics.session-records.md (Reading and deleting a deep trace through the API: the session record and its keys)
 - links-to references/_meta/text/zdx/zdx.diagnostics.start-request.md (Starting a deep trace through the API: the read chain, the request body, and where the clients disagree)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.api.md (The ZDX API from a client's side: hosts, limits, conventions, coverage and wire notes)
+- see-also references/_meta/text/zdx/zdx.sdk-python.md (The Python SDK for ZDX: where its ZDX behavior is covered)
+- see-also references/_meta/text/zdx/zdx.sdk-go.md (The Go SDK for ZDX: how it reaches the API and where its ZDX behavior is covered)

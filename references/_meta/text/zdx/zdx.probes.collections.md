@@ -40,3 +40,8 @@ Area: zdx.probes, its subjects in references/_meta/spine/zdx/zdx.probes.json
 Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zdx/zdx.probes.criteria.md (Who a ZDX probe runs for: probing and exclusion criteria), from zdx.probes: Probing (inclusion) criteria use AND logic across fields: a probe for user John Doe, user group Group B and department Finance has the expression John Doe AND Group B AND Finance. [zdx.probes.criteria:inclusion-and]
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection), from zdx.probes: The organization's SSL policies do not apply to ZDX synthetic Web probes, while all other policies applicable to regular traffic do; the exception enables caching of responses, without which destination servers would see an excessive surge of probe requests. [zdx.probes:ssl-exempt]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.probes.md (ZDX probes: Web and Cloud Path probes, what they measure and how they run)
+- see-also references/_meta/text/zdx/zdx.applications.md (ZDX applications: predefined, custom and network applications, and the application API)
+- see-also references/_meta/text/zdx/zdx.probes.managed.md (Managed Monitoring and Zscaler Managed Probes: where they run, what they chart and their subscription limits)

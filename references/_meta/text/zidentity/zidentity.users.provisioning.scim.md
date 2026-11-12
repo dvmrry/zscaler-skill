@@ -39,3 +39,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.scim.operations.md (ZIA SCIM server operations, paging and rate limit)
 - links-to references/_meta/text/zidentity/zidentity.attributes.md (User and session attributes in Authentication Service: system-defined sets, custom attributes, device-attribute values and where each is used)
 - links-to references/_meta/text/zidentity/zidentity.users.provisioning.md (Getting users into and out of Authentication Service: JIT, SCIM, and what IdP removals do to admins)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions)
+- see-also references/_meta/text/zpa/zpa.scim.server-operations.md (The Private Access SCIM server API: operations, paging and request rules)

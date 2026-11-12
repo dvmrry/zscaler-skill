@@ -23,3 +23,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.public-service-edges.what-it-is.md (What a ZPA Public Service Edge is)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.access-path.md (The hops of a ZPA access request and where each can fail)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.no-access.md (A user cannot reach a private application at all)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.trust-model.md (Private Access certificate trust: tenant CAs, Zscaler PKI, pinning and key custody)

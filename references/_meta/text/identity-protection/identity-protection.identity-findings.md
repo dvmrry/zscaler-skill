@@ -25,3 +25,9 @@ Area: identity-protection.identity-findings, its subjects in references/_meta/sp
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/identity-protection/identity-protection.safelists.md (How the AD and Entra ID issue, object and change detection safelists work)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.findings-dashboards.md (The Findings Overview and Remediation dashboards in the Identities menu: widgets, filters, views and PDF export)
+- see-also references/_meta/text/identity-protection/identity-protection.tenants.md (The Tenants page and tenant details drawer in the Identities menu: list columns, views, drawer tabs and which tenants are shown)
+- see-also references/_meta/text/identity-protection/identity-protection.admin-portal.md (What the ITDR Admin Portal help pages and the SecOps ITDR Config page describe: sign-in and navigation, users and roles, account settings, ITDR Config, tables, queries, Advanced Settings, logs and Investigate)

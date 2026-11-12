@@ -58,3 +58,11 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.proxy-mode.forwarding-map.md (Which forwarding methods produce explicit or transparent mode): Traffic directed to a Service Edge by a GRE or IPSec tunnel at the egress router, with no browser configuration, is in transparent mode. [zia.proxy-mode.forwarding-map:tunnel-transparent]
 - links-to references/_meta/text/zia/zia.traffic-forwarding.azure-vwan.md (Azure Virtual WAN integration: prerequisites, limitations, service principal, hub sync and errors)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zia/zia.terraform.traffic-forwarding-resources.md (Terraform GRE tunnel, static IP, VPN credential and location resources)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.methods.md (Forwarding methods Zscaler supports and how to choose)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.dc-exclusion.md (Excluding a data center from a forwarding method (IPSec tunnels) for a period)
+- see-also references/_meta/text/shared/shared.ipsec.md (IPSec tunnels to Zscaler: where each question is answered)
+- see-also references/_meta/text/shared/shared.ipsec.device-settings.md (IPSec device settings Zscaler recommends: ciphers, PFS, NAT-T and DPD)

@@ -11,3 +11,12 @@ Not known (open gaps):
 - Whether getsminfo=nss_feed_info_all takes smmgr -s or -ys [gap:zia.logs.nss-runbook.log-integrity:getsminfo-flag]: settled by lab-test or source-read
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.log-loss.md (NSS runbook: missing and delayed logs on VM-based NSS, smstat counters and where the loss occurs)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.cloud-nss.md (NSS runbook: Cloud NSS new, stopped, missing and delayed logs, parsing errors and the SIEM connectivity test errors)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.corner-cases.md (NSS runbook corner cases: private and multi-cluster Nanolog, SIEM rate, explicit proxy, log replay, password reset and third-party software)
+- see-also references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+- see-also references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
+- see-also references/_meta/text/shared/shared.nss.feed-settings.md (NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS)

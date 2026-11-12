@@ -19,3 +19,9 @@ Not known (open gaps):
 - What makes a critical finding easy, moderate or difficult to exploit or remediate [gap:identity-protection.findings-dashboards:ease-criteria]: settled by source-read
 
 Area: identity-protection.findings-dashboards, its subjects in references/_meta/spine/identity-protection/identity-protection.findings-dashboards.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.identity-findings.md (The Identity Findings page and finding details drawer in the Identities menu: list columns, widgets, drawer tabs, remediation and safelisting)
+- see-also references/_meta/text/identity-protection/identity-protection.tenants.md (The Tenants page and tenant details drawer in the Identities menu: list columns, views, drawer tabs and which tenants are shown)
+- see-also references/_meta/text/identity-protection/identity-protection.admin-portal.md (What the ITDR Admin Portal help pages and the SecOps ITDR Config page describe: sign-in and navigation, users and roles, account settings, ITDR Config, tables, queries, Advanced Settings, logs and Investigate)

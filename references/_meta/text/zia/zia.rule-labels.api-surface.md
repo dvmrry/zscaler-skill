@@ -30,3 +30,8 @@ Area: zia.rule-labels, its subjects in references/_meta/spine/zia/zia.rule-label
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/rule-labels.md (config type)
+- see-also references/_meta/text/zia/zia.rule-labels.md (ZIA Rule Labels)
+- see-also references/_meta/text/zia/zia.rule-labels.constraints.md (ZIA rule label limits and constraints)

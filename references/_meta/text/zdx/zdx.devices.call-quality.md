@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.applications.md (ZDX applications: predefined, custom and network applications, and the application API)
 - links-to references/_meta/text/zdx/zdx.cloud-architecture.md (ZDX cloud architecture: components, the telemetry path and what is undocumented)
 - links-to references/_meta/text/zdx/zdx.sdk-python.response-models.md (What the Python SDK's ZDX results contain: envelopes, missing fields and paging)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)

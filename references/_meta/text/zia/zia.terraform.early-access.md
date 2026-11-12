@@ -22,3 +22,6 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sandbox.md5-blocklist.md (Sandbox custom MD5 hash list)

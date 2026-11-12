@@ -21,3 +21,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
 - links-to references/_meta/text/zpa/zpa.log-receivers.architecture.md (How the Log Streaming Service reaches a SIEM)
 - links-to references/_meta/text/zpa/zpa.public-service-edges.what-it-is.md (What a ZPA Public Service Edge is)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.md (Zscaler cloud architecture)

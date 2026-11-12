@@ -56,3 +56,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.provider-behavior.md (ZTC Terraform provider: configuration, field handling and read behavior)
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.rule-order.md (How the ZTC (Cloud Connector) Terraform provider applies rule order)
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.rule-protection.md (Whether the ZTC Terraform provider protects predefined traffic rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)
+- configured-via references/_meta/text/types/ztw/traffic-dns-rules.md (config type)

@@ -15,3 +15,9 @@ Area: zpa.log-receivers, its subjects in references/_meta/spine/zpa/zpa.log-rece
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors), from zpa.log-receivers: App Connectors must be deployed before a log receiver is configured. [zpa.log-receivers.architecture:connectors-first]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.runbook.md (How the Private Access LSS support troubleshooting runbook describes retention, the log flow and its three common issues)
+- see-also references/_meta/text/zpa/zpa.log-receivers.runbook.no-logs.md (What the LSS runbook checks when no logs arrive on the SIEM: receiver configuration, connector status, connectivity and the TLS handshake)
+- see-also references/_meta/text/zpa/zpa.log-receivers.filtering.md (Narrowing a ZPA log stream: status codes and streaming policy)
+- see-also references/_meta/text/zpa/zpa.log-receivers.formats.md (Log stream format and content templates for a ZPA log receiver)

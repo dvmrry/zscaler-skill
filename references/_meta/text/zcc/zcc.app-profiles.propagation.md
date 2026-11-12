@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zcc/zcc.app-profiles.selection.md (Which app profile a device gets: rule order, groups and the longest match), from zcc.app-profiles: The rule order is the order of precedence among a platform's profile rules and helps determine which rule the app downloads for a user at enrollment; precedence is by ascending number. [zcc.app-profiles.selection:ascending-precedence]
 - links-to references/_meta/text/zcc/zcc.api.web-policy-wire.md (What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate)
 - links-to references/_meta/text/zcc/zcc.devices.record-fields.md (What a device record's fields mean, and how the list and detail calls return them)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
+- see-also references/_meta/text/zcc/zcc.web-privacy.collection.md (What each User Privacy setting collects or allows)

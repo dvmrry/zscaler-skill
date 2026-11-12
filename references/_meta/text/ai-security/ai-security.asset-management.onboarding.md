@@ -31,3 +31,13 @@ Not known (open gaps):
 - Whether adding or removing subscriptions from the Accounts tab requires re-onboarding [gap:ai-security.asset-management.onboarding:accounts-tab-reonboarding]: settled by lab-test or support-ticket
 
 Area: ai-security.asset-management, its subjects in references/_meta/spine/ai-security/ai-security.asset-management.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding-aws.md (How AI Asset Management onboards AWS accounts and organizations: prerequisites, templates, CloudTrail, network and IAM roles)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding-gcp.md (How AI Asset Management onboards GCP organizations: prerequisites, templates, service account, network, IAM roles and errors)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding-azure.md (How is a Microsoft Azure tenant, management group or subscription onboarded to AI Security: roles, templates, network and error fixes?)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.cloud-accounts.md (How are onboarded AWS, Azure and GCP accounts managed in AI Security: the Cloud Accounts page, validation, status, issues, deletion, orchestrator changes and the orchestrator itself?)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.roles.md (How AI Asset Management business units and custom roles control access)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.integrations.md (How AI Asset Management external integrations work: Amazon S3, Azure Blob Storage, Amazon Security Lake, ServiceNow and Jira)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.issues.md (How AI Asset Management issues are generated, rated, moved between statuses and resolved or snoozed)

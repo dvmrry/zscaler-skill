@@ -34,3 +34,7 @@ Not known (open gaps):
 - Whether ZSCALER_MCP_TLS_CA_CERTS makes the server require client certificates [gap:shared.mcp-server.http-deployment:client-cert-enforcement]: settled by lab-test or code-read. Blocks: relying on the CA bundle as client authentication
 
 Area: shared.mcp-server, its subjects in references/_meta/spine/shared/shared.mcp-server.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.mcp-server.md (The Zscaler MCP server: release, protocol and where its behavior is described)
+- see-also references/_meta/text/shared/shared.mcp-server.delete-confirmation.md (How the Zscaler MCP server confirms deletes: elicitation, HMAC tokens and request state)

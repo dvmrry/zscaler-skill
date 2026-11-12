@@ -27,3 +27,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.onboarding-agent.md (The AI Red Teaming Onboarding Agent: generating a Proxy SDK proxy for a non-standard app, its spec gate, versions and local skill)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.test-runs.md (Red Teaming test runs: units, new runs, scheduling and history)
 - links-to references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-guard.md (AI Guard: runtime guardrails on prompts and responses, its Proxy and DAS/API modes, and where each part is documented)
+- see-also references/_meta/text/ai-security/ai-security.asset-inventory-api.md (The AI Security inventory API (AI Infrastructure, AI-SPM): read-only assets and issues, cursor paging, filters and limits)

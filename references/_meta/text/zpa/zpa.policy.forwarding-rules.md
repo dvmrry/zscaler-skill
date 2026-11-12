@@ -46,3 +46,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.sipa.md (Source IP Anchoring: what it needs on each side)
 - links-to references/_meta/text/zpa/zpa.policy.actions.md (Rule actions on ZPA policy types)
 - links-to references/_meta/text/zpa/zpa.policy.conditions.md (Boolean logic and operand forms of ZPA policy conditions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.policy.md (ZPA policy evaluation)
+- see-also references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
+- see-also references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks)

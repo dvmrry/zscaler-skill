@@ -34,3 +34,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipsec.md (IPSec tunnels to ZIA: limits, IKE and device settings)
 - links-to references/_meta/text/zia/zia.insights.data-types.md (ZIA Insights chart settings: units, chart types, top-N, filters, history and the data types that appear only on an Insights page)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.insights.md (ZIA Insights: the Admin Console's traffic charts, log viewer and dashboards)
+- see-also references/_meta/text/zia/zia.insights.logs.md (ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns)
+- see-also references/_meta/text/zia/zia.logs.firewall-records.md (What a ZIA firewall log record is: aggregates, action and field names)
+- see-also references/_meta/text/cloud-connector/cloud-connector.insights.analytics.md (Cloud Connector Insights pages and Insights logs: time range, aggregation and limits)

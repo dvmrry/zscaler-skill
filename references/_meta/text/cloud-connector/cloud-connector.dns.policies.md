@@ -55,3 +55,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/cloud-connector/cloud-connector.forwarding.criteria.md (Cloud Connector forwarding rule criteria: scope, services, sources, destinations, FQDNs), from cloud-connector.dns: Rules with wildcard domains or FQDNs need the workloads' DNS queries routed through the Cloud or Branch Connector; for HTTP/HTTPS traffic DNS is not required, but UDP and non-web traffic require it. [cloud-connector.forwarding.criteria:dns-required]
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.provider-behavior.md (ZTC Terraform provider: configuration, field handling and read behavior)
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.rule-order.md (How the ZTC (Cloud Connector) Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/traffic-dns-rules.md (config type)
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)

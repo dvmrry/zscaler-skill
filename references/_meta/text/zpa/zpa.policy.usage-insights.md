@@ -39,3 +39,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
 - links-to references/_meta/text/zpa/zpa.policy.md (ZPA policy evaluation)
 - links-to references/_meta/text/zpa/zpa.segment-groups.md (ZPA segment groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)

@@ -26,3 +26,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.strict-enforcement.md (Strict enforcement, the policy token, and the fail-close configuration)
 - links-to references/_meta/text/zcc/zcc.install.windows-driver.md (Windows filter driver install parameters (LWF))
 - links-to references/_meta/text/zcc/zcc.install.windows-unattended.md (Silent install, upgrade, revert and uninstall parameters, and launch behavior)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.install.azure-virtual-desktop.md (Client Connector in Azure desktops: Windows 365 Cloud PCs and Azure Virtual Desktop)
+- see-also references/_meta/text/zcc/zcc.install.windows-deployment.md (Deploying Client Connector on Windows: the MSI and MST, the EXE, command lines and Active Directory GPO)

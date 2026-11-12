@@ -89,7 +89,9 @@ needs none, and the one command an answer takes is `read --company`, for company
    product's spine file lists its log types. Each subject file gives its claims inline with their citable ID in
    brackets, then further facts, inferred (Tier B) claims with their conditions, sources that disagree with each
    side, and open gaps with what would fill them. It ends with its links as file paths, the most strongly linked
-   first, each with the claim that establishes it: open one only if the answer needs it.
+   first, each with the claim that establishes it, then what configures it (a config type with its fields and
+   Terraform names, a Terraform subject) and related subjects, by title: open one only if the answer needs it; for a
+   change, open its config type.
    **Something pasted or named that the spine does not show** (an error message, a ZPA LSS status code such as
    `AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`, a ZIA policy reason, a feature's nickname): search `references/_meta/text/`
    with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the

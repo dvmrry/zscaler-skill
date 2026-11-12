@@ -21,3 +21,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.cloud-architecture.service-edges.md (Service Edges: the data plane, its form factors, and how traffic reaches one)
 - links-to references/_meta/text/shared/shared.pac-files.variables.md (Zscaler PAC file variables: gateways, hosts, load-balancing tokens, subclouds and Client Connector)
 - links-to references/_meta/text/zia/zia.troubleshooting.performance-testing.md (Measuring ZIA performance: the Cloud Performance Test and why common speed tests mislead)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)

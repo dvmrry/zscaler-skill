@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes))
 - links-to references/_meta/text/zia/zia.ssl-inspection.traffic-sources.md (How SSL/TLS inspection applies by traffic source: known locations, Client Connector, a dedicated proxy port, and ports 9443, 80/443/9400/9480 and 8800)
 - links-to references/_meta/text/zia/zia.ssl-inspection.uninspectable.md (What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)

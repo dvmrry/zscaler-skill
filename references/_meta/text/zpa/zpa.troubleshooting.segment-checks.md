@@ -36,3 +36,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks)
 - links-to references/_meta/text/zpa/zpa.app-segments.multimatch.md (Multimatch: one request matching several application segments)
 - links-to references/_meta/text/zpa/zpa.segment-groups.policy-use.md (How access policy rules use segment groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.no-access.md (A user cannot reach a private application at all)

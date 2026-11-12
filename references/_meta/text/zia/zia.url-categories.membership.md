@@ -35,3 +35,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.url-categories.admin-scope.md (Who can manage a custom URL or TLD category: roles and operational scope)
 - links-to references/_meta/text/zia/zia.url-categories.bulk-upload.md (Bulk URL Upload tool: file operations, config file and exit codes)
 - links-to references/_meta/text/zia/zia.url-categories.lookup.md (Looking up and disputing a URL's category: URL Lookup and Site Review)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-categories.md (config type)
+- configured-via references/_meta/text/zia/zia.api.url-categories-wire.md (URL category API behavior beyond the field list: delete, lookup and the keyword quota figure)
+- configured-via references/_meta/text/zia/zia.terraform.url-categories.md (Terraform custom and predefined URL category resources)

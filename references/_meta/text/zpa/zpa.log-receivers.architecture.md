@@ -38,3 +38,9 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.app-connectors.connector-groups.md (App Connector groups): Logs go to the App Connector group that is geographically closest to the LSS instance, and transmission switches to App Connectors in another location when the connectors of the previously selected group are unavailable. [zpa.log-receivers.architecture:closest-group]
 - interacts-with references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks): When a log receiver is created, the service also creates an internal application segment with the receiver's FQDN or IP address, and if that address overlaps an application segment, the segment's Bypass setting takes precedence, so a bypassed address on a trusted network is unreachable from the user's device. [zpa.log-receivers.architecture:internal-segment]
 - links-to references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.delivery.md (Retention and delivery guarantees for ZPA logs)
+- see-also references/_meta/text/zpa/zpa.log-receivers.configuration.md (What a ZPA log receiver holds and which fields are required)
+- see-also references/_meta/text/zpa/zpa.log-receivers.splunk.md (Sending Private Access logs to Splunk with LSS: the TA and App, source types, index and TCP input)
+- see-also references/_meta/text/zpa/zpa.overview.md (What Private Access is, its components, how a connection is made and the documented configuration order)

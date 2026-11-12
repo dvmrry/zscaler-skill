@@ -46,3 +46,9 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.posture-profiles.object-model.md (The ZPA posture profile object and where it comes from): The posture profiles configured in the Zscaler Client Connector portal appear in the access policy criteria drop-down menu, where a specific profile can be searched. [zpa.posture-profiles.object-model:appear-in-policy-list]
 - links-to references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-resources.md (ZPA Terraform policy rule resources: v1 and v2 conditions, operand types and provider changes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+- see-also references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
+- see-also references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules)
+- see-also references/_meta/text/zpa/zpa.machine-tunnels.posture.md (Device posture on the ZPA machine tunnel)

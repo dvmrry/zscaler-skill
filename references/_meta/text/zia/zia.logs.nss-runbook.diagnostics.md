@@ -13,3 +13,12 @@ Not known (open gaps):
 - What the sample outputs of nss troubleshoot connection, test-firewall, troubleshoot feeds and smstat show [gap:zia.logs.nss-runbook.diagnostics:image-only-outputs]: settled by lab-test or source-read
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.vm-health.md (NSS runbook: VM-based NSS Unhealthy server, alerts and build upgrade checks)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.connectivity.md (NSS runbook: connectivity failures between NSS and the Central Authority, Nanolog server and SIEM)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.mcas.md (NSS runbook: validating an MCAS feed and its curl checks)
+- see-also references/_meta/text/shared/shared.nss.vm-operations.md (Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks)
+- see-also references/_meta/text/shared/shared.nss.vm-network.md (NSS VM interfaces and firewall requirements: management and service roles, outbound-only, no SSL inspection)
+- see-also references/_meta/text/shared/shared.nss.alerts.md (NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format)

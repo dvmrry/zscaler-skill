@@ -41,3 +41,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.uninspectable.md (What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT), from zia.saas-apps: Applications that pin a certificate reject any other certificate, so Zscaler cannot inspect them; the guide names Apple, many Microsoft 365 apps, Adobe, Cisco WebEx and the Dropbox app, and says pinning is common in iOS and Android apps. The remedies are to replace the application, bypass it only if it is valuable enough to justify the risk, or deny it. [zia.ssl-inspection.uninspectable:cert-pinning]
 - interacts-with references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction), from zia.saas-apps: Tenancy restriction lets you restrict access to personal accounts, business accounts, or both for certain cloud applications. It has two parts: creating tenant profiles, and associating them with Cloud App Control policy rules. [zia.tenant-profiles:what-it-is]
 - links-to references/_meta/text/zia/zia.saas-apps.md (SaaS apps that break or misbehave behind ZIA)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/tenancy-restriction-profiles.md (config type)
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)
+- see-also references/_meta/text/zia/zia.tenant-profiles.microsoft.md (Microsoft Login Services tenant profiles: v1, v2, personal accounts)

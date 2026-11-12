@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent), from zia.traffic-forwarding: Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode. [zia.proxy-mode.forwarding-map:not-a-setting]
 - links-to references/_meta/text/shared/shared.subclouds.api.md (The subclouds API: reading subclouds and editing their data center exclusions)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipsec.md (IPSec tunnels to ZIA: limits, IKE and device settings)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)

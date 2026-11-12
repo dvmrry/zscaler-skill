@@ -49,3 +49,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.source-ip-anchoring.md (Source IP Anchoring across ZIA and Private Access: path, pieces and interactions)
 - decided-by references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector): The source address Microsoft sees for an anchored sign-in is the address of whichever App Connector carried it, so when the connectors serving the anchored segment egress from different public addresses, sign-ins can pass and fail intermittently if only some of those addresses are trusted. [shared.m365.troubleshooting:mixed-egress-ips]
 - links-to references/_meta/text/shared/shared.m365.sipa-setup.md (Configuring Source IP Anchoring for Microsoft 365 sign-in)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.m365.md (Microsoft 365 Conditional Access through Source IP Anchoring)
+- see-also references/_meta/text/zia/zia.forwarding-control.predefined-rules.md (Predefined Forwarding Control rules)

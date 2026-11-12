@@ -27,3 +27,7 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths): The Python SDK sends `/bi` requests to the OneAPI gateway base URL: the dedicated gateway for a government cloud, `https://api.{self.cloud}.zsapi.net` for any other non-production cloud, and `https://api.zsapi.net` (the default `BASE_URL`) otherwise. [business-insights.api:python-routing]
 - links-to references/_meta/text/shared/shared.analytics.graphql.md (The Analytics (Z-Insights) GraphQL API: endpoint, access and scope)
 - links-to references/_meta/text/shared/shared.terminology.product-names.md (Product names and SDK or API names with a source: Internet & SaaS, Private Access, Zscaler App, Zero Trust Browser, ZBI, ZGuard, ecgroup, deep trace, ZTC)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/business-insights/business-insights.overview.md (Business Insights: SaaS usage and spend, workplace utilization, prerequisites and data sources)
+- see-also references/_meta/text/zbi/zbi.api.md (Automating browser isolation: where the API surface lives across Internet & SaaS and Private Access)

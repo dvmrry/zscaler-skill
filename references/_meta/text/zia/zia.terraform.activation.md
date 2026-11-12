@@ -21,3 +21,6 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.api.activation.md (How ZIA API changes become live: saving versus activating): The vendor's URL Categories API guide says to activate configuration changes after making them, by sending a POST request to /status. [zia.api.activation:saved-not-live]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))

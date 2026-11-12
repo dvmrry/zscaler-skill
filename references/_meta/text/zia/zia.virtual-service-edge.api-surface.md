@@ -27,3 +27,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.private-service-edge.what-it-is.md (What a ZIA Private Service Edge is, who runs it, and what it is not)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.sizing.md (How much a Virtual Service Edge VM can do)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-clusters.md (config type)
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

@@ -27,3 +27,9 @@ Not known (open gaps):
 - Whether the ZPA API accepts connectorIds and serverGroupIds on App Connector group create and update [gap:zpa.sdk-python.connector-helpers:group-id-list-wire-keys]: settled by lab-test. Blocks: telling whether groups made through the Python helpers are linked to their connectors and server groups
 
 Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.connector-groups.md (App Connector groups)
+- see-also references/_meta/text/zpa/zpa.app-connectors.upgrades.md (App Connector software and host OS updates)
+- see-also references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
+- see-also references/_meta/text/zpa/zpa.sdk-python.microtenant-scoping.md (How the Python SDK sends the microtenant ID on ZPA calls)

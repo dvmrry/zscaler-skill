@@ -19,3 +19,8 @@ Area: aem.violation-tickets, its subjects in references/_meta/spine/aem/aem.viol
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/aem/aem.ticket-grouping-rules.md (AEM grouping rule sets: how policy violations are aggregated into violation tickets)
 - links-to references/_meta/text/aem/aem.ticket-lifecycle.md (AEM violation ticket lifecycle: status buckets, statuses and ticket workflows)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/aem/aem.overview.md (Asset Exposure Management (AEM): the asset inventory, coverage gaps and policies, and what can be automated)
+- see-also references/_meta/text/aem/aem.policy-violations.md (AEM policy violations: the Policy Violations page, views, charts, columns and drawer)
+- see-also references/_meta/text/uvm/uvm.tickets.md (How UVM tickets work: the Tickets page, manual split and merge, automatic grouping rules, status buckets and ticket workflows)

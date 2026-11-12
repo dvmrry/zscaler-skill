@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zidentity/zidentity.entitlements.md (Administrative and service entitlements: who administers and who may use each Zscaler service), from zidentity.overview: A user can be given admin entitlements, which make them an administrator of a Zscaler service such as ZIA or ZPA, or service entitlements, which let them authenticate to a Zscaler service as an end user. [zidentity.entitlements:two-kinds]
 - links-to references/_meta/text/zidentity/zidentity.overview.external-idps.integrations.md (Per-IdP integration specifics for Authentication Service: Okta, Microsoft Entra ID, AD FS, PingOne, PingFederate, Auth0 and OneLogin)
 - links-to references/_meta/text/zidentity/zidentity.users.provisioning.md (Getting users into and out of Authentication Service: JIT, SCIM, and what IdP removals do to admins)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)

@@ -19,3 +19,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.dashboards.md (What the Microsegmentation Flow, Agent and Overview dashboards and the Application Map show)
 - links-to references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
 - links-to references/_meta/text/zms/zms.policies.md (How Microsegmentation resource policies, perimeter policies and policy settings work)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.resources.md (What Microsegmentation resources, Kubernetes cluster resources and resource groups are, including ML recommendations)

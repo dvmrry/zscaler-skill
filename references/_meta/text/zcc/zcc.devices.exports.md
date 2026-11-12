@@ -25,3 +25,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.api.rate-limits.md (ZCC API rate limits: 100 calls an hour, 3 a day for downloads, and how the SDKs back off): For an organization, all endpoints called from a given IP address are limited to 100 calls per hour, except `/downloadDevices`, `/downloadServiceStatus` and `/downloadDisableReasons`, which are limited to 3 calls per day. [zcc.api.rate-limits:hourly-and-daily-limits]
 - links-to references/_meta/text/zcc/zcc.api.conventions.md (Conventions of the ZCC v1 API: casing, query parameters, caching, status codes)
 - links-to references/_meta/text/zcc/zcc.app-profiles.advanced-settings.md (What the less common app profile settings do)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)
+- see-also references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)

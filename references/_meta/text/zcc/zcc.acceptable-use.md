@@ -48,3 +48,8 @@ Area: zcc.acceptable-use, its subjects in references/_meta/spine/zcc/zcc.accepta
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.acceptable-use.other-surfaces.md (Which acceptable use screen: ZCC, ZIA location, ZIA notifications or ZPA user portal)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
+- see-also references/_meta/text/zcc/zcc.notifications.md (Client Connector notifications: which surface the user saw)
+- see-also references/_meta/text/zcc/zcc.notifications.localization.md (Language of the Client Connector app, its notifications and the AUP)

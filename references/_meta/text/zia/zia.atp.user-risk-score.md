@@ -26,3 +26,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.atp: The web log field ruletype, shown in Web Insights as Blocked Policy Type, gives the type of policy and applies only to Block rules, not Allow. The documented example values are File Type Control, Data Loss Prevention and Sandbox. [zia.atp.block-diagnosis:ruletype-column]
 - links-to references/_meta/text/zia/zia.reports.risk.md (Risk and posture scoring reports: Company Risk Score, User Risk, Configuration Risk, Security Policy Audit and the Attack Surface Report)
 - links-to references/_meta/text/zpa/zpa.authentication.user-risk-scores.md (User risk scores in Private Access)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/risk360/risk360.scoring.md (How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates)

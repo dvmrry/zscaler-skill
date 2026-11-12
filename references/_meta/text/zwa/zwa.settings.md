@@ -48,3 +48,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.settings.api-keys.md (Workflow Automation API keys: the Key ID and secret, expiry, disabling, regenerating and deleting)
 - links-to references/_meta/text/zwa/zwa.settings.email-domains.md (Workflow Automation custom email domains: the notification sender, DNS verification, statuses and the default domain)
 - links-to references/_meta/text/zwa/zwa.settings.user-attributes.md (Workflow Automation user attributes: SCIM and CSV data sources, the unique identifier and the CSV import)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+- see-also references/_meta/text/zwa/zwa.workflows.md (Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover)

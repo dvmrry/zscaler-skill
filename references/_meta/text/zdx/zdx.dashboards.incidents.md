@@ -32,3 +32,8 @@ Not known (open gaps):
 - What severity levels an incident has and what a bad score is [gap:zdx.dashboards.incidents:severity-and-bad-score]: settled by support-ticket or lab-test. Blocks: explaining why a given incident was or was not raised and how severe it is
 
 Area: zdx.dashboards, its subjects in references/_meta/spine/zdx/zdx.dashboards.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.dashboards.md (ZDX console dashboards and overviews: time ranges, filters, VIP tagging, Private Service Edge Health and Self Service)
+- see-also references/_meta/text/zdx/zdx.alerts.md (ZDX alerts: how rules trigger, what an alert's status means, and reading alerts through the API)
+- see-also references/_meta/text/zdx/zdx.alerts.snapshot.md (Sharing a ZDX snapshot of an alert or a user: the contract, the Python client and the path question)

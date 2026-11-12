@@ -37,3 +37,6 @@ Area: zpa.machine-groups, its subjects in references/_meta/spine/zpa/zpa.machine
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.machine-tunnels.client-type-policy.md (The Machine Tunnel client type in ZPA policy): In the console, when a machine group is selected in an access policy or AppProtection policy rule, the Machine Tunnel client type is also required. [zpa.machine-groups.policy-use:console-pairs-client-type]
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.machine-groups.definition.md (What a ZPA machine group is and how machines join it)

@@ -48,3 +48,11 @@ Area: ai-security.asset-management, its subjects in references/_meta/spine/ai-se
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.cloud-accounts.md (How are onboarded AWS, Azure and GCP accounts managed in AI Security: the Cloud Accounts page, validation, status, issues, deletion, orchestrator changes and the orchestrator itself?)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding.md (Account onboarding in AI Security: supported targets, page metrics, integration tabs and actions, Copilot Studio, GitHub and Azure prerequisites and scopes)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.roles.md (How AI Asset Management business units and custom roles control access)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.integrations.md (How AI Asset Management external integrations work: Amazon S3, Azure Blob Storage, Amazon Security Lake, ServiceNow and Jira)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.model-scanning.md (How the AI Asset Management AI model scanner works: the CLI, the integration API key and its arguments)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.discovery.md (What the AI Asset Management console inventories show: public AI apps, AI assets, AI resources, dashboard and usage insights)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.issues.md (How AI Asset Management issues are generated, rated, moved between statuses and resolved or snoozed)

@@ -23,3 +23,6 @@ Area: shared.admin-rbac, its subjects in references/_meta/spine/shared/shared.ad
 Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.microtenants.admin-permissions.md (Microtenant admin permissions): A ZPA role carries no admin rank and no organizational scope like ZIA's: the role form has a name, a description and feature access, and what an admin can see and change otherwise depends on whether the admin works in the Default Microtenant or a Microtenant. [shared.admin-rbac.zpa:microtenant-as-scope]
 - links-to references/_meta/text/zpa/zpa.audit-logs.access.md (Who can read and download ZPA audit logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)

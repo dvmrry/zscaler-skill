@@ -44,3 +44,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.pac-files.md (PAC files across Zscaler: where each question is answered)
 - links-to references/_meta/text/shared/shared.pac-files.hosting.md (Hosted PAC files: the console page, Obfuscate URL, limits and how changes reach clients)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.pac-files.syntax.md (Writing a PAC file for Zscaler: function, return statements, ports and performance rules)

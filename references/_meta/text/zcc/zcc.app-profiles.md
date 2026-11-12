@@ -44,3 +44,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.passwords-and-otp.app-profile-passwords.md (App profile passwords: logout, disable, exit and uninstall, per platform)
 - links-to references/_meta/text/zcc/zcc.sdk-python.wire-keys.md (How the Python SDK names ZCC keys on the wire: the model serializer and the parameter mapper)
 - links-to references/_meta/text/zcc/zcc.web-privacy.md (ZCC user privacy (web privacy): what the app collects and exposes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)

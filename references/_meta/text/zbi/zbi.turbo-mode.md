@@ -21,3 +21,6 @@ Area: zbi.turbo-mode, its subjects in references/_meta/spine/zbi/zbi.turbo-mode.
 Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions): Admins must enable Turbo Mode in the user's isolation profile; the page refers to the articles on creating isolation profiles for Internet & SaaS and for Private Access. [zbi.turbo-mode:per-profile]
 - links-to references/_meta/text/zbi/zbi.misc-unknown-subscription.md (The Miscellaneous & Unknown subscription: a preconfigured profile, an automatic rule and five editable settings)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.cloud-browser.md (How Cloud Browser isolates a page: remote browser, traffic flow, containers and the idle timeout)

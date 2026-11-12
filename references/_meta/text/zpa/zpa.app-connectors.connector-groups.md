@@ -67,3 +67,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.group-enrollment.md (How the ZPA Terraform provider resolves the enrollment certificate for connector, service edge and private cloud groups)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.app-connectors-wire.md (ZPA App Connector, group, schedule and version profile calls: what is sent and where the sources differ)

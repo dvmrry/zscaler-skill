@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.casb.scans.md (CASB scan schedules: states, historical data, stop and restart), from zia.casb: A configured rule inspects nothing until it is added to a scan schedule: the Zscaler service does not inspect content until a scan is configured. [zia.casb:no-scan-no-inspection]
 - depends-on references/_meta/text/zia/zia.casb.tenants.md (CASB tenants: connecting a SaaS application, states and reauthorization), from zia.casb: Zscaler Data at Rest Scanning provides visibility and security for the sanctioned SaaS applications used in the organization, and a SaaS application is authorized with Zscaler by adding it as a tenant. [zia.casb.tenants:tenant-authorizes-app]
 - links-to references/_meta/text/zia/zia.casb.quarantine.md (CASB quarantine and tombstone files)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)

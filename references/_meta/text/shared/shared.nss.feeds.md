@@ -56,3 +56,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.feed-filters.md (What each NSS log type's feed can filter on, and the rules for matching)
 - links-to references/_meta/text/shared/shared.nss.alerts.md (NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format)
 - links-to references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))

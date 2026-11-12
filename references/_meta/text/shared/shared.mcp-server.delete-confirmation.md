@@ -24,3 +24,6 @@ Area: shared.mcp-server, its subjects in references/_meta/spine/shared/shared.mc
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.mcp-server.tool-inventory.md (Which tools a Zscaler MCP server registers: toolsets, entitlements and the write gate): Write tools (create, update, delete) are registered only when both the master switch `--enable-write-tools` (`ZSCALER_MCP_WRITE_ENABLED`) and the allowlist `--write-tools` (`ZSCALER_MCP_WRITE_TOOLS`, fnmatch patterns) are set; then only write tools whose names match a pattern are registered. The rule is enforced in server construction, so the CLI, tests and embedding callers all fail closed. [shared.mcp-server.tool-inventory:write-gate]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.mcp-server.http-deployment.md (Running the Zscaler MCP server over HTTP: TLS, Host validation, client authentication, logging and cloud secrets)

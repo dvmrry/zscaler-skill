@@ -42,3 +42,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.api.gateways-wire.md (Cloud Connector forwarding and DNS gateways on the wire: two DNS gateway models, type and subcloud fields)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.gateway-failover.md (Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open)
 - links-to references/_meta/text/shared/shared.sdk-go.zero-value-writes.md (Why Terraform cannot clear some fields: omitted zero values and empty objects in SDK writes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-gateways.md (config type)
+- configured-via references/_meta/text/types/ztw/dns-gateways.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.terraform.provider-behavior.md (ZTC Terraform provider: configuration, field handling and read behavior)

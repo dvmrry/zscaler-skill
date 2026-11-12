@@ -28,3 +28,7 @@ Area: portfolio.federal-clouds, its subjects in references/_meta/spine/portfolio
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.cloud-architecture.cloud-names.md (Zscaler cloud names: which cloud a tenant is on, and the production name list)
 - links-to references/_meta/text/shared/shared.oneapi.government-clouds.md (Reaching OneAPI on government (FedRAMP) and non-production clouds)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+- see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)

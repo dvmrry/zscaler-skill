@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.analytics.graphql-queries.md (Writing Analytics GraphQL queries: time range, units, limits, filters and open schema questions)
 - links-to references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token)
 - links-to references/_meta/text/zia/zia.iot.api-surface.md (IoT Report through the API: REST, Z-Insights GraphQL, SDKs, MCP)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.saas-security-report.md (Shadow IT Report (also SaaS Security Report, ZINS): shadow IT discovery, risk index and API surface)

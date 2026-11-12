@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.md (How a Zero Trust Branch appliance is deployed: activation, ZTP, virtual machines, mainland China, upgrades and admin roles)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.objects.md (What Zero Trust Branch objects are and how each type is defined)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.segmentation.md (How Zero Trust Branch segments devices: Airgap, Airgap-Lite and Airgap+ protection, /32 incompatibilities, assets, tags, the NAC MAC list and the Ransomware Kill Switch)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)

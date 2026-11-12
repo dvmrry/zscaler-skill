@@ -39,3 +39,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.azure.vmss.md (Cloud Connector on Azure: VMSS autoscaling, health monitoring and resource sync)
 - links-to references/_meta/text/cloud-connector/cloud-connector.azure.workload-discovery.md (Cloud Connector on Azure: workload discovery service, partner configuration, event grid and account details)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.load-balancing.md (How cloud load balancers spread traffic across Cloud Connectors and take unhealthy ones out)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.md (Cloud Connector on GCP: deployment, service accounts and network shape)

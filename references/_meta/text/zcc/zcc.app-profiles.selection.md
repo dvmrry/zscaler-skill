@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.entitlements.md (ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group), from zcc.app-profiles: Service entitlement selects which user groups or device groups can enroll into Private Access (ZPA), Digital Experience (ZDX) and Zscaler Deception; Internet & SaaS (ZIA) enrollment is enabled for all users by default. [zcc.entitlements:services-gated]
 - links-to references/_meta/text/zcc/zcc.api.web-policy-wire.md (What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate)
 - links-to references/_meta/text/zcc/zcc.app-profiles.propagation.md (When an app profile change reaches a device)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.assignment.md (Which forwarding profile a device uses, and when a change reaches it)

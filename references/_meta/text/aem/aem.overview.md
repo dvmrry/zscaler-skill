@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/aem/aem.violation-tickets.md (AEM violation tickets: the Violation Tickets page, drawer, split and merge, comments and activity log)
 - links-to references/_meta/text/easm/easm.api.md (The EASM (ZEASM) API: organization scoping, clients, paging and the Postman collection)
 - links-to references/_meta/text/uvm/uvm.easm-discovery.md (How EASM discovery profiles work: seeds and their formats, limits, scan cadence, permissions and reports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)
+- see-also references/_meta/text/risk360/risk360.overview.md (Risk360: what it measures, which data it uses, how long it keeps logs, and what can be automated)

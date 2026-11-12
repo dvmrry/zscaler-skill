@@ -18,3 +18,7 @@ Area: soc-workbench.incident-rules, its subjects in references/_meta/spine/soc-w
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/soc-workbench/soc-workbench.incidents.md (Incidents in Agentic SOC: the Incidents page, detail tabs, verdicts, statuses, custom incidents and customization)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/soc-workbench/soc-workbench.overview.md (SOC Workbench (Agentic SOC): alert unification, correlation and prioritization, and what can be automated)
+- see-also references/_meta/text/soc-workbench/soc-workbench.alerts.md (Alerts in Agentic SOC: the Alerts page, severity score composition, alert-score factors and severity categories)

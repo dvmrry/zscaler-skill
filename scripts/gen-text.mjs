@@ -6,8 +6,9 @@
 //   <product>/<subject id>.md   one subject as `read` prints it (only that subject: `read` of a hub's ID reads its whole
 //                               area), with its aliases and former IDs under the title, then its area's spine file
 //                               and its one-hop links as file paths, ranked as `read` follows them, each with the
-//                               claim that establishes it. An area with no hub subject gets an index file under its
-//                               ID, so every area ID names a file.
+//                               claim that establishes it, then the config types, Terraform resources and see-also
+//                               subjects it lists, by title. An area with no hub subject gets an index file under
+//                               its ID, so every area ID names a file.
 //   types/<type id>.md          a log or config type with every field (types/zia/web-log.md)
 //   codes/<code>.md             a ZPA LSS status code, as each log type that lists it gives it
 //   codes/reason-<slug>.md      a ZIA policy reason, with each row of the Policy Reasons article
@@ -22,20 +23,35 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildGraph, loadPublic, META } from "./kb-lib.mjs";
-import { areaOf, fit, neighbours, readSubject, readText, readType, spines, textFile, titleOf } from "./kb-resolve.mjs";
+import { areaOf, FOLLOW, fit, neighbours, readSubject, readText, readType, spines, textFile, titleOf } from "./kb-resolve.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = `${META}/text`;
 const fileOf = (g, id) => (g.nodes.get(id).kind === "type" ? textFile.type(id) : textFile.subject(id));
 
-/** A subject's links as `read` ranks them, one line each: the edge, the file, and the claim that establishes it. */
+/**
+ * A subject's links as `read` ranks them, one line each: the edge, the file, and the claim that establishes it. Then
+ * the edges `read` does not follow, by title: what configures the subject (a config type, a Terraform resource) and
+ * its see-also subjects, so a question about changing it reaches the config type's fields.
+ */
 function links(g, id) {
-  const lines = neighbours(g, [id]).map(([to, v]) => {
+  const ranked = neighbours(g, [id]);
+  const lines = ranked.map(([to, v]) => {
     const e = v.edges.find((x) => x.because) || v.edges[0];
     const because = e.because && g.nodes.get(e.because)?.data?.statement;
     return `- ${e.rel} ${fileOf(g, to)} (${titleOf(g, to)})${e.from !== id ? `, from ${e.from}` : ""}${because ? `: ${because} [${e.because}]` : ""}`;
   });
-  return lines.length ? fit("Linked (open a file only if the answer needs it):", lines, 12000, "linked subjects") : "";
+  const shown = new Set(ranked.map(([to]) => to));
+  const order = { "configured-via": 0, "see-also": 1 };
+  const listed = (g.nodes.get(id).data.related || [])
+    .filter((e) => !FOLLOW[e.rel] && !shown.has(e.to) && shown.add(e.to))
+    .sort((a, b) => order[a.rel] - order[b.rel])
+    // Most config types have no title but their ID, which the path already gives.
+    .map((e) => `- ${e.rel} ${fileOf(g, e.to)} (${titleOf(g, e.to) === e.to ? `${g.nodes.get(e.to).data.kind} type` : titleOf(g, e.to)})`);
+  return [
+    lines.length && fit("Linked (open a file only if the answer needs it):", lines, 12000, "linked subjects"),
+    listed.length && fit("Configured via and see also (open one only if the answer needs it):", listed, 12000, "listed subjects"),
+  ].filter(Boolean).join("\n\n");
 }
 
 /**

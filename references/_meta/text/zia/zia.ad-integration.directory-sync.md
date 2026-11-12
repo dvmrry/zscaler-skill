@@ -53,3 +53,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity), from zia.ad-integration: Enforcing policy by department, group and user, and reporting by user, requires users, groups and departments to be provisioned into the Zscaler database first and authentication to be enabled. With authentication disabled at a known location the service does not know who the users are and applies the location's policies. [zia.ad-integration:identity-needed]
 - links-to references/_meta/text/zia/zia.ad-integration.identity-objects.md (ZIA users, groups and departments: shape and limits)
 - links-to references/_meta/text/zia/zia.scim.propagation.md (How fast SCIM changes reach ZIA)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/auth-settings.md (config type)

@@ -24,3 +24,7 @@ Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.b2b-federation.sdk-contract.md (B2B Federation SDK coverage and contract differences)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.policy.md (ZPA policy evaluation)
+- see-also references/_meta/text/zpa/zpa.sdk-python.endpoint-versions.md (Which ZPA base path each Python SDK method uses)

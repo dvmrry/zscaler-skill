@@ -36,3 +36,10 @@ Area: zcc.support-options, its subjects in references/_meta/spine/zcc/zcc.suppor
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.passwords-and-otp.app-profile-passwords.md (App profile passwords: logout, disable, exit and uninstall, per platform)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.support-options.md (ZCC end-user support options (App Supportability))
+- see-also references/_meta/text/zcc/zcc.platform-settings.md (Platform Settings: the per-OS console settings for sign-in, IPv6, ZDX upgrades, default UI and unattended-mode passwords)
+- see-also references/_meta/text/zcc/zcc.install.precedence.md (Install parameters versus console settings: which wins, and what survives an update)
+- see-also references/_meta/text/zcc/zcc.app-profiles.advanced-settings.md (What the less common app profile settings do)
+- see-also references/_meta/text/zdx/zdx.cloud-architecture.module-upgrades.md (ZDX Module upgrades: automatic, delayed, frozen and manual rollout)

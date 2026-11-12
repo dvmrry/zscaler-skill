@@ -50,3 +50,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zcc.md (Client Connector admin roles: the Administration Management page, Full, View Only, None and Customize, the permission sections and token obfuscation)
 - links-to references/_meta/text/shared/shared.sdk-python.client-configuration.md (How the Python SDK's unified client is configured: OneAPI or legacy, settings, environment variables)
 - links-to references/_meta/text/zcc/zcc.sdk-go.legacy-routing.md (ZCC SDK calls in legacy-client mode routed to the ZIA client)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.api.md (The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes)
+- see-also references/_meta/text/zcc/zcc.api.conventions.md (Conventions of the ZCC v1 API: casing, query parameters, caching, status codes)

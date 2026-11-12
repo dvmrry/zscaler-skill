@@ -23,3 +23,7 @@ Area: cloud-connector.sdwan, its subjects in references/_meta/spine/cloud-connec
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.gateway-failover.md (Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open)
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.md (Cloud & Branch Connector software upgrades: weekly window, stagger and release channels)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdwan.md (Zero Trust SD-WAN: what Zscaler means by it and what the sources leave open)
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdwan.configuration-templates.md (Branch Connector configuration templates: VM and hardware settings, HA, WAN uplinks, LAN, DHCP and static routes)

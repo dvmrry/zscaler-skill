@@ -24,3 +24,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.app-governance.md (3rd-Party App Governance: governing third-party apps, add-ons and extensions connected to SaaS platforms, and its portal, roles and dashboard)
 - links-to references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)
 - links-to references/_meta/text/zia/zia.cloud-app-control.md (ZIA Cloud App Control)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sspm.md (SaaS Security Posture Management (SSPM): the Admin Console policy page and Advanced SSPM)

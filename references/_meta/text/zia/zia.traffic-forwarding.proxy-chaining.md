@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover): Chaining's stated limits: corporate-network users must still use another method, such as PAC files, to forward traffic to the service; the proxy's latency affects forwarding latency; and a caching proxy can cause downstream authentication problems and affect policy enforcement and reporting. [zia.traffic-forwarding.proxy-chaining:limitations]
 - links-to references/_meta/text/zia/zia.forwarding-control.third-party-proxies.md (Third-Party Proxy Chaining from ZIA: proxies, proxy gateways and fail-close)
 - links-to references/_meta/text/zia/zia.proxy-mode.forwarding-map.md (Which forwarding methods produce explicit or transparent mode)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.methods.md (Forwarding methods Zscaler supports and how to choose)

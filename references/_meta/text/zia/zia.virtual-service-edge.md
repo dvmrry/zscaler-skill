@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.sizing.md (How much a Virtual Service Edge VM can do)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.troubleshooting.md (The vzen command line for configuring and troubleshooting a Virtual Service Edge)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.upgrades.md (How Virtual Service Edges and their clusters upgrade)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-clusters.md (config type)
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)

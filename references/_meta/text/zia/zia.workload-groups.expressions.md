@@ -36,3 +36,8 @@ Area: zia.workload-groups, its subjects in references/_meta/spine/zia/zia.worklo
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.workload-discovery.md (AWS workload discovery for Cloud Connector: what it is and how the pieces fit): Membership comes from cloud-native metadata: workloads with user-defined tags and provider-defined attributes that match the group's expression belong to the group, and their traffic is forwarded by Cloud Connectors to the Zero Trust Exchange where the selected policies apply. [zia.workload-groups:cloud-metadata-source]
 - links-to references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/workload-groups.md (config type)
+- see-also references/_meta/text/zia/zia.workload-groups.api-surface.md (Reading and writing workload groups: API, SDKs, Terraform, MCP)
+- see-also references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads)

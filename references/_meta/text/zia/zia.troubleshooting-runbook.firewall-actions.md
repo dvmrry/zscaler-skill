@@ -27,3 +27,8 @@ Area: zia.troubleshooting-runbook, its subjects in references/_meta/spine/zia/zi
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.advanced-settings.partial-configuration.md (Behavior When Partial Configuration Available: Fail Open, Fail Closed and Best Effort Policies)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.firewall.network-applications.md (Network applications and network application groups: DPI identification, undetermined-app outcomes, rule placement)
+- see-also references/_meta/text/zia/zia.logs.firewall-records.md (What a ZIA firewall log record is: aggregates, action and field names)

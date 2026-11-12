@@ -44,3 +44,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.splunk.zia-policy-validation.md (Checking a ZIA policy answer against web logs)
 - links-to references/_meta/text/shared/shared.splunk.zpa-validation.md (Checking a ZPA answer against LSS logs: segments, connectors, user status and posture)
 - links-to references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.log-correlation.md (Correlating ZIA, ZPA and Client Connector logs)

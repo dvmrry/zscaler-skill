@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.migration.end-users.md (How end users are migrated to Authentication Service: eligibility, prerequisites, the wizard's audits, test users and rollback)
 - links-to references/_meta/text/zpa/zpa.authentication.idp-migration.md (Migrating Private Access to a new IdP)
 - links-to references/_meta/text/zpa/zpa.scim.setup.md (Enabling SCIM for Private Access: endpoint, token, policy setting and IdP guides)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.users.provisioning.scim.md (The Authentication Service SCIM server: operations, attribute mapping, authentication and rate limits)

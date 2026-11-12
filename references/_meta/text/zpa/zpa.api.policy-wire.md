@@ -80,3 +80,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.md (ZPA policy evaluation)
 - links-to references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
 - links-to references/_meta/text/zpa/zpa.terraform.rule-order.md (How the ZPA Terraform provider applies policy rule order (BulkReorder))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.request-handling.md (How the Go SDK builds requests and interprets responses: client options, bodies, status codes, bulk deletes)

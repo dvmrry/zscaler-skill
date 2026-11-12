@@ -66,3 +66,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.server-groups.md (ZPA server groups), from zpa.policy: An access policy rule can be set to specific App Connector groups, server groups, or a mixture of both, instead of all App Connector groups for the application. [zpa.server-groups.role:rule-can-name-connector-or-server-groups]
 - scoped-by references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules), from zpa.policy: The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups. [zpa.policy.criteria:criteria-list]
 - links-to references/_meta/text/zpa/zpa.policy.policy-groups.md (ZPA access policy global rules and policy groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it)

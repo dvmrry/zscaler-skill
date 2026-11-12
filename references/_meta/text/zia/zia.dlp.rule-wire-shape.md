@@ -63,3 +63,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.registry.md (The ZIA provider's reorder registry: keys, locks and lifecycle across rule resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-web-rules.md (config type)

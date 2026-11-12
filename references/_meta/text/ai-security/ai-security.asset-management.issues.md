@@ -41,3 +41,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.discovery.md (What the AI Asset Management console inventories show: public AI apps, AI assets, AI resources, dashboard and usage insights)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.posture-policies.md (How AI Posture Policies, threat categories and DLP data classification work in AI Asset Management)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.asset-management.system-logs.md (What the AI Infrastructure scanning system logs show and what the ZS-LP, ZS-DC and ZS-ONBOARDING error codes mean)
+- see-also references/_meta/text/ai-security/ai-security.asset-inventory-api.md (The AI Security inventory API (AI Infrastructure, AI-SPM): read-only assets and issues, cursor paging, filters and limits)

@@ -34,3 +34,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ad-integration.saml-auto-provisioning.md (SAML auto-provisioning: what login creates and overwrites)
 - links-to references/_meta/text/zia/zia.authentication.idp-integrations.md (Per-IdP configuration specifics: SAML and SCIM for Entra ID, Okta, Ping and Google Workspace; SAML only for AD FS, OneLogin and CA SSO)
 - links-to references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)
+- see-also references/_meta/text/zia/zia.authentication.methods.md (SAML and Kerberos: what each needs to work)
+- see-also references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token)

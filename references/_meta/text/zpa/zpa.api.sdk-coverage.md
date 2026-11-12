@@ -29,3 +29,9 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.api.authentication.md (How a client authenticates to the ZPA API: OneAPI, legacy and government clouds), from zpa.api: The ZPA OpenAPI document declares the server https://api.zsapi.net/zpa, described as "ZPA Endpoints", and an HTTP bearer security scheme. [zpa.api.authentication:oneapi-server]
 - links-to references/_meta/text/zpa/zpa.browser-access.tooling.md (Writing Browser Access segments: Python SDK, MCP server, Go SDK and Terraform)
 - links-to references/_meta/text/zpa/zpa.sdk-python.policy-groups.md (Python SDK policy group, rule and set controllers)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.sdk-python.small-controllers.md (Python SDK controllers whose verbs or names are not what they look like)
+- see-also references/_meta/text/zpa/zpa.api.legacy-endpoints.md (ZPA legacy endpoint wiring: shared paths, schedules, user codes and step-up levels)
+- see-also references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
+- see-also references/_meta/text/zia/zia.api.sdk-coverage.md (Which ZIA services the Go and Python SDKs cover, and where)

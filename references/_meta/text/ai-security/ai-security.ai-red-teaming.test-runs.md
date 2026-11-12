@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.md (AI Red Teaming: adversarial testing of AI apps, the Overview page, and where each part is documented)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.probes.md (Red Teaming probes: categories, custom probes and datasets, risk priority, coverage and attack strategies)
 - links-to references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-red-teaming.assets.md (Connecting an AI app for red teaming: network type, private access, and the application profile that shapes tests)

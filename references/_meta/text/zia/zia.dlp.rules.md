@@ -68,3 +68,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.inspection-limits.md (DLP file size, archive and text limits: why DLP did not catch a large file)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
 - links-to references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-web-rules.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.dlp-resources.md (Terraform DLP web rule and email profile resources)

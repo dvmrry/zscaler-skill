@@ -49,3 +49,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.api.queries.md (What each ZMS GraphQL query takes and returns: agents, resources, groups, rules, zones, catalog, tags)
 - links-to references/_meta/text/zms/zms.mcp.md (The Zscaler MCP server's ZMS tools: inventory, customer ID and known defects)
 - links-to references/_meta/text/zms/zms.portal.md (The Microsegmentation portal: Application Catalog, ML tag recommendations, tags and AppZones)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)

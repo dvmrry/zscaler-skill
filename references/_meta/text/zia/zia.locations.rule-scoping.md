@@ -29,3 +29,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.group-assignment.md (How locations land in groups: location type, defaults, exclusion flags and Terraform support)
 - links-to references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
 - links-to references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/types/zia/location-groups.md (config type)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)
+- see-also references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)

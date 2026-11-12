@@ -57,3 +57,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.casb.api-surface.md (CASB API, SDK and Terraform surface)
 - links-to references/_meta/text/zia/zia.casb.custom-connectors.md (Custom Zscaler connectors for Slack, Salesforce, Microsoft and Google tenants: credentials, scopes and permissions)
 - links-to references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-tenants.md (config type)
+- see-also references/_meta/text/zia/zia.casb.limits.md (CASB limits: scan capacity, log field length and rule text)
+- see-also references/_meta/text/zia/zia.casb.app-capabilities.md (SaaS Security per-application capabilities: onboarding privileges, webhooks, historical scan, licensing, scanned content, actions and activities)

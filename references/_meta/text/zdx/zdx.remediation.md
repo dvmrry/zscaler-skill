@@ -28,3 +28,6 @@ Area: zdx.remediation, its subjects in references/_meta/spine/zdx/zdx.remediatio
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
 - links-to references/_meta/text/zdx/zdx.remediation.errors.md (Remediation job error messages and their ZUPM_WORKFLOW_ECODE reasons, grouped by what they report)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.overview.md (ZDX at a glance: what it measures and which subject answers each question)

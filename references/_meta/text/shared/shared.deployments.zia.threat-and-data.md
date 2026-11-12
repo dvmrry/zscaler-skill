@@ -25,3 +25,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
 - links-to references/_meta/text/zia/zia.sandbox.md (ZIA Sandbox)
 - links-to references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)

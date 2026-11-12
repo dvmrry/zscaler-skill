@@ -39,3 +39,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.app-connectors.connector-groups.md (App Connector groups): The App Connector Groups on a receiver are the groups that can forward logs to it. [zpa.log-receivers.configuration:connector-groups-purpose]
 - scoped-by references/_meta/text/zpa/zpa.log-receivers.filtering.md (Narrowing a ZPA log stream: status codes and streaming policy): A receiver may carry a policyRuleResource that restricts what is streamed; the API article lists its objectType values as APP, APP_GROUP, CLIENT_TYPE, SAML, SCIM and SCIM_GROUP. [zpa.log-receivers.configuration:policy-rule-resource]
 - depends-on references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes): The Terraform resource requires name (non-empty), format, lss_host, lss_port and source_log_type in its config block; description, enabled, filter and use_tls are optional. [zpa.log-receivers.configuration:required-fields]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+- see-also references/_meta/text/zpa/zpa.log-receivers.formats.md (Log stream format and content templates for a ZPA log receiver)
+- see-also references/_meta/text/zpa/zpa.log-receivers.tls.md (TLS between the App Connector and the log receiver)

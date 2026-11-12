@@ -10,3 +10,7 @@ Also called: getGatewayEndpoints; MaxMind geo IP; Auto Geo Proximity flag; geo I
 **Country Gateway Variable.** For content localization, users closer to a data center in a neighbouring country should use the Country Gateway Variable to reach an in-country data center if available; it supports auto geo proximity and the subcloud. [zia.troubleshooting.performance-runbook.nearest-data-center:country-gateway-variable]
 
 Area: zia.troubleshooting, its subjects in references/_meta/spine/zia/zia.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.performance-runbook.md (How the Internet & SaaS performance troubleshooting runbook scopes a slowness case and routes it to its pages)
+- see-also references/_meta/text/shared/shared.pac-files.variables.md (Zscaler PAC file variables: gateways, hosts, load-balancing tokens, subclouds and Client Connector)

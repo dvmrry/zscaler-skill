@@ -36,3 +36,9 @@ Not known (open gaps):
 - How the HTTP rule for self-signed certificates interacts with Use Untrusted Certificates [gap:shared.zsdk.authentication:untrusted-certificates-interaction]: settled by lab-test or source-read
 
 Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.configuration.md (Configuring ZSDK: registered apps and app keys, segments and access policy)
+- see-also references/_meta/text/shared/shared.zsdk.browser-access.md (ZSDK Browser Access: availability, prerequisites, unsupported features and DNS)
+- see-also references/_meta/text/shared/shared.zsdk.error-codes.md (ZSDK error codes: SDK errors 9001-9505 and ZSDK API errors 2001-2999)

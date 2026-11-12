@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.api.md (The ZDX API from a client's side: hosts, limits, conventions, coverage and wire notes)
 - links-to references/_meta/text/zpa/zpa.api.authentication.md (How a client authenticates to the ZPA API: OneAPI, legacy and government clouds)
 - links-to references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token)
+- see-also references/_meta/text/shared/shared.oneapi.government-clouds.md (Reaching OneAPI on government (FedRAMP) and non-production clouds)

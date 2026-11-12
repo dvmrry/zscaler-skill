@@ -32,3 +32,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-python.errors.md (How the Python SDK reports errors: the error slot, exception classes, raiseException)
 - links-to references/_meta/text/zia/zia.sdk-python.request-conventions.md (How the Python SDK builds, pages and retries ZIA requests)
 - links-to references/_meta/text/zia/zia.sdk-python.response-shape.md (What the Python SDK returns: result, response and error, and why try/except misses API errors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sdk-python.activation-and-session.md (When the Python SDK ends a ZIA session and what that does to staged changes)
+- see-also references/_meta/text/zia/zia.api.md (The ZIA API from a client's side: activation, limits, SDK coverage and wire notes)

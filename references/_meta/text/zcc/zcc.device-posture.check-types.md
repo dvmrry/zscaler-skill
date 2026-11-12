@@ -41,3 +41,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.device-posture.linux-client-certificate.md (Setting up the Client Certificate posture check on Linux)
 - links-to references/_meta/text/zcc/zcc.device-posture.platform-support.md (Which device posture types each platform supports)
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.posture.md (Device posture on the ZPA machine tunnel)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.device-posture.md (ZCC device posture profiles)

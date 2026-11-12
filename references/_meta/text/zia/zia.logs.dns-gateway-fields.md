@@ -27,3 +27,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.dns-outcome.md (What happened to a DNS query: rules, actions, response values and errors)
 - links-to references/_meta/text/zia/zia.dns-control.gateways.md (ZIA DNS gateways: protocol translation, primary/secondary failover, failure behavior, DoH path)
 - links-to references/_meta/text/zia/zia.logs.dns-record-fields.md (Reading a ZIA DNS log record: naming, encodings and field caveats)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dns-gateways.md (config type)

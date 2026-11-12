@@ -24,3 +24,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]
 - links-to references/_meta/text/zpa/zpa.app-segments.dns-search-domains.md (What DNS search domains do for application segments and how they must match)
 - links-to references/_meta/text/zpa/zpa.app-segments.health-reporting.md (How App Connectors check and report application health, and what Continuous, On Access and None mean)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
+- see-also references/_meta/text/zpa/zpa.app-segments.definition.md (What an application segment can contain: entries, wildcards and ports)
+- see-also references/_meta/text/zpa/zpa.server-groups.discovery-mode.md (Dynamic discovery versus explicit servers on a server group)

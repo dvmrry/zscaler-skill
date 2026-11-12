@@ -22,3 +22,8 @@ Area: cloud-connector.insights, its subjects in references/_meta/spine/cloud-con
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.dns.policies.md (Cloud & Branch Connector DNS policies: scope, criteria, actions, predefined rules)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.insights.md (Monitoring Cloud Connectors: which surface answers which question)
+- see-also references/_meta/text/cloud-connector/cloud-connector.insights.connector-status.md (Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record)
+- see-also references/_meta/text/cloud-connector/cloud-connector.insights.analytics.md (Cloud Connector Insights pages and Insights logs: time range, aggregation and limits)

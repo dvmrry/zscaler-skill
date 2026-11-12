@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.monitoring.md (How Zero Trust Branch is monitored: the Insights dashboard, traffic flow chart, alarms, SNMP and interface health monitoring)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.sd-wan.md (How Zero Trust Branch forwards branch traffic: default and custom Internet & SaaS gateways, private application connectivity and site DNS policies)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.troubleshooting.md (What the Zero Trust Branch configuration and activation troubleshooting page documents: symptoms and the checks it gives)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)

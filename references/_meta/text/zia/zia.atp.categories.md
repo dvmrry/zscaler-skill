@@ -48,3 +48,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.atp.botnet.md (ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA)
 - links-to references/_meta/text/zia/zia.atp.page-risk.md (ATP Page Risk threshold and how the score is built)
 - links-to references/_meta/text/zia/zia.atp.tor.md (Fully blocking Tor: the ATP toggle is not enough)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/zia/zia.cloud-app-control.rule-types.md (Cloud App Control categories (rule types), limits and predefined rules)

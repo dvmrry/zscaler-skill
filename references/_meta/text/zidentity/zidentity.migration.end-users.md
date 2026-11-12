@@ -49,3 +49,9 @@ Area: zidentity.migration, its subjects in references/_meta/spine/zidentity/zide
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.migration.end-users.private-access.md (The Private Access guidelines for end user migration to Authentication Service: test users, SCIM, policies, backup and restore, and rollback)
 - links-to references/_meta/text/zidentity/zidentity.migration.admins.md (How Zscaler admins are migrated to Authentication Service, and the automatic upgrade to the Zscaler Admin Console)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)
+- see-also references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions)
+- see-also references/_meta/text/zidentity/zidentity.entitlements.md (Administrative and service entitlements: who administers and who may use each Zscaler service)
+- see-also references/_meta/text/zidentity/zidentity.overview.external-idps.md (External IdPs in Authentication Service: OIDC and SAML, primary and secondary, limits and retention)

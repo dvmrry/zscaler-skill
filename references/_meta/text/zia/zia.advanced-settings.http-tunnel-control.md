@@ -20,3 +20,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.advanced-settings.dns-optimization.md (DNS optimization: proxy-side DNS lookup that overrides the client-resolved IP)
 - links-to references/_meta/text/zia/zia.api.advanced-settings-wire.md (Advanced settings: SNI handling lists and a misdocumented global SSL bypass setting)
 - links-to references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.proxy-mode.explicit.md (Explicit proxy mode: CONNECT and the PAC file)
+- see-also references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path)

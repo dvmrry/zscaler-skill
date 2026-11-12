@@ -29,3 +29,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.log-export.zdx.md (Getting ZDX data out: the ZDX API, its windows and delays)
 - links-to references/_meta/text/zdx/zdx.devices.health-score.md (The Device Health Score and the hardware and usage profiles of the Devices Overview)
 - links-to references/_meta/text/zdx/zdx.sdk-go.service-defects.md (Go SDK ZDX services: where the structs and functions disagree with the contract)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
+- see-also references/_meta/text/zdx/zdx.reports.md (Reading ZDX report data: time ranges, paging, users and what the reads return)

@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/shared/shared.cloud-architecture.service-edges.md (Service Edges: the data plane, its form factors, and how traffic reaches one): The ZIA CA hosts all customer policy and configuration settings and is redundant and backed up in multiple Zscaler data centers. Public Service Edges keep a persistent connection to the CA to download policy: when a new user connects to an edge, a policy request goes to the CA, which calculates the policies that apply to that user and sends them to the edge as a highly compressed bitmap. [shared.cloud-architecture.central-authority:policy-download]
 - links-to references/_meta/text/shared/shared.cloud-architecture.support-systems.md (Support systems of a Zscaler cloud, and Feed Central)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.access-path.md (The hops of a ZPA access request and where each can fail)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.md (Zscaler cloud architecture)

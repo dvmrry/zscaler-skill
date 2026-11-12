@@ -43,3 +43,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.bandwidth-control.api-surface.md (Bandwidth Control API, SDK and Terraform shape)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.registry.md (The ZIA provider's reorder registry: keys, locks and lifecycle across rule resources)
 - links-to references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/bandwidth-control-rules.md (config type)
+- see-also references/_meta/text/zia/zia.firewall.rule-order.md (Firewall rule order, admin rank and predefined rules)

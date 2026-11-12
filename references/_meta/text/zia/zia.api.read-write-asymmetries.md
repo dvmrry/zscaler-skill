@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.country-timezone.md (Location country and time zone values, THE_ prefix and Terraform validation)
 - links-to references/_meta/text/zia/zia.sandbox.rules.md (Sandbox rules: first-time file behavior and the default rule)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.api.md (The ZIA API from a client's side: activation, limits, SDK coverage and wire notes)

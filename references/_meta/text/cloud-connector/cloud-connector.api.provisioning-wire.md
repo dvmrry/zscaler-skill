@@ -40,3 +40,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.azure.vmss.md (Cloud Connector on Azure: VMSS autoscaling, health monitoring and resource sync)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling)
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.service-defects.md (Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.provisioning.md (Cloud Connector on AWS: provisioning template, URL, Secrets Manager credentials, user data)

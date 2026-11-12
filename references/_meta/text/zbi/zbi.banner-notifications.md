@@ -16,3 +16,7 @@ Not known (open gaps):
 - Whether Internet & SaaS banner themes can be managed through the API, SDKs or Terraform [gap:zbi.banner-notifications:automation-surfaces]: settled by source-read. Blocks: answering how to manage Internet & SaaS isolation banner themes as code
 
 Area: zbi.banner-notifications, its subjects in references/_meta/spine/zbi/zbi.banner-notifications.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.cloud-browser.md (How Cloud Browser isolates a page: remote browser, traffic flow, containers and the idle timeout)
+- see-also references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions)

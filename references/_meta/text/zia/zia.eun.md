@@ -31,3 +31,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.notifications.md (Client Connector notifications: which surface the user saw)
 - links-to references/_meta/text/zia/zia.eun.client-connector.md (Client Connector-based end user notifications from the ZIA side: prerequisites, channels, details, shared settings and languages)
 - links-to references/_meta/text/zia/zia.eun.user-confirmation.md (User Confirmation notification templates for the DLP Confirm action: channels, introductory text, languages, link syntax and shared settings)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.file-type-control.actions.md (File Type Control actions, direction and defaults)
+- see-also references/_meta/text/zia/zia.url-filtering.actions.md (URL Filtering actions and their prerequisites)
+- see-also references/_meta/text/zia/zia.cloud-app-control.actions.md (Cloud App Control actions and action discovery)
+- see-also references/_meta/text/zia/zia.authentication.location-enforcement.md (Requiring authentication per location and sublocation)

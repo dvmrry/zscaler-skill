@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.landmine-policies.md (Landmine policies: what they deploy, which endpoints they select, and how the Windows endpoint deployment is set up)
 - links-to references/_meta/text/deception/deception.orchestration-rules.md (Deception and ITDR orchestration rules: the Orchestrate menu, rule pipeline, actions, testing, pausing and event notification templates)
 - links-to references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.endpoint-settings.md (Endpoint settings (installer, lure refresh, update groups, safe processes) and Admin Portal settings (audit, error and debug logs, license, event and evidence export and delete, retention))
+- see-also references/_meta/text/deception/deception.topology.md (Topology: subnets and interfaces, aggregator sinkholes, ZPA App Connectors and Windows high-interaction VM credentials)

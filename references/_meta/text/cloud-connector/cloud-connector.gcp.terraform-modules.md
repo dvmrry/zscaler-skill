@@ -40,3 +40,8 @@ Area: cloud-connector.gcp, its subjects in references/_meta/spine/cloud-connecto
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.gcp.workload-discovery.md (Cloud Connector on GCP: workload discovery service): Zscaler requires the roles/pubsub.editor role on the Cloud Connector service account, which the Cloud Connector VMs use to receive workload delta messages when workload metadata changes. [cloud-connector.gcp.workload-discovery:pubsub-editor-required]
 - depends-on references/_meta/text/cloud-connector/cloud-connector.api.provisioning-wire.md (Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields), from cloud-connector.gcp: The cloud provisioning URL is a prerequisite for deploying Cloud Connector as a VM in AWS, Azure and GCP, and is obtained by configuring a provisioning template; the same URL can be used multiple times. [cloud-connector.api.provisioning-wire:url-prerequisite]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.md (Cloud Connector on GCP: deployment, service accounts and network shape)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.mig-autoscaling.md (Cloud Connector on GCP: MIG autoscaling, Health Monitor and Resource Sync)
+- see-also references/_meta/text/cloud-connector/cloud-connector.azure.terraform-modules.md (Zscaler's Azure Terraform package for Cloud Connector: image, VM sizes, provider constraint, examples and FIPS)

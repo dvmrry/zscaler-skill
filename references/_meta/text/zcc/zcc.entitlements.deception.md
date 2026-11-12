@@ -44,3 +44,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.entitlements.device-groups.md (Device groups: posture-based groups of devices for service entitlement, their limits, expressions and the mobile switch)
 - links-to references/_meta/text/zcc/zcc.entitlements.zdx.md (Digital Experience (ZDX) entitlement)
 - links-to references/_meta/text/zcc/zcc.passwords-and-otp.otp.md (One-time passwords for an enrolled device)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.entitlements.md (ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group)

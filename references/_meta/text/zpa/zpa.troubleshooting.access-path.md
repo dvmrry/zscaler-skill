@@ -20,3 +20,7 @@ Area: zpa.troubleshooting, its subjects in references/_meta/spine/zpa/zpa.troubl
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)
 - interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types): Public Service Edges and Private Service Edges enforce user policies and provide secure transport to App Connectors. [zpa.troubleshooting.access-path:edges-enforce-policy]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.log-fields.md (What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.segment-checks.md (Checking segments, segment groups and connector groups for a failing application)

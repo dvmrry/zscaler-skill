@@ -48,3 +48,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring): The ZPA Application Segment criterion lists only segments that have Source IP Anchor enabled (up to 255 selectable); in the API it is the `zpaAppSegments` list, documented as Source IP Anchoring-enabled segments. [zia.ssl-inspection.criteria:zpa-segments-sipa-only]
 - links-to references/_meta/text/zia/zia.ssl-inspection.actions.md (What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings)
 - links-to references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)

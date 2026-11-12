@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity)
 - links-to references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/auth-settings.md (config type)
+- configured-via references/_meta/text/zia/zia.ad-integration.terraform.md (What Terraform manages for ZIA users and authentication settings)

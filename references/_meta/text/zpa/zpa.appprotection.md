@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.appprotection.custom-controls.md (AppProtection custom HTTP and WebSocket controls: parameters, operators, limits and regular expressions)
 - links-to references/_meta/text/zpa/zpa.appprotection.monitoring.md (AppProtection dashboards and diagnostics: violations, API protection, Protocol Discovery and MITRE ATT&CK)
 - links-to references/_meta/text/zpa/zpa.appprotection.naming.md (AppProtection and the older Inspection names)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.cbi-appprotection-wire.md (Cloud Browser Isolation and AppProtection API: paths, writes and version handling)

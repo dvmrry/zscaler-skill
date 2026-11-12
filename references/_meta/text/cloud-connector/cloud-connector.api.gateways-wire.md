@@ -20,3 +20,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.gateways.md (ZTC forwarding and DNS gateways in Terraform and the Go SDK: subclouds, manual proxies, and the two DNS gateway resources)
 - links-to references/_meta/text/cloud-connector/cloud-connector.dns.gateways.md (Cloud & Branch Connector DNS gateways: resolvers, failure behavior, predefined gateways)
 - links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.log-and-control.md (Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-gateways.md (config type)
+- configured-via references/_meta/text/types/ztw/dns-gateways.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)

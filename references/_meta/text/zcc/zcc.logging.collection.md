@@ -34,3 +34,7 @@ Area: zcc.logging, its subjects in references/_meta/spine/zcc/zcc.logging.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.devices.lifecycle.md (Enrolled device states and what moves a device between them)
 - links-to references/_meta/text/zcc/zcc.web-privacy.collection.md (What each User Privacy setting collects or allows)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.logging.md (Client Connector logs: verbosity, user access and collection)
+- see-also references/_meta/text/zcc/zcc.logging.user-access.md (What users can do with Client Connector logs: logging controls and readable exports)

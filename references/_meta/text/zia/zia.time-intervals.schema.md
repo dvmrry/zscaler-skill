@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match), from zia.time-intervals: An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule. [zia.time-intervals.evaluation:falls-through]
 - links-to references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))
 - links-to references/_meta/text/zia/zia.time-intervals.limits.md (Time interval limits: object cap, per-rule cap and name characters)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/time-intervals.md (config type)
+- see-also references/_meta/text/zia/zia.time-intervals.time-windows.md (Time windows versus time intervals)

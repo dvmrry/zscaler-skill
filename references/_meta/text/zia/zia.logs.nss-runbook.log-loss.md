@@ -25,3 +25,10 @@ Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.nss-runbook.corner-cases.md (NSS runbook corner cases: private and multi-cluster Nanolog, SIEM rate, explicit proxy, log replay, password reset and third-party software)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.connectivity.md (NSS runbook: connectivity failures between NSS and the Central Authority, Nanolog server and SIEM)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.vm-health.md (NSS runbook: VM-based NSS Unhealthy server, alerts and build upgrade checks)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.cloud-nss.md (NSS runbook: Cloud NSS new, stopped, missing and delayed logs, parsing errors and the SIEM connectivity test errors)
+- see-also references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)

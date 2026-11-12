@@ -39,3 +39,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.logs.user-status.md (What a ZPA User Status log record says and does not say)
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.md (ZPA machine tunnels)
 - links-to references/_meta/text/zpa/zpa.vpn.md (ZPA VPN (for Legacy Apps): what it is, its components and where each question goes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
+- see-also references/_meta/text/cloud-connector/cloud-connector.vdi.md (Client Connector for VDI: the multi-session Windows agent that tunnels users' traffic to Cloud and Branch Connector)
+- see-also references/_meta/text/zpa/zpa.pra.app-segments.md (PRA application segments: protocols, ports, connection security and constraints)
+- see-also references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)

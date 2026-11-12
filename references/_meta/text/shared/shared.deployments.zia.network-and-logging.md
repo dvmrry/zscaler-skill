@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
 - links-to references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)

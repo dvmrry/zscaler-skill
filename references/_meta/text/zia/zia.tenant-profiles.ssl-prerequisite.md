@@ -27,3 +27,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.saas-apps.tenant-restriction-order.md (Tenant restriction does nothing: bypass rule ahead of the login inspection rule): If a Do Not Inspect rule for Microsoft 365 traffic (the O365 One Click rule, or the Click-to-Run exemption) sits earlier in the SSL Inspection order than the Microsoft Login Services inspection rule and matches the login request, the login is not decrypted, so Microsoft's tenant-restriction headers cannot be inserted and the tenant profile has no effect. [zia.saas-apps.tenant-restriction-order:bypass-first-disables-restriction]
 - links-to references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection)
 - links-to references/_meta/text/zia/zia.tenant-profiles.wire-mechanic.md (How a tenant profile is enforced: the headers ZIA inserts)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)

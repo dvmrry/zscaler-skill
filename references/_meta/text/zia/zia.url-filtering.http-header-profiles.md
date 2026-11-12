@@ -34,3 +34,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match), from zia.url-filtering: Evaluation of the policy rules stops at the first match. [zia.url-filtering.rule-order:first-match]
 - links-to references/_meta/text/zia/zia.terraform.url-filtering-rules.md (Terraform user agent validation and isolation on URL Filtering rules)
 - links-to references/_meta/text/zia/zia.url-filtering.actions.md (URL Filtering actions and their prerequisites)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/http-header-profiles.md (config type)
+- see-also references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+- see-also references/_meta/text/zia/zia.api.sdk-coverage.md (Which ZIA services the Go and Python SDKs cover, and where)

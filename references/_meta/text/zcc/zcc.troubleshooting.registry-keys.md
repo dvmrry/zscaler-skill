@@ -19,3 +19,10 @@ Not known (open gaps):
 - Whether the registry values update live, and how ZNW_State maps onto forwarding profile network types [gap:zcc.troubleshooting.registry-keys:live-update-and-network-mapping]: settled by lab-test or source-read
 
 Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)
+- see-also references/_meta/text/zcc/zcc.trusted-networks.detection.md (How Client Connector decides it is on a trusted network)
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.internet-actions.md (Forwarding profile actions for Internet & SaaS (ZIA): Tunnel, Tunnel with Local Proxy, Enforce Proxy, None)
+- see-also references/_meta/text/zcc/zcc.install.strict-enforcement.md (Strict enforcement, the policy token, and the fail-close configuration)
+- see-also references/_meta/text/zcc/zcc.app-profiles.failover.md (App profile failover: disaster recovery, cloud unreachable, captive portals)

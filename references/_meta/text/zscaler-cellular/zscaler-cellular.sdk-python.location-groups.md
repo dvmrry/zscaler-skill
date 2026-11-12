@@ -21,3 +21,6 @@ Area: zscaler-cellular.sdk-python, its subjects in references/_meta/spine/zscale
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zscaler-cellular/zscaler-cellular.monitoring.md (Cellular monitoring: network events, geofence anomaly detection and audit logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.api.md (The Zscaler Cellular (ZCell) API: customer scoping, clients and where the contract and SDK disagree)

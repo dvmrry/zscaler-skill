@@ -30,3 +30,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.cloud-app-control.ssl-visibility.md (Cloud App Control and SSL inspection: what CAC can see)
 - links-to references/_meta/text/zia/zia.cloud-app-control.troubleshooting.md (Cloud App Control troubleshooting: blocked-but-allowed and allowed-but-blocked)
 - links-to references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.cloud-app-control-rule.md (The Cloud App Control rule resource: prompt capture, isolation, import and delete)
+- see-also references/_meta/text/portfolio/portfolio.casb.md (CASB: ZIA inline controls plus out-of-band SaaS security, not one product)

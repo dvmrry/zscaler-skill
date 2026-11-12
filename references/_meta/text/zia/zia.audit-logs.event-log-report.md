@@ -32,3 +32,6 @@ Area: zia.audit-logs, its subjects in references/_meta/spine/zia/zia.audit-logs.
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs), from zia.audit-logs: Cloud NSS requires a separate concurrent subscription, and its geo-availability and qualifications are obtained from Zscaler Support. [shared.nss.delivery-modes:cloud-subscription]
 - links-to references/_meta/text/zia/zia.audit-logs.report-api.md (Exporting the ZIA admin audit log through the report API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.audit-logs.what-is-recorded.md (What the ZIA admin audit log records and how the console shows it)

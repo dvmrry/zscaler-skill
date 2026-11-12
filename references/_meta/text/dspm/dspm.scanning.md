@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references): Data is classified with Zscaler's DLP engines and dictionaries, through full, incremental, historical or sampling scans. [dspm.scanning:classification]
 - links-to references/_meta/text/dspm/dspm.scan-rules.md (How DSPM scan rules are configured per resource type, how scans are run and stopped, and how scan scopes select DLP engines)
 - links-to references/_meta/text/dspm/dspm.vulnerability-scanning.md (What DSPM vulnerability scanning supports: virtual machine platforms, operating systems, file systems, libraries, encryption and regions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)

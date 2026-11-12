@@ -57,3 +57,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-python.authentication.md (How the Python SDK authenticates to ZIA: OneAPI, government clouds and legacy)
 - links-to references/_meta/text/zia/zia.sdk-python.client-errors-and-accessors.md (Python SDK errors, accessors and misspelled names on the ZIA client)
 - links-to references/_meta/text/zia/zia.sdk-python.request-conventions.md (How the Python SDK builds, pages and retries ZIA requests)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.api.md (The ZIA API from a client's side: activation, limits, SDK coverage and wire notes)

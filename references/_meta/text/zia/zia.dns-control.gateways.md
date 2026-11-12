@@ -39,3 +39,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/dns-log.md (ZIA DNS log (NSS DNS feed)), from zia.dns-control: The DNS NSS feed gives separate rule and action fields for the request (reqrulelabel, reqaction) and for the response (resrulelabel, resaction), mapped in DNS Insights Logs to Request Rule Name, Request Action, Response Rule Name and Response Action. [zia.logs.dns-outcome:request-response-pairs]
 - links-to references/_meta/text/cloud-connector/cloud-connector.dns.gateways.md (Cloud & Branch Connector DNS gateways: resolvers, failure behavior, predefined gateways)
 - links-to references/_meta/text/zia/zia.logs.dns-gateway-fields.md (DNS Gateway fields in the DNS log: slot, server protocol and flags)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)
+- see-also references/_meta/text/zia/zia.dns-control.actions.md (DNS Control actions and what each API action requires)

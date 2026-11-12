@@ -28,3 +28,6 @@ Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.private-service-edges.business-continuity.md (Business Continuity for Private Access: prerequisites, domain names, settings, entering and exiting, limitations)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)

@@ -31,3 +31,10 @@ Area: shared.admin-rbac, its subjects in references/_meta/spine/shared/shared.ad
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.api.hosts-and-auth.md (ZDX API hosts and sign-in: the OneAPI gateway, the direct ZDX host, and which paths go where)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)
+- see-also references/_meta/text/shared/shared.admin-rbac.zia.md (ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule)
+- see-also references/_meta/text/shared/shared.admin-rbac.zpa.md (ZPA admin roles: feature permissions, effective access and propagation delay)
+- see-also references/_meta/text/zdx/zdx.overview.md (ZDX at a glance: what it measures and which subject answers each question)
+- see-also references/_meta/text/zdx/zdx.audit-logs.md (ZDX admin audit logs in the console: what is recorded, retention, lockout and filters)

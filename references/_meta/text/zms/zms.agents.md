@@ -28,3 +28,8 @@ Area: zms.agents, its subjects in references/_meta/spine/zms/zms.agents.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.agent-groups.md (How Microsegmentation agent groups are configured, aged out, upgraded and managed)
 - links-to references/_meta/text/zms/zms.provisioning-keys.md (Microsegmentation agent provisioning keys (nonces): portal, fields and API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/zms/zms.dashboards.md (What the Microsegmentation Flow, Agent and Overview dashboards and the Application Map show)
+- see-also references/_meta/text/zms/zms.analytics.md (What the Microsegmentation Data Explorer log pages list: flow logs, aggregations, connection status, telemetry and events)

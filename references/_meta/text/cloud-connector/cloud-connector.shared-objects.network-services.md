@@ -20,3 +20,7 @@ Area: cloud-connector.shared-objects, its subjects in references/_meta/spine/clo
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.network-services.md (Network services (port criteria))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.shared-objects.md (Objects ZIA and Cloud & Branch Connector share: IP groups and network services)
+- see-also references/_meta/text/cloud-connector/cloud-connector.forwarding.criteria.md (Cloud Connector forwarding rule criteria: scope, services, sources, destinations, FQDNs)

@@ -33,3 +33,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.saml-attributes.policy-criteria.md (How SAML attributes act as policy criteria): The Terraform provider accepts the operand object types IDP, SCIM, SCIM_GROUP, SAML and CLIENT_TYPE on a User Status receiver and the same plus APP and APP_GROUP on a User Activity receiver. [zpa.log-receivers.filtering:tf-object-types]
 - scoped-by references/_meta/text/zpa/zpa.segment-groups.md (ZPA segment groups): A receiver's streaming policy can restrict the stream to a specific segment group or set of session status error codes, and the criteria available depend on the Log Type. [zpa.log-receivers.filtering:console-policy]
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.data-source-fidelity.md (What ZPA Terraform data sources return, drop, or get wrong)
+- see-also references/_meta/text/zpa/zpa.log-receivers.configuration.md (What a ZPA log receiver holds and which fields are required)
+- see-also references/_meta/text/zpa/zpa.audit-logs.streaming.md (Streaming ZPA audit logs to a SIEM: log type, fields, filtering)

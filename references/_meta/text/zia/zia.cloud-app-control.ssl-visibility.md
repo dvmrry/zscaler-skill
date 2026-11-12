@@ -26,3 +26,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zia/zia.logs.web-rule-attribution.md (Which rule decided a web transaction, from the logs), from zia.cloud-app-control: URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty. [zia.logs.web-rule-attribution:separate-layer-labels]
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.exemptions.md (Writing SSL/TLS inspection exemptions without exempting too much): The guide's Microsoft 365 policy is to inspect OneDrive, SharePoint and similar services but exclude Click-to-Run. [zia.ssl-inspection.exemptions:m365-inspect-except-click-to-run]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.cloud-app-control: By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire. [zia.cloud-app-control.precedence:cac-allow-skips-url-filtering]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-settings.md (config type)
+- see-also references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)

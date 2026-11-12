@@ -54,3 +54,12 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]
 - links-to references/_meta/text/zpa/zpa.peer-to-peer.md (Peer-to-peer connectivity: client-to-client and server-to-client remote assistance, their requirements and setup, and Client Connector IP assignment)
 - links-to references/_meta/text/zpa/zpa.vpn.md (ZPA VPN (for Legacy Apps): what it is, its components and where each question goes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
+- see-also references/_meta/text/zpa/zpa.app-segments.definition.md (What an application segment can contain: entries, wildcards and ports)
+- see-also references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)
+- see-also references/_meta/text/zpa/zpa.app-connectors.connector-groups.md (App Connector groups)
+- see-also references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
+- see-also references/_meta/text/zpa/zpa.machine-groups.definition.md (What a ZPA machine group is and how machines join it)
+- see-also references/_meta/text/zpa/zpa.machine-tunnels.requirements.md (What a ZPA machine tunnel needs before it can connect)

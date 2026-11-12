@@ -44,3 +44,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.endpoint-enforcement.md (How Endpoint DLP reaches the endpoint: prerequisites, policy delivery, offline enforcement, scans, and what the vendor says about evaluating all rules and exception rules)
 - links-to references/_meta/text/zia/zia.dlp.endpoint-inventory.md (Endpoint inventory and Application Investigation: detected removable storage, printers, portable devices and applications)
 - links-to references/_meta/text/zia/zia.dlp.endpoint-settings.md (Endpoint Data Scan configuration: scan reporting, End User Reports, continuous and real-time classification, exemption, trusted applications, channel exceptions, activation)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-dlp.md (Endpoint DLP API families in the SDKs and Terraform provider)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-data-scan.md (Endpoint Data Scan reports: the daily data-at-rest report, User and Device Investigation, DLP Operational and the End User Report)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-intent.md (Indicators of Intent: predefined risky-behaviour rules on the endpoint and their exceptions)

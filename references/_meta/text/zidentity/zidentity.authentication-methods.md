@@ -39,3 +39,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.users.security-settings.md (A user's security settings in Authentication Service: initial password option, skipping second-factor authentication and MFA authenticators)
 - links-to references/_meta/text/zidentity/zidentity.admin-rbac.permissions.md (Authentication Service permission modules and levels, and the cross-module dependencies)
 - links-to references/_meta/text/zidentity/zidentity.overview.external-idps.configuration.md (Configuring an external IdP in Authentication Service: domains, login ID attribute, OIDC and SAML fields, admin MFA enforcement, signing certificates and IdP-initiated sign-in)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)

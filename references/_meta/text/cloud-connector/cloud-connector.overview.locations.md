@@ -21,3 +21,8 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/cloud-connector/cloud-connector.logs.md (Cloud Connector logs: which log types exist and where to read them), from cloud-connector.overview: Cloud & Branch Connector logs are stored for 180 days in the Zscaler Nanolog servers. [cloud-connector.logs:nanolog-180]
 - scoped-by references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling), from cloud-connector.overview: Groups let you apply policies to a set of deployed Cloud Connectors and upgrade the Cloud Connectors in a group while keeping redundancy during the upgrade. [cloud-connector.overview.groups:group-purpose]
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.doc-errata.md (Where the ZTC provider documentation is wrong or incomplete, and the location template checks it does not mention)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.md (Cloud & Branch Connector: what Cloud Connector is and where each area is described)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.locations-wire.md (Cloud Connector locations on the wire: the profile values and what Terraform can manage)
+- see-also references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it)

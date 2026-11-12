@@ -26,3 +26,6 @@ Area: zpc.api, its subjects in references/_meta/spine/zpc/zpc.api.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpc/zpc.iac-scanning.md (What ZPC IaC Scan covers: entitlement, supported templates and operating systems, Bicep, skipping policies, disabling and alert status)

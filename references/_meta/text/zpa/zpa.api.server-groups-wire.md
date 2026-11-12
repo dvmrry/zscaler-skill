@@ -66,3 +66,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.server-groups.md (ZPA server groups)
 - links-to references/_meta/text/zpa/zpa.server-groups.discovery-mode.md (Dynamic discovery versus explicit servers on a server group)
 - links-to references/_meta/text/zpa/zpa.server-groups.update-payload.md (What the Python SDK sends when it updates a server group)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.server-groups.multiple-on-segment.md (Several server groups on one application segment)

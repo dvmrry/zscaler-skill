@@ -21,3 +21,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.app-governance.md (3rd-Party App Governance: governing third-party apps, add-ons and extensions connected to SaaS platforms, and its portal, roles and dashboard)
 - links-to references/_meta/text/zia/zia.app-governance.inventory.md (App and user inventory in 3rd-Party App Governance: how apps get in, search, catalog sandboxing, bulk upload, custom views, client-ID exports)
 - links-to references/_meta/text/zia/zia.app-governance.remediation.md (Revoke, ban and end user review in 3rd-Party App Governance: what each does and where it is recorded)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.app-governance.app-risk.md (An app's status, risk score, findings and classification in 3rd-Party App Governance (the App Panel))

@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zidentity/zidentity.entitlements.md (Administrative and service entitlements: who administers and who may use each Zscaler service): So the role names in an administrative entitlement are the roles each product defines (a ZIA admin role is chosen when the Internet & SaaS entitlement is assigned), not a fixed list; the API reference gives the role objects no enumeration. [zidentity.entitlements:roles-from-products]
 - depends-on references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions): Users and user groups must be added to Authentication Service before admin roles are assigned to them. [zidentity.admin-rbac:users-first]
 - links-to references/_meta/text/zia/zia.reports.executive-insights-app.md (Executive Insights mobile app: access errors, data freshness and widgets)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.migration.admins.md (How Zscaler admins are migrated to Authentication Service, and the automatic upgrade to the Zscaler Admin Console)

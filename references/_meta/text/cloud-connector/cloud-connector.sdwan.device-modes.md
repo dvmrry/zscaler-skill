@@ -30,3 +30,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/cloud-connector/cloud-connector.forwarding.predefined-rules.md (Predefined Cloud Connector traffic forwarding rules): These predefined rules apply only to hardware devices deployed in gateway mode; they can be enabled only once a location or Branch Connector group is configured for them, and only gateway-mode devices can join that mandatory group. [cloud-connector.forwarding.predefined-rules:gateway-mode-only]
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdwan.hardware-install.md (Installing ZT400, ZT600 and ZT800 devices: mounting, console, cabling, port maps and reset)
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.zsroot-rotation.md (Rotating the zsroot password on Cloud and Branch Connectors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdwan.md (Zero Trust SD-WAN: what Zscaler means by it and what the sources leave open)

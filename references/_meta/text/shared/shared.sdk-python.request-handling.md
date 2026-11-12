@@ -19,3 +19,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.api.conventions.md (Conventions of the ZCC v1 API: casing, query parameters, caching, status codes)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.api.md (Automating Zero Trust Branch: the Python SDK client, its API-key sign-in, and what no other client covers)
 - links-to references/_meta/text/zpa/zpa.sdk-python.pagination.md (Paging through ZPA lists with the Python SDK)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-python.response-handling.md (What the Python SDK does with a response: key casing, models, the response object)

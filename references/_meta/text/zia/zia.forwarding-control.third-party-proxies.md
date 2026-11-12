@@ -47,3 +47,9 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.forwarding-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - links-to references/_meta/text/zia/zia.ssl-inspection.certificates.md (SSL/TLS inspection certificates: who signs, and where the root must be trusted)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.proxy-chaining.md (Proxy chaining to ZIA: setup, XFF handling and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/proxies.md (config type)
+- configured-via references/_meta/text/types/zia/proxy-gateways.md (config type)
+- see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)
+- see-also references/_meta/text/ai-security/ai-security.ai-guard.zia-integration.md (Sending ZIA users' AI traffic to AI Guard by proxy chaining: prerequisites, proxy, QUIC rule and forwarding)

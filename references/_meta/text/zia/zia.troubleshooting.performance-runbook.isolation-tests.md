@@ -11,3 +11,7 @@ Not known (open gaps):
 - When the manual proxy test uses port 80 and when 443 [gap:zia.troubleshooting.performance-runbook.isolation-tests:manual-proxy-port]: settled by lab-test or source-read
 
 Area: zia.troubleshooting, its subjects in references/_meta/spine/zia/zia.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.performance-runbook.md (How the Internet & SaaS performance troubleshooting runbook scopes a slowness case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.troubleshooting.performance-testing.md (Measuring ZIA performance: the Cloud Performance Test and why common speed tests mislead)

@@ -48,3 +48,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.logs.control-session-status.md (ZPA status logs for connectors, Private Service Edges and Private Cloud Controllers), from zpa.app-connectors: The App Connector Status log's SessionType is ZPN_ASSISTANT_BROKER_CONTROL, the session from the connector to the closest Public Service Edge, and SessionStatus is one of ZPN_STATUS_AUTHENTICATED, ZPN_STATUS_AUTH_FAILED or ZPN_STATUS_DISCONNECTED. [zpa.app-connectors.health:status-log-control-session]
 - links-to references/_meta/text/zpa/zpa.app-connectors.deployment.md (App Connector deployment, redundancy and limits)
 - links-to references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.connector-groups.md (App Connector groups)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.gcp-reference-modules.md (Reference Terraform modules for Private Service Edges on GCP)

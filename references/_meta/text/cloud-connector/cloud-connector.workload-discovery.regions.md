@@ -32,3 +32,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads), from cloud-connector.workload-discovery: The feature needs a subscription to a Workload SKU and a Cloud & Branch Connector account; after subscribing, Zscaler Support must enable the Workload Discovery Service Endpoint before Workload Groups can be used. [zia.workload-groups:discovery-prerequisite]
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.service-defects.md (Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects)
 - links-to references/_meta/text/cloud-connector/cloud-connector.workload-discovery.namespaces.md (Namespaces and the zs:namespace VPC tag: overlapping IPs in workload discovery)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/public-cloud-accounts.md (config type)
+- configured-via references/_meta/text/types/ztw/public-cloud-info.md (config type)

@@ -24,3 +24,8 @@ Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.endpoint-data-scan.md (Endpoint Data Scan reports: the daily data-at-rest report, User and Device Investigation, DLP Operational and the End User Report)
 - links-to references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.outbound-email-policy.md (Outbound Email DLP policy: smart host flow, per-recipient evaluation, criteria and header actions)
+- see-also references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references)
+- see-also references/_meta/text/zia/zia.dlp.dictionaries.md (DLP dictionaries: predefined, cloned and custom)

@@ -37,3 +37,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
 - links-to references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine)
 - links-to references/_meta/text/zpa/zpa.scim.provisioning-timing.md (When SCIM data is ready for ZPA policy)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/groups.md (config type)
+- configured-via references/_meta/text/types/zia/departments.md (config type)

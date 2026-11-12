@@ -67,3 +67,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.audit-logs.md (ZPA admin audit logs)
 - links-to references/_meta/text/zpa/zpa.audit-logs.streaming.md (Streaming ZPA audit logs to a SIEM: log type, fields, filtering)
 - links-to references/_meta/text/zwa/zwa.audit-logs.md (Workflow Automation audit logs: the customer audit search, what it records, and how the SDKs read it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)

@@ -46,3 +46,7 @@ Area: identity-protection.server-agents, its subjects in references/_meta/spine/
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/identity-protection/identity-protection.endpoint-agents.md (What the ITDR Admin Portal help describes for endpoint agents: Endpoint Settings, agent configuration, update groups, safe processes and the Client Connector for Windows deployment)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.ad-posture.md (Active Directory posture in Identity Protection: dashboard, issues, roadmap, reports, remediation, privileged account tracking and password analysis)

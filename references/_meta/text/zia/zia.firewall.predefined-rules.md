@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/firewall-log.md (ZIA firewall log (NSS firewall feed)), from zia.firewall: The firewall action field is described as the action the service took on the transaction: Allowed or Blocked. [zia.logs.firewall-records:action-two-values]
 - links-to references/_meta/text/zia/zia.firewall.best-practices.md (Recommended Firewall Filtering, DNS Control and IPS Control rules)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipv6.md (IPv6 through ZIA: forwarding per method, prerequisites, processing and policy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
+- see-also references/_meta/text/zia/zia.dns-control.predefined-rules.md (Predefined DNS Control rules and the ZPA resolvers)
+- see-also references/_meta/text/zia/zia.forwarding-control.predefined-rules.md (Predefined Forwarding Control rules)

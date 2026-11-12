@@ -73,3 +73,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.api.legacy-ips-signature-wire.md (Custom IPS signature rules: export, validate and import wire behavior in the legacy API)
 - links-to references/_meta/text/zia/zia.firewall.ips.md (IPS Control)
 - links-to references/_meta/text/zia/zia.firewall.limits.md (Firewall rule, criteria and group limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ips-signature-rules.md (config type)

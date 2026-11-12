@@ -33,3 +33,9 @@ Area: unified.secops-platform, its subjects in references/_meta/spine/unified/un
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/uvm/uvm.tickets.md (How UVM tickets work: the Tickets page, manual split and merge, automatic grouping rules, status buckets and ticket workflows)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.model.md (The Agentic SecOps Platform data model: entity types, Data Model Management, field settings, processing and Entity Management Runs)
+- see-also references/_meta/text/unified/unified.secops-platform.data.mapping.md (Source mapping in the Agentic SecOps Platform: workspace, value methods, explode, minimum fields, keys, parser types and Explore)
+- see-also references/_meta/text/unified/unified.secops-platform.data.threatlabz.md (The ThreatLabz data source and the Finding Is Mitigated field: which Zscaler services mitigate which CVEs)

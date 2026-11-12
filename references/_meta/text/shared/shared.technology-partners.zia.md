@@ -50,3 +50,10 @@ Not known (open gaps):
 - Which Zscaler licences or tiers does each partner integration need? [gap:shared.technology-partners.zia:integration-licences]: settled by support-ticket or source-read
 
 Area: shared.technology-partners, its subjects in references/_meta/spine/shared/shared.technology-partners.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.technology-partners.md (Zscaler technology partner guides: which subject holds which partner guides (split by partner name, not strictly by product))
+- see-also references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)
+- see-also references/_meta/text/shared/shared.technology-partners.zpa.md (What the technology-partner deployment guides (grouped by the extractor split, not by product: mostly ZPA and mixed ZIA/ZPA guides, plus some ZIA log, SaaS and identity guides) say each partner integration does)
+- see-also references/_meta/text/shared/shared.technology-partners.uvm.md (Which UVM connectors and data flows the technology-partner deployment guides describe)
+- see-also references/_meta/text/shared/shared.technology-partners.other.md (What the technology-partner guides for Client Connector, ZPC, ZDX, SaaS security and ZPA connectivity (SAP, Autopilot) say each partner integration does)

@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.windows-unattended.md (Silent install, upgrade, revert and uninstall parameters, and launch behavior)
 - links-to references/_meta/text/zcc/zcc.passwords-and-otp.app-profile-passwords.md (App profile passwords: logout, disable, exit and uninstall, per platform)
 - links-to references/_meta/text/zcc/zcc.platform-settings.md (Platform Settings: the per-OS console settings for sign-in, IPv6, ZDX upgrades, default UI and unattended-mode passwords)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.install.rollout.md (Rolling out Client Connector: App Store downloads, deployment phases, pilot tests and update test groups)

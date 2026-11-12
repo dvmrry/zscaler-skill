@@ -50,3 +50,6 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/ai-security/ai-security.ai-guard.zia-integration.md (Sending ZIA users' AI traffic to AI Guard by proxy chaining: prerequisites, proxy, QUIC rule and forwarding), from ai-security.ai-guard: ZIA can be configured to invoke AI Guard for processing users' AI traffic. [ai-security.ai-guard.zia-integration:invoke-from-zia]
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.detectors.pii.md (The AI Guard PII detector: categories, what it catches and misses, masking, entities and threshold)
 - links-to references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-guard.md (AI Guard: runtime guardrails on prompts and responses, its Proxy and DAS/API modes, and where each part is documented)

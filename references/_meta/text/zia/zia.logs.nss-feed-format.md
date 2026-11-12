@@ -40,3 +40,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.firewall-records.md (What a ZIA firewall log record is: aggregates, action and field names)
 - links-to references/_meta/text/zia/zia.logs.nss-dlp-sandbox-feeds.md (Cloud and HTTP NSS feeds for Email DLP, Endpoint DLP and Sandbox Verdict logs: settings, certificates and filters)
 - links-to references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/nss-feeds.md (config type)
+- configured-via references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+- see-also references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)

@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.casb.api-surface.md (CASB API, SDK and Terraform surface)
 - links-to references/_meta/text/zia/zia.casb.malware-rules.md (CASB Data at Rest Scanning malware rules)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.registry.md (The ZIA provider's reorder registry: keys, locks and lifecycle across rule resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
+- configured-via references/_meta/text/types/zia/casb-malware-rules.md (config type)

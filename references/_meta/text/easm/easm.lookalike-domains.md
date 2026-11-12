@@ -45,3 +45,8 @@ Area: easm.lookalike-domains, its subjects in references/_meta/spine/easm/easm.l
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/easm/easm.dashboards.md (EASM Insights Overview and Assets Overview dashboards: widgets, time frames and bucket definitions)
 - links-to references/_meta/text/shared/shared.mcp-server.results.md (What a Zscaler MCP tool result contains: full records, untrusted-content banners, JMESPath and CSV)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/easm/easm.api.md (The EASM (ZEASM) API: organization scoping, clients, paging and the Postman collection)
+- see-also references/_meta/text/easm/easm.mcp.md (The Zscaler MCP server's EASM tools: inventory, full records and documentation mismatches)
+- see-also references/_meta/text/easm/easm.overview.md (Zscaler EASM: what it is, how it is set up, and where each part is documented)

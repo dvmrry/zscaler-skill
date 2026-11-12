@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
 - links-to references/_meta/text/zia/zia.url-filtering.list-pagination.md (Listing URL Filtering rules and URL categories without truncation)
 - links-to references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/rule-labels.md (config type)

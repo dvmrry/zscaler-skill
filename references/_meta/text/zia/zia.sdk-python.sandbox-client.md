@@ -15,3 +15,6 @@ Area: zia.sdk-python, its subjects in references/_meta/spine/zia/zia.sdk-python.
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sandbox.submission.md (Submitting files to Sandbox and out-of-band inspection (Discan))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sandbox.md5-blocklist.md (Sandbox custom MD5 hash list)

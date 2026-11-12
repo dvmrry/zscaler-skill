@@ -27,3 +27,9 @@ Not known (open gaps):
 - Thresholds for Private Service Edge and Private Cloud Controller resource pressure [gap:zpa.logs.service-edge-metrics:resource-thresholds]: settled by lab-test or support-ticket. Blocks: alerting on port, file descriptor or disk pressure for these nodes
 
 Area: zpa.logs, its subjects in references/_meta/spine/zpa/zpa.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.logs.app-connector-metrics.md (What the ZPA App Connector Metrics log reports and what it leaves open)
+- see-also references/_meta/text/zpa/zpa.logs.control-session-status.md (ZPA status logs for connectors, Private Service Edges and Private Cloud Controllers)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.md (Private Cloud Controllers and Private Clouds as the Business Continuity layer)

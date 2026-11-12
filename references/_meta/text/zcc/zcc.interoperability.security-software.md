@@ -28,3 +28,7 @@ Not known (open gaps):
 - How the 100.64 range is chosen when it shifts, and where the active range can be seen [gap:zcc.interoperability.security-software:cgnat-range-selection]: settled by lab-test or support-ticket
 
 Area: zcc.interoperability, its subjects in references/_meta/spine/zcc/zcc.interoperability.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.interoperability.md (Client Connector alongside other software and networks: where each interoperability answer lives, plus debugging proxies, alternative cloud domains and iCloud Private Relay)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.service-status-errors.md (Error messages in Client Connector's Service Status field and the action for each)

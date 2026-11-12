@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.vpn.bgp.md (BGP for VPN Service Edges and Network Connectors: AS numbers, failure detection, external routers)
 - links-to references/_meta/text/zpa/zpa.vpn.diagnostics.md (VPN Connected Users and the VPN Diagnostics pages: user logs, traffic flow logs and access policy data)
 - links-to references/_meta/text/zpa/zpa.vpn.service-edges.md (VPN Service Edges: what they are, statuses, client IP pools, update schedule, BGP configuration mode and China)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.signals.md (Where ZPA access evidence lives: console, client, connector, log streaming)

@@ -43,3 +43,7 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zia/zia.casb.rule-types.md (CASB rule types: the eight categories and their separate rule lists), from zia.casb: DLP rule order is defined relative to other Data at Rest Scanning DLP rules and malware rule order relative to other Data at Rest Scanning Malware rules, so the two kinds are separate ordered lists. [zia.casb.rule-types:order-separate-lists]
 - depends-on references/_meta/text/zia/zia.casb.scans.md (CASB scan schedules: states, historical data, stop and restart), from zia.casb: A configured rule inspects nothing until it is added to a scan schedule: the Zscaler service does not inspect content until a scan is configured. [zia.casb:no-scan-no-inspection]
 - links-to references/_meta/text/zia/zia.sspm.permissions.md (Permissions and admin roles needed to onboard each SaaS application for SSPM)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)
+- see-also references/_meta/text/zia/zia.casb.app-capabilities.md (SaaS Security per-application capabilities: onboarding privileges, webhooks, historical scan, licensing, scanned content, actions and activities)

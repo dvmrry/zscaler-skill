@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.sipa.md (Source IP Anchoring: what it needs on each side)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)

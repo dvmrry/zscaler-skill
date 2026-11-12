@@ -37,3 +37,12 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.insights.logs.md (ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns)
 - links-to references/_meta/text/zia/zia.locations.automation.md (Locations through the API, SDK, Terraform and Ansible)
 - links-to references/_meta/text/zia/zia.locations.groups.md (Location groups: manual and dynamic, conditions, limits, predefined groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.ipsec.md (IPSec tunnels to ZIA: limits, IKE and device settings)
+- see-also references/_meta/text/zia/zia.locations.group-assignment.md (How locations land in groups: location type, defaults, exclusion flags and Terraform support)
+- see-also references/_meta/text/zia/zia.dns-control.ip-pools.md (IP pools for Source IP Anchoring and Extranet)
+- see-also references/_meta/text/zia/zia.dns-control.predefined-rules.md (Predefined DNS Control rules and the ZPA resolvers)
+- see-also references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
+- see-also references/_meta/text/zpa/zpa.api.server-groups-wire.md (Server group and application server wire details: write responses, always-sent keys, nested fields and the extranet object)

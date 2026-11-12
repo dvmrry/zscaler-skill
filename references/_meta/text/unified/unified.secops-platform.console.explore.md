@@ -8,3 +8,7 @@ Also called: secops platform log search; Queries Library; Entity Explorer; QL sy
 **Entity Explorer.** Entity Explorer shows all relevant data per entity, both active and inactive, unlike entity-specific views that show active components; Investigate mode shows source fields next to the platform fields and the table exports to CSV. [unified.secops-platform.console.explore:entity-explorer]
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.console.md (The Agentic SecOps Platform admin portal: supported browsers, egress IPs, status board, account settings, failure emails, AI capabilities and audit logs)
+- see-also references/_meta/text/unified/unified.secops-platform.console.access-control.md (Admin portal roles, users and content permissions: system and custom roles, resource categories, RBAC and ABAC, and the scope of content permissions)

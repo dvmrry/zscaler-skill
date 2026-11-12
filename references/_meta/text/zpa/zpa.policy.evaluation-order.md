@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules), from zpa.policy: The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups. [zpa.policy.criteria:criteria-list]
 - links-to references/_meta/text/zpa/zpa.policy.forwarding-rules.md (ZPA client forwarding policy rules: actions, precedence and criteria)
 - links-to references/_meta/text/zpa/zpa.policy.policy-groups.md (ZPA access policy global rules and policy groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.policy.actions.md (Rule actions on ZPA policy types)
+- see-also references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)

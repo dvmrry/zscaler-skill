@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.nss-va.log-control-path.md (Log and Control Forwarding and NSS: the two legs that carry connector logs), from cloud-connector.nss-va: A connector log reaches a SIEM over two legs: the connector forwards it to the Zscaler cloud under the Log and Control Forwarding policy, and an NSS VM streams it from the Nanolog to the SIEM. A Log and Control Forwarding rule configures only the first leg; the NSS VM authenticates with its own certificate and is configured by NSS servers and feeds. [cloud-connector.nss-va.log-control-path:two-legs]
 - links-to references/_meta/text/cloud-connector/cloud-connector.logs.session-records.md (Cloud Connector session records: aggregation and rule attribution)
 - links-to references/_meta/text/cloud-connector/cloud-connector.nss-va.cloud-feeds.md (Cloud NSS feeds for Cloud & Branch Connector logs: HTTPS destination, output and per-log-type filters)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.nss-va.md (NSS for Cloud & Branch Connector: how connector logs reach a SIEM)

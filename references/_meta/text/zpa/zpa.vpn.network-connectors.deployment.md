@@ -24,3 +24,10 @@ Not known (open gaps):
 - Network Connector deployment guides for GCP and Azure [gap:zpa.vpn.network-connectors.deployment:gcp-azure-guides]: settled by source-read or support-ticket
 
 Area: zpa.vpn, its subjects in references/_meta/spine/zpa/zpa.vpn.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.vpn.md (ZPA VPN (for Legacy Apps): what it is, its components and where each question goes)
+- see-also references/_meta/text/zpa/zpa.vpn.network-connectors.md (Network Connectors and Network Connector groups (VPN for Legacy Apps))
+- see-also references/_meta/text/zpa/zpa.vpn.network-connectors.enrollment.md (Network Connector enrollment: OAuth 2.0 tokens and provisioning keys)
+- see-also references/_meta/text/zpa/zpa.vpn.redundancy.md (VPN redundancy: failure scenarios, BGP group settings, platform settings, replacing and migrating Network Connectors)
+- see-also references/_meta/text/zpa/zpa.app-connectors.deployment.md (App Connector deployment, redundancy and limits)

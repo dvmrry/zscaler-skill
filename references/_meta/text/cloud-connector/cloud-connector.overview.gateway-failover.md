@@ -61,3 +61,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.gateways.md (Internet Access and Log and Control gateways: default gateways and proxy types; Fail Close and the 32-object limit for Internet Access gateways)
 - links-to references/_meta/text/cloud-connector/cloud-connector.insights.connector-status.md (Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.load-balancing.md (How cloud load balancers spread traffic across Cloud Connectors and take unhealthy ones out)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-gateways.md (config type)
+- configured-via references/_meta/text/cloud-connector/cloud-connector.terraform.gateways.md (ZTC forwarding and DNS gateways in Terraform and the Go SDK: subclouds, manual proxies, and the two DNS gateway resources)

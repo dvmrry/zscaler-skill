@@ -41,3 +41,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
 - links-to references/_meta/text/zpa/zpa.pra.live-sessions.md (PRA live session sharing: participants, invitations, control and ejection)
 - links-to references/_meta/text/zpa/zpa.user-portal.md (Private Access user portals and portal links: what they are, how users reach them, certificates and DNS, links, download links and the acceptable use policy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes)

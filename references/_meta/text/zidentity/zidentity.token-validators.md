@@ -21,3 +21,8 @@ Not known (open gaps):
 - Where token validator logs are found [gap:zidentity.token-validators:validator-logs]: settled by source-read or lab-test. Blocks: finding why a token was rejected
 
 Area: zidentity.token-validators, its subjects in references/_meta/spine/zidentity/zidentity.token-validators.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)
+- see-also references/_meta/text/zidentity/zidentity.api-clients.access-tokens.md (ZIdentity-issued access tokens: the Tokens page, when tokens are revoked, and who can revoke them)
+- see-also references/_meta/text/zidentity/zidentity.admin-rbac.permissions.md (Authentication Service permission modules and levels, and the cross-module dependencies)

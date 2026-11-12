@@ -40,3 +40,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.terraform.field-fidelity.md (ZCC Terraform provider fields that are not sent, not read back, or collapsed)
 - links-to references/_meta/text/zcc/zcc.terraform.trusted-network-backend.md (How the ZCC provider picks the v1 or v2 trusted-network API and converts between them)
 - links-to references/_meta/text/zcc/zcc.trusted-networks.detection.md (How Client Connector decides it is on a trusted network)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/trusted-networks.md (config type)

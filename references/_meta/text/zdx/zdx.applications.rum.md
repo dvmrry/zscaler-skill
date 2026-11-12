@@ -20,3 +20,6 @@ Area: zdx.applications, its subjects in references/_meta/spine/zdx/zdx.applicati
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zdx/zdx.probes.md (ZDX probes: Web and Cloud Path probes, what they measure and how they run), from zdx.applications: A custom application must have a Web probe created to be enabled; most applications have at least one Web probe and one Cloud Path probe, while network applications need only a single Cloud Path probe. Predefined applications have probes preconfigured by default, while custom applications need probes created manually. [zdx.applications:probe-requirements]
 - links-to references/_meta/text/zdx/zdx.applications.md (ZDX applications: predefined, custom and network applications, and the application API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.score.md (The ZDX Score: scale, bands, score types and what lowers it)

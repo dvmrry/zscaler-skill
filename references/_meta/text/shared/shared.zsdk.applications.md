@@ -52,3 +52,10 @@ Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.jso
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.zsdk.limits.md (ZSDK ranges and limitations per organization)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.configuration.md (Configuring ZSDK: registered apps and app keys, segments and access policy)
+- see-also references/_meta/text/shared/shared.zsdk.app-connectors.md (ZSDK App Connector sizing, provisioning keys, groups, settings, enrollment and deployment checklist)
+- see-also references/_meta/text/shared/shared.zsdk.browser-access.md (ZSDK Browser Access: availability, prerequisites, unsupported features and DNS)
+- see-also references/_meta/text/shared/shared.zsdk.disaster-recovery.md (ZSDK disaster recovery: scope, prerequisites, settings and DNS records)

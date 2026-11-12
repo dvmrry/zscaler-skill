@@ -22,3 +22,10 @@ Area: shared.nss, its subjects in references/_meta/spine/shared/shared.nss.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity)
+- see-also references/_meta/text/shared/shared.nss.vm-platforms.md (Deploying the NSS VM on AWS, GCP, Azure, Hyper-V, Nutanix and vSphere)
+- see-also references/_meta/text/shared/shared.nss.vm-network.md (NSS VM interfaces and firewall requirements: management and service roles, outbound-only, no SSL inspection)
+- see-also references/_meta/text/shared/shared.nss.vm-advanced-settings.md (Advanced NSS VM settings: extra interfaces, local NTP, explicit proxy, hostname and SSH)

@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.methods.md (Forwarding methods Zscaler supports and how to choose)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.vpn-credentials.md (VPN credentials for IPSec: types, immutability and keys)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent)

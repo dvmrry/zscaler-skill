@@ -29,3 +29,7 @@ Area: zdx.probes, its subjects in references/_meta/spine/zdx/zdx.probes.json
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection), from zdx.probes: The organization's SSL policies do not apply to ZDX synthetic Web probes, while all other policies applicable to regular traffic do; the exception enables caching of responses, without which destination servers would see an excessive surge of probe requests. [zdx.probes:ssl-exempt]
 - links-to references/_meta/text/zdx/zdx.probes.collections.md (ZDX collections: default collections, membership, ranking, criteria, deletion and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.probes.md (ZDX probes: Web and Cloud Path probes, what they measure and how they run)
+- see-also references/_meta/text/zdx/zdx.probes.configuration.md (Configuring end-user Web and Cloud Path probes in the console: fields, defaults, limits and protocols)

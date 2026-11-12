@@ -24,3 +24,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-python.sandbox-client.md (How the Python SDK reaches the sandbox submission host)
 - links-to references/_meta/text/zia/zia.sdk-python.security-policy-url-lists.md (How the Python SDK edits the security allowlist and denylist)
 - links-to references/_meta/text/zia/zia.sdk-python.service-behaviors.md (Python SDK service-specific behavior for ZIA: admin, AppTotal, browser control, smart isolation and GRE tunnel VIPs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.api.md (The ZIA API from a client's side: activation, limits, SDK coverage and wire notes)

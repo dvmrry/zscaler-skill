@@ -40,3 +40,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.dlp: dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename. [zia.logs.web-field-semantics:dlp-rule-fields]
 - links-to references/_meta/text/zia/zia.dlp.endpoint-enforcement.md (How Endpoint DLP reaches the endpoint: prerequisites, policy delivery, offline enforcement, scans, and what the vendor says about evaluating all rules and exception rules)
 - links-to references/_meta/text/zia/zia.dlp.incident-forwarding.md (Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-dlp.md (Endpoint DLP API families in the SDKs and Terraform provider)

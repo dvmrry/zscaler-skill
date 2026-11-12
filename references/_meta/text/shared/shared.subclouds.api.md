@@ -33,3 +33,6 @@ Area: shared.subclouds, its subjects in references/_meta/spine/shared/shared.sub
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.early-access.md (Early Access Terraform resources: extranet, data center exclusions, subclouds)
 - depends-on references/_meta/text/shared/shared.pac-files.variables.md (Zscaler PAC file variables: gateways, hosts, load-balancing tokens, subclouds and Client Connector), from shared.subclouds: A PAC file for a subcloud must not use ${GATEWAY} or gateway.<Zscaler cloud> in its return statement, or traffic goes to the nearest Public Service Edge, which may be outside the subcloud; it uses ${GATEWAY.<Subcloud>.<Zscaler cloud>} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>}, with _HOST forms for Kerberos and plain host names for applications that do not support PAC files. [shared.pac-files.variables:subcloud-vars]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.subclouds.md (Subclouds: restricting which Service Edges handle a tenant's traffic)

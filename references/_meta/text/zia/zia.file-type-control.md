@@ -23,3 +23,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many): These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - links-to references/_meta/text/zia/zia.file-type-control.api-shape.md (File Type Control API shape: rules, categories and custom types)
 - links-to references/_meta/text/zia/zia.ssh-control.md (SSH traffic in ZIA: what is and is not inspected)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/file-type-rules.md (config type)
+- configured-via references/_meta/text/types/zia/custom-file-types.md (config type)
+- see-also references/_meta/text/zia/zia.file-type-control.runbook.md (How the Internet & SaaS File Type Control policy troubleshooting runbook confirms fault and checks detection, SSL inspection, protocol and rule criteria)

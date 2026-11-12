@@ -39,3 +39,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group), from zia.forwarding-control: Within the Who, Where and When tab, criteria combine as [Users OR Groups OR Departments] AND [Locations OR Location Groups] AND Device Groups; Services is Network Service Groups OR Network Services; Source is Source IPv4 Groups OR IP Addresses; Destination is Destination Groups OR Destination IP Address/Wildcard FQDN OR Countries OR URL Categories; and the tabs combine with AND. [zia.forwarding-control.rules:criteria-logic]
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.forwarding-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)
+- configured-via references/_meta/text/zia/zia.forwarding-control.terraform.md (Terraform behavior of ZPA-method forwarding rules)
+- see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)

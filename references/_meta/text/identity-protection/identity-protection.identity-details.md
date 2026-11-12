@@ -15,3 +15,10 @@ Not known (open gaps):
 - How long ITDR or posture-scan data is retained [gap:identity-protection.identity-details:posture-data-retention]: settled by source-read or support-ticket
 
 Area: identity-protection.identity-details, its subjects in references/_meta/spine/identity-protection/identity-protection.identity-details.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.ad-posture.md (Active Directory posture in Identity Protection: dashboard, issues, roadmap, reports, remediation, privileged account tracking and password analysis)
+- see-also references/_meta/text/identity-protection/identity-protection.entra-posture.md (Entra ID posture in Identity Protection: dashboard, issues, roadmap, reports and remediation)
+- see-also references/_meta/text/identity-protection/identity-protection.credential-exposure.md (Endpoint Credential Exposure in Identity Protection: dashboard, scan types, cleanup and reports)
+- see-also references/_meta/text/identity-protection/identity-protection.change-detection.md (Active Directory and Entra ID change detection in Identity Protection: monitored issues, cycle, Impact values and remediation)

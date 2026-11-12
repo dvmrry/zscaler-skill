@@ -30,3 +30,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.workload-discovery.md (AWS workload discovery for Cloud Connector: what it is and how the pieces fit), from zia.workload-groups: The deployed workloads and their discovered tags can be viewed on the Cloud & Branch Connector Partner Integrations page in the Admin Console. [zia.workload-groups:discovered-in-cloud-connector]
 - links-to references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)
 - links-to references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/workload-groups.md (config type)
+- see-also references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads)

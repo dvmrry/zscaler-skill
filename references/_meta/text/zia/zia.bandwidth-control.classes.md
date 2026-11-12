@@ -41,3 +41,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.activation.md (Which Zscaler products stage changes behind an activation)
 - links-to references/_meta/text/zia/zia.bandwidth-control.api-surface.md (Bandwidth Control API, SDK and Terraform shape)
 - links-to references/_meta/text/zia/zia.bandwidth-control.limits.md (Bandwidth Control limits: rules, classes, domains)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/bandwidth-classes.md (config type)
+- see-also references/_meta/text/zia/zia.bandwidth-control.default-rule.md (The default rule and unreferenced classes)
+- see-also references/_meta/text/zia/zia.cloud-app-control.md (ZIA Cloud App Control)

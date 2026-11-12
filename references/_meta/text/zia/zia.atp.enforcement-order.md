@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.atp.blocked-countries.md (ATP Blocked Countries: server location, not user location)
 - links-to references/_meta/text/zia/zia.atp.blocked-urls.md (ATP Blocked Malicious URLs list: capacity, matching and API)
 - links-to references/_meta/text/zia/zia.atp.page-risk.md (ATP Page Risk threshold and how the score is built)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)

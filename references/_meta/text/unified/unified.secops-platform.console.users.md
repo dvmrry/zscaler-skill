@@ -17,3 +17,7 @@ Not known (open gaps):
 - What the two Name fields on the user details drawer's Details tab hold [gap:unified.secops-platform.console.users:details-name-fields]: settled by lab-test or source-read
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.console.md (The Agentic SecOps Platform admin portal: supported browsers, egress IPs, status board, account settings, failure emails, AI capabilities and audit logs)
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)

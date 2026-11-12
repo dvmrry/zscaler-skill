@@ -19,3 +19,7 @@ What to check:
 3. Whether a test environment already exists in the account before creating one, since a test created on one gateway is shared by every GCP gateway in the account.
 
 Area: cloud-connector.gcp-ztg, its subjects in references/_meta/spine/cloud-connector/cloud-connector.gcp-ztg.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp-ztg.md (GCP Zero Trust Gateway: managed service boundary and restrictions)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp-ztg.creation.md (Creating a GCP Zero Trust Gateway: region, zones, location, IAM principals)

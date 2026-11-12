@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.url-filtering.http-header-profiles.md (HTTP Header Control: header profiles (criteria) and header insertion profiles, their logic, limits and disallowed keys)
 - links-to references/_meta/text/zia/zia.url-filtering.icap-receivers.md (ICAP receivers for URL Filtering)
 - links-to references/_meta/text/zia/zia.url-filtering.list-pagination.md (Listing URL Filtering rules and URL categories without truncation)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.url-filtering-rules.md (Terraform user agent validation and isolation on URL Filtering rules)

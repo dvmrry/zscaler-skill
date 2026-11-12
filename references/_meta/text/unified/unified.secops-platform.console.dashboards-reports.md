@@ -17,3 +17,8 @@ Area: unified.secops-platform, its subjects in references/_meta/spine/unified/un
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.console.md (The Agentic SecOps Platform admin portal: supported browsers, egress IPs, status board, account settings, failure emails, AI capabilities and audit logs)
+- see-also references/_meta/text/unified/unified.secops-platform.console.historical-data.md (Historical data in the admin portal: granularity, time filter, measurement types, filter evaluation time and caveats)
+- see-also references/_meta/text/unified/unified.secops-platform.console.entity-views.md (Entity-page tools in the admin portal: filters, columns, grouping, entity drawers, saved views, third-party tickets and formatting rules)

@@ -21,3 +21,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.policies.md (How Microsegmentation resource policies, perimeter policies and policy settings work)
 - links-to references/_meta/text/zms/zms.portal.md (The Microsegmentation portal: Application Catalog, ML tag recommendations, tags and AppZones)
 - links-to references/_meta/text/zms/zms.tags.md (How Microsegmentation namespaces, tags and resource tags are configured and which are locked)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/zms/zms.agent-groups.md (How Microsegmentation agent groups are configured, aged out, upgraded and managed)

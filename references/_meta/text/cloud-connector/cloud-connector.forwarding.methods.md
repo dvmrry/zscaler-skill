@@ -68,3 +68,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.methods.md (Forwarding methods and their required fields)
 - links-to references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
 - links-to references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)

@@ -28,3 +28,6 @@ Area: zia.app-governance, its subjects in references/_meta/spine/zia/zia.app-gov
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.casb.tenants.md (CASB tenants: connecting a SaaS application, states and reauthorization)
 - links-to references/_meta/text/zia/zia.app-governance.md (3rd-Party App Governance: governing third-party apps, add-ons and extensions connected to SaaS platforms, and its portal, roles and dashboard)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.app-governance.inventory.md (App and user inventory in 3rd-Party App Governance: how apps get in, search, catalog sandboxing, bulk upload, custom views, client-ID exports)

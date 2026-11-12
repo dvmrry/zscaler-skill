@@ -22,3 +22,7 @@ Area: zcc.logs, its subjects in references/_meta/spine/zcc/zcc.logs.json
 
 Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies)): Flow Logging, an app profile option on Windows, installs a WFP-based Zscaler driver that logs flows to capture traffic Client Connector excludes; it needs Install WFP Driver and is enabled by Zscaler Support. [zcc.logs.flow-logging:flow-logging]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.logs.client-log.md (What the Client Connector log on the device records)
+- see-also references/_meta/text/zcc/zcc.logging.md (Client Connector logs: verbosity, user access and collection)

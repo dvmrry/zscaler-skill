@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.private-service-edge: A ZIA Private Service Edge cluster is brought under policy by adding a Location to it. The ZIA pages describe no Private Service Edge group object and no provisioning key; groups and provisioning keys are a ZPA construct. [zia.private-service-edge.what-it-is:binds-through-location-not-group]
 - links-to references/_meta/text/zia/zia.forwarding-control.methods.md (Forwarding methods and their required fields)
 - links-to references/_meta/text/zia/zia.private-service-edge.location-binding.md (Binding a Private Service Edge cluster to a Location, and the open-proxy hazard)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)

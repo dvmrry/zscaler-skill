@@ -22,3 +22,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.dlp: For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention. [zia.dlp.evaluation:dlp-after-url-and-file-type]
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.dlp: dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename. [zia.logs.web-field-semantics:dlp-rule-fields]
 - links-to references/_meta/text/zia/zia.dlp.outbound-email-policy.md (Outbound Email DLP policy: smart host flow, per-recipient evaluation, criteria and header actions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.outbound-email-tenants.md (Outbound Email DLP email tenants and mail-server setup (SEG, Gmail, Exchange))
+- see-also references/_meta/text/zia/zia.dlp.outbound-email.md (Outbound Email DLP rules in the SDKs and Terraform provider)

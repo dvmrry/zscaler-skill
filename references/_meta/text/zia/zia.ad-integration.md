@@ -37,3 +37,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)
 - links-to references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)
 - links-to references/_meta/text/zpa/zpa.appprotection.active-directory.md (Active Directory controls: Kerberos, SMB and LDAP inspection)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/users.md (config type)
+- configured-via references/_meta/text/types/zia/groups.md (config type)
+- configured-via references/_meta/text/types/zia/departments.md (config type)

@@ -57,3 +57,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.network-applications.md (Network applications and network application groups: DPI identification, undetermined-app outcomes, rule placement)
 - links-to references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/nat-control-rules.md (config type)
+- configured-via references/_meta/text/types/zia/ips-policies.md (config type)
+- configured-via references/_meta/text/types/zia/ips-signature-rules.md (config type)
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)

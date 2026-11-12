@@ -21,3 +21,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.sdk-behavior.md (What the Python and Go SDKs send for application segments)
 - links-to references/_meta/text/zpa/zpa.sdk-python.browser-access-modules.md (The two Python Browser Access segment modules and the by-type helper)
 - links-to references/_meta/text/zpa/zpa.sdk-python.id-list-reformatting.md (How the Python SDK turns ID lists into nested ZPA objects)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.browser-access.tooling.md (Writing Browser Access segments: Python SDK, MCP server, Go SDK and Terraform)
+- see-also references/_meta/text/zpa/zpa.sdk-python.return-shapes.md (What Python SDK ZPA calls return: model objects, snake_case dictionaries, bare values and raised errors)
+- see-also references/_meta/text/zpa/zpa.sdk-python.pagination.md (Paging through ZPA lists with the Python SDK)

@@ -23,3 +23,8 @@ Area: zia.mobile-security, its subjects in references/_meta/spine/zia/zia.mobile
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.mobile-security.malware-protection.md (Mobile Malware Protection: the two security and six privacy actions, defaults, how it works and the recommended policy)
 - links-to references/_meta/text/zia/zia.time-intervals.limits.md (Time interval limits: object cap, per-rule cap and name characters)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.mobile-security.md (ZIA Mobile Security: Mobile Malware Protection and Mobile App Store Control)
+- see-also references/_meta/text/zia/zia.backup-restore.restore-semantics.md (What restoring a ZIA restore point does and does not revert)
+- see-also references/_meta/text/shared/shared.admin-rbac.zia-permissions.md (ZIA admin role permissions: logs limit, dashboard, reporting, insights and alerts access, and the feature categories)

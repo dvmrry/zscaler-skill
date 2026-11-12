@@ -51,3 +51,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.overview.external-idps.integrations.md (Per-IdP integration specifics for Authentication Service: Okta, Microsoft Entra ID, AD FS, PingOne, PingFederate, Auth0 and OneLogin)
 - links-to references/_meta/text/zidentity/zidentity.users.provisioning.scim.md (The Authentication Service SCIM server: operations, attribute mapping, authentication and rate limits)
 - links-to references/_meta/text/zpa/zpa.scim.provisioning-timing.md (When SCIM data is ready for ZPA policy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions)

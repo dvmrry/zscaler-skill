@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.detectors.md (AI Guard's detectors: the capabilities Help lists and the detectors the policy editor configures)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.md (AI Red Teaming: adversarial testing of AI apps, the Overview page, and where each part is documented)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.test-runs.md (Red Teaming test runs: units, new runs, scheduling and history)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-red-teaming.assets.md (Connecting an AI app for red teaming: network type, private access, and the application profile that shapes tests)

@@ -40,3 +40,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zcc/zcc.trusted-networks.object.md (The Client Connector trusted network object and its v1 API): The read-only trusted network records ZPA returns are the trusted networks configured on the Client Connector side. [zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks]
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-selection.md (Which object a ZPA Terraform data source actually returns)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.zcc-relationship.md (Trusted networks in ZPA and in Client Connector)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules)
+- see-also references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)

@@ -55,3 +55,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.authentication.idp-migration.md (Migrating Private Access to a new IdP)
 - links-to references/_meta/text/zpa/zpa.saml-attributes.policy-criteria.md (How SAML attributes act as policy criteria)
 - links-to references/_meta/text/zpa/zpa.scim.setup.md (Enabling SCIM for Private Access: endpoint, token, policy setting and IdP guides)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.authentication.md (ZPA authentication: IdP configuration, authentication settings and user risk scores)

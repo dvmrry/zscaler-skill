@@ -28,3 +28,8 @@ Area: zcc.entitlements, its subjects in references/_meta/spine/zcc/zcc.entitleme
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.web-privacy.collection.md (What each User Privacy setting collects or allows): Collect Location Info for ZDX lets the app collect geolocation from ZDX-enabled devices; it works in conjunction with the ZDX service entitlement, is on by default, and is available only when ZDX is enabled for the company or selected groups. [zcc.web-privacy.collection:zdx-location]
 - interacts-with references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies)), from zcc.entitlements: Service entitlement selects which user groups or device groups can enroll into Private Access (ZPA), Digital Experience (ZDX) and Zscaler Deception; Internet & SaaS (ZIA) enrollment is enabled for all users by default. [zcc.entitlements:services-gated]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zcc/zcc.api.entitlements-wire.md (ZCC entitlement calls: response and update body shapes)
+- see-also references/_meta/text/zcc/zcc.entitlements.md (ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group)
+- see-also references/_meta/text/zdx/zdx.overview.md (ZDX at a glance: what it measures and which subject answers each question)

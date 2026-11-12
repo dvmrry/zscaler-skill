@@ -23,3 +23,9 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection), from zia.file-type-control: These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System. [zia.ssl-inspection.bypass-impact:dependent-features]
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.file-type-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - links-to references/_meta/text/zia/zia.file-type-control.runbook.misdetection-and-overrides.md (File Type Control runbook: archives blocked by inner file type, the Malware Protection Unscannable Files override, and misidentified file types)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.md (Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support)
+- see-also references/_meta/text/zia/zia.file-type-control.md (ZIA File Type Control)
+- see-also references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)

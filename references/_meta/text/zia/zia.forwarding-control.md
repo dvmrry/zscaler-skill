@@ -42,3 +42,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.forwarding-control.terraform.md (Terraform behavior of ZPA-method forwarding rules)
 - links-to references/_meta/text/zia/zia.forwarding-control.third-party-proxies.md (Third-Party Proxy Chaining from ZIA: proxies, proxy gateways and fail-close)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)

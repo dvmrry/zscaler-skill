@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.tenant-profiles.applications.md (Which applications support tenant profiles, and what each profile identifies)
 - links-to references/_meta/text/zia/zia.tenant-profiles.limits.md (Tenant profile limits: per rule,, per organization)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/tenancy-restriction-profiles.md (config type)
+- see-also references/_meta/text/zia/zia.tenant-profiles.microsoft.md (Microsoft Login Services tenant profiles: v1, v2, personal accounts)

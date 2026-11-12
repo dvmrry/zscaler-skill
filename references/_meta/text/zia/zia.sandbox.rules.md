@@ -60,3 +60,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sandbox.quarantine.md (Files stuck in Sandbox quarantine)
 - links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/sandbox-rules.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.sandbox-resources.md (Terraform sandbox resources: file submission and the MD5 blocklist)

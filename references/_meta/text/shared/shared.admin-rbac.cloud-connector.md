@@ -25,3 +25,11 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.admin-sso.md (SAML SSO for Cloud & Branch Connector admins: IdP-initiated sign-in, the break-glass super admin and the Okta, Azure AD and AD FS settings)
 - links-to references/_meta/text/cloud-connector/cloud-connector.audit-logs.md (Cloud & Branch Connector audit logs in the console: what is recorded, retention, lockout, filters and CSV)
 - links-to references/_meta/text/shared/shared.admin-rbac.unified.md (Unified RBAC: Admin Console roles, access levels, permission categories, scopes, assignments and obfuscation)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)
+- see-also references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
+- see-also references/_meta/text/shared/shared.admin-rbac.zia.md (ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule)
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.md (Cloud & Branch Connector: what Cloud Connector is and where each area is described)
+- see-also references/_meta/text/cloud-connector/cloud-connector.support-access.md (Zscaler Support access to Cloud & Branch Connector: Admin Console remote assistance and the zssupport tunnel into connector VMs)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.authentication.md (Reaching and signing in to the Cloud Connector API: OneAPI, legacy ZTC credentials and government clouds)

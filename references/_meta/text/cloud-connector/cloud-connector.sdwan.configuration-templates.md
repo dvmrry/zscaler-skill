@@ -44,3 +44,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdwan.virtual-deployment.md (Deploying Branch Connector VMs on VMware, Linux KVM and Hyper-V: prerequisites, sizing, HA host settings, user data and IaC)
 - links-to references/_meta/text/cloud-connector/cloud-connector.dns.gateways.md (Cloud & Branch Connector DNS gateways: resolvers, failure behavior, predefined gateways)
 - links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.methods.md (Cloud Connector forwarding methods: ZIA, ZPA, Direct, Drop, Local, and their API tokens)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdwan.md (Zero Trust SD-WAN: what Zscaler means by it and what the sources leave open)
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdwan.devices.md (Branch device inventory and per-device settings: ZIA tunnel mode, support tunnel, DNS cache, traffic forwarding bypass)

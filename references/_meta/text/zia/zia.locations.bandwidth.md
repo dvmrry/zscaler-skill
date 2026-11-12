@@ -39,3 +39,9 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.locations: When Zscaler Client Connector traffic matches none of a location's listed IP addresses, the location is tagged as Road Warrior in the logs. [zia.locations.model:road-warrior]
 - links-to references/_meta/text/zia/zia.bandwidth-control.allocation.md (How Bandwidth Control allocates bandwidth: minimum, maximum, contention)
 - links-to references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- see-also references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
+- see-also references/_meta/text/zia/zia.locations.inheritance.md (Which location settings a sublocation has of its own and which it takes from the parent)

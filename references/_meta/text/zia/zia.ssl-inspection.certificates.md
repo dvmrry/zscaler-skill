@@ -74,3 +74,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.app-trust-stores.md (Installing the inspection root in applications that keep their own trust store, per tool)
 - links-to references/_meta/text/zia/zia.ssl-inspection.intermediate-ca.md (Intermediate CA certificates for SSL/TLS inspection: protection types, limits, key types, CSR signing, chain upload and the default)
 - links-to references/_meta/text/zia/zia.ssl-inspection.uninspectable.md (What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)
+- configured-via references/_meta/text/types/zia/intermediate-ca-certificates.md (config type)
+- see-also references/_meta/text/zia/zia.ssl-inspection.api-shape.md (SSL/TLS inspection rule wire format: the nested action object, tokens and casing)
+- see-also references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions)
+- see-also references/_meta/text/ai-security/ai-security.ai-guard.zia-integration.md (Sending ZIA users' AI traffic to AI Guard by proxy chaining: prerequisites, proxy, QUIC rule and forwarding)

@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many), from cloud-connector.forwarding: Cloud Connector traffic forwarding rules have separate Source Workload Groups and Destination Workload Groups criteria, both available only when the workload discovery service is enabled; destination workload groups apply only to Cloud Connector forwarding policies and only to the Local forwarding method. [zia.workload-groups.rule-scoping:cloud-connector-source-dest]
 - logged-in references/_meta/text/types/ztw/session-log.md (Cloud & Branch Connector Session log (NSS feed)), from cloud-connector.forwarding: A session record can name two rules: the redirect (traffic forwarding) rule applied to the transaction, and the Cloud or Branch Connector self-rule applied to it. [cloud-connector.logs.session-records:rule-fields]
 - links-to references/_meta/text/zia/zia.forwarding-control.predefined-rules.md (Predefined Forwarding Control rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)

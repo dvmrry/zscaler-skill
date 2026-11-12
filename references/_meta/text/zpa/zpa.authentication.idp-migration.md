@@ -30,3 +30,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.saml-attributes.registration.md (Registering SAML attributes in Private Access)
 - links-to references/_meta/text/zpa/zpa.scim.setup.md (Enabling SCIM for Private Access: endpoint, token, policy setting and IdP guides)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.authentication.md (Authentication failures and step-up prompt loops in ZPA)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.authentication.md (ZPA authentication: IdP configuration, authentication settings and user risk scores)

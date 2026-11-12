@@ -37,3 +37,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.service-defects.md (Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects)
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-python.client-configuration.md (The Python SDK against Cloud and Branch Connector: legacy client settings and session logout on exit)
 - links-to references/_meta/text/zia/zia.api.activation.md (How ZIA API changes become live: saving versus activating)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/activation-status.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)

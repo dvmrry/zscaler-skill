@@ -49,3 +49,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.incident-receiver.md (Zscaler Incident Receiver: requirements per platform, storage, health check and VM commands)
 - links-to references/_meta/text/zia/zia.dlp.inspection-limits.md (DLP file size, archive and text limits: why DLP did not catch a large file)
 - links-to references/_meta/text/zia/zia.dlp.rules.md (Web DLP policy rules: order, criteria and actions)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
+- see-also references/_meta/text/zia/zia.casb.api-surface.md (CASB API, SDK and Terraform surface)

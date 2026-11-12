@@ -22,3 +22,6 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.api.activation.md (How ZIA API changes become live: saving versus activating): The ZIA platform activates pending changes on its own when a session ends, either because an API session reached the `api_session_timeout` or because an admin logged out; this applies to all API changes, including Terraform's. [zia.terraform.activation-methods:session-end-autoactivation]
 - links-to references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.terraform.provider-modes.md (ZIA Terraform provider authentication, client modes and rate limiting)

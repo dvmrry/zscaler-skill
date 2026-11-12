@@ -21,3 +21,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token)
 - links-to references/_meta/text/shared/shared.sdk-python.retries.md (How the Python SDK retries: budget, statuses, waits, re-authentication)
 - links-to references/_meta/text/zcc/zcc.sdk-python.client-configuration.md (The Python SDK's two ZCC clients: OneAPI service and legacy helper)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-python.request-handling.md (How the Python SDK builds a request: body and query key casing, ID lists)

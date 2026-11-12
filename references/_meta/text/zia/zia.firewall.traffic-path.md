@@ -43,3 +43,8 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zia/zia.logs.web-rule-attribution.md (Which rule decided a web transaction, from the logs): When traffic passes the firewall policy but violates a web policy, Firewall Insights shows it allowed and Web Insights shows it blocked. [zia.firewall.traffic-path:web-block-firewall-allowed]
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.firewall: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - links-to references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
+- see-also references/_meta/text/zia/zia.firewall.network-services.md (Network services (port criteria))

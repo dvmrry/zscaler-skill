@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields)
 - links-to references/_meta/text/zia/zia.ssl-inspection.actions.md (What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings)
 - links-to references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+- see-also references/_meta/text/shared/shared.splunk.md (Searching Zscaler logs in Splunk: field names, placeholders and validation searches)

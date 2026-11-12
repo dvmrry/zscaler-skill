@@ -23,3 +23,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)), from zia.proxy-mode: Under transparent forwarding, SSL inspection exemption policies are evaluated on the IP address as well as the SNI, and most IP addresses are categorized Miscellaneous or Unknown, so exempting that category exempts almost all traffic. Under explicit forwarding only the SNI is evaluated. [zia.ssl-inspection.pipeline:transparent-matches-destination-ip]
 - links-to references/_meta/text/zia/zia.bandwidth-control.classes.md (Bandwidth classes: what a class is and which exist)
 - links-to references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent)

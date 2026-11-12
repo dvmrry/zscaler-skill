@@ -25,3 +25,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.cloud-deployment.md (Deploying a Virtual Service Edge on Azure, AWS (with or without GWLB) and GCP)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.operations.md (Who runs a Virtual Service Edge: access, logging, hardening and monitoring)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.troubleshooting.md (The vzen command line for configuring and troubleshooting a Virtual Service Edge)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

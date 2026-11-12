@@ -51,3 +51,9 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.public-service-edges.md (ZPA Public Service Edges), from zpa.private-service-edges: A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge. [zpa.private-service-edges.what-it-is:coexists-with-public]
 - links-to references/_meta/text/zpa/zpa.microtenants.limits.md (Microtenant limits and unsupported features)
 - links-to references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.private-service-edges.terraform.md (The zpa_service_edge_group resource for Private Service Edge groups)
+- configured-via references/_meta/text/zpa/zpa.api.service-edges-wire.md (ZPA Private Service Edge and private cloud controller calls: what is sent and where the sources differ)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)

@@ -36,3 +36,10 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors), from zpa.log-receivers: App Connectors must be deployed before a log receiver is configured. [zpa.log-receivers.architecture:connectors-first]
 - links-to references/_meta/text/zpa/zpa.api.md (The ZPA API from a client's side: paths, authentication, paging, limits and wire notes)
 - links-to references/_meta/text/zpa/zpa.sdk-python.md (The Zscaler Python SDK against ZPA: where its behavior is described)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.lss-wire.md (What the SDKs and provider send for a ZPA log receiver (LSS))
+- configured-via references/_meta/text/zpa/zpa.terraform.data-source-fidelity.md (What ZPA Terraform data sources return, drop, or get wrong)
+- configured-via references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
+- see-also references/_meta/text/zpa/zpa.log-receivers.configuration.md (What a ZPA log receiver holds and which fields are required)
+- see-also references/_meta/text/zpa/zpa.log-receivers.formats.md (Log stream format and content templates for a ZPA log receiver)

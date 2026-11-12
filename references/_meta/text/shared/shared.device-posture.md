@@ -52,3 +52,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.conditions.md (Boolean logic and operand forms of ZPA policy conditions)
 - links-to references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
 - links-to references/_meta/text/zpa/zpa.posture-profiles.object-model.md (The ZPA posture profile object and where it comes from)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.posture-profiles.md (ZPA posture profiles)

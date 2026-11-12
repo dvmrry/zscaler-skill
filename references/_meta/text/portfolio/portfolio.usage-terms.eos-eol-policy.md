@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/portfolio/portfolio.usage-terms.hardware.md (Zscaler Hardware Usage Terms and RMA process)
 - links-to references/_meta/text/portfolio/portfolio.usage-terms.product-notices.md (Dated end-of-sale and end-of-life notices for Analyzer, Shift, Office365Mon, CIEM, SecureAgent and ZAB hardware)
 - links-to references/_meta/text/portfolio/portfolio.usage-terms.service-notices.md (Dated end-of-support notices for platforms, crypto, parsers and services)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.md (Zscaler usage terms: EOS/EOL policy, Client Connector LTS, hardware terms and dated end-of-support notices)

@@ -23,3 +23,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
 - links-to references/_meta/text/zpa/zpa.terraform.rule-order.md (How the ZPA Terraform provider applies policy rule order (BulkReorder))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.api.md (The ZPA API from a client's side: paths, authentication, paging, limits and wire notes)

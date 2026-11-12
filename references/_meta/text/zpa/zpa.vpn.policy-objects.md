@@ -23,3 +23,6 @@ Area: zpa.vpn, its subjects in references/_meta/spine/zpa/zpa.vpn.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.vpn.md (ZPA VPN (for Legacy Apps): what it is, its components and where each question goes)
 - links-to references/_meta/text/zpa/zpa.vpn.access-policy.md (VPN access policy rules: source, destination, default block, rule order and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.vpn.user-enablement.md (VPN user enablement rules: who may open a VPN tunnel)

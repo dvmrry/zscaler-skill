@@ -60,3 +60,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.emergency-access.configuration.md (Configuring Emergency Access: availability, settings, authentication domains, Microtenants)
 - links-to references/_meta/text/zpa/zpa.pra.tooling.md (PRA operations in the Python SDK and Ansible approvals)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.pra-wire.md (What the SDKs send and receive for ZPA Privileged Remote Access objects)

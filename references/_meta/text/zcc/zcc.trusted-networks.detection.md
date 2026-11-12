@@ -48,3 +48,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.forwarding-profiles.md (ZCC forwarding profiles), from zcc.trusted-networks: So the profile's Any/All applies across its own inline conditions; a profile that selects predefined trusted networks does not also combine them with DNS Server, DNS Search Domains or Hostname conditions. [zcc.trusted-networks.detection:profile-match-scope]
 - links-to references/_meta/text/zcc/zcc.trusted-networks.object.md (The Client Connector trusted network object and its v1 API)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)
+- configured-via references/_meta/text/zcc/zcc.api.forwarding-profile-wire.md (ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ)
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.network-types.md (The four network types Client Connector detects: On-Trusted, VPN-Trusted, Split VPN-Trusted, Off-Trusted)

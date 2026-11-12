@@ -18,3 +18,9 @@ Sources disagree (name both sides):
   Impact: The XFF test page lists exceptions (Miscellaneous or Legal Liability categories, a Virtual Service Edge with insertion disabled, Source IP Anchoring) that the other page's Public Service Edge statement does not mention; the pages do not say whether those exceptions also apply there.
 
 Area: zia.troubleshooting-runbook, its subjects in references/_meta/spine/zia/zia.troubleshooting-runbook.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.troubleshooting.md (Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.server-certificates.md (Runbook: bad server certificates and untrusted certificates that are allowed)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.access-failures.md (Runbook: unable to access a site or blocked for browsing a category)

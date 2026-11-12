@@ -36,3 +36,8 @@ Area: zero-trust-branch.deployment, its subjects in references/_meta/spine/zero-
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.md (How a Zero Trust Branch appliance is deployed: activation, ZTP, virtual machines, mainland China, upgrades and admin roles)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.policies.md (How Zero Trust Branch forwarding (routing) policies and firewall (security) policies are defined and evaluated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.appliances.md (Which Zero Trust Branch appliance models exist, how they mount and what their ports do)
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.templates-and-sites.md (How Zero Trust Branch templates and sites are configured: deployment types, DNS, DHCP, routing and App Connectors)
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.vlan.md (How Zero Trust Branch VLANs are configured: zones, DHCP granularity, management interfaces and IP reservation)

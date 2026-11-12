@@ -25,3 +25,8 @@ Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.jso
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.zsdk.authentication.md (ZSDK token validators, browser token validators and web server certificates)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.applications.md (ZSDK application segments, segment groups, servers, server groups, device profiles and configuration graphs)
+- see-also references/_meta/text/shared/shared.zsdk.configuration.md (Configuring ZSDK: registered apps and app keys, segments and access policy)

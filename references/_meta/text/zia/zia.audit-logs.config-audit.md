@@ -25,3 +25,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token): The configAudit, configAudit/ipVisibility and configAudit/pacFile endpoints are accessible via Zscaler OneAPI only. [zia.audit-logs.config-audit:oneapi-only]
 - links-to references/_meta/text/zia/zia.audit-logs.report-api.md (Exporting the ZIA admin audit log through the report API)
 - links-to references/_meta/text/zia/zia.audit-logs.what-is-recorded.md (What the ZIA admin audit log records and how the console shows it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.audit-logs.md (ZIA audit logs: who changed what)

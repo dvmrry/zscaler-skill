@@ -35,3 +35,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.md (ZCC forwarding profiles)
 - links-to references/_meta/text/zcc/zcc.z-tunnel.md (Z-Tunnel)
 - links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.methods.md (Forwarding methods Zscaler supports and how to choose)
+- see-also references/_meta/text/shared/shared.z-tunnel.md (Z-Tunnel 1.0 and 2.0: where each question is answered)

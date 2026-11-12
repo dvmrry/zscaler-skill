@@ -40,7 +40,7 @@ Sources disagree (name both sides):
   - zscaler-help: Classic UI Troubleshoot section, Windows: logs are exported to a ZIP file.
   - zscaler-help: Classic UI Troubleshoot section, macOS: logs are exported to a ZIP file.
   - zscaler-help: Classic UI Troubleshoot section, Linux: logs are exported to a ZIP file.
-  - zscaler-help: Modern UI Troubleshooting page: logs are exported to a ZIP file.
+  - zscaler-help: Modern UI Troubleshooting page, Windows: logs are exported to a ZIP file.
   - zscaler-help: Admin logging controls article: exporting from the system tray icon shortcut menu saves a ZIP file (existing claim zcc.logging.user-access:visible-capabilities).
   Impact: The tray menu and the Troubleshoot section both offer Export Logs but the pages give the output as a text file and as a ZIP file; the file format a user gets from each entry point is not settled by the pages.
 
@@ -56,3 +56,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.notifications.pop-ups.md (Client Connector pop-up messages: type, meaning, user action and duplicate suppression)
 - links-to references/_meta/text/zcc/zcc.partner-tenants.md (Private Access partner logins: who may log in to whose tenant, and what the user does and sees)
 - links-to references/_meta/text/zcc/zcc.platform-settings.md (Platform Settings: the per-OS console settings for sign-in, IPv6, ZDX upgrades, default UI and unattended-mode passwords)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.notifications.md (Client Connector notifications: which surface the user saw)
+- see-also references/_meta/text/zcc/zcc.logging.user-access.md (What users can do with Client Connector logs: logging controls and readable exports)

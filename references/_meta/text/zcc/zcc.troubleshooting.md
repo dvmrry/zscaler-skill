@@ -81,3 +81,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.posture-profiles.evaluation.md (When and how often posture is evaluated)
 - links-to references/_meta/text/zpa/zpa.scim.md (ZPA SCIM groups and attributes in policy)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.md (Client Connector forwarding runbook: the five errors and where each is worked (captive portal and driver error held here))
+- see-also references/_meta/text/zcc/zcc.troubleshooting.performance-runbook.md (How the Client Connector performance troubleshooting runbook classifies slowness by pattern and routes it to its pages)

@@ -53,3 +53,9 @@ Area: zpa.troubleshooting, its subjects in references/_meta/spine/zpa/zpa.troubl
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.vpn.network-connectors.md (Network Connectors and Network Connector groups (VPN for Legacy Apps))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)
+- see-also references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
+- see-also references/_meta/text/zpa/zpa.app-connectors.provisioning-keys.md (App Connector provisioning keys)
+- see-also references/_meta/text/shared/shared.event-monitoring.api.md (The Event Monitoring & Notification API: what it does, access, headers and limits)

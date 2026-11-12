@@ -39,3 +39,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group), from zia.authentication: Authentication is enforced by the location's own setting (`authRequired`, Enforce Authentication), which the service checks when traffic arrives from a known location. [zia.locations.rule-scoping:authentication-is-a-location-setting]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.authentication: A user who is logged in can still have a transaction judged as the location rather than as the user, when the transaction is one that cannot carry the authentication cookie; a user rule does not match that transaction. [zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule]
 - links-to references/_meta/text/zia/zia.authentication.surrogate-ip.md (Surrogate IP: mapping a private IP to an authenticated user)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/auth-settings.md (config type)
+- configured-via references/_meta/text/zia/zia.authentication.settings.md (The organization-wide authentication settings object)
+- see-also references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)

@@ -20,3 +20,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.logging.log-modes.md (Client Connector log modes as users and the API see them: Verbose, user choice, logMode and logLevel)
 - links-to references/_meta/text/zcc/zcc.logging.user-access.md (What users can do with Client Connector logs: logging controls and readable exports)
 - links-to references/_meta/text/zcc/zcc.web-privacy.collection.md (What each User Privacy setting collects or allows)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zcc/zcc.api.web-policy-wire.md (What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate)
+- see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
+- see-also references/_meta/text/zcc/zcc.web-privacy.md (ZCC user privacy (web privacy): what the app collects and exposes)

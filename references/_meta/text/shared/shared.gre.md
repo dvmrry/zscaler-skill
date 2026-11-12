@@ -26,3 +26,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path)
 - links-to references/_meta/text/zia/zia.locations.ip-scoping.md (Which IP addresses a sublocation matches, overlap rules and XFF)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.gre-failover.md (GRE tunnel health checks and failover)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.ipsec.md (IPSec tunnels to Zscaler: where each question is answered)

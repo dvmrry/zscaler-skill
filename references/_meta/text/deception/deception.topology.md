@@ -31,3 +31,7 @@ Area: deception.topology, its subjects in references/_meta/spine/deception/decep
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.landmine-agents.md (Landmine agent and agentless: install, requirements, proxies, management and OS feature support)
 - links-to references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.endpoint-settings.md (Endpoint settings (installer, lure refresh, update groups, safe processes) and Admin Portal settings (audit, error and debug logs, license, event and evidence export and delete, retention))
+- see-also references/_meta/text/deception/deception.best-practices.md (Best-practice guides: decoy minimums, landmine policy tables, containment rule expressions per decoy type, and the use-case recipes still open)

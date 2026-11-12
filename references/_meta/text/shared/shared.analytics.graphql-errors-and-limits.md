@@ -16,3 +16,8 @@ What to check:
 3. For a 400, whether the User-Agent header follows PartnerName/AppName/Version (Device; OS Version) Region=COUNTRY.
 
 Area: shared.analytics, its subjects in references/_meta/spine/shared/shared.analytics.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.analytics.graphql.md (The Analytics (Z-Insights) GraphQL API: endpoint, access and scope)
+- see-also references/_meta/text/shared/shared.oneapi.response-codes.md (OneAPI status codes, ZIA maintenance read-only mode, and 403 and 409 causes)
+- see-also references/_meta/text/shared/shared.oneapi.rate-limits.md (OneAPI rate limits by product, and how the Go SDK throttles)

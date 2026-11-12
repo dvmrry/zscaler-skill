@@ -40,7 +40,8 @@ test("a subject's file is what read prints for it, with its names, its area and 
   // The links are the subjects read's hop reaches, read whole or listed, as file paths with the claim behind each.
   const hop = read("--no-overlay", id).split("## Linked subjects (one hop from what was read)")[1];
   const reached = new Set([...hop.matchAll(/^# .* \(([a-z0-9./-]+)\)$/gm), ...hop.matchAll(/^- [a-z-]+ (\S+) \(/gm)].map((m) => m[1]));
-  const linked = new Set([...text.matchAll(/^- [a-z-]+ references\/_meta\/text\/(?:types\/)?(?:[a-z0-9-]+\/)?(\S+)\.md \(/gm)].map((m) => m[1]));
+  const followed = text.split("\n\nConfigured via and see also")[0];
+  const linked = new Set([...followed.matchAll(/^- [a-z-]+ references\/_meta\/text\/(?:types\/)?(?:[a-z0-9-]+\/)?(\S+)\.md \(/gm)].map((m) => m[1]));
   assert.deepEqual([...linked].sort(), [...reached].sort());
   assert.match(text, /^- decided-by references\/_meta\/text\/zia\/zia\.url-categories\.membership\.md \(.+\): .+ \[zia\.url-categories\.membership:resolved-before-rules\]$/m);
   // A link in a prose table's first row is a link like any other.
@@ -48,6 +49,21 @@ test("a subject's file is what read prints for it, with its names, its area and 
   // An old ledger ID someone cites finds the subject it became.
   const [old, to] = [...g.formerIds].find(([, t]) => g.nodes.get(t)?.kind === "subject");
   assert.match(files[textFile.subject(to)], new RegExp(`^Former IDs: (.+, )?${old}(,|$)`, "m"));
+});
+
+test("a subject's file lists every edge read does not follow, by title, so a change question reaches the config type", () => {
+  for (const n of g.nodes.values()) {
+    if (n.kind !== "subject") continue;
+    const text = files[textFile.subject(n.id)];
+    for (const e of n.data.related || []) {
+      if (!["configured-via", "see-also"].includes(e.rel)) continue;
+      const to = g.nodes.get(e.to).kind === "type" ? textFile.type(e.to) : textFile.subject(e.to);
+      assert.ok(text.includes(` ${to} (`), `${n.id} does not list its ${e.rel} ${e.to}`);
+    }
+  }
+  const listed = files[textFile.subject("zia.url-filtering")].split("\n\nConfigured via and see also (open one only if the answer needs it):\n")[1];
+  assert.match(listed, /^- configured-via references\/_meta\/text\/types\/zia\/url-filtering-rules\.md \(config type\)$/m);
+  assert.match(listed, /^- configured-via references\/_meta\/text\/zia\/zia\.terraform\.url-filtering-rules\.md \(.+\)$/m);
 });
 
 test("codes, reasons and types read as read prints them, naming files instead of commands", () => {

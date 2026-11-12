@@ -72,3 +72,7 @@ Area: zwa.api, its subjects in references/_meta/spine/zwa/zwa.api.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.api.md (The Workflow Automation API from a client's side: hosts, the Python and Go clients, and what neither SDK covers)
+- see-also references/_meta/text/zwa/zwa.audit-logs.md (Workflow Automation audit logs: the customer audit search, what it records, and how the SDKs read it)

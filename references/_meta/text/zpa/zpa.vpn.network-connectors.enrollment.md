@@ -19,3 +19,10 @@ Sources disagree (name both sides):
   Impact: Whether an admin can still find and edit a key whose view and export was disabled depends on which page is right; the pages do not say which governs.
 
 Area: zpa.vpn, its subjects in references/_meta/spine/zpa/zpa.vpn.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.vpn.md (ZPA VPN (for Legacy Apps): what it is, its components and where each question goes)
+- see-also references/_meta/text/zpa/zpa.vpn.network-connectors.md (Network Connectors and Network Connector groups (VPN for Legacy Apps))
+- see-also references/_meta/text/zpa/zpa.vpn.network-connectors.deployment.md (Network Connector platforms, sizing, prerequisites, firewall and install (VPN for Legacy Apps))
+- see-also references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)
+- see-also references/_meta/text/zpa/zpa.app-connectors.provisioning-keys.md (App Connector provisioning keys)

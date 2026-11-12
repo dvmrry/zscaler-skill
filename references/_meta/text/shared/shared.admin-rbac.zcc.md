@@ -30,3 +30,9 @@ Area: shared.admin-rbac, its subjects in references/_meta/spine/shared/shared.ad
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.api.admin-users-wire.md (ZCC admin users on the wire: the admin sync operations and the serviceType field)
 - links-to references/_meta/text/zcc/zcc.audit-logs.md (Client Connector audit logs in the Admin Console: what is recorded, retention, columns, actions, categories and filters)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)
+- see-also references/_meta/text/shared/shared.admin-rbac.cloud-connector.md (Cloud & Branch Connector admin roles: super admin, the eleven permission categories and Unified RBAC)
+- see-also references/_meta/text/shared/shared.admin-rbac.zia.md (ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule)
+- see-also references/_meta/text/zcc/zcc.api.authentication.md (Reaching and signing in to the ZCC API: OneAPI gateway and legacy login)

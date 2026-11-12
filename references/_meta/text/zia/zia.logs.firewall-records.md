@@ -61,3 +61,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
 - links-to references/_meta/text/zia/zia.logs.tunnel-records.md (What a ZIA tunnel log record is: log types, tunnel status, event reasons and sample counters)
 - links-to references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.field-enablement.md (Which ZIA log fields are not logged until enabled)
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)

@@ -24,3 +24,6 @@ Area: identity-protection.integrations, its subjects in references/_meta/spine/i
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.admin-portal.md (What the ITDR Admin Portal help pages and the SecOps ITDR Config page describe: sign-in and navigation, users and roles, account settings, ITDR Config, tables, queries, Advanced Settings, logs and Investigate)

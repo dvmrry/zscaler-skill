@@ -31,3 +31,7 @@ Sources disagree (name both sides):
   Impact: The same article defers to Ranges & Limitations for the rule limit while describing the selection menu as unlimited, so a rule needing more than 1,000 application segments should be checked against the limits page and Zscaler Support.
 
 Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.configuration.md (Configuring ZSDK: registered apps and app keys, segments and access policy)

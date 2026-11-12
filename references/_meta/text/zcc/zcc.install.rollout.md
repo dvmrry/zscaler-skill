@@ -40,3 +40,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.interoperability.no-default-route.md (Deploying Client Connector where the only egress is a proxy: the System PAC, spoofed DNS records and the four scenarios)
 - links-to references/_meta/text/zcc/zcc.interoperability.vpn-clients.md (Running Client Connector with a corporate VPN client: forwarding action per platform and VPN mode, detection, DNS behavior)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.no-default-route.md (ZIA in a no-default-route network: PAC options, tunnels and where the SLA stops)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.z-tunnel.deployment.md (Rolling out Z-Tunnel 2.0 and migrating from 1.0)

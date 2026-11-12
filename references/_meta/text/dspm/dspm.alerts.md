@@ -48,3 +48,10 @@ Not known (open gaps):
 - How resource impact is scored and how the risk average rounds [gap:dspm.alerts:risk-inputs]: settled by source-read or tenant-data
 
 Area: dspm.alerts, its subjects in references/_meta/spine/dspm/dspm.alerts.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/dspm/dspm.policies.md (How DSPM data posture policies work: threat categories, custom policy queries, managing policies, and the compliance frameworks that map to them)
+- see-also references/_meta/text/dspm/dspm.roles.md (Who can do what in DSPM: predefined and custom access roles, their permissions, and business units)
+- see-also references/_meta/text/dspm/dspm.scanning.md (How DSPM scans: onboarding scope, the in-account orchestrator, data stores, authentication, classification and data residency)
+- see-also references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references)

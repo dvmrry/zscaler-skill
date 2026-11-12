@@ -39,3 +39,7 @@ Area: zpa.posture-profiles, its subjects in references/_meta/spine/zpa/zpa.postu
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zcc/zcc.device-posture.md (ZCC device posture profiles): Posture profiles for both Internet & SaaS and Private Access are created in the Device Posture section of the Zscaler Client Connector configuration, and they are used for Private Access access policies and for Internet & SaaS posture trust levels. [zpa.posture-profiles.object-model:zcc-defined]
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.posture.md (Device posture on the ZPA machine tunnel)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.posture-profiles.api-surface.md (The posture profile API, SDK and Terraform data source)
+- see-also references/_meta/text/zpa/zpa.posture-profiles.policy-operand.md (The POSTURE operand in ZPA policy rules)

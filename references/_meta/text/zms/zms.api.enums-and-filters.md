@@ -41,3 +41,6 @@ Area: zms.api, its subjects in references/_meta/spine/zms/zms.api.json
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token), from zms.api: The service is reached as `client.zms` or `client.zmicroseg` and uses OneAPI authentication only. [zms.api:oneapi-only]
 - links-to references/_meta/text/zms/zms.api.md (The ZMS GraphQL API: one endpoint, read-only clients, customer scoping and pagination)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.api.queries.md (What each ZMS GraphQL query takes and returns: agents, resources, groups, rules, zones, catalog, tags)

@@ -38,3 +38,6 @@ Area: shared.analytics, its subjects in references/_meta/spine/shared/shared.ana
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.iot.api-surface.md (IoT Report through the API: REST, Z-Insights GraphQL, SDKs, MCP)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.analytics.graphql.md (The Analytics (Z-Insights) GraphQL API: endpoint, access and scope)

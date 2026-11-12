@@ -19,3 +19,7 @@ Inferred, not quoted (say so when an answer rests on one):
 - [shared.sdk-go.auth-lifecycle:renewal-can-panic-holding-lock] Tier B: Needs a token lifetime of one minute or less. Relies on Go's time.Ticker.Reset contract (it panics for a non-positive duration); the Go standard library is not a vendored source.
 
 Area: shared.sdk-go, its subjects in references/_meta/spine/shared/shared.sdk-go.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.retries.md (How the Go SDK retries requests (and replays writes))
+- see-also references/_meta/text/shared/shared.sdk-go.cache.md (The Go SDK's response cache and request deduplication)

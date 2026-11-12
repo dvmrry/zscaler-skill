@@ -56,3 +56,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.policy-groups.md (ZPA access policy global rules and policy groups)
 - links-to references/_meta/text/zpa/zpa.policy.redirection-rules.md (ZPA redirection policy rules: Private Service Edge selection methods and criteria)
 - links-to references/_meta/text/zpa/zpa.terraform.rule-order.md (How the ZPA Terraform provider applies policy rule order (BulkReorder))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+- configured-via references/_meta/text/zpa/zpa.api.policy-wire.md (ZPA policy rule wire behavior: routes, request fields and ordering)

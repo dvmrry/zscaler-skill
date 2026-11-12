@@ -33,3 +33,9 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.authentication: A user who is logged in can still have a transaction judged as the location rather than as the user, when the transaction is one that cannot carry the authentication cookie; a user rule does not match that transaction. [zia.authentication.unauthenticated-traffic:logged-in-user-misses-user-rule]
 - links-to references/_meta/text/zia/zia.authentication.exemptions.md (Destinations that skip authentication)
 - links-to references/_meta/text/zia/zia.authentication.identity-providers.md (The ZIA SAML identity provider object: limits, default IdP, criteria, fields, migration and Client Connector Portal as IdP)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)
+- see-also references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token)
+- see-also references/_meta/text/zia/zia.scim.attribute-mapping.md (ZIA SCIM attribute mapping)
+- see-also references/_meta/text/zia/zia.saas-apps.idp-bypass.md (Login and MFA endpoints: inspect, bypass or exempt from authentication)

@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-python.sandbox-client.md (How the Python SDK reaches the sandbox submission host)
 - links-to references/_meta/text/zia/zia.terraform.admin-identity.md (Terraform admin roles, admin users and local users in ZIA)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.secret-surfaces.md (Which Zscaler API reads return secrets: scoping a read-only API client)
+- see-also references/_meta/text/shared/shared.secret-surfaces.revealed.md (Zscaler API reads that return secret material)

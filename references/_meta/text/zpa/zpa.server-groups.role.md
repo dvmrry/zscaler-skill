@@ -29,3 +29,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.policy.md (ZPA policy evaluation), from zpa.server-groups: An access policy rule can be set to specific App Connector groups, server groups, or a mixture of both, instead of all App Connector groups for the application. [zpa.server-groups.role:rule-can-name-connector-or-server-groups]
 - interacts-with references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules): The selection that follows the segment's server group can be overridden in an access policy. [zpa.server-groups.role:selection-can-be-overridden-in-policy]
 - links-to references/_meta/text/zpa/zpa.server-groups.connector-binding.md (How a server group binds App Connector groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.server-groups.discovery-mode.md (Dynamic discovery versus explicit servers on a server group)
+- see-also references/_meta/text/zpa/zpa.server-groups.multiple-on-segment.md (Several server groups on one application segment)

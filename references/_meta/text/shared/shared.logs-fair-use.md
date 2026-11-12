@@ -22,3 +22,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.logs-fair-use.log-retention.md (How long Zscaler keeps the logs of the products on the Logs and Fair Use pages, and where it stores them)
 - links-to references/_meta/text/unified/unified.analytics.health360.md (Health360: deployment health scores and bands, categories, Best Practices and Connectors Health)
 - links-to references/_meta/text/unified/unified.zagent.md (ZAgent: the Admin Console's conversational AI, its agents, entitlements and history retention)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-capture.md (Traffic Capture Essentials and Traffic Capture for NDR: storage, rules, limits and obfuscation)

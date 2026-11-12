@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.md (How a Zero Trust Branch appliance is deployed: activation, ZTP, virtual machines, mainland China, upgrades and admin roles)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.md (Where Zero Trust Branch operations are documented: forwarding, Routed Tunnels, segmentation, integrations, logging, monitoring, the Debug Console, troubleshooting and upgrades)
 - links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.sd-wan.md (How Zero Trust Branch forwards branch traffic: default and custom Internet & SaaS gateways, private application connectivity and site DNS policies)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)
+- see-also references/_meta/text/zero-trust-branch/zero-trust-branch.operations.upgrades.md (How Zero Trust Branch appliance software upgrades run: standalone and HA workflow, the Root FS method and upgrade statuses)

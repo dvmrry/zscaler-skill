@@ -29,3 +29,11 @@ Not known (open gaps):
 - The thresholds behind the rate-limit and workload-group codes [gap:zpa.troubleshooting.session-status-codes:rate-limit-thresholds]: settled by source-read or support-ticket
 
 Area: zpa.troubleshooting, its subjects in references/_meta/spine/zpa/zpa.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.log-fields.md (What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.user-activity-diagnostics.md (What a ZPA User Activity entry shows in Diagnostics and Live Logs)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.authentication.md (Authentication failures and step-up prompt loops in ZPA)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.certificates.md (Certificate and encryption failures: Browser Access, double encryption, pinned clients)
+- see-also references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)

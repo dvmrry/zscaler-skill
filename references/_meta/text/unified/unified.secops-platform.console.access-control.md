@@ -27,3 +27,7 @@ Not known (open gaps):
 - What deactivating and deleting a user do [gap:unified.secops-platform.console.access-control:deactivate-delete-scope]: settled by lab-test or source-read
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.console.md (The Agentic SecOps Platform admin portal: supported browsers, egress IPs, status board, account settings, failure emails, AI capabilities and audit logs)
+- see-also references/_meta/text/soc-workbench/soc-workbench.incident-rules.md (Incident rules that group alerts into incidents, and incident workflows, in Agentic SOC)

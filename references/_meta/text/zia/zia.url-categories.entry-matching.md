@@ -49,3 +49,6 @@ Area: zia.url-categories, its subjects in references/_meta/spine/zia/zia.url-cat
 Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to): When a URL matches entries in more than one custom category, the category with the more specific matching entry wins, and rules referencing the less specific (wildcard) category do not apply to that URL, regardless of rule order. [zia.url-categories.membership:specific-entry-wins]
 - links-to references/_meta/text/zia/zia.url-categories.entry-format.md (What a URL category entry may contain, and category limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-categories.md (config type)

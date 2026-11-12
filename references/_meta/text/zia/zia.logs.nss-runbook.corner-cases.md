@@ -26,3 +26,12 @@ Not known (open gaps):
 - Whether the Duplicate Logs requirement for log replay applies to Cloud NSS feeds [gap:zia.logs.nss-runbook.corner-cases:duplicate-logs-cloud-scope]: settled by source-read or lab-test
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.log-loss.md (NSS runbook: missing and delayed logs on VM-based NSS, smstat counters and where the loss occurs)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.log-integrity.md (NSS runbook: duplicate logs, missing log fields and SIEM-side checks)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.diagnostics.md (NSS runbook data collection: health and network commands, packet capture and NSS log files)
+- see-also references/_meta/text/shared/shared.nss.feed-settings.md (NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS)
+- see-also references/_meta/text/shared/shared.nss.vm-advanced-settings.md (Advanced NSS VM settings: extra interfaces, local NTP, explicit proxy, hostname and SSH)
+- see-also references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)

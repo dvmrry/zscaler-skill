@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
 - links-to references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- configured-via references/_meta/text/types/zia/location-groups.md (config type)

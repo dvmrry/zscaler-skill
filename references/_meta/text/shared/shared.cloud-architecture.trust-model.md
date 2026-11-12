@@ -23,3 +23,6 @@ Area: shared.cloud-architecture, its subjects in references/_meta/spine/shared/s
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.data-path.md (Tunnels, certificates and firewall requirements on the Private Service Edge path)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.tunnels.md (Z-Tunnel and Microtunnel: the two tunnel layers of Private Access)

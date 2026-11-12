@@ -43,3 +43,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.terraform.field-fidelity.md (ZCC Terraform provider fields that are not sent, not read back, or collapsed)
 - links-to references/_meta/text/zcc/zcc.troubleshooting.registry-keys.md (Client Connector state in the Windows registry: ZNW_State, ZPA_State, ZWS_State and ZPA_AuthState values)
 - links-to references/_meta/text/zcc/zcc.troubleshooting.service-status-errors.md (Error messages in Client Connector's Service Status field and the action for each)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/fail-open-policy.md (config type)
+- configured-via references/_meta/text/zcc/zcc.api.forwarding-profile-wire.md (ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ)

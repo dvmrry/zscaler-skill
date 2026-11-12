@@ -30,3 +30,8 @@ Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
 - links-to references/_meta/text/zcc/zcc.install.mobile-options.md (iOS and Android-only install keys)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)
+- see-also references/_meta/text/zcc/zcc.install.chromeos-deployment.md (Deploying Client Connector on ChromeOS and ChromeOS Flex through the Google Admin console)
+- see-also references/_meta/text/zcc/zcc.install.rollout.md (Rolling out Client Connector: App Store downloads, deployment phases, pilot tests and update test groups)

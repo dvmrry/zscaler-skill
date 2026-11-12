@@ -30,3 +30,7 @@ Area: zdx.diagnostics, its subjects in references/_meta/spine/zdx/zdx.diagnostic
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.sdk-go.service-defects.md (Go SDK ZDX services: where the structs and functions disagree with the contract)
 - links-to references/_meta/text/zdx/zdx.sdk-python.response-models.md (What the Python SDK's ZDX results contain: envelopes, missing fields and paging)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.diagnostics.start-request.md (Starting a deep trace through the API: the read chain, the request body, and where the clients disagree)
+- see-also references/_meta/text/zdx/zdx.diagnostics.session-status.md (What a Diagnostics Session's status means, in the console and in the API)

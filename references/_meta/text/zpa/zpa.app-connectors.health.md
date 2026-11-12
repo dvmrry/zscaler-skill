@@ -52,3 +52,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.app-connectors.provisioning-keys.md (App Connector provisioning keys), from zpa.app-connectors: A provisioning key is a text string that enrolls an App Connector; it works as the connector's credential, letting the Private Access cloud verify the connector and complete deployment. [zpa.app-connectors.provisioning-keys:key-enrolls-connector]
 - links-to references/_meta/text/zpa/zpa.app-connectors.deployment.md (App Connector deployment, redundancy and limits)
 - links-to references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
+- see-also references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)

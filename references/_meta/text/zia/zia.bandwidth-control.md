@@ -29,3 +29,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.bandwidth-control.pipeline-position.md (Where Bandwidth Control sits in policy enforcement)
 - links-to references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.registry.md (The ZIA provider's reorder registry: keys, locks and lifecycle across rule resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/bandwidth-control-rules.md (config type)
+- configured-via references/_meta/text/types/zia/bandwidth-classes.md (config type)

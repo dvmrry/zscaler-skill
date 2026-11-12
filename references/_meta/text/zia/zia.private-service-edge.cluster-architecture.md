@@ -27,3 +27,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.private-service-edge.deployment.md (Where to place a Private Service Edge and how to configure the network around it)
 - links-to references/_meta/text/zia/zia.private-service-edge.sizing.md (Choosing a Private Service Edge design and node count)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.load-balancing.md (How a Virtual Service Edge cluster spreads and returns traffic)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)

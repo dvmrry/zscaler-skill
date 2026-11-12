@@ -40,3 +40,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.gwlb.md (Cloud Connector behind AWS Gateway Load Balancer: target group, health probe, stickiness, cross-zone)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.iam.md (Cloud Connector on AWS: IAM for the instance, the autoscaling Lambda, and the deployer)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.interfaces.md (Cloud Connector on AWS: network interfaces, device indexes, source/destination check)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)

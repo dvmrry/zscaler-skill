@@ -41,3 +41,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.endpoint-device-control.md (Device Control rules per device class, the default rule, first-match evaluation and device control resources)
 - links-to references/_meta/text/zia/zia.dlp.endpoint-intent.md (Indicators of Intent: predefined risky-behaviour rules on the endpoint and their exceptions)
 - links-to references/_meta/text/zia/zia.dlp.endpoint-inventory.md (Endpoint inventory and Application Investigation: detected removable storage, printers, portable devices and applications)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-dlp.md (Endpoint DLP API families in the SDKs and Terraform provider)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-enforcement.md (How Endpoint DLP reaches the endpoint: prerequisites, policy delivery, offline enforcement, scans, and what the vendor says about evaluating all rules and exception rules)

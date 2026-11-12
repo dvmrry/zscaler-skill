@@ -22,3 +22,7 @@ Area: zpa.troubleshooting, its subjects in references/_meta/spine/zpa/zpa.troubl
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.policy-checks.md (Checking policy match, forwarding, posture and timeout for a blocked user)

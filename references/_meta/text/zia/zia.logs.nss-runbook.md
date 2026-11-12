@@ -21,3 +21,13 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.nss-runbook.mcas.md (NSS runbook: validating an MCAS feed and its curl checks)
 - links-to references/_meta/text/zia/zia.logs.nss-runbook.security.md (NSS runbook: vulnerability scan findings, ZSOS patching and hardening answers)
 - links-to references/_meta/text/zia/zia.logs.nss-runbook.vm-health.md (NSS runbook: VM-based NSS Unhealthy server, alerts and build upgrade checks)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.md (Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+- see-also references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+- see-also references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity)
+- see-also references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
+- see-also references/_meta/text/shared/shared.nss.vm-operations.md (Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks)
+- see-also references/_meta/text/shared/shared.nss.alerts.md (NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format)

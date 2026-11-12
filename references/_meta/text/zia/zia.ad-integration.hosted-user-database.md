@@ -36,3 +36,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token), from zia.ad-integration: SCIM provisioning is not supported with Active Directory or OpenLDAP user repositories. To migrate from directory synchronization, enable Disable Directory Sync and Enable SCIM Provisioning on the Authentication Default Settings page. [zia.scim.setup:not-with-directory]
 - links-to references/_meta/text/zia/zia.ad-integration.identity-objects.md (ZIA users, groups and departments: shape and limits)
 - links-to references/_meta/text/zia/zia.authentication.settings.md (The organization-wide authentication settings object)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.ad-integration.md (How users, groups and departments get into ZIA)
+- see-also references/_meta/text/zia/zia.ad-integration.provisioning-methods.md (ZIA provisioning methods and which authentication each allows)
+- see-also references/_meta/text/zia/zia.ad-integration.authentication-bridge.md (Deploying the Zscaler Authentication Bridge (ZAB): requirements, certificates, commands and renewal)

@@ -21,3 +21,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.log-receivers.delivery.md (Retention and delivery guarantees for ZPA logs)
 - links-to references/_meta/text/zpa/zpa.log-receivers.runbook.no-logs.md (What the LSS runbook checks when no logs arrive on the SIEM: receiver configuration, connector status, connectivity and the TLS handshake)
 - links-to references/_meta/text/zpa/zpa.log-receivers.runbook.partial-and-parsing.md (What the LSS runbook checks for partial logs and for log syntax or parsing issues on the SIEM)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.md (ZPA log receivers and the Log Streaming Service)
+- see-also references/_meta/text/zpa/zpa.log-receivers.architecture.md (How the Log Streaming Service reaches a SIEM)
+- see-also references/_meta/text/zpa/zpa.audit-logs.what-is-recorded.md (What the ZPA admin audit log records, how long it is kept, and whether it can be pulled)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.diagnostics.md (ZPA Live Logs and Private Diagnostics: views, time ranges, retention, filters and export)
+- see-also references/_meta/text/zpa/zpa.app-connectors.runbook.md (How the Private Access App Connector support troubleshooting runbook is organized and which pages cover each topic)

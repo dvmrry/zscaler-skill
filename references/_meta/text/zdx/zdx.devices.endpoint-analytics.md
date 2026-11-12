@@ -14,3 +14,7 @@ Not known (open gaps):
 - The weights in the Endpoint Analytics and Startup scores [gap:zdx.devices.endpoint-analytics:score-weights]: settled by source-read or support-ticket. Blocks: explaining why an Endpoint Analytics score is low
 
 Area: zdx.devices, its subjects in references/_meta/spine/zdx/zdx.devices.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
+- see-also references/_meta/text/zdx/zdx.devices.health-score.md (The Device Health Score and the hardware and usage profiles of the Devices Overview)

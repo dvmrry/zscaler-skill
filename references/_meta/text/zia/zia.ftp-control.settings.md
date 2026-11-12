@@ -37,3 +37,7 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to): Allow Native FTP lets users connect to native FTP sites and download files. When it is on, Allow Any URL Category opens FTP to every category. With that off, the policy is limited to the Allowed URL Categories (super categories, categories or both, including custom categories) and up to 25,000 Allowed URLs. [zia.ftp-control.settings:native-ftp-scoping]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.ftp-control: URL Filtering rules take precedence over the FTP Control policy. [zia.ftp-control.scope:ftp-url-filtering-precedence]
 - links-to references/_meta/text/zia/zia.file-type-control.actions.md (File Type Control actions, direction and defaults)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ftp-control-policy.md (config type)
+- see-also references/_meta/text/zia/zia.ftp-control.md (ZIA FTP Control)

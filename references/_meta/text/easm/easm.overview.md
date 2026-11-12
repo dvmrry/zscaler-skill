@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/easm/easm.jira-integration.md (EASM Jira integration: personal access token, connection, ticket fields and synchronization limits)
 - links-to references/_meta/text/easm/easm.lookalike-domains.md (EASM lookalike domains: the raw-domain key, deception methods, risk categories and missing signals)
 - links-to references/_meta/text/easm/easm.mcp.md (The Zscaler MCP server's EASM tools: inventory, full records and documentation mismatches)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)

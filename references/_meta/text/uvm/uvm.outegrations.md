@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/uvm/uvm.data-sources.md (UVM data sources: shared connector facts, availability, and the Jira, Zscaler, Okta, Code42, NetBox, runZero, SecurityScorecard and SFTP connectors)
 - links-to references/_meta/text/uvm/uvm.outegrations.ticketing.md (UVM ticketing outegrations (Jira, ServiceNow, Freshservice, Azure DevOps), the ServiceNow CMDB outegration, their webhooks and mapping)
 - links-to references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)

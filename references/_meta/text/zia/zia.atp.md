@@ -43,3 +43,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)
 - links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)

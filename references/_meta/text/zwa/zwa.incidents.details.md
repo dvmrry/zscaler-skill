@@ -51,3 +51,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zwa/zwa.workflows.md (Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover), from zwa.incidents: After configuring a predefined or custom workflow, the admin must map it to one or more incident transaction attributes; the workflow then triggers automatically for incidents with those attributes. [zwa.workflows:mapping-required]
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
 - links-to references/_meta/text/zwa/zwa.incidents.notifications.md (User, escalation and digest notifications and reminders as the recipient sees them: contents, link lifetime, privacy gates, quarantine release and policy exceptions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.filters-summary.md (Incidents-page filters, the Incident Summary page and duplicate incidents)
+- see-also references/_meta/text/zwa/zwa.incidents.group-mapping.md (Incident groups, group mappings (properties, operations, rule order, default group) and priorities)
+- see-also references/_meta/text/zwa/zwa.incident-analytics.md (Workflow Automation Incident Analytics dashboard: access by workflow permission, time ranges, KPI tiles, triage and resolve times, and top-10 views)

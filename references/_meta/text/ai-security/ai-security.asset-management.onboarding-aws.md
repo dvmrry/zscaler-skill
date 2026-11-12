@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.onboarding-azure.md (How is a Microsoft Azure tenant, management group or subscription onboarded to AI Security: roles, templates, network and error fixes?)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.onboarding-gcp.md (How AI Asset Management onboards GCP organizations: prerequisites, templates, service account, network, IAM roles and errors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.asset-management.onboarding.md (Account onboarding in AI Security: supported targets, page metrics, integration tabs and actions, Copilot Studio, GitHub and Azure prerequisites and scopes)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.cloud-accounts.md (How are onboarded AWS, Azure and GCP accounts managed in AI Security: the Cloud Accounts page, validation, status, issues, deletion, orchestrator changes and the orchestrator itself?)

@@ -44,3 +44,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/easm/easm.dashboards.md (EASM Insights Overview and Assets Overview dashboards: widgets, time frames and bucket definitions)
 - links-to references/_meta/text/easm/easm.jira-integration.md (EASM Jira integration: personal access token, connection, ticket fields and synchronization limits)
 - links-to references/_meta/text/easm/easm.overview.md (Zscaler EASM: what it is, how it is set up, and where each part is documented)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/easm/easm.mcp.md (The Zscaler MCP server's EASM tools: inventory, full records and documentation mismatches)
+- see-also references/_meta/text/easm/easm.assets.md (EASM asset inventory: types, risk levels, Approved, Candidate and Archived status, detail fields and the Assets page)

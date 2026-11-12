@@ -61,3 +61,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.outbound-email-tenants.md (Outbound Email DLP email tenants and mail-server setup (SEG, Gmail, Exchange))
 - links-to references/_meta/text/zia/zia.dlp.rule-wire-shape.md (Web DLP rule API fields, enums and fields the contract does not document)
 - links-to references/_meta/text/zia/zia.endpoint-context.md (Endpoint Context: endpoint application telemetry from Client Connector, the policies that use it, and the Application Investigation page)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-web-rules.md (config type)
+- configured-via references/_meta/text/types/zia/dlp-engines.md (config type)
+- configured-via references/_meta/text/types/zia/dlp-dictionaries.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.dlp-resources.md (Terraform DLP web rule and email profile resources)
+- see-also references/_meta/text/zia/zia.dlp.runbook.md (How the Internet & SaaS DLP policies troubleshooting runbook routes a case: feature enablement, fine-tuning, web DLP triage and notification issues)

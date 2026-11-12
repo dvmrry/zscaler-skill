@@ -8,3 +8,6 @@ Also called: ZDX score drop; Bandwidth Action Throttled; Cloud Path hop-by-hop
 **Additional checks.** The runbook's additional checks include reverting the latest network change, reviewing ISP details (single or multi, provider, link size), load balancing across ISPs, and failovers to a secondary ISP link. [zia.troubleshooting.performance-runbook.zdx-and-bandwidth:additional-checks]
 
 Area: zia.troubleshooting, its subjects in references/_meta/spine/zia/zia.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.performance-runbook.md (How the Internet & SaaS performance troubleshooting runbook scopes a slowness case and routes it to its pages)

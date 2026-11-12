@@ -24,3 +24,7 @@ Not known (open gaps):
 - Data retention and export for the Client Monitoring and Global Insights dashboards [gap:shared.zsdk.dashboards:retention-and-export]: settled by source-read or lab-test
 
 Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.architecture.md (ZSDK architecture: Service Edges, App Connectors and the mobile client)

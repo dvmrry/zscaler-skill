@@ -35,3 +35,8 @@ Area: shared.zsdk, its subjects in references/_meta/spine/shared/shared.zsdk.jso
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.zsdk.disaster-recovery.md (ZSDK disaster recovery: scope, prerequisites, settings and DNS records)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.architecture.md (ZSDK architecture: Service Edges, App Connectors and the mobile client)
+- see-also references/_meta/text/shared/shared.zsdk.limits.md (ZSDK ranges and limitations per organization)

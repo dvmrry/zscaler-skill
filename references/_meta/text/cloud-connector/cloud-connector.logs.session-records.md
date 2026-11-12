@@ -25,3 +25,7 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/cloud-connector/cloud-connector.forwarding.log-and-control.md (Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud), from cloud-connector.logs: The policy configures the primary and secondary gateways used to set up control channels and forward logs. [cloud-connector.forwarding.log-and-control:gateways]
 - depends-on references/_meta/text/cloud-connector/cloud-connector.nss-va.md (NSS for Cloud & Branch Connector: how connector logs reach a SIEM), from cloud-connector.logs: Both Cloud Connector and Branch Connector can generate Session, DNS, Event and Metrics logs, and an NSS feed specifies which log data the NSS sends to the SIEM. [cloud-connector.nss-va:log-types]
 - links-to references/_meta/text/zia/zia.logs.firewall-records.md (What a ZIA firewall log record is: aggregates, action and field names)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.logs.md (Cloud Connector logs: which log types exist and where to read them)
+- see-also references/_meta/text/cloud-connector/cloud-connector.nss-va.feeds.md (NSS feeds for Cloud & Branch Connector: limits, output and SIEM destination)

@@ -15,3 +15,6 @@ Area: zcc.support-options, its subjects in references/_meta/spine/zcc/zcc.suppor
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.forwarding-profiles.fail-open.md (Client Connector fail-open: captive portals, unreachable Service Edges and tunnel failures): Restart Service and Repair App make Client Connector fail open briefly; the vendor's advice is to disable access to them where that is not acceptable. [zcc.support-options.restart-and-repair:brief-fail-open]
 - links-to references/_meta/text/zcc/zcc.app-profiles.advanced-settings.md (What the less common app profile settings do)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.support-options.md (ZCC end-user support options (App Supportability))

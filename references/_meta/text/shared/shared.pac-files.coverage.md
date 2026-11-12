@@ -42,3 +42,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.proxy-chaining.md (Proxy chaining to ZIA: setup, XFF handling and limits)
 - links-to references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
 - links-to references/_meta/text/zpa/zpa.browser-access.md (Browser Access: clientless ZPA access to web applications)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.pac-files.md (PAC files across Zscaler: where each question is answered)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.zcc.md (Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes)

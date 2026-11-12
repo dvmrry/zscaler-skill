@@ -19,3 +19,6 @@ Area: zscaler-cellular.deployment-credentials, its subjects in references/_meta/
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.api.authentication.md (Reaching and signing in to the Cloud Connector API: OneAPI, legacy ZTC credentials and government clouds): Zscaler needs the organization's Cloud & Branch Connector credentials to deploy the Cellular service across regions. [zscaler-cellular.deployment-credentials:cbc-credentials-required]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.overview.md (Zscaler Cellular: Zscaler SIM, Cellular Edge and how SIM traffic reaches ZIA and ZPA policy)

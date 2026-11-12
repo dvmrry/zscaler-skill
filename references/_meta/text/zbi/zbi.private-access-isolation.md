@@ -44,3 +44,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.posture-profiles.policy-operand.md (The POSTURE operand in ZPA policy rules)
 - links-to references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria)
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-resources.md (ZPA Terraform policy rule resources: v1 and v2 conditions, operand types and provider changes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.policy.md (What sends traffic to Cloud Browser: Internet & SaaS rules, Smart Isolation and the Private Access isolation policy)

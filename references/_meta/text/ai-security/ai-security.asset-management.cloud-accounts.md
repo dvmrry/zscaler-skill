@@ -37,3 +37,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.onboarding-aws.md (How AI Asset Management onboards AWS accounts and organizations: prerequisites, templates, CloudTrail, network and IAM roles)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.onboarding-azure.md (How is a Microsoft Azure tenant, management group or subscription onboarded to AI Security: roles, templates, network and error fixes?)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.onboarding-gcp.md (How AI Asset Management onboards GCP organizations: prerequisites, templates, service account, network, IAM roles and errors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.cloud-accounts.md (The DSPM Cloud Accounts page: onboarding and orchestrator status, issues, templates, validation, business units, deletion, and per-account settings (services, tags, regions, evidence storage))
+- see-also references/_meta/text/dspm/dspm.orchestrator.md (What the DSPM orchestrator and scanner instances are: architecture, sizing, default scanner types, tags and DSPM service IPs)

@@ -52,3 +52,11 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipv6.md (IPv6 through ZIA: forwarding per method, prerequisites, processing and policy)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.methods.md (Forwarding methods Zscaler supports and how to choose)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.clusters.md (The Virtual Service Edge cluster: limits, object, build order and Location binding)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/gre-tunnels.md (config type)
+- configured-via references/_meta/text/types/zia/static-ips.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.traffic-forwarding-resources.md (Terraform GRE tunnel, static IP, VPN credential and location resources)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/shared/shared.gre.md (GRE tunnels to Zscaler: where each question is answered)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.static-ips.md (Static IPs: when one is needed, provisioning, region mapping, CSV import and limits)

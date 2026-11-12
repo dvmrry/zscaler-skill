@@ -32,3 +32,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.file-type-control.criteria.md (File Type Control rule criteria)
 - links-to references/_meta/text/zia/zia.firewall.criteria.md (Firewall Filtering rule criteria)
 - links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.device-posture.md (Device posture across products: Client Connector evaluates, Private Access and Internet & SaaS consume)
+- see-also references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine)

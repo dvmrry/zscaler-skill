@@ -36,3 +36,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.aws.provisioning.md (Cloud Connector on AWS: provisioning template, URL, Secrets Manager credentials, user data): The cloud provisioning template for AWS sets the cloud provider to AWS, location creation and Cloud Connector group creation to Automatic, a location template, a VM size and autoscaling; its cloud provisioning URL is copied for the deployment. [cloud-connector.aws.provisioning:provisioning-template]
 - reached-via references/_meta/text/cloud-connector/cloud-connector.aws.traffic-steering.md (Cloud Connector on AWS: steering workload traffic by route table, ENI or GWLB endpoint), from cloud-connector.aws: The workload route is a 0.0.0.0/0 destination whose target is, for non-GWLB deployments, the network interface of the Cloud Connector service interface and, for GWLB deployments, the Gateway Load Balancer endpoint. [cloud-connector.aws.traffic-steering:route-targets]
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.autoscaling.md (Cloud Connector Auto Scaling groups on AWS: scaling metric, policy, capacity limits)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.aws.cloudformation.md (Cloud Connector on AWS: CloudFormation templates, order, and parameter defaults)
+- configured-via references/_meta/text/cloud-connector/cloud-connector.aws.reference-modules.md (Zscaler's Terraform modules for Cloud Connector on AWS: examples, defaults, FIPS, Transit Gateway)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)

@@ -40,3 +40,11 @@ Not known (open gaps):
 - Limits on alert rules and ignore filters [gap:zpc.alerts:alert-limits]: settled by source-read
 
 Area: zpc.alerts, its subjects in references/_meta/spine/zpc/zpc.alerts.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
+- see-also references/_meta/text/zpc/zpc.integrations.md (How Posture Control third-party integrations work: cloud storage, Amazon Security Lake, ITSM and Slack)
+- see-also references/_meta/text/zpc/zpc.vulnerability-scanning.md (How Posture Control vulnerability scanning works: integrations, scanning rules, supported systems and the Vulnerability Management page)
+- see-also references/_meta/text/portfolio/portfolio.cloud-protection.md (Zscaler Posture Control (ZPC) and Cloud Protection: what ZPC covered, and its end of life)
+- see-also references/_meta/text/dspm/dspm.alerts.md (How DSPM alerts work: risk level, statuses, snooze and resolve, alert details, and the alert rules and ignore alert filters that act on them)
+- see-also references/_meta/text/zpc/zpc.release-notes.md (What the dated ZPC (Posture Control) release upgrade summary notes for 2022 and 2023 say)

@@ -30,3 +30,6 @@ Sources disagree (name both sides):
   Impact: A caller cannot tell from the sources whether a successful verification has put a message on the topic,.
 
 Area: shared.event-monitoring, its subjects in references/_meta/spine/shared/shared.event-monitoring.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.event-monitoring.api.md (The Event Monitoring & Notification API: what it does, access, headers and limits)

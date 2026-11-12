@@ -34,3 +34,7 @@ Not known (open gaps):
 - The Web, Mobile and DNS data classes [gap:zia.reports.interactive:data-class-short-items]: settled by source-read
 
 Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- see-also references/_meta/text/zia/zia.casb.insights-logs.md (CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming)

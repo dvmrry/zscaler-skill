@@ -48,3 +48,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.atp.blocked-countries.md (ATP Blocked Countries: server location, not user location)
 - links-to references/_meta/text/zia/zia.atp.blocked-urls.md (ATP Blocked Malicious URLs list: capacity, matching and API)
 - links-to references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/security-exceptions.md (config type)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/zia/zia.atp.api-surface.md (ATP API: one settings object, two URL lists, and the field-name traps)

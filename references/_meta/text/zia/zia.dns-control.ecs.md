@@ -22,3 +22,10 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.dns-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - reached-via references/_meta/text/zia/zia.traffic-forwarding.methods.md (Forwarding methods Zscaler supports and how to choose), from zia.dns-control: The Zscaler service directs users' DNS requests that are forwarded via GRE tunnels, IPSec tunnels, or Zscaler Client Connector using Z-Tunnel 2.0. [zia.dns-control:dns-via-forwarding]
 - logged-in references/_meta/text/types/zia/dns-log.md (ZIA DNS log (NSS DNS feed)), from zia.dns-control: The DNS NSS feed gives separate rule and action fields for the request (reqrulelabel, reqaction) and for the response (resrulelabel, resaction), mapped in DNS Insights Logs to Request Rule Name, Request Action, Response Rule Name and Response Action. [zia.logs.dns-outcome:request-response-pairs]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)
+- see-also references/_meta/text/zia/zia.dns-control.actions.md (DNS Control actions and what each API action requires)
+- see-also references/_meta/text/zia/zia.logs.dns-record-fields.md (Reading a ZIA DNS log record: naming, encodings and field caveats)
+- see-also references/_meta/text/zia/zia.firewall.limits.md (Firewall rule, criteria and group limits)
+- see-also references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)

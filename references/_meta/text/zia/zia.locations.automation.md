@@ -30,3 +30,11 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
 - links-to references/_meta/text/zia/zia.sdk-go.service-defects.md (ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input)
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- configured-via references/_meta/text/types/zia/locations-lite.md (config type)
+- configured-via references/_meta/text/types/zia/location-groups.md (config type)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)
+- see-also references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)

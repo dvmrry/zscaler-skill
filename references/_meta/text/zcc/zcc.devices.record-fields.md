@@ -53,3 +53,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.logging.collection.md (Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures)
 - links-to references/_meta/text/zcc/zcc.passwords-and-otp.password-api.md (Reading and setting app profile passwords through the API)
 - links-to references/_meta/text/zcc/zcc.sdk-go.legacy-routing.md (ZCC SDK calls in legacy-client mode routed to the ZIA client)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)
+- see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))

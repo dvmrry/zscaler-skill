@@ -41,3 +41,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.md (Cloud Connector traffic forwarding)
 - links-to references/_meta/text/cloud-connector/cloud-connector.vdi.groups-and-templates.md (VDI devices, dynamic VDI groups and VDI templates (authentication type, system user, provisioning URL and token))
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.md (ZCC forwarding profiles)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.vdi.md (Client Connector for VDI: the multi-session Windows agent that tunnels users' traffic to Cloud and Branch Connector)

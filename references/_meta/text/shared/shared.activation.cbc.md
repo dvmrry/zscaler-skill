@@ -26,3 +26,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.api.activation-wire.md (Cloud Connector activation on the wire: activate, forced activate, and what the clients send)
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-python.client-configuration.md (The Python SDK against Cloud and Branch Connector: legacy client settings and session logout on exit)
 - links-to references/_meta/text/zia/zia.terraform.activation-methods.md (Activating ZIA changes from Terraform: methods, session end and concurrent applies)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.activation.md (Which Zscaler products stage changes behind an activation)
+- see-also references/_meta/text/zia/zia.api.activation.md (How ZIA API changes become live: saving versus activating)

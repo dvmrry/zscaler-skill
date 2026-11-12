@@ -21,3 +21,6 @@ Area: zwa.notifications, its subjects in references/_meta/spine/zwa/zwa.notifica
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.notifications.md (Workflow Automation notification templates (email, Slack, Teams): default families, status and edit rules, the digest flag and email builder settings)
 - links-to references/_meta/text/zwa/zwa.notifications.survey-templates.md (Workflow Automation survey (questionnaire) templates: the mandatory Reason question, default families, toolbox question types and edit rules)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)

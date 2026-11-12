@@ -32,3 +32,7 @@ Area: zia.alerts, its subjects in references/_meta/spine/zia/zia.alerts.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.alerts.rules.md (Security & UEBA alert rules: alert types, triggers, exceptions and webhooks)
 - links-to references/_meta/text/zia/zia.alerts.security-ueba.md (Security & UEBA alerts: ongoing alerts, alert history and alert details)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)
+- see-also references/_meta/text/zia/zia.atp.botnet.md (ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA)

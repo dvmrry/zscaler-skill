@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.pra.session-recording.md (PRA session recordings: status, transcoding, playback and sharing), from zpa.pra: Session recording is enabled through the Record Sessions setting of a consoles policy. A user in a recorded console sees a Recording notification at the top of the console window, and the recording ends when the user ends the session. [zpa.pra.session-recording:recording-enabled-by-policy]
 - links-to references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
 - links-to references/_meta/text/zpa/zpa.pra.file-transfer.md (PRA file transfer: in-console transfer, the PRA File Transfer System and the Sandbox integration)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes)
+- see-also references/_meta/text/zpa/zpa.pra.portals.md (PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login)

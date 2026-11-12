@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpc/zpc.iac-integrations.md (How each ZPC IaC Scan version control and CI/CD integration is set up and behaves)
 - links-to references/_meta/text/zpc/zpc.iac-workstations.md (How the ZPC IaC CLI Scanner, Visual Studio extension and JetBrains plugin scan templates on a workstation)
 - links-to references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.cloud-protection.md (Zscaler Posture Control (ZPC) and Cloud Protection: what ZPC covered, and its end of life)

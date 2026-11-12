@@ -55,3 +55,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.aws-bedrock-sdk-hooks.md (The AI Guard boto3 hook for Amazon Bedrock: before-call and after-call scanning, what the content walkers read, block styles, and what is not scanned)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.aws-lambda-decorator.md (The AI Guard decorator for AWS Lambda handlers: prompt and response scanning at the function boundary, default extractors, and block shapes)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.aws-strands-agents.md (The AI Guard HookProvider for Strands Agents: which hook events it uses, how each leg can block, and what stays out of reach)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-guard.integrations.md (Zscaler's AI Guard integration examples (zguard-ai-integrations): the catalog, the promised fail-closed posture against what each example does, and where each intercepts)

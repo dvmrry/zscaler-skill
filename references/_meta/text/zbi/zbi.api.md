@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.api.url-filtering-wire.md (URL Filtering rule fields where the Python SDK, Terraform provider and help disagree)
 - links-to references/_meta/text/zpa/zpa.api.cbi-appprotection-wire.md (Cloud Browser Isolation and AppProtection API: paths, writes and version handling)
 - links-to references/_meta/text/zpa/zpa.api.sdk-coverage.md (Which ZPA services the Go and Python SDKs cover differently, and the Go packages behind Python-only module names)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions)

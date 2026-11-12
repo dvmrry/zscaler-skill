@@ -16,3 +16,6 @@ Area: shared.terraform, its subjects in references/_meta/spine/shared/shared.ter
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.coverage.md (What the ZTC Terraform provider covers, and how existing objects are imported)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.terraform.md (The Zscaler Terraform providers: where their behavior is described)

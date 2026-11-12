@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
 - links-to references/_meta/text/zdx/zdx.diagnostics.md (ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered)
 - links-to references/_meta/text/zdx/zdx.reports.console.md (Console reports: predefined reports, Data Explorer views and Quarterly Business Review reports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.administration.md (ZDX administration API: department and location lookups)

@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.log-correlation.zia-zpa-join.md (Joining ZIA logs to ZPA User Activity logs)
 - links-to references/_meta/text/zia/zia.logs.dns-outcome.md (What happened to a DNS query: rules, actions, response values and errors)
 - links-to references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.log-correlation.zcc-in-zia.md (Client Connector traffic, devices and bypasses as seen in ZIA logs)

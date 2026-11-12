@@ -25,3 +25,7 @@ Area: zdx.diagnostics, its subjects in references/_meta/spine/zdx/zdx.diagnostic
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.compatibility.supported-versions.md (Minimum Client Connector and ZDX Module versions per OS and ZDX feature)
 - links-to references/_meta/text/zdx/zdx.diagnostics.md (ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.diagnostics.session-status.md (What a Diagnostics Session's status means, in the console and in the API)
+- see-also references/_meta/text/zdx/zdx.diagnostics.start-request.md (Starting a deep trace through the API: the read chain, the request body, and where the clients disagree)

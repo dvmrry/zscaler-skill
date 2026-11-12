@@ -43,3 +43,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.incidents.group-mapping.md (Incident groups, group mappings (properties, operations, rule order, default group) and priorities)
 - links-to references/_meta/text/zwa/zwa.incidents.integrations.md (Workflow Automation integrations: DLP GCP privacy settings, Slack, Microsoft Teams, ServiceNow and Jira Software)
 - links-to references/_meta/text/zwa/zwa.incidents.notifications.md (User, escalation and digest notifications and reminders as the recipient sees them: contents, link lifetime, privacy gates, quarantine release and policy exceptions)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zwa/zwa.api.md (The Workflow Automation API from a client's side: hosts, the Python and Go clients, and what neither SDK covers)

@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.audit-logs.what-is-recorded.md (What the ZPA admin audit log records, how long it is kept, and whether it can be pulled), from zpa.emergency-access: The admin audit log lists Emergency Access and Emergency Access User as resource types. [zpa.emergency-access.scope:audit-resource-types]
 - scoped-by references/_meta/text/zpa/zpa.pra.approvals.md (PRA approvals: requesting, reviewing and expiry), from zpa.emergency-access: Emergency access users have permissions limited to privileged approvals in the IdP enabled for emergency access. [zpa.emergency-access.scope:scoped-to-approvals]
 - links-to references/_meta/text/zpa/zpa.emergency-access.users.md (Emergency Access Users page: statuses, dates and actions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.emergency-access.scope.md (What Emergency Access covers: PRA only, approvals, audit and what stays unverified)

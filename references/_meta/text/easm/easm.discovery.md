@@ -51,3 +51,7 @@ Area: easm.discovery, its subjects in references/_meta/spine/easm/easm.discovery
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/uvm/uvm.easm-discovery.md (How EASM discovery profiles work: seeds and their formats, limits, scan cadence, permissions and reports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/easm/easm.overview.md (Zscaler EASM: what it is, how it is set up, and where each part is documented)
+- see-also references/_meta/text/easm/easm.assets.md (EASM asset inventory: types, risk levels, Approved, Candidate and Archived status, detail fields and the Assets page)

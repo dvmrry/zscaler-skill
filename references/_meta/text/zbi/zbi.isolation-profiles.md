@@ -56,3 +56,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.api.cbi-appprotection-wire.md (Cloud Browser Isolation and AppProtection API: paths, writes and version handling)
 - links-to references/_meta/text/zpa/zpa.terraform.data-source-selection.md (Which object a ZPA Terraform data source actually returns)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/browser-isolation-profiles.md (config type)
+- configured-via references/_meta/text/types/zpa/isolation-profiles.md (config type)
+- see-also references/_meta/text/zbi/zbi.policy.md (What sends traffic to Cloud Browser: Internet & SaaS rules, Smart Isolation and the Private Access isolation policy)
+- see-also references/_meta/text/zbi/zbi.api.md (Automating browser isolation: where the API surface lives across Internet & SaaS and Private Access)

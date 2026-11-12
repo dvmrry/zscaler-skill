@@ -14,3 +14,9 @@ Area: zia.getting-started, its subjects in references/_meta/spine/zia/zia.gettin
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)
 - links-to references/_meta/text/zia/zia.ad-integration.provisioning-methods.md (ZIA provisioning methods and which authentication each allows)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.rule-labels.md (ZIA Rule Labels)
+- see-also references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)
+- see-also references/_meta/text/zia/zia.forwarding-control.methods.md (Forwarding methods and their required fields)
+- see-also references/_meta/text/zia/zia.customer-notifications.md (Zscaler customer notifications: Trust Portal subscriptions, Admin Console contacts and the Service Continuity notification protocol)

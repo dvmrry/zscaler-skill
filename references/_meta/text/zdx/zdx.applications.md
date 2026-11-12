@@ -61,3 +61,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.devices.call-quality.md (ZDX call-quality metrics per device and meeting)
 - links-to references/_meta/text/zdx/zdx.probes.collections.md (ZDX collections: default collections, membership, ranking, criteria, deletion and limits)
 - links-to references/_meta/text/zdx/zdx.reports.md (Reading ZDX report data: time ranges, paging, users and what the reads return)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.score.md (The ZDX Score: scale, bands, score types and what lowers it)
+- see-also references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)

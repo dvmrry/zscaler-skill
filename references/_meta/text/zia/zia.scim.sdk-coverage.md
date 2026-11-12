@@ -42,3 +42,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)
 - links-to references/_meta/text/zia/zia.scim.operations.md (ZIA SCIM server operations, paging and rate limit)
 - links-to references/_meta/text/zia/zia.sdk-go.service-defects.md (ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)

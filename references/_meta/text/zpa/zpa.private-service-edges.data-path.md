@@ -42,3 +42,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.public-service-edges.what-it-is.md (What a ZPA Public Service Edge is): After enrollment a Private Service Edge opens an outbound TLS tunnel over TCP port 443 to the Private Access cloud, carrying keepalives to the Public Service Edge, policy configuration download and software upgrades. [zpa.private-service-edges.data-path:outbound-tunnel-443]
 - links-to references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)

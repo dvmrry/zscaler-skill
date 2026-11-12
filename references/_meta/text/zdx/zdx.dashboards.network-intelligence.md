@@ -20,3 +20,8 @@ Not known (open gaps):
 - How an anomaly is decided and what levels lie behind the map colors [gap:zdx.dashboards.network-intelligence:baseline-and-anomaly-rules]: settled by support-ticket or lab-test. Blocks: explaining why an ISP or geolocation shows as an anomaly
 
 Area: zdx.dashboards, its subjects in references/_meta/spine/zdx/zdx.dashboards.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.dashboards.md (ZDX console dashboards and overviews: time ranges, filters, VIP tagging, Private Service Edge Health and Self Service)
+- see-also references/_meta/text/zdx/zdx.dashboards.incidents.md (ZDX incidents: the incident area types, their epicenters, key metrics and detection minimums)
+- see-also references/_meta/text/zdx/zdx.probes.cloud-path.md (Reading the Cloud Path: the Hop View and Command Line View, tunnels, protocols, edges, and the error messages)

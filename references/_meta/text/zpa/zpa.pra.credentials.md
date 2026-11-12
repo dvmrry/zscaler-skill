@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.pra.managed-credentials.md (PRA managed credentials: discovery, credential providers, the Managed, Discovered and Ignored lifecycle, and credential classes)
 - links-to references/_meta/text/zpa/zpa.pra.portals.md (PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login)
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.pra.tooling.md (PRA operations in the Python SDK and Ansible approvals)
+- configured-via references/_meta/text/zpa/zpa.api.pra-wire.md (What the SDKs send and receive for ZPA Privileged Remote Access objects)

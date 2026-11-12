@@ -20,3 +20,12 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.runbook.ipsec.md (Runbook: IPSec tunnel hard down, Tunnel Insights status and event values, flapping and up-but-no-traffic)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.runbook.pac.md (Runbook: PAC file, explicit proxy and DPP outages, PAC causes and authentication loops)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.runbook.tunnel-path.md (Runbook: MTR collection, WinMTR for Client Connector and PAC, and latency checks for GRE and IPSec gateways)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.verification.md (ip.zscaler.com and the vendor's causes when traffic does not land on the nearest Public Service Edge)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.gre-failover.md (GRE tunnel health checks and failover)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.ipsec.md (IPSec tunnels to ZIA: limits, IKE and device settings)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.vpn-credentials.md (VPN credentials for IPSec: types, immutability and keys)

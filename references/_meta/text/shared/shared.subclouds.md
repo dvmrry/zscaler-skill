@@ -58,3 +58,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.source-ip-anchoring.egress-options.md (A fixed egress address: Source IP Anchoring, Dedicated IP or BYOIP)
 - links-to references/_meta/text/shared/shared.subclouds.api.md (The subclouds API: reading subclouds and editing their data center exclusions)
 - links-to references/_meta/text/zia/zia.private-service-edge.deployment.md (Where to place a Private Service Edge and how to configure the network around it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.service-edges.md (Service Edges: the data plane, its form factors, and how traffic reaches one)
+- see-also references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)

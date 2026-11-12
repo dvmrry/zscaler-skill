@@ -39,3 +39,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group), from zia.cloud-app-control: A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile]. [zia.cloud-app-control.rule-criteria:criteria-expression]
 - decided-by references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes): Enabling Allow Cascading to URL Filtering in Advanced Settings makes the service apply the URL Filtering policy even when a Cloud App Control rule allows the transaction, so a URL Filtering block then applies. [zia.cloud-app-control.precedence:cascading-allow-path]
 - links-to references/_meta/text/zia/zia.advanced-settings.m365-one-click.md (Microsoft 365 One Click configurations: the two options, where each is set, and the DNS Control rule)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
+- configured-via references/_meta/text/types/zia/advanced-settings.md (config type)
+- see-also references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)

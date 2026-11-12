@@ -25,3 +25,7 @@ Area: shared.logs-fair-use, its subjects in references/_meta/spine/shared/shared
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.logs-fair-use.md (Where to find a Zscaler product's log retention, log contents, license unit and fair-use limit)
 - links-to references/_meta/text/shared/shared.logs-fair-use.fair-use-limits.md (What fair-use thresholds, overage and burst rules each Zscaler product's page states)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-capture.md (Traffic Capture Essentials and Traffic Capture for NDR: storage, rules, limits and obfuscation)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.china-premium.md (China Premium and Premium Plus Internet Access: service model, provisioning, backup, licensing and DNS)

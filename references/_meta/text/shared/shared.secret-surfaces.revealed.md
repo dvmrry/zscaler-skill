@@ -53,3 +53,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.api.pra-wire.md (What the SDKs send and receive for ZPA Privileged Remote Access objects)
 - links-to references/_meta/text/zpa/zpa.app-connectors.provisioning-key-tooling.md (Provisioning key fields and tool behavior across SDKs, provider and MCP)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.secret-surfaces.md (Which Zscaler API reads return secrets: scoping a read-only API client)
+- see-also references/_meta/text/shared/shared.secret-surfaces.withheld.md (Zscaler API reads that withhold or mask a secret)

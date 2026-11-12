@@ -3058,7 +3058,9 @@ function* markdownFiles(root) {
   const walk = function* (dir) {
     for (const e of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
       const rel = `${dir}/${e.name}`;
-      if (e.isDirectory()) { if (e.name !== "worktrees" && e.name !== "archive") yield* walk(rel); }
+      // The reading text is generated from the subject files, which are checked themselves, and gen-text --check
+      // holds it to them; its type file paths (types/zcc/devices.md) would read as converted docs' names.
+      if (e.isDirectory()) { if (e.name !== "worktrees" && e.name !== "archive" && rel !== "references/_meta/text") yield* walk(rel); }
       else if (e.name.endsWith(".md")) yield rel;
     }
   };

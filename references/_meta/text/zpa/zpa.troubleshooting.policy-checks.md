@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.rule-fields.md (Rule fields beyond criteria: reauth, posture notification and profile IDs)
 - links-to references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.signals.md (Where ZPA access evidence lives: console, client, connector, log streaming)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.no-access.md (A user cannot reach a private application at all)

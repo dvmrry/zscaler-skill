@@ -23,3 +23,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.time-intervals.limits.md (Time interval limits: object cap, per-rule cap and name characters)
 - links-to references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many)
 - links-to references/_meta/text/zia/zia.time-intervals.time-windows.md (Time windows versus time intervals)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/time-intervals.md (config type)
+- configured-via references/_meta/text/types/zia/time-windows.md (config type)

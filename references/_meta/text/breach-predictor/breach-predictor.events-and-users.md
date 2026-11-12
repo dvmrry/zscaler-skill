@@ -24,3 +24,8 @@ Not known (open gaps):
 - Which fields the Event Detail and User Detail panels show, and what the Events CSV export contains [gap:breach-predictor.events-and-users:event-detail-and-csv]: settled by source-read or lab-test
 
 Area: breach-predictor.events-and-users, its subjects in references/_meta/spine/breach-predictor/breach-predictor.events-and-users.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/breach-predictor/breach-predictor.overview.md (Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with)
+- see-also references/_meta/text/breach-predictor/breach-predictor.findings.md (Breach Predictor Findings: the MITRE ATT&CK Mapping page, the Threat page, severity scores and attack stages)
+- see-also references/_meta/text/breach-predictor/breach-predictor.dashboard.md (Breach Predictor Dashboard views and the Threat Landscape page)

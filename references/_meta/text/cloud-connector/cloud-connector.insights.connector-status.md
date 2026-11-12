@@ -52,3 +52,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/ztw/event-log.md (Cloud & Branch Connector Event log (NSS feed)): A Cloud or Branch Connector generates an Event log when a status change occurs for a connector health check, Zscaler data center reachability, a data plane health check, a software upgrade, a control plane health check, or a tunnel to Zscaler data centers. [cloud-connector.logs.event-records:when-generated]
 - links-to references/_meta/text/cloud-connector/cloud-connector.logs.metrics-records.md (Cloud Connector metrics logs: VM, instance and resource samples)
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.monitoring.md (Watching Cloud Connector upgrades: VM record fields, upgrade metrics and upgrade events)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.insights.md (Monitoring Cloud Connectors: which surface answers which question)
+- see-also references/_meta/text/cloud-connector/cloud-connector.nss-va.log-control-path.md (Log and Control Forwarding and NSS: the two legs that carry connector logs)

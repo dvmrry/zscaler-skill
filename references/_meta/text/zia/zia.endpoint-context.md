@@ -30,3 +30,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dns-control.criteria.md (What a DNS Control rule can match on)
 - links-to references/_meta/text/zia/zia.firewall.criteria.md (Firewall Filtering rule criteria)
 - links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)

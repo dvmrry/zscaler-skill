@@ -41,3 +41,8 @@ Area: zia.url-categories, its subjects in references/_meta/spine/zia/zia.url-cat
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.authentication.exemptions.md (Destinations that skip authentication): The product's 25K limit for custom URLs and TLDs is one pool shared across custom URL categories, Auth Exemption URLs in Advanced settings, blocked malicious URLs, SSL inspection blocked URLs, FTP allowed URLs and bandwidth class domains; duplicates count once, and more can be subscribed to. [zia.authentication.exemptions:shared-url-pool]
 - links-to references/_meta/text/zia/zia.url-categories.entry-matching.md (How URL category entries match requests (wildcards))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-categories.md (config type)
+- configured-via references/_meta/text/zia/zia.api.url-categories-wire.md (URL category API behavior beyond the field list: delete, lookup and the keyword quota figure)
+- configured-via references/_meta/text/zia/zia.terraform.url-categories.md (Terraform custom and predefined URL category resources)

@@ -63,3 +63,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.ips-signatures.md (Custom IPS signatures: enablement, two-stage validation and statuses, supported Snort-like syntax, limits, CSV import and export, and custom threat categories)
 - links-to references/_meta/text/zia/zia.firewall.limits.md (Firewall rule, criteria and group limits)
 - links-to references/_meta/text/zia/zia.traffic-capture.md (Traffic Capture Essentials and Traffic Capture for NDR: storage, rules, limits and obfuscation)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ips-policies.md (config type)
+- configured-via references/_meta/text/types/zia/ips-signature-rules.md (config type)

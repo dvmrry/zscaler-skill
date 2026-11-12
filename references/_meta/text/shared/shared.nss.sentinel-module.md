@@ -20,3 +20,6 @@ Area: shared.nss, its subjects in references/_meta/spine/shared/shared.nss.json
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs): Cloud NSS requires a separate concurrent subscription, and its geo-availability and qualifications are obtained from Zscaler Support. [shared.nss.delivery-modes:cloud-subscription]
 - links-to references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.siem-mapping.md (Zscaler log types and where they land in a SIEM)

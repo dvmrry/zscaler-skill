@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine): The Device Groups criterion has an IoT choice that applies a rule to IoT traffic, alongside Cloud Browser Isolation and No Client Connector. It appears in URL Filtering, Cloud App Control, SSL/TLS Inspection and Forwarding Control rules. [zia.iot.policy-use:iot-device-group]
 - links-to references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group)
 - links-to references/_meta/text/zia/zia.ssl-inspection.uninspectable.md (What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)

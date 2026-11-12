@@ -37,3 +37,11 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-python.request-conventions.md (How the Python SDK builds, pages and retries ZIA requests)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.registry.md (The ZIA provider's reorder registry: keys, locks and lifecycle across rule resources)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-tenants.md (config type)
+- configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
+- configured-via references/_meta/text/types/zia/casb-malware-rules.md (config type)
+- configured-via references/_meta/text/types/zia/domain-profiles.md (config type)
+- configured-via references/_meta/text/types/zia/casb-tombstone-templates.md (config type)
+- configured-via references/_meta/text/types/zia/casb-email-labels.md (config type)

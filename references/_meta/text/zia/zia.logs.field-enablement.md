@@ -23,3 +23,6 @@ Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)): df_hostname is populated only when TLS Inspection is enabled. [zia.logs.field-enablement:df-tls]
 - links-to references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named)

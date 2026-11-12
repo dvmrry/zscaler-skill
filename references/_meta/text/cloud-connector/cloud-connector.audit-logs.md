@@ -23,3 +23,8 @@ Area: cloud-connector.audit-logs, its subjects in references/_meta/spine/cloud-c
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.cloud-connector.md (Cloud & Branch Connector admin roles: super admin, the eleven permission categories and Unified RBAC)
 - links-to references/_meta/text/shared/shared.audit-logs.md (Admin audit logs across Zscaler products: what exists and how to get it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.md (Cloud & Branch Connector: what Cloud Connector is and where each area is described)
+- see-also references/_meta/text/zdx/zdx.audit-logs.md (ZDX admin audit logs in the console: what is recorded, retention, lockout and filters)
+- see-also references/_meta/text/cloud-connector/cloud-connector.admin-sso.md (SAML SSO for Cloud & Branch Connector admins: IdP-initiated sign-in, the break-glass super admin and the Okta, Azure AD and AD FS settings)

@@ -28,3 +28,9 @@ Area: shared.nss, its subjects in references/_meta/spine/shared/shared.nss.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
 - links-to references/_meta/text/shared/shared.nss.reliability.md (What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
+- see-also references/_meta/text/shared/shared.nss.feed-filters.md (What each NSS log type's feed can filter on, and the rules for matching)
+- see-also references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+- see-also references/_meta/text/shared/shared.nss.alerts.md (NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format)

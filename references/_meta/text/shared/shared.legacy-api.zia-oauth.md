@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zia/zia.audit-logs.what-is-recorded.md (What the ZIA admin audit log records and how the console shows it): Operations authenticated this way are recorded in the audit logs under an auto-generated admin ID, one per API role, of the form `oauth-<rolename>$@<orgid>.<cloud_domain>`. [shared.legacy-api.zia-oauth:audit-admin-id]
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-api-roles.md (ZIA API roles, SD-WAN partner API roles and SD-WAN partner API clients)
 - links-to references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.legacy-api.zia-session.md (ZIA legacy API sessions: API key obfuscation, JSESSIONID and the cloud service API key)

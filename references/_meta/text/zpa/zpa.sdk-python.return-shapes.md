@@ -22,3 +22,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-python.response-shape.md (What the Python SDK returns: result, response and error, and why try/except misses API errors)
 - links-to references/_meta/text/zpa/zpa.api.app-segments-wire.md (Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds)
 - links-to references/_meta/text/zpa/zpa.sdk-python.error-handling.md (Where ZPA Python SDK wrappers raise and where they return errors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.sdk-python.lss-helpers.md (Python SDK Log Streaming helpers: client types, log formats and status codes)
+- see-also references/_meta/text/zia/zia.sdk-python.client-errors-and-accessors.md (Python SDK errors, accessors and misspelled names on the ZIA client)

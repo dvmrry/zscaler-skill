@@ -56,3 +56,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zdx/zdx.probes.md (ZDX probes: Web and Cloud Path probes, what they measure and how they run): The MCP start tool tells callers to resolve `app_id`, `web_probe_id` and `cloudpath_probe_id` with `zdx_list_applications`, `zdx_get_web_probes` and `zdx_list_cloudpath_probes` first, and the Go SDK's start example asks for the device, application, web probe and cloud-path probe IDs in that order before calling `CreateDeepTraceSession`. [zdx.diagnostics.start-request:read-chain]
 - links-to references/_meta/text/zdx/zdx.diagnostics.session-records.md (Reading and deleting a deep trace through the API: the session record and its keys)
 - links-to references/_meta/text/zdx/zdx.sdk-go.service-defects.md (Go SDK ZDX services: where the structs and functions disagree with the contract)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.diagnostics.md (ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered)
+- see-also references/_meta/text/zdx/zdx.diagnostics.mcp-tools.md (The MCP server's ZDX deep-trace tools and troubleshooting prompt: inputs, results and mismatches)

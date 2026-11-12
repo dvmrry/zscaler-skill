@@ -36,3 +36,7 @@ Area: cloud-connector.gcp, its subjects in references/_meta/spine/cloud-connecto
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.api.provisioning-wire.md (Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields), from cloud-connector.gcp: The cloud provisioning URL is a prerequisite for deploying Cloud Connector as a VM in AWS, Azure and GCP, and is obtained by configuring a provisioning template; the same URL can be used multiple times. [cloud-connector.api.provisioning-wire:url-prerequisite]
 - links-to references/_meta/text/cloud-connector/cloud-connector.gcp.md (Cloud Connector on GCP: deployment, service accounts and network shape)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.troubleshooting.md (Troubleshooting Cloud Connector on GCP: not registering, inactive, routing by network tags, private apps and IP forwarding)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.terraform-modules.md (Zscaler's GCP Terraform package for Cloud Connector: image, NICs, Pub/Sub Editor, FIPS and zsec defects)

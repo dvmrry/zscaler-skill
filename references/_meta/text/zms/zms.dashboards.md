@@ -22,3 +22,7 @@ Area: zms.dashboards, its subjects in references/_meta/spine/zms/zms.dashboards.
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.analytics.md (What the Microsegmentation Data Explorer log pages list: flow logs, aggregations, connection status, telemetry and events)
 - links-to references/_meta/text/zms/zms.policy-recommendations.md (How Microsegmentation flow-based policy recommendations are generated, organized and accepted)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/zms/zms.agents.md (How Microsegmentation agents are installed, edited, deleted and protected against tampering)

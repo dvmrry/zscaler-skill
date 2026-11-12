@@ -24,3 +24,7 @@ Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.api.app-segments-wire.md (Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds)
 - links-to references/_meta/text/zpa/zpa.app-segments.sdk-behavior.md (What the Python and Go SDKs send for application segments)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.browser-access.tooling.md (Writing Browser Access segments: Python SDK, MCP server, Go SDK and Terraform)
+- see-also references/_meta/text/zpa/zpa.app-segments.api-fields.md (Application segment fields in the API and SDK models)

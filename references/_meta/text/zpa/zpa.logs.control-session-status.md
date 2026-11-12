@@ -64,3 +64,10 @@ Area: zpa.logs, its subjects in references/_meta/spine/zpa/zpa.logs.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.diagnostics.md (ZPA Live Logs and Private Diagnostics: views, time ranges, retention, filters and export)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.logs.app-connector-metrics.md (What the ZPA App Connector Metrics log reports and what it leaves open)
+- see-also references/_meta/text/zpa/zpa.logs.service-edge-metrics.md (Private Service Edge and Private Cloud Controller Metrics logs)
+- see-also references/_meta/text/zpa/zpa.logs.user-status.md (What a ZPA User Status log record says and does not say)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.md (Private Cloud Controllers and Private Clouds as the Business Continuity layer)

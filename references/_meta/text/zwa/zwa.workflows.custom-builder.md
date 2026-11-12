@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting), from zwa.workflows: After configuring a predefined or custom workflow, the admin must map it to one or more incident transaction attributes; the workflow then triggers automatically for incidents with those attributes. [zwa.workflows:mapping-required]
 - links-to references/_meta/text/zwa/zwa.workflows.md (Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover)
 - links-to references/_meta/text/zwa/zwa.workflows.mappings.md (Workflow Automation workflow mappings: statement order, Source DLP types, properties, operations and predicates)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.settings.access.md (Workflow Automation access: roles and permissions, admin assignments, approvers and integration users)

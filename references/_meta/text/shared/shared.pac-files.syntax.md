@@ -43,3 +43,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
 - links-to references/_meta/text/zia/zia.forwarding-control.proxy-ports.md (Dedicated proxy ports)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.pac-files.md (PAC files across Zscaler: where each question is answered)

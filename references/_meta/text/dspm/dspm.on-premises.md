@@ -27,3 +27,9 @@ Area: dspm.on-premises, its subjects in references/_meta/spine/dspm/dspm.on-prem
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/dspm/dspm.service-registration-databases.md (How to register unmanaged databases, Snowflake and Databricks in DSPM, with credentials and the database roles the pages give)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/dspm/dspm.scanning.md (How DSPM scans: onboarding scope, the in-account orchestrator, data stores, authentication, classification and data residency)
+- see-also references/_meta/text/dspm/dspm.action-rules.md (How DSPM action rules apply Microsoft Purview sensitivity labels, and how SaaS tenants (Microsoft 365) are onboarded)
+- see-also references/_meta/text/dspm/dspm.roles.md (Who can do what in DSPM: predefined and custom access roles, their permissions, and business units)

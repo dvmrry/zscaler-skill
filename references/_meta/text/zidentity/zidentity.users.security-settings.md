@@ -23,3 +23,6 @@ Area: zidentity.users, its subjects in references/_meta/spine/zidentity/zidentit
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.admin-rbac.permissions.md (Authentication Service permission modules and levels, and the cross-module dependencies)

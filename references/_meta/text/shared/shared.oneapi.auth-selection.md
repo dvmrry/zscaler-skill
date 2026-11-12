@@ -75,3 +75,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.api.authentication.md (How a client authenticates to the ZPA API: OneAPI, legacy and government clouds)
 - links-to references/_meta/text/zpa/zpa.sdk-python.client-configuration.md (Python SDK settings for ZPA: credentials, tenant ID, microtenant, environment variables and the legacy client)
 - links-to references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.oneapi.troubleshooting.md (Troubleshooting OneAPI and ZIA calls: a 401, a change that is not live, an activation that stays 409, and a 429)

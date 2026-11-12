@@ -23,3 +23,7 @@ Area: portfolio.resilience, its subjects in references/_meta/spine/portfolio/por
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/portfolio/portfolio.business-continuity-cloud.md (Business Continuity Cloud: components, constraints and what is open)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.business-continuity.md (Private Service Edges in the Business Continuity Cloud)
+- see-also references/_meta/text/shared/shared.cloud-architecture.failure-domains.md (What happens when a Zscaler component fails: edges, Central Authority, cloud, feeds, logs)

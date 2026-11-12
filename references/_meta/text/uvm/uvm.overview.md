@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/uvm/uvm.remediation-copilot.md (What Remediation Copilot does in a UVM ticket, what it will not do, and its limits)
 - links-to references/_meta/text/uvm/uvm.severity-sla.md (How UVM calculates severity scores, maps them to severity categories and sets SLAs)
 - links-to references/_meta/text/uvm/uvm.tickets.md (How UVM tickets work: the Tickets page, manual split and merge, automatic grouping rules, status buckets and ticket workflows)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.security-operations.md (Security Operations suite: Exposure Management, Threat Management, Red Canary MDR, managed threat hunting and CTEM)
+- see-also references/_meta/text/aem/aem.overview.md (Asset Exposure Management (AEM): the asset inventory, coverage gaps and policies, and what can be automated)

@@ -44,3 +44,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ad-integration.identity-objects.md (ZIA users, groups and departments: shape and limits)
 - links-to references/_meta/text/zia/zia.scim.groups-and-departments.md (How SCIM groups and departments land in ZIA)
 - links-to references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/users.md (config type)
+- configured-via references/_meta/text/types/zia/groups.md (config type)
+- configured-via references/_meta/text/types/zia/departments.md (config type)
+- see-also references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)

@@ -28,3 +28,6 @@ Area: zwa.aws-dlp-integration, its subjects in references/_meta/spine/zwa/zwa.aw
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.aws-dlp-integration.md (The AWS DLP application integration for Workflow Automation: the two forwarding methods, the three AWS resources, regions, support role and validation)
 - links-to references/_meta/text/zwa/zwa.aws-dlp-integration.cloudformation-parameters.md (The CloudFormation template for the AWS DLP integration: required AWS permissions, parameters, defaults, conditions and stack outputs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.cloud-to-cloud-forwarding.md (Cloud-to-Cloud Incident Forwarding: storage onboarding for AWS, Google Cloud and Azure)

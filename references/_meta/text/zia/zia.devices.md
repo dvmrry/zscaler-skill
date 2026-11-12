@@ -24,3 +24,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.iot.policy-use.md (How IoT traffic is targeted by policy)
 - links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
 - links-to references/_meta/text/zia/zia.traffic-capture.md (Traffic Capture Essentials and Traffic Capture for NDR: storage, rules, limits and obfuscation)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/devices.md (config type)
+- configured-via references/_meta/text/types/zia/device-groups.md (config type)

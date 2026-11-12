@@ -20,3 +20,8 @@ Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubl
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.troubleshooting.error-codes.md (Client Connector error codes: cloud authentication, cloud, Admin Console and Report an Issue)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.md (Client Connector forwarding runbook: the five errors and where each is worked (captive portal and driver error held here))
+- see-also references/_meta/text/zcc/zcc.troubleshooting.service-status-errors.md (Error messages in Client Connector's Service Status field and the action for each)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.forwarding-runbook.connection-error.md (Runbook: Connection Error and Server Down Error, getSmeProxyState values and Tunnel 2.0 logs)

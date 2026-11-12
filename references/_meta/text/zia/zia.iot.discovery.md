@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.cloud-app-control.rule-types.md (Cloud App Control categories (rule types), limits and predefined rules), from zia.iot: Cloud App Control rules apply to IoT devices from a location or sublocation that has Enforce IoT Policy Control enabled, to devices the AI/ML engine identified and classified (for example printers, sensors) under the IoT group in the Device Groups criterion. [zia.iot.policy-use:cac-iot-needs-enforce]
 - scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it): The report is filtered to locations that have IoT discovery enabled, and a location must have IoT enabled on the Location Management page for a report to be generated for it. [zia.iot.discovery:per-location-enable]
 - links-to references/_meta/text/zia/zia.iot.classification.md (How IoT devices are classified: type, category, classification)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)

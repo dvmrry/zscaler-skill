@@ -55,3 +55,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.admin-access.md (Who administers AI Guard: system users and RBAC roles)
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.md (Zscaler's AI Guard integration examples (zguard-ai-integrations): the catalog, the promised fail-closed posture against what each example does, and where each intercepts)
 - links-to references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)

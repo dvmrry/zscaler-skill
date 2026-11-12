@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.probes.md (ZDX probes: Web and Cloud Path probes, what they measure and how they run)
 - links-to references/_meta/text/zdx/zdx.probes.configuration.md (Configuring end-user Web and Cloud Path probes in the console: fields, defaults, limits and protocols)
 - links-to references/_meta/text/zdx/zdx.probes.web-probe-errors.md (Web probe error messages in ZDX: what each reports and what the help suggests)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.probes.cloud-path.md (Reading the Cloud Path: the Hop View and Command Line View, tunnels, protocols, edges, and the error messages)

@@ -63,3 +63,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.log-receivers.formats.md (Log stream format and content templates for a ZPA log receiver)
 - links-to references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
 - links-to references/_meta/text/zpa/zpa.sdk-python.lss-helpers.md (Python SDK Log Streaming helpers: client types, log formats and status codes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.api.md (Managing ZPA log receivers through the API and SDKs)

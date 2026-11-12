@@ -20,3 +20,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.z-tunnel.transport.md (Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up)
 - links-to references/_meta/text/zcc/zcc.z-tunnel.versions.md (Z-Tunnel 1.0 and 2.0: what each carries and how a profile selects one)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.zcc.md (Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.md (ZCC forwarding profiles)

@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/zcc/zcc.z-tunnel.versions.md (Z-Tunnel 1.0 and 2.0: what each carries and how a profile selects one): Z-Tunnel 2.0 carries all ports and protocols, so Firefox traffic reaches Zscaler whether or not Firefox uses the system proxy; certificate trust still depends on Firefox's own store. [zcc.firefox.proxy-and-trust:z-tunnel-2]
 - links-to references/_meta/text/shared/shared.pac-files.md (PAC files across Zscaler: where each question is answered)
 - links-to references/_meta/text/zcc/zcc.ssl-inspection.certificate-install.md (Who installs the SSL inspection certificate on Client Connector devices, per platform)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.zcc.md (Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes)

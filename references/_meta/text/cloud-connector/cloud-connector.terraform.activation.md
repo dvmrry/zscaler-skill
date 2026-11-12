@@ -29,3 +29,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.api.activation-wire.md (Cloud Connector activation on the wire: activate, forced activate, and what the clients send): The ZTC provider's `ztc_activation_status` resource activates in its create function (calling `UpdateActivationStatus`), has no update function, and its delete is a no-op; its three settable arguments are ForceNew, and its fourth, `admin_status_map`, is computed only. [cloud-connector.api.activation-wire:tf-create-only]
 - links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.service-defects.md (Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects)
 - links-to references/_meta/text/shared/shared.activation.cbc.md (Reading Cloud & Branch Connector activation status)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/activation-status.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.terraform.provider-config.md (ZTC Terraform provider configuration: OneAPI or legacy credentials, environment variables, defaults and government clouds)

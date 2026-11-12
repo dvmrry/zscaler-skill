@@ -29,3 +29,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zia/zia.ssl-inspection.rules.md (SSL/TLS inspection rule order, predefined and default rules, limits), from zia.ssl-inspection: SSL/TLS inspection rules are evaluated in ascending numerical order, top-down, and the first match decides. [zia.ssl-inspection.rules:ascending-order]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.ssl-inspection: On inspected HTTPS, URL Filtering therefore evaluates twice: first on the domain, then on the full decrypted request. "SSL inspection happens before URL Filtering" is wrong: the SSL decision sits between the two URL Filtering passes and gates only the second. [zia.ssl-inspection.pipeline:url-filtering-twice]
 - links-to references/_meta/text/zia/zia.ssl-inspection.actions.md (What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/intermediate-ca-certificates.md (config type)
+- see-also references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+- see-also references/_meta/text/zia/zia.ssl-inspection.cipher-suites.md (Which TLS versions and cipher suites SSL/TLS inspection supports, and what happens to the rest)

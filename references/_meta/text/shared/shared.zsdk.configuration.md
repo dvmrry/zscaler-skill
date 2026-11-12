@@ -51,3 +51,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.zsdk.authentication.md (ZSDK token validators, browser token validators and web server certificates)
 - links-to references/_meta/text/shared/shared.zsdk.browser-access.md (ZSDK Browser Access: availability, prerequisites, unsupported features and DNS)
 - links-to references/_meta/text/shared/shared.zsdk.error-codes.md (ZSDK error codes: SDK errors 9001-9505 and ZSDK API errors 2001-2999)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.zsdk.md (Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described)
+- see-also references/_meta/text/shared/shared.zsdk.architecture.md (ZSDK architecture: Service Edges, App Connectors and the mobile client)
+- see-also references/_meta/text/shared/shared.zsdk.limits.md (ZSDK ranges and limitations per organization)
+- see-also references/_meta/text/zpa/zpa.policy.md (ZPA policy evaluation)

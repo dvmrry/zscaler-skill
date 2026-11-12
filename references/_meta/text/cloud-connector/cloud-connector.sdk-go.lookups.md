@@ -22,3 +22,6 @@ Area: cloud-connector.sdk-go, its subjects in references/_meta/spine/cloud-conne
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early): The ZTC (ztw) `ReadAllPages` helper requests `pageSize=1000` on every page and stops at the first page with fewer than 1000 items. [shared.sdk-go.list-pagination:ztw-stops-on-page-shorter-than-1000]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.sdk-go.coverage.md (What the Go SDK's ZTW packages leave out: commented-out functions, uncovered endpoints and activation)

@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.atp.block-diagnosis.md (Diagnosing a Malware Protection or ATP block from the logs)
 - links-to references/_meta/text/zia/zia.atp.botnet.md (ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA)
 - links-to references/_meta/text/zia/zia.atp.categories.md (ATP detection categories and what each toggle covers)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)

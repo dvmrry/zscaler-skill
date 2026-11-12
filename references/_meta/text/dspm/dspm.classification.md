@@ -21,3 +21,7 @@ Area: dspm.classification, its subjects in references/_meta/spine/dspm/dspm.clas
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/dspm/dspm.scanning.md (How DSPM scans: onboarding scope, the in-account orchestrator, data stores, authentication, classification and data residency)
 - links-to references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/dspm/dspm.inventory.md (What the DSPM Resource, Data and Identity Inventory pages show, and how posture states and risk are defined)

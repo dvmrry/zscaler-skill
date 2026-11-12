@@ -26,3 +26,8 @@ Not known (open gaps):
 - Which time frames the Dashboard, Findings, Events and Threat Landscape selectors allow, and how far back data goes [gap:breach-predictor.dashboard:time-frame-values]: settled by source-read or lab-test
 
 Area: breach-predictor.dashboard, its subjects in references/_meta/spine/breach-predictor/breach-predictor.dashboard.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/breach-predictor/breach-predictor.overview.md (Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with)
+- see-also references/_meta/text/breach-predictor/breach-predictor.portal.md (Breach Predictor portal: licensing, ZIA prerequisite, sign-in, profile and theme)
+- see-also references/_meta/text/breach-predictor/breach-predictor.findings.md (Breach Predictor Findings: the MITRE ATT&CK Mapping page, the Threat page, severity scores and attack stages)

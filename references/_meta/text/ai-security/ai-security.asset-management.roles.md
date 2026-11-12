@@ -18,3 +18,7 @@ Area: ai-security.asset-management, its subjects in references/_meta/spine/ai-se
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.cloud-accounts.md (How are onboarded AWS, Azure and GCP accounts managed in AI Security: the Cloud Accounts page, validation, status, issues, deletion, orchestrator changes and the orchestrator itself?)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.asset-management.scan-rules.md (How AI Asset Management scan rules, scan scopes, scan types and schedules work, and which systems support vulnerability scanning)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.integrations.md (How AI Asset Management external integrations work: Amazon S3, Azure Blob Storage, Amazon Security Lake, ServiceNow and Jira)

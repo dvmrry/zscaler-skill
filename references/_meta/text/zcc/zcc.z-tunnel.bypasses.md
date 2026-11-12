@@ -48,3 +48,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/shared/shared.z-tunnel.md (Z-Tunnel 1.0 and 2.0: where each question is answered), from zcc.z-tunnel: The NSS web and firewall log formats both carry `ztunnelversion`, the Z-Tunnel version of Client Connector traffic, with ZTUNNEL_1_0 as the documented example value. [shared.z-tunnel:log-field]
 - depends-on references/_meta/text/zcc/zcc.z-tunnel.versions.md (Z-Tunnel 1.0 and 2.0: what each carries and how a profile selects one): These IP bypasses and inclusions need a forwarding profile with Z-Tunnel 2.0 selected, and apply to Z-Tunnel 1.0 only when a device configured for Z-Tunnel 2.0 is falling back to 1.0. [zcc.z-tunnel.bypasses:bypass-scope]
 - links-to references/_meta/text/zia/zia.url-categories.entry-matching.md (How URL category entries match requests (wildcards))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)
+- see-also references/_meta/text/zcc/zcc.z-tunnel.deployment.md (Rolling out Z-Tunnel 2.0 and migrating from 1.0)

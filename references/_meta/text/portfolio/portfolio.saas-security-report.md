@@ -42,3 +42,8 @@ Area: portfolio.saas-security-report, its subjects in references/_meta/spine/por
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.analytics.graphql.md (The Analytics (Z-Insights) GraphQL API: endpoint, access and scope)
 - links-to references/_meta/text/zia/zia.cloud-app-control.risk-profiles.md (Cloud Application Risk Profiles in Cloud App Control)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.casb.md (CASB: ZIA inline controls plus out-of-band SaaS security, not one product)
+- see-also references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)

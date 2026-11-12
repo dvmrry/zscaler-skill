@@ -31,3 +31,8 @@ Not known (open gaps):
 - Throttling units, email recipient limits and rule-count limits [gap:risk360.alerts:throttling-limits]: settled by source-read or lab-test
 
 Area: risk360.alerts, its subjects in references/_meta/spine/risk360/risk360.alerts.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/risk360/risk360.overview.md (Risk360: what it measures, which data it uses, how long it keeps logs, and what can be automated)
+- see-also references/_meta/text/risk360/risk360.scoring.md (How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates)
+- see-also references/_meta/text/risk360/risk360.administration.md (Risk360 administration: Seeds Management domains, admin roles and permissions, audit logs and the Score Change Log)

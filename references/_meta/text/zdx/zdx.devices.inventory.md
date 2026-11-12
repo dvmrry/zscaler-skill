@@ -21,3 +21,7 @@ Not known (open gaps):
 - The minimum Client Connector and ZDX Module versions the inventory views need [gap:zdx.devices.inventory:minimum-versions]: settled by source-read. Blocks: explaining why a device does not appear in an inventory view
 
 Area: zdx.devices, its subjects in references/_meta/spine/zdx/zdx.devices.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
+- see-also references/_meta/text/zdx/zdx.devices.health-score.md (The Device Health Score and the hardware and usage profiles of the Devices Overview)

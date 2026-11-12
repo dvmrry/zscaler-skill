@@ -14,3 +14,8 @@ Sources disagree (name both sides):
   Impact: The hybrid configuration is a stated workaround for a UDP-throttling ISP, not the recommended setting; which applies to a given user depends on whether UDP throttling was confirmed.
 
 Area: zcc.troubleshooting, its subjects in references/_meta/spine/zcc/zcc.troubleshooting.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.z-tunnel.bypasses.md (Bypasses for Z-Tunnel 2.0: VPN gateway bypasses, destination exclusions and inclusions, domain bypasses)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.performance-runbook.md (How the Client Connector performance troubleshooting runbook classifies slowness by pattern and routes it to its pages)
+- see-also references/_meta/text/zcc/zcc.z-tunnel.transport.md (Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up)

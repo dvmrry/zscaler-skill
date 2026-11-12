@@ -39,3 +39,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zia-obfuscation.md (Who sees real user names, device information and Gen AI prompts in ZIA: role obfuscation and auditors)
 - links-to references/_meta/text/shared/shared.audit-logs.md (Admin audit logs across Zscaler products: what exists and how to get it)
 - links-to references/_meta/text/unified/unified.audit-logs.md (Experience Center and Role Management audit logs: what is recorded, categories, actions, record fields, lockout, retention, search and export)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.md (Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled)
+- see-also references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
+- see-also references/_meta/text/zidentity/zidentity.admin-rbac.md (Authentication Service admin roles: predefined and custom roles, and how they relate to product roles)
+- see-also references/_meta/text/unified/unified.adaptive-access.md (Adaptive Access Engine: what it is, prerequisites, profiles, signal history and overrides)
+- see-also references/_meta/text/unified/unified.overview.md (Zscaler Experience Center: the unified admin console, what it consolidates, and how it is automated)

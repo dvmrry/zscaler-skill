@@ -24,3 +24,7 @@ Area: shared.deployments, its subjects in references/_meta/spine/shared/shared.d
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.deployments.zpa.disaster-recovery.md (What the ZPA disaster recovery deployment and operations guide requires, leaves unsupported and how activation is detected)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.disaster-recovery.md (Disaster recovery mode and Private Service Edge groups)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.disaster-recovery.dns-records.md (Disaster recovery activation TXT records and the Zscaler DNS Record Generator)

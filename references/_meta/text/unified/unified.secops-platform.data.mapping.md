@@ -22,3 +22,9 @@ Not known (open gaps):
 - Which Python modules a mapping script may import [gap:unified.secops-platform.data.mapping:map-script-modules]: settled by source-read or lab-test
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.mapping-copilot.md (Mapping Copilot: the AI-powered mapping assistant, its prerequisites, supported entities, limits and privacy terms)
+- see-also references/_meta/text/unified/unified.secops-platform.data.unification.md (Entity and field unification in the Agentic SecOps Platform: merge rules, field rule sets, reconciliation defaults and precedence over grouping and incident rules)
+- see-also references/_meta/text/uvm/uvm.anysource.md (Feeding UVM with AnySource: retrieval methods, file structure and the fields to include)

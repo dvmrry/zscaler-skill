@@ -30,3 +30,8 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.data-source-lookups.md (How some ZIA Terraform data sources look things up)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.terraform.rule-resources.md (Constraints shared by ZIA Terraform rule resources: order and predefined rules)
+- see-also references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+- see-also references/_meta/text/zia/zia.firewall.ips.md (IPS Control)

@@ -17,3 +17,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.service-edge-groups.md (Trusted networks on ZPA Private Service Edge groups)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.zcc-relationship.md (Trusted networks in ZPA and in Client Connector)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.machine-tunnels.md (ZPA machine tunnels)

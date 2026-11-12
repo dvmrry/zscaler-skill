@@ -50,3 +50,9 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.virtual-service-edge.platforms.md (Where a Virtual Service Edge runs and which platforms can cluster), from zia.virtual-service-edge: Virtual Service Edges are supported on VMware ESX/ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V and Google Cloud Platform. [zia.virtual-service-edge.platforms:supported-platforms]
 - links-to references/_meta/text/zia/zia.virtual-service-edge.bring-up.md (The Virtual Service Edge install sequence on the VM: image, certificate, network, build and verification)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.reference-modules.md (Reference Terraform modules for Virtual Service Edges on AWS and Azure)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.sizing.md (How much a Virtual Service Edge VM can do)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.network-requirements.md (Addresses, interfaces, outbound connectivity and ports for a Virtual Service Edge)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.load-balancing.md (How a Virtual Service Edge cluster spreads and returns traffic)

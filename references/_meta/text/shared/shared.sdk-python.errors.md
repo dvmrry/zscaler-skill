@@ -11,3 +11,6 @@ What to check:
 1. That the caller checks the error element of the returned tuple, unless the client was built with raiseException.
 
 Area: shared.sdk-python, its subjects in references/_meta/spine/shared/shared.sdk-python.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-python.retries.md (How the Python SDK retries: budget, statuses, waits, re-authentication)

@@ -23,3 +23,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.notification-templates.md (DLP notification templates: auditor email subject, macros, attachments and TLS)
 - links-to references/_meta/text/zia/zia.dlp.rules.md (Web DLP policy rules: order, criteria and actions)
 - links-to references/_meta/text/zia/zia.eun.client-connector.md (Client Connector-based end user notifications from the ZIA side: prerequisites, channels, details, shared settings and languages)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.eun.md (ZIA end user notifications: browser templates, browser appearance and the Client Connector-based route)
+- see-also references/_meta/text/zia/zia.insights.logs.md (ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns)

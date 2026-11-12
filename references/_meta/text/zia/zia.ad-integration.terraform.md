@@ -21,3 +21,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.authentication.exemptions.md (Destinations that skip authentication)
 - links-to references/_meta/text/zia/zia.authentication.settings.md (The organization-wide authentication settings object)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.ad-integration.md (How users, groups and departments get into ZIA)

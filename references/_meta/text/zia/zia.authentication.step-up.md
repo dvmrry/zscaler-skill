@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zidentity/zidentity.step-up.levels.md (Authentication levels: the level tree, validity periods, acr mapping and the message to users): Step-up authentication prompts a user to reauthenticate with a higher assurance level (for example, using MFA) when accessing specific resources. It is configured with authentication levels that are hierarchical: higher levels are stronger, and a user authenticated at a higher level satisfies policies requiring a sub-level. The levels are mapped to access policies in supported Zscaler services. [zia.authentication.step-up:what-it-is]
 - links-to references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)
 - links-to references/_meta/text/zidentity/zidentity.step-up.md (Step-up authentication: when Authentication Service asks for a stronger login, and why a prompt may not appear)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.authentication.frequency.md (Authentication frequency and cookie lifetime)

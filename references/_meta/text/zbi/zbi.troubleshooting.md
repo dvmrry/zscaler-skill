@@ -18,3 +18,6 @@ Area: zbi.troubleshooting, its subjects in references/_meta/spine/zbi/zbi.troubl
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zbi/zbi.isolation-profiles.md (Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.cloud-browser.md (How Cloud Browser isolates a page: remote browser, traffic flow, containers and the idle timeout)

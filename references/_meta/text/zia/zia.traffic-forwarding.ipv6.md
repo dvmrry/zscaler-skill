@@ -48,3 +48,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.ipv6-prefixes.md (NAT64 and DNS64 prefixes: custom prefixes, selection order and limits)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.verification.md (ip.zscaler.com and the vendor's causes when traffic does not land on the nearest Public Service Edge)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.forwarding.md (Sending traffic to a Virtual Service Edge: GRE, PAC, L2 redirect, home users and Kerberos host names)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)

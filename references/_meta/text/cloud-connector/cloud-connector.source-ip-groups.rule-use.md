@@ -46,3 +46,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.methods.md (Cloud Connector forwarding methods: ZIA, ZPA, Direct, Drop, Local, and their API tokens)
 - links-to references/_meta/text/cloud-connector/cloud-connector.source-ip-groups.md (Cloud Connector source IP groups: what they are and what is unknown about them)
 - links-to references/_meta/text/cloud-connector/cloud-connector.terraform.activation.md (Activating ZTC changes from Terraform: the activation resource and the ztcActivator CLI)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)
+- configured-via references/_meta/text/types/ztw/traffic-dns-rules.md (config type)
+- see-also references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many)

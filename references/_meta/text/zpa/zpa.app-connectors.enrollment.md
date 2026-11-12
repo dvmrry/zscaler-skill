@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.certificates.enrollment.md (Enrollment (CA) certificates in Private Access)
 - links-to references/_meta/text/zpa/zpa.software-components.oauth-enrollment.md (OAuth 2.0 enrollment for ZPA software components and its troubleshooting)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.deployment.md (App Connector deployment, redundancy and limits)
+- see-also references/_meta/text/zpa/zpa.app-connectors.platforms.md (App Connector deployment by VM and cloud platform)

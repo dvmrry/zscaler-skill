@@ -31,3 +31,9 @@ Area: zidentity.attributes, its subjects in references/_meta/spine/zidentity/zid
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.overview.external-idps.configuration.md (Configuring an external IdP in Authentication Service: domains, login ID attribute, OIDC and SAML fields, admin MFA enforcement, signing certificates and IdP-initiated sign-in)
 - links-to references/_meta/text/zidentity/zidentity.users.provisioning.scim.md (The Authentication Service SCIM server: operations, attribute mapping, authentication and rate limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)
+- see-also references/_meta/text/zidentity/zidentity.users.md (Authentication Service users: where they come from, status, bulk actions and admin-side actions)
+- see-also references/_meta/text/zidentity/zidentity.users.provisioning.md (Getting users into and out of Authentication Service: JIT, SCIM, and what IdP removals do to admins)
+- see-also references/_meta/text/zpa/zpa.saml-attributes.md (ZPA SAML attributes)

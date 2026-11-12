@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.firewall: If a web policy allows a transaction but a conflicting firewall policy blocks it, the firewall policy applies: for example, Cloud App Control allowing Box.com does not help when the firewall blocks it. [zia.firewall.traffic-path:firewall-beats-web-allow]
 - logged-in references/_meta/text/types/zia/firewall-log.md (ZIA firewall log (NSS firewall feed)), from zia.firewall: The firewall action field is described as the action the service took on the transaction: Allowed or Blocked. [zia.logs.firewall-records:action-two-values]
 - links-to references/_meta/text/zia/zia.firewall.limits.md (Firewall rule, criteria and group limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
+- see-also references/_meta/text/zia/zia.firewall.destination-groups.md (IP destination groups)

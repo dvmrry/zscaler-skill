@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity): User-, department- or group-level URL filtering rules blocking access to specific sites are not enforced for FTP sites, because FTP does not support cookies. Only rules applied to all users are enforced, so a catch-all URL filtering rule that blocks gambling sites also blocks ftp://ftp.site.com. [zia.ftp-control.scope:url-filtering-only-all-user-rules]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.ftp-control: URL Filtering rules take precedence over the FTP Control policy. [zia.ftp-control.scope:ftp-url-filtering-precedence]
 - links-to references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ftp-control-policy.md (config type)
+- see-also references/_meta/text/zia/zia.ftp-control.md (ZIA FTP Control)

@@ -35,3 +35,9 @@ Not known (open gaps):
 - Where the Fallback to gateway domain setting is configured [gap:zcc.pac-files:fallback-setting-location]: settled by source-read or lab-test
 
 Area: zcc.pac-files, its subjects in references/_meta/spine/zcc/zcc.pac-files.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.forwarding-profiles.internet-actions.md (Forwarding profile actions for Internet & SaaS (ZIA): Tunnel, Tunnel with Local Proxy, Enforce Proxy, None)
+- see-also references/_meta/text/zcc/zcc.z-tunnel.bypasses.md (Bypasses for Z-Tunnel 2.0: VPN gateway bypasses, destination exclusions and inclusions, domain bypasses)
+- see-also references/_meta/text/zcc/zcc.troubleshooting.md (Troubleshooting Client Connector: from symptom to the subject that holds the answer)
+- see-also references/_meta/text/shared/shared.pac-files.md (PAC files across Zscaler: where each question is answered)

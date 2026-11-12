@@ -46,3 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.sdk-go.legacy-client.md (The Go SDK's direct (legacy) ZDX client: credentials, sign-in, retries and limits, and why the ZDX services do not use it)
 - links-to references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
 - links-to references/_meta/text/zdx/zdx.sdk-python.legacy-client.md (The Python SDK's legacy ZDX client: credentials, host and paths, token caching, and what happens when the token expires)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.api.md (The ZDX API from a client's side: hosts, limits, conventions, coverage and wire notes)

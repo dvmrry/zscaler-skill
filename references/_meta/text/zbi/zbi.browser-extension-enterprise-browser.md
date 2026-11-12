@@ -16,3 +16,6 @@ Not known (open gaps):
 - Configuration, platform versions and licensing for Browser Extension and Enterprise Browser [gap:zbi.browser-extension-enterprise-browser:config-and-licensing]: settled by source-read or support-ticket. Blocks: answering what is needed to deploy Browser Extension or Enterprise Browser
 
 Area: zbi.browser-extension-enterprise-browser, its subjects in references/_meta/spine/zbi/zbi.browser-extension-enterprise-browser.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zbi/zbi.cloud-browser.md (How Cloud Browser isolates a page: remote browser, traffic flow, containers and the idle timeout)

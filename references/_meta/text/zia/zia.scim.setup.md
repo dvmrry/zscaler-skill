@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.authentication.settings.md (The organization-wide authentication settings object)
 - links-to references/_meta/text/zia/zia.scim.attribute-mapping.md (ZIA SCIM attribute mapping)
 - links-to references/_meta/text/zia/zia.scim.sdk-coverage.md (What the Go and Python SDKs do for ZIA SCIM)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/auth-settings.md (config type)
+- see-also references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)

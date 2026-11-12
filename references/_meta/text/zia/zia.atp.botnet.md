@@ -39,3 +39,7 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.atp: The web log field ruletype, shown in Web Insights as Blocked Policy Type, gives the type of policy and applies only to Block rules, not Allow. The documented example values are File Type Control, Data Loss Prevention and Sandbox. [zia.atp.block-diagnosis:ruletype-column]
 - links-to references/_meta/text/zia/zia.atp.ai-ml-recategorization.md (ATP AI/ML recategorization: why a URL can start blocking with no policy change)
 - links-to references/_meta/text/zia/zia.atp.categories.md (ATP detection categories and what each toggle covers)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)

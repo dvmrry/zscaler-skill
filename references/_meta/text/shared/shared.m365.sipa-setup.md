@@ -39,3 +39,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.forwarding-control.zpa-gateway.md (The Private Access gateway object in ZIA): The Private Access gateway for the Office 365 segment selects the server group created for it, and a forwarding rule uses the ZPA forwarding method, takes trust criteria such as location and users on its General tab, selects the Office 365 segment on its Destination tab, and selects that gateway under Forward to ZPA Gateway. [shared.m365.sipa-setup:gateway-and-forwarding-rule]
 - scoped-by references/_meta/text/zpa/zpa.server-groups.md (ZPA server groups): The Office 365 application segment needs a segment group and a server group, and the server group must be associated with the configured App Connector group. [shared.m365.sipa-setup:segment-and-server-group]
 - links-to references/_meta/text/shared/shared.m365.troubleshooting.md (Why a Microsoft 365 sign-in is still challenged or blocked with Source IP Anchoring)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.m365.md (Microsoft 365 Conditional Access through Source IP Anchoring)
+- see-also references/_meta/text/zia/zia.forwarding-control.sipa-direct.md (Source IP Anchoring Direct during ZIA disaster recovery)

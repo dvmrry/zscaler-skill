@@ -27,3 +27,7 @@ Area: zdx.cloud-architecture, its subjects in references/_meta/spine/zdx/zdx.clo
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.compatibility.supported-versions.md (Minimum Client Connector and ZDX Module versions per OS and ZDX feature)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.cloud-architecture.md (ZDX cloud architecture: components, the telemetry path and what is undocumented)
+- see-also references/_meta/text/zcc/zcc.interoperability.security-software.md (Allowlisting Client Connector in antivirus and host firewalls: paths, processes, firewall directions and the 100.64 range)

@@ -23,3 +23,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.cloud-app-control.precedence.md (Cloud App Control versus URL Filtering: which applies)
 - links-to references/_meta/text/zia/zia.firewall.predefined-rules.md (Default and predefined Firewall Filtering rules: what each does and what can be changed)
 - links-to references/_meta/text/zia/zia.ssl-inspection.rules.md (SSL/TLS inspection rule order, predefined and default rules, limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)
+- see-also references/_meta/text/zia/zia.advanced-settings.dns-optimization.md (DNS optimization: proxy-side DNS lookup that overrides the client-resolved IP)
+- see-also references/_meta/text/zia/zia.dns-control.predefined-rules.md (Predefined DNS Control rules and the ZPA resolvers)

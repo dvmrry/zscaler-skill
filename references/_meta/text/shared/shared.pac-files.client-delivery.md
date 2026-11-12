@@ -20,3 +20,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.z-tunnel.bypasses.md (Bypasses for Z-Tunnel 2.0: VPN gateway bypasses, destination exclusions and inclusions, domain bypasses), from shared.pac-files: For Z-Tunnel 1.0, network bypasses can go in the app profile PAC file; for Z-Tunnel 2.0 the vendor says not to put them there and to add them as VPN gateway bypasses or destination exclusions. [zcc.z-tunnel.bypasses:pac-not-for-2]
 - links-to references/_meta/text/shared/shared.pac-files.hosting.md (Hosted PAC files: the console page, Obfuscate URL, limits and how changes reach clients)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.pac-files.md (PAC files across Zscaler: where each question is answered)

@@ -28,3 +28,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity), from zia.ad-integration: Enforcing policy by department, group and user, and reporting by user, requires users, groups and departments to be provisioned into the Zscaler database first and authentication to be enabled. With authentication disabled at a known location the service does not know who the users are and applies the location's policies. [zia.ad-integration:identity-needed]
 - interacts-with references/_meta/text/zia/zia.scim.setup.md (Enabling ZIA SCIM: prerequisites, base URL and token), from zia.ad-integration: SCIM provisioning is not supported with Active Directory or OpenLDAP user repositories. To migrate from directory synchronization, enable Disable Directory Sync and Enable SCIM Provisioning on the Authentication Default Settings page. [zia.scim.setup:not-with-directory]
 - links-to references/_meta/text/zia/zia.ad-integration.provisioning-methods.md (ZIA provisioning methods and which authentication each allows)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.ad-integration.md (How users, groups and departments get into ZIA)
+- see-also references/_meta/text/zia/zia.ad-integration.hosted-user-database.md (Hosted User Database: adding users by hand, importing users, groups and departments by CSV, and one-time tokens and links)

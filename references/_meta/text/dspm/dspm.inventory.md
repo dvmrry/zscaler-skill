@@ -47,3 +47,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/dspm/dspm.scan-rules.md (How DSPM scan rules are configured per resource type, how scans are run and stopped, and how scan scopes select DLP engines)
 - links-to references/_meta/text/dspm/dspm.scanning.md (How DSPM scans: onboarding scope, the in-account orchestrator, data stores, authentication, classification and data residency)
 - links-to references/_meta/text/zia/zia.dlp.mip-labels.md (Microsoft Information Protection (MIP) accounts and label retrieval)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/dspm/dspm.investigation.md (DSPM investigation queries (predicates, results, saving) and the Data Discovery, AI Data Access and SaaS Overview dashboards)
+- see-also references/_meta/text/dspm/dspm.classification.md (DSPM Data Classification Settings: synced DLP engines, the sensitivity setting and document categories)

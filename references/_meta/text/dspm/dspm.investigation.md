@@ -27,3 +27,9 @@ Area: dspm.investigation, its subjects in references/_meta/spine/dspm/dspm.inves
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/dspm/dspm.inventory.md (What the DSPM Resource, Data and Identity Inventory pages show, and how posture states and risk are defined)
 - links-to references/_meta/text/dspm/dspm.policies.md (How DSPM data posture policies work: threat categories, custom policy queries, managing policies, and the compliance frameworks that map to them)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- see-also references/_meta/text/dspm/dspm.graphs.md (DSPM Risk Explorer graphs: supported data stores, attack paths, public exposure and user access paths)
+- see-also references/_meta/text/dspm/dspm.classification.md (DSPM Data Classification Settings: synced DLP engines, the sensitivity setting and document categories)
+- see-also references/_meta/text/dspm/dspm.alerts.md (How DSPM alerts work: risk level, statuses, snooze and resolve, alert details, and the alert rules and ignore alert filters that act on them)

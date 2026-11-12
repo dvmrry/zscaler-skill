@@ -34,3 +34,7 @@ Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.reports.executive.md (Executive Insights, company summary (CIO, CSO), QBR, Industry Peer Comparison and CIPA Compliance reports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- see-also references/_meta/text/zia/zia.troubleshooting.md (Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support)

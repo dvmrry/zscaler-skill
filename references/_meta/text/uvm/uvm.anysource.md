@@ -25,3 +25,6 @@ Area: uvm.anysource, its subjects in references/_meta/spine/uvm/uvm.anysource.js
 
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API): A generic AnySource connector can upload or extract files from data storage platforms such as GCP and AWS S3. [portfolio.secops-platform:anysource]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)

@@ -26,3 +26,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)
 - links-to references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
 - links-to references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)
+- see-also references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path)
+- see-also references/_meta/text/shared/shared.deployments.zia.policy-controls.md (What the ZIA deployment and operations guides say about authentication, bandwidth, Cloud App Control, URL filtering, DNS, firewall, IPS and Isolation)

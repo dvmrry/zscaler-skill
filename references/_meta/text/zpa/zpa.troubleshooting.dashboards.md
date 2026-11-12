@@ -30,3 +30,7 @@ Area: zpa.troubleshooting, its subjects in references/_meta/spine/zpa/zpa.troubl
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.component-dashboards.md (App Connector, Private Service Edge and Private Cloud Controller dashboards)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)
+- see-also references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)

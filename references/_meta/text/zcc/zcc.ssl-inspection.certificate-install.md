@@ -40,3 +40,9 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zia/zia.ssl-inspection.actions.md (What an SSL/TLS inspection action does: Inspect, Do Not Inspect, Block and their settings), from zcc.ssl-inspection: A ZIA log without decrypted detail and the site's own certificate mean the transaction was not decrypted: a Do Not Inspect rule or exemption matched, or inspection is not enabled for that platform. [zcc.ssl-inspection:diag-do-not-inspect]
 - decided-by references/_meta/text/zia/zia.ssl-inspection.exemptions.md (Writing SSL/TLS inspection exemptions without exempting too much), from zcc.ssl-inspection: SSL exemptions configured in the Admin Console also apply to traffic Client Connector forwards. [zcc.ssl-inspection:exemptions-apply]
 - links-to references/_meta/text/zcc/zcc.api.web-policy-wire.md (What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
+- see-also references/_meta/text/zcc/zcc.ssl-inspection.md (SSL inspection for Client Connector users: what Client Connector does and what ZIA does)
+- see-also references/_meta/text/zcc/zcc.firefox.proxy-and-trust.md (Firefox traffic and certificate trust with and without the integration)
+- see-also references/_meta/text/zcc/zcc.install.macos-deployment.md (Deploying Client Connector on macOS: the package, the preference domain, updates and removal)

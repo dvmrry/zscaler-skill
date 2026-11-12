@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.api-clients.secrets.md (ZIdentity API client secrets: creation, expiry, the two-secret limit, rotation and masked reads)
 - links-to references/_meta/text/zidentity/zidentity.api.pagination.md (Paging ZIdentity lists: offset and limit, the list envelope, and how each SDK walks pages)
 - links-to references/_meta/text/zidentity/zidentity.api.query-filters.md (ZIdentity list filters on the wire: key spelling, [like] matching and list values)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.api.client-coverage.md (Which clients cover which parts of the ZIdentity API: Python, Go and the MCP server)
+- see-also references/_meta/text/zidentity/zidentity.sdk-python.md (Python SDK for ZIdentity (client.zid): where its models and keys depart from the API)

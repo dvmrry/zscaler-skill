@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges), from zpa.public-service-edges: A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge. [zpa.private-service-edges.what-it-is:coexists-with-public]
 - links-to references/_meta/text/zpa/zpa.private-service-edges.data-path.md (Tunnels, certificates and firewall requirements on the Private Service Edge path)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.deployment.md (Private Service Edge platforms, host OS maintenance, capacity and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.public-service-edges.md (ZPA Public Service Edges)
+- see-also references/_meta/text/zia/zia.private-service-edge.what-it-is.md (What a ZIA Private Service Edge is, who runs it, and what it is not)

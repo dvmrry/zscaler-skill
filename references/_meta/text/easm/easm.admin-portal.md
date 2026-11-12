@@ -35,3 +35,9 @@ Not known (open gaps):
 - Whether any report content shows a business or financial impact figure [gap:easm.admin-portal:report-impact-calculation]: settled by source-read or tenant-data
 
 Area: easm.admin-portal, its subjects in references/_meta/spine/easm/easm.admin-portal.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/easm/easm.overview.md (Zscaler EASM: what it is, how it is set up, and where each part is documented)
+- see-also references/_meta/text/easm/easm.discovery.md (EASM organizations, seeds and discovery profiles: defaults, permissions, disable and delete, and scan cadence)
+- see-also references/_meta/text/easm/easm.jira-integration.md (EASM Jira integration: personal access token, connection, ticket fields and synchronization limits)
+- see-also references/_meta/text/zidentity/zidentity.overview.md (What ZIdentity (Authentication Service) is, and where each part of it is covered)

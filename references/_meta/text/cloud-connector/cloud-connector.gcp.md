@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.gcp.terraform-modules.md (Zscaler's GCP Terraform package for Cloud Connector: image, NICs, Pub/Sub Editor, FIPS and zsec defects)
 - links-to references/_meta/text/cloud-connector/cloud-connector.gcp.troubleshooting.md (Troubleshooting Cloud Connector on GCP: not registering, inactive, routing by network tags, private apps and IP forwarding)
 - links-to references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.mig-autoscaling.md (Cloud Connector on GCP: MIG autoscaling, Health Monitor and Resource Sync)
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.workload-discovery.md (Cloud Connector on GCP: workload discovery service)
+- see-also references/_meta/text/cloud-connector/cloud-connector.azure.md (Cloud Connector on Azure: deployment methods, prerequisites and provisioning)

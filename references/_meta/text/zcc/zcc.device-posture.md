@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.device-posture.platform-support.md (Which device posture types each platform supports)
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.posture.md (Device posture on the ZPA machine tunnel)
 - links-to references/_meta/text/zpa/zpa.posture-profiles.object-model.md (The ZPA posture profile object and where it comes from)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zcc/zcc.api.v2-wire.md (The ZCC v2 API: RESTful paths, offset paging and the list envelope)
+- see-also references/_meta/text/zpa/zpa.posture-profiles.md (ZPA posture profiles)

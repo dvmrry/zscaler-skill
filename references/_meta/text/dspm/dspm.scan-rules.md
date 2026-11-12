@@ -55,3 +55,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/dspm/dspm.onboarding-aws-cloudtrail.md (How DSPM uses AWS CloudTrail and data events for incremental scans, and what changes when CloudTrail details are reset)
 - links-to references/_meta/text/dspm/dspm.vulnerability-scanning.md (What DSPM vulnerability scanning supports: virtual machine platforms, operating systems, file systems, libraries, encryption and regions)
 - links-to references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)

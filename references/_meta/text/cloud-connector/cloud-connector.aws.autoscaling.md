@@ -49,3 +49,8 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/cloud-connector/cloud-connector.aws.traffic-steering.md (Cloud Connector on AWS: steering workload traffic by route table, ENI or GWLB endpoint), from cloud-connector.aws: The workload route is a 0.0.0.0/0 destination whose target is, for non-GWLB deployments, the network interface of the Cloud Connector service interface and, for GWLB deployments, the Gateway Load Balancer endpoint. [cloud-connector.aws.traffic-steering:route-targets]
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.autoscaling.health.md (Cloud Connector autoscaling health: custom health metric, the Zscaler Lambda, grace period)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.autoscaling.lifecycle.md (Cloud Connector autoscaling lifecycle: launch and terminate hooks, warm pools)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.aws.reference-modules.md (Zscaler's Terraform modules for Cloud Connector on AWS: examples, defaults, FIPS, Transit Gateway)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.gwlb.md (Cloud Connector behind AWS Gateway Load Balancer: target group, health probe, stickiness, cross-zone)

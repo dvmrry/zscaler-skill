@@ -23,3 +23,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
 - logged-in references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say): The User Activity log's timing fields include AppLearnTime (App Connectors learning about the application and reporting to the central authority), CAProcessingTime (processing in the central authority), ConnectorZENSetupTime (setting up the connection between the App Connector and Public Service Edge), ConnectionSetupTime (the App Connector processing a notification from the App Connector selection microservice and setting up the connection to the application server) and ServerSetupTime (setting up the connection at the server). [zpa.troubleshooting.log-fields:timing-fields]
 - links-to references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)

@@ -76,3 +76,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.delete-detach.md (How the ZIA Terraform provider detaches references before deleting objects)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/nat-control-rules.md (config type)
+- configured-via references/_meta/text/types/zia/ips-policies.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.firewall-resources.md (Terraform firewall, DNS and IPS resources: EUN fields, DNS categories, custom signatures)

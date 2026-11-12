@@ -78,3 +78,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.appprotection.api-surface.md (AppProtection through the API and the Python SDK: versions, Active Directory controls, attach and detach)
 - links-to references/_meta/text/zpa/zpa.appprotection.naming.md (AppProtection and the older Inspection names)
 - links-to references/_meta/text/zpa/zpa.appprotection.profiles.md (AppProtection profiles: control selection, paranoia level, actions and the default profile)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.microtenants.isolation.md (What a Microtenant isolates)

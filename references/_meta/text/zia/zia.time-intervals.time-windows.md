@@ -35,3 +35,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match), from zia.time-intervals: An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule. [zia.time-intervals.evaluation:falls-through]
 - links-to references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many)
 - links-to references/_meta/text/zia/zia.time-intervals.schema.md (Time interval fields: days, minutes and the single window)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/time-windows.md (config type)
+- configured-via references/_meta/text/types/zia/time-intervals.md (config type)
+- see-also references/_meta/text/zia/zia.time-intervals.api-surface.md (Time interval API operations, updates and activation)

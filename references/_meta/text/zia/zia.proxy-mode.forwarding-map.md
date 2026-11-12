@@ -37,3 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.proxy-mode.explicit.md (Explicit proxy mode: CONNECT and the PAC file)
 - links-to references/_meta/text/zia/zia.proxy-mode.transparent.md (Transparent proxy mode: how the host is found from SNI or certificate)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.proxy-chaining.md (Proxy chaining to ZIA: setup, XFF handling and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent)

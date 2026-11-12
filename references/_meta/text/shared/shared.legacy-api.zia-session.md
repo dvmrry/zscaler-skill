@@ -41,3 +41,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.oneapi.write-practices.md (Writing through OneAPI: fetch before update, activation, edit locks)
 - links-to references/_meta/text/zia/zia.sandbox.submission.md (Submitting files to Sandbox and out-of-band inspection (Discan))
 - links-to references/_meta/text/zia/zia.sdk-python.activation-and-session.md (When the Python SDK ends a ZIA session and what that does to staged changes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.legacy-api.zia-oauth.md (ZIA legacy OAuth 2.0 through an external identity provider)
+- see-also references/_meta/text/shared/shared.legacy-api.zia-errors-and-limits.md (ZIA legacy API status codes and per-endpoint rate limits)

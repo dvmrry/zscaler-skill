@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.private-service-edge.ip-requirements.md (Addresses, NAT, IPv6 and ports a Private Service Edge needs)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.api-surface.md (The vZEN API: Virtual Service Edge clusters and nodes)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.forwarding.md (Sending traffic to a Virtual Service Edge: GRE, PAC, L2 redirect, home users and Kerberos host names)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

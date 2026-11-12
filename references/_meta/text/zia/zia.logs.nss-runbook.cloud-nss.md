@@ -22,3 +22,12 @@ Sources disagree (name both sides):
   Impact: A 400 is both a parsing indicator and a non-2XX connectivity-issue response. Do not tell an admin a 400 is only parsing, or only connectivity; check the SIEM side.
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.log-integrity.md (NSS runbook: duplicate logs, missing log fields and SIEM-side checks)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.corner-cases.md (NSS runbook corner cases: private and multi-cluster Nanolog, SIEM rate, explicit proxy, log replay, password reset and third-party software)
+- see-also references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+- see-also references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+- see-also references/_meta/text/shared/shared.nss.feed-settings.md (NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS)
+- see-also references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)

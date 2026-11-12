@@ -55,3 +55,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.sandbox: A BENIGN Sandbox verdict covers only Sandbox. A file Sandbox cleared can still be blocked by Malware Protection, ATP or File Type Control, and URL Filtering can block before Sandbox is reached. The source's first suspects for a block under a BENIGN verdict are Malware Protection and ATP. [zia.sandbox.verdicts:benign-not-clean]
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.sandbox: The Blocked Policy Type field in Web Insights logs identifies which security control is responsible for a block: Sandbox, Malware Protection, or Advanced Threat Protection. The log also carries Policy Action and Threat Super Category. [zia.sandbox.verdicts:blocked-policy-type]
 - links-to references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/sandbox-rules.md (config type)
+- see-also references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)

@@ -44,3 +44,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.gcp-dlp-integration.md (The GCP DLP application integration for Workflow Automation: Cloud-to-Cloud only, fields, validation and privacy settings)
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
 - links-to references/_meta/text/zwa/zwa.incidents.notifications.md (User, escalation and digest notifications and reminders as the recipient sees them: contents, link lifetime, privacy gates, quarantine release and policy exceptions)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.settings.md (Workflow Automation account settings: notification expiry, digests and reminders, approver domains, user data source, obfuscation and quarantine release)

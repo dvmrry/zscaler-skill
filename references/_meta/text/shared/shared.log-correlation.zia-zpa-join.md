@@ -42,3 +42,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.log-correlation.zia-feeds.md (Correlating ZIA web, firewall and DNS records for one user or event): The ZIA feeds identify a record by recordid, a unique identifier for each log, while User Activity carries SessionID, the TLS session ID, and ConnectionID, the application connection ID; no field on either side is described as carrying the other product's identifier, so a ZIA-to-ZPA join rests on user, device, application and time fields. [shared.log-correlation.zia-zpa-join:no-shared-key]
 - links-to references/_meta/text/shared/shared.log-correlation.streams.md (Where ZIA, ZPA and Client Connector logs can be read, and for how long)
 - links-to references/_meta/text/zia/zia.forwarding-control.zpa-gateway.md (The Private Access gateway object in ZIA)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.log-correlation.zcc-in-zia.md (Client Connector traffic, devices and bypasses as seen in ZIA logs)

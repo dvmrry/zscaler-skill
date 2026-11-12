@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.pac-files.syntax.md (Writing a PAC file for Zscaler: function, return statements, ports and performance rules)
 - links-to references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity)
 - links-to references/_meta/text/zia/zia.forwarding-control.proxy-ports.md (Dedicated proxy ports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+- see-also references/_meta/text/shared/shared.pac-files.kerberos.md (The Kerberos PAC file: host-name variables, port 8800 and required bypasses)

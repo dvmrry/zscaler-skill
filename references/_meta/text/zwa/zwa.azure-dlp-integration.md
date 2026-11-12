@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.azure-dlp-integration.management.md (Managing DLP Azure integrations in Workflow Automation: statuses, delete, enable and disable, dashboard counts and defaults)
 - links-to references/_meta/text/zwa/zwa.azure-dlp-integration.resources.md (Azure resources for the DLP integration: app registration, permissions, containers, Event Grid, custom role, storage networking and Front Door)
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.incident-forwarding.md (Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud)
+- see-also references/_meta/text/zwa/zwa.aws-dlp-integration.md (The AWS DLP application integration for Workflow Automation: the two forwarding methods, the three AWS resources, regions, support role and validation)

@@ -31,3 +31,7 @@ Area: ai-security.asset-inventory-api, its subjects in references/_meta/spine/ai
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.admin-api.md (The AI Guard configuration API: behavior the contract states, limits and errors, and what the Python SDK covers)
 - links-to references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)

@@ -34,3 +34,10 @@ Not known (open gaps):
 - What the alert status values mean and the weights in the score calculation [gap:identity-protection.alerts:status-and-score]: settled by source-read or lab-test
 
 Area: identity-protection.alerts, its subjects in references/_meta/spine/identity-protection/identity-protection.alerts.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.change-detection.md (Active Directory and Entra ID change detection in Identity Protection: monitored issues, cycle, Impact values and remediation)
+- see-also references/_meta/text/identity-protection/identity-protection.identity-findings.md (The Identity Findings page and finding details drawer in the Identities menu: list columns, widgets, drawer tabs, remediation and safelisting)
+- see-also references/_meta/text/soc-workbench/soc-workbench.alerts.md (Alerts in Agentic SOC: the Alerts page, severity score composition, alert-score factors and severity categories)
+- see-also references/_meta/text/soc-workbench/soc-workbench.incidents.md (Incidents in Agentic SOC: the Incidents page, detail tabs, verdicts, statuses, custom incidents and customization)

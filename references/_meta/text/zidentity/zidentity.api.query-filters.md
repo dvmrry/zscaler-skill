@@ -40,3 +40,8 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.oneapi.authentication.md (How a client gets and uses a OneAPI access token), from zidentity.api: Creating an API client through the API (POST /api-clients) requires a bearer token, as do the contract's other API client, group, resource server and user operations, so the first API client cannot be created through the API and has to come from the Admin Console. [zidentity.api:bearer-on-every-operation]
 - reached-via references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths), from zidentity.api: The ZIdentity contract declares the server https://api.zsapi.net/ziam/admin/api/v1, described as the Authentication Service endpoint. [zidentity.api:contract-server]
 - links-to references/_meta/text/shared/shared.sdk-python.request-handling.md (How the Python SDK builds a request: body and query key casing, ID lists)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.api.pagination.md (Paging ZIdentity lists: offset and limit, the list envelope, and how each SDK walks pages)
+- see-also references/_meta/text/zidentity/zidentity.sdk-python.md (Python SDK for ZIdentity (client.zid): where its models and keys depart from the API)
+- see-also references/_meta/text/zidentity/zidentity.sdk-go.md (Go SDK for ZIdentity (ziam services): name lookups, write models and where its paths depart from the contract)

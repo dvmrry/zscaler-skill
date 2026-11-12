@@ -40,3 +40,11 @@ Not known (open gaps):
 - How long Entity Management Runs history is retained, and the full run-type list [gap:unified.secops-platform.data.model:dm-run-retention]: settled by support-ticket
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.mapping.md (Source mapping in the Agentic SecOps Platform: workspace, value methods, explode, minimum fields, keys, parser types and Explore)
+- see-also references/_meta/text/unified/unified.secops-platform.data.unification.md (Entity and field unification in the Agentic SecOps Platform: merge rules, field rule sets, reconciliation defaults and precedence over grouping and incident rules)
+- see-also references/_meta/text/unified/unified.secops-platform.data.asset-aging.md (Asset aging rules in the Agentic SecOps Platform: inactive assets, aging by time or value, affected entities and rule order)
+- see-also references/_meta/text/uvm/uvm.assets-findings.md (What UVM assets and findings are, what the Assets and Findings pages show, and how on-demand asset scans work)
+- see-also references/_meta/text/uvm/uvm.tickets.md (How UVM tickets work: the Tickets page, manual split and merge, automatic grouping rules, status buckets and ticket workflows)

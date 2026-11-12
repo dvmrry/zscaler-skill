@@ -13,3 +13,8 @@ Not known (open gaps):
 - How the API represents a custom category's operational scope [gap:zia.url-categories.admin-scope:api-scopes-field]: settled by source-read
 
 Area: zia.url-categories, its subjects in references/_meta/spine/zia/zia.url-categories.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to)
+- see-also references/_meta/text/zia/zia.url-categories.entry-format.md (What a URL category entry may contain, and category limits)
+- see-also references/_meta/text/shared/shared.admin-rbac.zia-permissions.md (ZIA admin role permissions: logs limit, dashboard, reporting, insights and alerts access, and the feature categories)

@@ -18,3 +18,7 @@ Area: zwa.incident-analytics, its subjects in references/_meta/spine/zwa/zwa.inc
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.analytics.md (Experience Center Analytics: the dashboard and report families and which subject owns each)
+- see-also references/_meta/text/unified/unified.analytics.data-security.md (Data Security dashboards: channel views (Inline CASB, Inline DLP, SaaS, Endpoint, Email) and sensitive data at rest)

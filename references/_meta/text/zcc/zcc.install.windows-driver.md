@@ -21,3 +21,7 @@ Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
 
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.forwarding-profiles.internet-actions.md (Forwarding profile actions for Internet & SaaS (ZIA): Tunnel, Tunnel with Local Proxy, Enforce Proxy, None): useLWFDriver overrides the Tunnel Driver Type selected in forwarding profiles. [zcc.install.windows-driver:uselwf-overrides]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.precedence.md (Install parameters versus console settings: which wins, and what survives an update)
+- see-also references/_meta/text/zpa/zpa.machine-tunnels.requirements.md (What a ZPA machine tunnel needs before it can connect)

@@ -38,3 +38,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.delete-detach.md (How the ZIA Terraform provider detaches references before deleting objects)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
 - links-to references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/ips-policies.md (config type)
+- configured-via references/_meta/text/types/zia/nat-control-rules.md (config type)
+- see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)

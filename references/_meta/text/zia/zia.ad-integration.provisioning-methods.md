@@ -43,3 +43,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ad-integration.hosted-user-database.md (Hosted User Database: adding users by hand, importing users, groups and departments by CSV, and one-time tokens and links)
 - links-to references/_meta/text/zia/zia.ad-integration.saml-auto-provisioning.md (SAML auto-provisioning: what login creates and overwrites)
 - links-to references/_meta/text/zia/zia.scim.md (ZIA SCIM provisioning)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.ad-integration.md (How users, groups and departments get into ZIA)

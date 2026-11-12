@@ -35,3 +35,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.dictionaries.md (DLP dictionaries: predefined, cloned and custom)
 - links-to references/_meta/text/zia/zia.dlp.endpoint-sensitive-information.md (Endpoint IDM, Endpoint EDM and Share Files Externally)
 - links-to references/_meta/text/zia/zia.dlp.index-tool.md (DLP Index Tool: configuration object, VM requirements and deployment notes for VMware, AWS and Azure, SSO and VM commands)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-idm-profiles.md (config type)
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.exact-data-match.md (Exact Data Match: index templates, data types, primary and secondary fields, dictionary matching and template processing)

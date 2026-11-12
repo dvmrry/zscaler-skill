@@ -27,3 +27,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.notifications.framework.md (The Zscaler Notification Framework: Client Connector's own pop-ups)
 - links-to references/_meta/text/zcc/zcc.notifications.templates.md (Client Connector notification templates: per-profile notification settings)
 - links-to references/_meta/text/zia/zia.eun.md (ZIA end user notifications: browser templates, browser appearance and the Client Connector-based route)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.notifications.md (Client Connector notifications: which surface the user saw)

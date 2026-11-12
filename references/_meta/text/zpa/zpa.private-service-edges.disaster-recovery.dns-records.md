@@ -49,3 +49,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.private-service-edges.logging.md (Private Service Edge logs in the Log Streaming Service), from zpa.private-service-edges: The Log Streaming Service has two Private Service Edge log types: Private Service Edge Status, with source log type zpn_sys_auth_log, and Private Service Edge Metrics, with source log type zpn_pbroker_comprehensive_stats. [zpa.private-service-edges.logging:lss-log-types]
 - interacts-with references/_meta/text/zpa/zpa.public-service-edges.md (ZPA Public Service Edges), from zpa.private-service-edges: A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge. [zpa.private-service-edges.what-it-is:coexists-with-public]
 - links-to references/_meta/text/zcc/zcc.app-profiles.failover.md (App profile failover: disaster recovery, cloud unreachable, captive portals)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)

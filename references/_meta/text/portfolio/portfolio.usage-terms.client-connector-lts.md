@@ -10,3 +10,8 @@ Zscaler identifies one of the supported Client Connector versions per desktop OS
 **Next LTS.** The projected next LTS version is announced at least 6 months before it takes effect, and it is chosen from versions already available to tenants. [portfolio.usage-terms.client-connector-lts:next-lts] The LTS policy states it is effective as of January 31, 2025. [portfolio.usage-terms.client-connector-lts:effective]
 
 Area: portfolio.usage-terms, its subjects in references/_meta/spine/portfolio/portfolio.usage-terms.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.md (Zscaler usage terms: EOS/EOL policy, Client Connector LTS, hardware terms and dated end-of-support notices)
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.eos-eol-policy.md (Zscaler EOS and EOL Policy: SaaS, software and hardware-refresh milestones)
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.client-notices.md (Dated end-of-support notices for Client Connector operating systems and posture features)

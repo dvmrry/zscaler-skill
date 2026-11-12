@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.aws.interfaces.md (Cloud Connector on AWS: network interfaces, device indexes, source/destination check): Help says source/destination checks must be disabled to avoid connectivity disruptions and unreachable destinations. [cloud-connector.aws.interfaces:source-dest-check]
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.cloudformation.md (Cloud Connector on AWS: CloudFormation templates, order, and parameter defaults)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.gwlb.md (Cloud Connector behind AWS Gateway Load Balancer: target group, health probe, stickiness, cross-zone)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.aws.reference-modules.md (Zscaler's Terraform modules for Cloud Connector on AWS: examples, defaults, FIPS, Transit Gateway)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)

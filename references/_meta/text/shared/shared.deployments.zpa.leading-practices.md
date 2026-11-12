@@ -21,3 +21,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors)
 - links-to references/_meta/text/zpa/zpa.app-connectors.performance.md (Monitoring App Connector performance: CPU, memory, throughput, source ports, application targets, disk and file descriptors)
 - links-to references/_meta/text/zpa/zpa.app-segments.discovery.md (How application discovery works and how a discovered application is defined)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)
+- see-also references/_meta/text/shared/shared.deployments.zpa.operations.md (What the ZPA deployment and operations guides say about App Connector, Application Discovery, Browser Access, Client Forwarding Policy, log streaming and provisioning)

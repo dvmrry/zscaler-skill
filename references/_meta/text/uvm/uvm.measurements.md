@@ -32,3 +32,6 @@ Sources disagree (name both sides):
   Impact: Whether Closed-bucket tickets count toward Total Tickets Over SLA depends on the page; state which page a figure follows.
 
 Area: uvm.measurements, its subjects in references/_meta/spine/uvm/uvm.measurements.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/uvm/uvm.overview.md (Unified Vulnerability Management (UVM): what it does with findings, and what can be automated)

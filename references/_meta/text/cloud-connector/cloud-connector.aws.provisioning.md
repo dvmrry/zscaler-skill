@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.instance-sizing.md (Cloud Connector on AWS: VM size, EC2 instance type, and matching the provisioning template)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.reference-modules.md (Zscaler's Terraform modules for Cloud Connector on AWS: examples, defaults, FIPS, Transit Gateway)
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.troubleshooting.md (Troubleshooting Cloud Connector on AWS: not registering, inactive, no tunnel, no Private Access)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/cloud-connector/cloud-connector.aws.cloudformation.md (Cloud Connector on AWS: CloudFormation templates, order, and parameter defaults)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)

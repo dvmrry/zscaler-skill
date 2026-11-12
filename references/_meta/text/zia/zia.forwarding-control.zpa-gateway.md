@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it): A Private Access gateway is configured in the Zscaler Admin Console under Infrastructure > Internet & SaaS > Private Access GW, mapping a Private Access server group and its application segments that need Source IP Anchoring. Using it requires the ZIA tenant to be paired with the Private Access tenant with Source IP Anchoring enabled. [zia.forwarding-control.zpa-gateway:zia-side-object]
 - links-to references/_meta/text/zia/zia.forwarding-control.sipa.md (Source IP Anchoring: what it needs on each side)
 - links-to references/_meta/text/zia/zia.forwarding-control.terraform.md (Terraform behavior of ZPA-method forwarding rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/zpa-gateways.md (config type)
+- see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)

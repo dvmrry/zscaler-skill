@@ -34,3 +34,8 @@ Area: zia.browser-control, its subjects in references/_meta/spine/zia/zia.browse
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.atp.enforcement-order.md (Where Malware Protection and ATP checks fall in the web enforcement order)
 - links-to references/_meta/text/zia/zia.reports.risk.md (Risk and posture scoring reports: Company Risk Score, User Risk, Configuration Risk, Security Policy Audit and the Attack Surface Report)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/browser-control-settings.md (config type)
+- see-also references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+- see-also references/_meta/text/zia/zia.sdk-python.service-behaviors.md (Python SDK service-specific behavior for ZIA: admin, AppTotal, browser control, smart isolation and GRE tunnel VIPs)

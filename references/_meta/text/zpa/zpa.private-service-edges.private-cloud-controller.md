@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.private-service-edges.business-continuity.md (Business Continuity for Private Access: prerequisites, domain names, settings, entering and exiting, limitations)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.deployment.md (Private Cloud Controller sizing, network requirements, platforms and enrollment)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.troubleshooting.md (Private Cloud Controller console commands and backup restore)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.api.service-edges-wire.md (ZPA Private Service Edge and private cloud controller calls: what is sent and where the sources differ)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)

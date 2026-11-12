@@ -64,3 +64,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.mip-labels.md (Microsoft Information Protection (MIP) accounts and label retrieval)
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
 - links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/dlp-dictionaries.md (config type)

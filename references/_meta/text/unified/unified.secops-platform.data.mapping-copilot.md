@@ -12,3 +12,8 @@ Mapping Copilot is an AI-powered assistant that recommends mappings and generate
 **Privacy.** Data shared with Mapping Copilot is not transmitted to external third parties, and use of the AI-powered features is optional and controlled by admin opt-in. [unified.secops-platform.data.mapping-copilot:cop-privacy]
 
 Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.data.md (Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard))
+- see-also references/_meta/text/unified/unified.secops-platform.data.mapping.md (Source mapping in the Agentic SecOps Platform: workspace, value methods, explode, minimum fields, keys, parser types and Explore)
+- see-also references/_meta/text/uvm/uvm.anysource.md (Feeding UVM with AnySource: retrieval methods, file structure and the fields to include)

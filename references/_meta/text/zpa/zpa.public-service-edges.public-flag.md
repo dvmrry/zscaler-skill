@@ -27,3 +27,8 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.private-service-edges.client-selection.md (How clients are steered to a Private Service Edge and which country policy applies): A group that has trusted networks mapped but not Publicly Accessible is not offered to users outside those trusted networks. [zpa.private-service-edges.client-selection:outside-users-excluded]
 - logged-in references/_meta/text/zpa/zpa.log-receivers.md (ZPA log receivers and the Log Streaming Service), from zpa.public-service-edges: Log data for Public Service Edges is exported to log routers, which direct it to the Log Streaming Service hosted in the geographic region for each organization; the Log Streaming Service analyzes events reported primarily by Public or Private Service Edges. [zpa.public-service-edges.what-it-is:log-routing]
 - interacts-with references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges), from zpa.public-service-edges: A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge. [zpa.private-service-edges.what-it-is:coexists-with-public]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.public-service-edges.md (ZPA Public Service Edges)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.groups.md (Private Service Edge groups: membership, software updates and version profiles)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.terraform.md (The zpa_service_edge_group resource for Private Service Edge groups)

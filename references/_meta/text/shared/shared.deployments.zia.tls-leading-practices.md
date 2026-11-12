@@ -15,3 +15,7 @@ Area: shared.deployments, its subjects in references/_meta/spine/shared/shared.d
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)
+- see-also references/_meta/text/shared/shared.deployments.zia.threat-and-data.md (What the ZIA deployment and operations guides say about Sandbox, Threat Protection, DLP, SaaS Security and SSL inspection)

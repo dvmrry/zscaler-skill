@@ -22,3 +22,7 @@ Area: ai-security.ai-red-teaming, its subjects in references/_meta/spine/ai-secu
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.brokers.md (The AI Red Teaming broker: outbound WSS tunnel to private apps, provisioning, run manifest, allow-lists and troubleshooting codes)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.connections.md (Red Teaming connection types and the fields each needs (REST API, Proxy SDK, OpenAI REST API, Copilot Studio, Glean, Microsoft Teams, Agentforce, Amazon Bedrock AgentCore and Agents), and the connection test)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-red-teaming.md (AI Red Teaming: adversarial testing of AI apps, the Overview page, and where each part is documented)
+- see-also references/_meta/text/ai-security/ai-security.asset-inventory-api.md (The AI Security inventory API (AI Infrastructure, AI-SPM): read-only assets and issues, cursor paging, filters and limits)

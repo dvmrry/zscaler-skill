@@ -40,3 +40,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types)
 - links-to references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch)
 - links-to references/_meta/text/zpa/zpa.troubleshooting.log-fields.md (What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.segment-checks.md (Checking segments, segment groups and connector groups for a failing application)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.policy-checks.md (Checking policy match, forwarding, posture and timeout for a blocked user)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.access-path.md (The hops of a ZPA access request and where each can fail)

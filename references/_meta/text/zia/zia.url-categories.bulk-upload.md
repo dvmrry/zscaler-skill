@@ -17,3 +17,7 @@ Not known (open gaps):
 - What exit status 4 means [gap:zia.url-categories.bulk-upload:exit-status-4]: settled by source-read
 
 Area: zia.url-categories, its subjects in references/_meta/spine/zia/zia.url-categories.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to)
+- see-also references/_meta/text/zia/zia.url-categories.entry-format.md (What a URL category entry may contain, and category limits)

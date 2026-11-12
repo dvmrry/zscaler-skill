@@ -59,3 +59,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.cloud-app-control: By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire. [zia.cloud-app-control.precedence:cac-allow-skips-url-filtering]
 - links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
 - links-to references/_meta/text/zia/zia.url-filtering.actions.md (URL Filtering actions and their prerequisites)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.cloud-app-control-rule.md (The Cloud App Control rule resource: prompt capture, isolation, import and delete)
+- see-also references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)

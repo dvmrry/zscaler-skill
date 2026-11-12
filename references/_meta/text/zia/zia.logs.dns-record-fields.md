@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
 - links-to references/_meta/text/zia/zia.logs.dns-gateway-fields.md (DNS Gateway fields in the DNS log: slot, server protocol and flags)
 - links-to references/_meta/text/zia/zia.logs.dns-outcome.md (What happened to a DNS query: rules, actions, response values and errors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)

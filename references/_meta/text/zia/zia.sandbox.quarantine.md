@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.sandbox: The Blocked Policy Type field in Web Insights logs identifies which security control is responsible for a block: Sandbox, Malware Protection, or Advanced Threat Protection. The log also carries Policy Action and Threat Super Category. [zia.sandbox.verdicts:blocked-policy-type]
 - links-to references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)
 - links-to references/_meta/text/zia/zia.sandbox.submission.md (Submitting files to Sandbox and out-of-band inspection (Discan))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/sandbox-rules.md (config type)

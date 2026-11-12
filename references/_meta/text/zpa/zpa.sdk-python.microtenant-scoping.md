@@ -21,3 +21,6 @@ Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.
 Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.microtenants.api-scoping.md (How an API call selects a Microtenant): For a ZPA request the executor sets the `microtenantId` query parameter whenever it finds a microtenant ID. [zpa.sdk-python.microtenant-scoping:executor-query-param]
 - links-to references/_meta/text/shared/shared.sdk-python.request-handling.md (How the Python SDK builds a request: body and query key casing, ID lists)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.sdk-python.pagination.md (Paging through ZPA lists with the Python SDK)

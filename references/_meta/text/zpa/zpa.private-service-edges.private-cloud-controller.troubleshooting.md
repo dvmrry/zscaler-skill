@@ -35,3 +35,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.public-service-edges.md (ZPA Public Service Edges), from zpa.private-service-edges: A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge. [zpa.private-service-edges.what-it-is:coexists-with-public]
 - links-to references/_meta/text/zpa/zpa.private-service-edges.business-continuity.md (Business Continuity for Private Access: prerequisites, domain names, settings, entering and exiting, limitations)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.md (Private Cloud Controllers and Private Clouds as the Business Continuity layer)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)
+- see-also references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.deployment.md (Private Cloud Controller sizing, network requirements, platforms and enrollment)

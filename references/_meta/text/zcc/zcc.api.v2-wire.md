@@ -31,3 +31,6 @@ Area: zcc.api, its subjects in references/_meta/spine/zcc/zcc.api.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)
 - links-to references/_meta/text/zcc/zcc.api.trusted-networks-wire.md (What goes on the wire for ZCC trusted networks: the v1 webTrustedNetwork and v2 trusted-networks APIs)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.api.md (The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes)

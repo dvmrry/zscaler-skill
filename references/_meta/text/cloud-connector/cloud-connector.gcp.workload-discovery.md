@@ -36,3 +36,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads): The feature needs a subscription to a Workload SKU and a Cloud & Branch Connector account; after subscribing, Zscaler Support must enable the Workload Discovery Service Endpoint before Workload Groups can be used. [zia.workload-groups:discovery-prerequisite]
 - links-to references/_meta/text/cloud-connector/cloud-connector.azure.workload-discovery.md (Cloud Connector on Azure: workload discovery service, partner configuration, event grid and account details)
 - links-to references/_meta/text/cloud-connector/cloud-connector.gcp.terraform-modules.md (Zscaler's GCP Terraform package for Cloud Connector: image, NICs, Pub/Sub Editor, FIPS and zsec defects)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.gcp.md (Cloud Connector on GCP: deployment, service accounts and network shape)

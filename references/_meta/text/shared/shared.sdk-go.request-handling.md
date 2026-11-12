@@ -48,3 +48,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.auth-lifecycle.md (How the Go SDK obtains and renews OneAPI tokens)
 - links-to references/_meta/text/shared/shared.sdk-go.cache.md (The Go SDK's response cache and request deduplication)
 - links-to references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.zero-value-writes.md (Why Terraform cannot clear some fields: omitted zero values and empty objects in SDK writes)

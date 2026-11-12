@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zcc/zcc.api.trusted-networks-wire.md (What goes on the wire for ZCC trusted networks: the v1 webTrustedNetwork and v2 trusted-networks APIs): The captured Automate contract describes only the v1 `webTrustedNetwork` operations; the reconciliation report shipped with it notes that Terraform uses the Go SDK's v2 trusted-network API instead. [zcc.api.trusted-networks-wire:contract-v1-only]
 - links-to references/_meta/text/zcc/zcc.terraform.field-fidelity.md (ZCC Terraform provider fields that are not sent, not read back, or collapsed)
 - links-to references/_meta/text/shared/shared.sdk-go.zero-value-writes.md (Why Terraform cannot clear some fields: omitted zero values and empty objects in SDK writes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.trusted-networks.detection.md (How Client Connector decides it is on a trusted network)
+- see-also references/_meta/text/zcc/zcc.trusted-networks.object.md (The Client Connector trusted network object and its v1 API)

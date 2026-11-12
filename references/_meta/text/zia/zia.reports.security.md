@@ -28,3 +28,10 @@ Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.reports.interactive.md (Interactive Reports: standard, custom and scheduled reports, export, import and printing)
 - links-to references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- see-also references/_meta/text/zia/zia.sandbox.rules.md (Sandbox rules: first-time file behavior and the default rule)
+- see-also references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)
+- see-also references/_meta/text/zia/zia.malware-protection.md (ZIA Malware Protection)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)

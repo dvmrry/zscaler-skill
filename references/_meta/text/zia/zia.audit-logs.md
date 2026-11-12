@@ -20,3 +20,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))
 - links-to references/_meta/text/zia/zia.audit-logs.what-is-recorded.md (What the ZIA admin audit log records and how the console shows it)
 - links-to references/_meta/text/zia/zia.backup-restore.md (ZIA Backup and Restore)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/nss-feeds.md (config type)

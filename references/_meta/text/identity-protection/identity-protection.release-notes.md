@@ -46,3 +46,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/identity-protection/identity-protection.change-detection.md (Active Directory and Entra ID change detection in Identity Protection: monitored issues, cycle, Impact values and remediation)
 - links-to references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
 - links-to references/_meta/text/identity-protection/identity-protection.safelists.md (How the AD and Entra ID issue, object and change detection safelists work)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.credential-exposure.md (Endpoint Credential Exposure in Identity Protection: dashboard, scan types, cleanup and reports)
+- see-also references/_meta/text/identity-protection/identity-protection.detection-policies.md (How ITDR threat detection policies, custom change detection policies and email notifications are configured)
+- see-also references/_meta/text/deception/deception.containment-integrations.md (Deception and ITDR containment integrations: supported solutions, per-solution setup, identity-based containment (ZIA, ZPA, Okta SSF) and blocked identities)

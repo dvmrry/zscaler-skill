@@ -25,3 +25,6 @@ Area: cloud-connector.regions, its subjects in references/_meta/spine/cloud-conn
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.regions.zero-trust-gateways.md (Regions where Zero Trust Gateways are supported (AWS and GCP))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.regions.md (Cloud & Branch Connector regions: three region lists that must not be conflated)

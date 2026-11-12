@@ -44,3 +44,10 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))
 - links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)
+- configured-via references/_meta/text/types/zia/security-exceptions.md (config type)
+- configured-via references/_meta/text/types/zia/malicious-urls.md (config type)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)

@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover): Users on a dedicated proxy port must authenticate, because anyone can send traffic to the port. For remote users reaching proxy ports by PAC file, the page says they need to use one; deploying Zscaler Client Connector is the more robust method. [zia.forwarding-control.proxy-ports:authentication]
 - links-to references/_meta/text/shared/shared.source-ip-anchoring.md (Source IP Anchoring across ZIA and Private Access: path, pieces and interactions)
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.md (ZCC forwarding profiles)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)

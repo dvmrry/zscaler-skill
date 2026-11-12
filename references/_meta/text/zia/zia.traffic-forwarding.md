@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.traffic-forwarding.verification.md (ip.zscaler.com and the vendor's causes when traffic does not land on the nearest Public Service Edge)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.vpn-credentials.md (VPN credentials for IPSec: types, immutability and keys)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.zcc.md (Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zia/zia.terraform.traffic-forwarding-resources.md (Terraform GRE tunnel, static IP, VPN credential and location resources)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.runbook.md (How the Internet & SaaS traffic forwarding troubleshooting runbook triages a case and routes it to its pages)

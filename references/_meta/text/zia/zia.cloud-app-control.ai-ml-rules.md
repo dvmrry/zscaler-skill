@@ -42,3 +42,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.cloud-app-control: By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire. [zia.cloud-app-control.precedence:cac-allow-skips-url-filtering]
 - interacts-with references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes): Gen AI prompt capture covers the named applications (ChatGPT, Microsoft Copilot, Gemini, Perplexity, Poe, Meta AI, WRITER, DeepSeek, Grok AI, Claude, Mistral, Grammarly, QuillBot, Google AI). Prompts are logged in Web Insights up to 2 KB each; Copilot prompts are stored only for unauthenticated users, and capture works for Copilot Chat but not Copilot inside Office apps. [zia.url-filtering.advanced-settings:genai-prompts]
 - links-to references/_meta/text/zia/zia.cloud-app-control.actions.md (Cloud App Control actions and action discovery)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.cloud-app-control-rule.md (The Cloud App Control rule resource: prompt capture, isolation, import and delete)

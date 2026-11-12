@@ -52,3 +52,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.applications.md (ZDX applications: predefined, custom and network applications, and the application API)
 - links-to references/_meta/text/zdx/zdx.probes.collections.md (ZDX collections: default collections, membership, ranking, criteria, deletion and limits)
 - links-to references/_meta/text/zdx/zdx.probes.managed.md (Managed Monitoring and Zscaler Managed Probes: where they run, what they chart and their subscription limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.probes.cloud-path.md (Reading the Cloud Path: the Hop View and Command Line View, tunnels, protocols, edges, and the error messages)
+- see-also references/_meta/text/zdx/zdx.probes.web-probe-errors.md (Web probe error messages in ZDX: what each reports and what the help suggests)

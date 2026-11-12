@@ -34,3 +34,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it)
 - links-to references/_meta/text/zpa/zpa.server-groups.update-payload.md (What the Python SDK sends when it updates a server group)
 - links-to references/_meta/text/zpa/zpa.terraform.delete-paths.md (What the ZPA Terraform provider does when deleting objects with dependents)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+- see-also references/_meta/text/zpa/zpa.segment-groups.md (ZPA segment groups)

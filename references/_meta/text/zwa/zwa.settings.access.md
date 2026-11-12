@@ -24,3 +24,8 @@ Area: zwa.settings, its subjects in references/_meta/spine/zwa/zwa.settings.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.settings.md (Workflow Automation account settings: notification expiry, digests and reminders, approver domains, user data source, obfuscation and quarantine release)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+- see-also references/_meta/text/zwa/zwa.workflows.md (Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover)
+- see-also references/_meta/text/zwa/zwa.settings.api-keys.md (Workflow Automation API keys: the Key ID and secret, expiry, disabling, regenerating and deleting)

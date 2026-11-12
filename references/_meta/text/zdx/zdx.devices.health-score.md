@@ -24,3 +24,7 @@ Area: zdx.devices, its subjects in references/_meta/spine/zdx/zdx.devices.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
 - links-to references/_meta/text/zdx/zdx.devices.health-and-events.md (ZDX device health metrics and device events)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.dashboards.md (ZDX console dashboards and overviews: time ranges, filters, VIP tagging, Private Service Edge Health and Self Service)
+- see-also references/_meta/text/zdx/zdx.devices.inventory.md (Hardware, process, software and software patch inventory in the ZDX console)

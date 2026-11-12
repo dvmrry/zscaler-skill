@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.private-service-edge.business-continuity.md (Private Service Edges in the Business Continuity Cloud)
 - depends-on references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.md (Private Cloud Controllers and Private Clouds as the Business Continuity layer): Customers must configure, enroll and maintain Private Cloud Controllers to provide application access during a global Private Access outage. [portfolio.business-continuity-cloud:bcc-customer-pcc]
 - links-to references/_meta/text/portfolio/portfolio.resilience.md (Zscaler Resilience: four failure tiers from minor failures to catastrophic events)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)

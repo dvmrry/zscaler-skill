@@ -21,3 +21,9 @@ Not known (open gaps):
 - How Scan Frequency and Next Scan relate to the AD and Entra ID scan schedules, and which values exist [gap:identity-protection.tenants:scan-schedule]: settled by source-read or lab-test
 
 Area: identity-protection.tenants, its subjects in references/_meta/spine/identity-protection/identity-protection.tenants.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.identity-findings.md (The Identity Findings page and finding details drawer in the Identities menu: list columns, widgets, drawer tabs, remediation and safelisting)
+- see-also references/_meta/text/identity-protection/identity-protection.findings-dashboards.md (The Findings Overview and Remediation dashboards in the Identities menu: widgets, filters, views and PDF export)
+- see-also references/_meta/text/identity-protection/identity-protection.posture-scans.md (Scan setup and results: the AD posture scan, AD Privileged Account Tracking and the endpoint credential exposure scan)

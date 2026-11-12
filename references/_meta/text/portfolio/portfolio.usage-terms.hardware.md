@@ -27,3 +27,8 @@ Not known (open gaps):
 - What "useful life advised by Zscaler" and "Zscaler's operating conditions" are [gap:portfolio.usage-terms.hardware:undefined-conditions]: settled by support-ticket or source-read
 
 Area: portfolio.usage-terms, its subjects in references/_meta/spine/portfolio/portfolio.usage-terms.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.md (Zscaler usage terms: EOS/EOL policy, Client Connector LTS, hardware terms and dated end-of-support notices)
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.eos-eol-policy.md (Zscaler EOS and EOL Policy: SaaS, software and hardware-refresh milestones)
+- see-also references/_meta/text/zpa/zpa.software-components.appliance.md (The ZPA appliance: models, hardware and power, ports, installation troubleshooting and enrollment)

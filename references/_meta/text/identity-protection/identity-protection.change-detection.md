@@ -17,3 +17,9 @@ Not known (open gaps):
 - Whether the 15-minute AD change detection scan is the AD scan configured in Scan Configuration [gap:identity-protection.change-detection:change-detection-scan-identity]: settled by lab-test or support-ticket
 
 Area: identity-protection.change-detection, its subjects in references/_meta/spine/identity-protection/identity-protection.change-detection.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+- see-also references/_meta/text/identity-protection/identity-protection.ad-posture.md (Active Directory posture in Identity Protection: dashboard, issues, roadmap, reports, remediation, privileged account tracking and password analysis)
+- see-also references/_meta/text/identity-protection/identity-protection.entra-posture.md (Entra ID posture in Identity Protection: dashboard, issues, roadmap, reports and remediation)
+- see-also references/_meta/text/identity-protection/identity-protection.identity-details.md (Identity detail pages and Identity Search in Identity Protection: AD user, Entra ID identity, Okta enrichment and cross-platform search)

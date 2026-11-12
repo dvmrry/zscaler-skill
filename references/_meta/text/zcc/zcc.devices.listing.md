@@ -21,3 +21,6 @@ Area: zcc.devices, its subjects in references/_meta/spine/zcc/zcc.devices.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.list-pagination.md (How the Go SDK pages through ZPA, ZCC and ZTC lists, and when it stops early)
 - links-to references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)

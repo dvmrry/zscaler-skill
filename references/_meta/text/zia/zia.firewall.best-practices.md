@@ -31,3 +31,9 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/types/zia/firewall-log.md (ZIA firewall log (NSS firewall feed)), from zia.firewall: The firewall action field is described as the action the service took on the transaction: Allowed or Blocked. [zia.logs.firewall-records:action-two-values]
 - links-to references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
 - links-to references/_meta/text/zia/zia.firewall.predefined-rules.md (Default and predefined Firewall Filtering rules: what each does and what can be changed)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.firewall.network-services.md (Network services (port criteria))
+- see-also references/_meta/text/zia/zia.firewall.application-services.md (Application service groups: predefined provider groups, custom groups, first-packet matching)
+- see-also references/_meta/text/zia/zia.dns-control.md (ZIA DNS Control)
+- see-also references/_meta/text/zia/zia.firewall.ips.md (IPS Control)

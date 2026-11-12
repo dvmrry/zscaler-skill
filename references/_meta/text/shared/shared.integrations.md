@@ -127,3 +127,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.conditions.md (Boolean logic and operand forms of ZPA policy conditions)
 - links-to references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
 - links-to references/_meta/text/zpa/zpa.trusted-networks.zcc-relationship.md (Trusted networks in ZPA and in Client Connector)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.m365.md (Microsoft 365 Conditional Access through Source IP Anchoring)

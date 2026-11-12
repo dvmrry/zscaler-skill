@@ -32,3 +32,7 @@ Area: zpa.scim, its subjects in references/_meta/spine/zpa/zpa.scim.json
 Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.policy.scim-sync.md (SCIM sync timing before SCIM criteria are used): Zscaler recommends waiting a minimum of 48 hours, sometimes up to a week, after SCIM sync is enabled before enabling SCIM policies. [zpa.policy.scim-sync:scim-wait-48-hours]
 - links-to references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.scim.attributes-and-groups.md (SCIM attributes and groups in Private Access)
+- see-also references/_meta/text/zia/zia.scim.propagation.md (How fast SCIM changes reach ZIA)

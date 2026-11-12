@@ -38,3 +38,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.provider-modes.md (ZIA Terraform provider authentication, client modes and rate limiting)
 - links-to references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)
 - links-to references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.federal-clouds.md (Federal and government cloud editions: FedRAMP, DoD IL5 and other certifications as marketed)
+- see-also references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths)
+- see-also references/_meta/text/shared/shared.legacy-api.auth-models.md (Legacy (pre-OneAPI) authentication by product)

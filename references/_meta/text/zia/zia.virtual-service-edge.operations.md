@@ -45,3 +45,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.private-service-edge.what-it-is.md (What a ZIA Private Service Edge is, who runs it, and what it is not)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.troubleshooting.md (The vzen command line for configuring and troubleshooting a Virtual Service Edge)
 - links-to references/_meta/text/zia/zia.virtual-service-edge.upgrades.md (How Virtual Service Edges and their clusters upgrade)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

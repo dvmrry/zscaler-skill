@@ -31,3 +31,7 @@ Area: zms.agent-groups, its subjects in references/_meta/spine/zms/zms.agent-gro
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zms/zms.agents.md (How Microsegmentation agents are installed, edited, deleted and protected against tampering)
 - links-to references/_meta/text/zms/zms.provisioning-keys.md (Microsegmentation agent provisioning keys (nonces): portal, fields and API)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/zms/zms.resources.md (What Microsegmentation resources, Kubernetes cluster resources and resource groups are, including ML recommendations)

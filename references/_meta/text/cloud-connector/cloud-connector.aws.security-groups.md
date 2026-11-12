@@ -33,3 +33,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/cloud-connector/cloud-connector.aws.gwlb.md (Cloud Connector behind AWS Gateway Load Balancer: target group, health probe, stickiness, cross-zone): The reference GWLB module's target group listens on port 6081 with protocol GENEVE, and its target type is instance when `asg_enabled` is true and ip otherwise. [cloud-connector.aws.gwlb:target-group]
 - reached-via references/_meta/text/cloud-connector/cloud-connector.aws.traffic-steering.md (Cloud Connector on AWS: steering workload traffic by route table, ENI or GWLB endpoint), from cloud-connector.aws: The workload route is a 0.0.0.0/0 destination whose target is, for non-GWLB deployments, the network interface of the Cloud Connector service interface and, for GWLB deployments, the Gateway Load Balancer endpoint. [cloud-connector.aws.traffic-steering:route-targets]
 - links-to references/_meta/text/cloud-connector/cloud-connector.aws.cloudformation.md (Cloud Connector on AWS: CloudFormation templates, order, and parameter defaults)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.md (Cloud Connector on AWS: what is deployed and where each question is answered)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.interfaces.md (Cloud Connector on AWS: network interfaces, device indexes, source/destination check)

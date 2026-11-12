@@ -43,3 +43,7 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.bandwidth-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.bandwidth-control: Bandwidth Control is the final entry in the ordered policy lists the web module applies to HTTP GET and POST requests, to responses, and to the domain-only pass on CONNECT or SNI. [zia.bandwidth-control.pipeline-position:last-in-web-order]
 - links-to references/_meta/text/zia/zia.bandwidth-control.pipeline-position.md (Where Bandwidth Control sits in policy enforcement)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/bandwidth-control-rules.md (config type)
+- see-also references/_meta/text/zia/zia.bandwidth-control.default-rule.md (The default rule and unreferenced classes)

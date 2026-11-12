@@ -35,3 +35,9 @@ Area: zpa.troubleshooting, its subjects in references/_meta/spine/zpa/zpa.troubl
 Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say): The Policy field of a User Activity record is the access policy rule name. [zpa.troubleshooting.log-fields:policy-field]
 - links-to references/_meta/text/zpa/zpa.troubleshooting.session-status-codes.md (Private Access session status codes: where they appear, the component prefixes and the three classes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.no-access.md (A user cannot reach a private application at all)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.slow.md (A ZPA application is slow)
+- see-also references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)

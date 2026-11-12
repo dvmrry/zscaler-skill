@@ -37,3 +37,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.cloud-to-cloud-forwarding.md (Cloud-to-Cloud Incident Forwarding: storage onboarding for AWS, Google Cloud and Azure)
 - links-to references/_meta/text/zwa/zwa.gcp-dlp-integration.resources.md (GCP resources for the DLP integration: Deployment Manager end of support, permissions, prefix, KMS, retention, buckets, Pub/Sub and service account roles)
 - links-to references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.incident-forwarding.md (Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud)
+- see-also references/_meta/text/zwa/zwa.aws-dlp-integration.md (The AWS DLP application integration for Workflow Automation: the two forwarding methods, the three AWS resources, regions, support role and validation)
+- see-also references/_meta/text/zwa/zwa.azure-dlp-integration.management.md (Managing DLP Azure integrations in Workflow Automation: statuses, delete, enable and disable, dashboard counts and defaults)

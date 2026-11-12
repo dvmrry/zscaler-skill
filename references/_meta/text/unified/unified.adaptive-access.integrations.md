@@ -28,3 +28,6 @@ Area: unified.adaptive-access, its subjects in references/_meta/spine/unified/un
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/unified/unified.adaptive-access.md (Adaptive Access Engine: what it is, prerequisites, profiles, signal history and overrides)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.admin-rbac.unified.md (Unified RBAC: Admin Console roles, access levels, permission categories, scopes, assignments and obfuscation)

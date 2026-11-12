@@ -15,3 +15,8 @@ Not known (open gaps):
 - Which version or effective date of the AUP the captured page is, and what the referenced agreement says [gap:portfolio.usage-terms.acceptable-use:aup-version-and-references]: settled by source-read
 
 Area: portfolio.usage-terms, its subjects in references/_meta/spine/portfolio/portfolio.usage-terms.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.usage-terms.md (Zscaler usage terms: EOS/EOL policy, Client Connector LTS, hardware terms and dated end-of-support notices)
+- see-also references/_meta/text/zcc/zcc.acceptable-use.md (The Client Connector acceptable use policy prompt)
+- see-also references/_meta/text/zia/zia.eun.md (ZIA end user notifications: browser templates, browser appearance and the Client Connector-based route)

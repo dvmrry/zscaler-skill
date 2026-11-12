@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
 - links-to references/_meta/text/zpa/zpa.app-segments.import.md (Application Segment Import: the CSV template, limits, re-import and merge)
 - links-to references/_meta/text/zpa/zpa.microtenants.limits.md (Microtenant limits and unsupported features)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.troubleshooting.dashboards.md (Applications, Users, Health, Extranet and Source IP Anchoring dashboards)

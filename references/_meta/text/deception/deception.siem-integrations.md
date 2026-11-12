@@ -30,3 +30,6 @@ Area: deception.siem-integrations, its subjects in references/_meta/spine/decept
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
 - links-to references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.plans.md (Deception Standard and Advanced plans: decoy counts, Gen AI decoys, orchestration and API access)

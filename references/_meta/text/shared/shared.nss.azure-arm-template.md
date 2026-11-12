@@ -26,3 +26,7 @@ Area: shared.nss, its subjects in references/_meta/spine/shared/shared.nss.json
 Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity): An NSS server is the representation of the NSS VM in the Admin Console; after a server is created, Zscaler issues a client certificate and private key to install on the NSS VM so that it can authenticate to the Zscaler service. [shared.nss.servers:server-record]
 - links-to references/_meta/text/shared/shared.nss.feeds.md (NSS feeds: limits, log types, filters and the output format string)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)

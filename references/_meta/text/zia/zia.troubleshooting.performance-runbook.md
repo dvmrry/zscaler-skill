@@ -21,3 +21,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.troubleshooting.performance-runbook.tunnel-overhead.md (Performance runbook: Check for Traffic Imbalance, Z-Tunnel 2.0 over GRE or IPSec, tunnel limits and gateway-variable load distribution)
 - links-to references/_meta/text/zia/zia.troubleshooting.performance-runbook.zdx-and-bandwidth.md (Performance runbook: ZDX evaluation, Bandwidth Control throttling and additional network checks)
 - links-to references/_meta/text/zia/zia.troubleshooting.performance-testing.md (Measuring ZIA performance: the Cloud Performance Test and why common speed tests mislead)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.md (Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)

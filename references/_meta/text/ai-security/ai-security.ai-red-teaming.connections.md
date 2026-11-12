@@ -24,3 +24,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.ai-guard.integrations.aws-bedrock-agentcore.md (The AI Guard guard for Amazon Bedrock AgentCore agents: the four legs you call, the tool wrapper, and what each leg sends)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.assets.md (Connecting an AI app for red teaming: network type, private access, and the application profile that shapes tests)
 - links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.onboarding-agent.md (The AI Red Teaming Onboarding Agent: generating a Proxy SDK proxy for a non-standard app, its spec gate, versions and local skill)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-red-teaming.md (AI Red Teaming: adversarial testing of AI apps, the Overview page, and where each part is documented)
+- see-also references/_meta/text/ai-security/ai-security.ai-red-teaming.brokers.md (The AI Red Teaming broker: outbound WSS tunnel to private apps, provisioning, run manifest, allow-lists and troubleshooting codes)

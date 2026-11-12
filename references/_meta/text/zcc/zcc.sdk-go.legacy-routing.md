@@ -13,3 +13,6 @@ Inferred, not quoted (say so when an answer rests on one):
 - [zcc.sdk-go.legacy-routing:zcc-provider-oneapi-only] Tier B: The provider's intent is quoted; the environment override is in the SDK configuration. Widened from 'these calls fail': the provider passes no legacy client to `NewOneAPIClient`, which authenticates only when `UseLegacyClient` is false, so the ZCC request path fails too. Traced, not run.
 
 Area: zcc.sdk-go, its subjects in references/_meta/spine/zcc/zcc.sdk-go.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.auth-lifecycle.md (How the Go SDK obtains and renews OneAPI tokens)

@@ -26,3 +26,7 @@ Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zdx/zdx.reports.console.md (Console reports: predefined reports, Data Explorer views and Quarterly Business Review reports)
 - links-to references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- see-also references/_meta/text/zia/zia.reports.interactive.md (Interactive Reports: standard, custom and scheduled reports, export, import and printing)

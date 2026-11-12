@@ -39,3 +39,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/unified/unified.secops-platform.console.historical-data.md (Historical data in the admin portal: granularity, time filter, measurement types, filter evaluation time and caveats)
 - links-to references/_meta/text/unified/unified.secops-platform.console.sso.md (Admin portal SSO: generating SAML details and the Entra ID, Okta, PingOne, PingFederate and SecureAuth setups)
 - links-to references/_meta/text/unified/unified.secops-platform.console.users.md (The Users page and the user details drawer in the admin portal)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.secops-platform.md (The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API)
+- see-also references/_meta/text/soc-workbench/soc-workbench.overview.md (SOC Workbench (Agentic SOC): alert unification, correlation and prioritization, and what can be automated)
+- see-also references/_meta/text/uvm/uvm.data-sources.cloud.md (UVM cloud data sources: the AWS, Azure, Google Cloud Platform and Google Sheets connectors, and the Aqua Security, Lacework and Cyera cloud-security connectors)

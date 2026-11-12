@@ -16,3 +16,8 @@ Not known (open gaps):
 - Whether the Wi-Fi article's privacy settings are Client Connector's switch or the operating system's permission [gap:zdx.dashboards.wifi:privacy-setting-meaning]: settled by lab-test or support-ticket. Blocks: explaining a missing SSID or BSSID in the Wi-Fi Dashboard
 
 Area: zdx.dashboards, its subjects in references/_meta/spine/zdx/zdx.dashboards.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.dashboards.md (ZDX console dashboards and overviews: time ranges, filters, VIP tagging, Private Service Edge Health and Self Service)
+- see-also references/_meta/text/zdx/zdx.devices.md (ZDX devices: the device list, device detail and per-device application scores)
+- see-also references/_meta/text/zcc/zcc.web-privacy.collection.md (What each User Privacy setting collects or allows)

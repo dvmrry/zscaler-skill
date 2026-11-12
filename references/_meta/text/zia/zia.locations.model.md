@@ -28,3 +28,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group)
 - links-to references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
 - links-to references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/types/zia/locations-lite.md (config type)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)

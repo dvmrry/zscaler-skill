@@ -19,3 +19,11 @@ Area: zia.troubleshooting, its subjects in references/_meta/spine/zia/zia.troubl
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.troubleshooting.security-policies-runbook.malware-atp.md (Security policies runbook: Malware Protection and ATP log values, unexpected block and allow checks, and Unscannable Files rules)
 - links-to references/_meta/text/zia/zia.troubleshooting.security-policies-runbook.sandbox.md (Security policies runbook: Sandbox symptoms (licensing, no active content, quarantine, Patient 0, MD5 report))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting.md (Troubleshooting Internet & SaaS: routes from a few common symptoms to the subjects that hold the answer, and capturing HTTP headers for Support)
+- see-also references/_meta/text/zia/zia.malware-protection.md (ZIA Malware Protection)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/zia/zia.sandbox.md (ZIA Sandbox)
+- see-also references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)

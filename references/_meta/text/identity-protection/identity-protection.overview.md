@@ -95,3 +95,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/identity-protection/identity-protection.safelists.md (How the AD and Entra ID issue, object and change detection safelists work)
 - links-to references/_meta/text/identity-protection/identity-protection.server-agents.md (What the ITDR Admin Portal help describes for server agents on domain controllers: domains, session tracking, password analysis, remediation, threat detection, install and update groups)
 - links-to references/_meta/text/identity-protection/identity-protection.tenants.md (The Tenants page and tenant details drawer in the Identities menu: list columns, views, drawer tabs and which tenants are shown)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/soc-workbench/soc-workbench.overview.md (SOC Workbench (Agentic SOC): alert unification, correlation and prioritization, and what can be automated)
+- see-also references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)

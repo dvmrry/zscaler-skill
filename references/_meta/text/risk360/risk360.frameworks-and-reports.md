@@ -16,3 +16,7 @@ Not known (open gaps):
 - Report generation lead time, retention and entitlement [gap:risk360.frameworks-and-reports:report-details]: settled by source-read or support-ticket
 
 Area: risk360.frameworks-and-reports, its subjects in references/_meta/spine/risk360/risk360.frameworks-and-reports.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/risk360/risk360.overview.md (Risk360: what it measures, which data it uses, how long it keeps logs, and what can be automated)
+- see-also references/_meta/text/risk360/risk360.scoring.md (How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates)

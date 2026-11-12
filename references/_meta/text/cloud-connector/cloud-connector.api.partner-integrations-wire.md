@@ -39,3 +39,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.workload-discovery.aws-accounts.md (Onboarding an AWS account for discovery: role, external ID and trust)
 - links-to references/_meta/text/cloud-connector/cloud-connector.gcp.workload-discovery.md (Cloud Connector on GCP: workload discovery service)
 - links-to references/_meta/text/cloud-connector/cloud-connector.workload-discovery.md (AWS workload discovery for Cloud Connector: what it is and how the pieces fit)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/public-cloud-accounts.md (config type)
+- configured-via references/_meta/text/types/ztw/account-groups.md (config type)
+- configured-via references/_meta/text/types/ztw/public-cloud-info.md (config type)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)

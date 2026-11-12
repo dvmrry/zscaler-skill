@@ -38,3 +38,6 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules): Users are asked to reauthenticate periodically, governed by the Authentication Timeout setting of the Private Access timeout policy rule. [zpa.browser-access.requirements:reauthentication]
 - interacts-with references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes), from zpa.browser-access: SSH, RDP and VNC are not Browser Access traffic. Browser Access carries HTTP and HTTPS only, and Privileged Remote Access is the clientless path for RDP, SSH and VNC. [zpa.browser-access.requirements:non-http-use-pra]
 - links-to references/_meta/text/zpa/zpa.app-segments.definition.md (What an application segment can contain: entries, wildcards and ports)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.browser-access.segment-constraints.md (Browser Access applications on a segment: per-application keys and where the constraints live)

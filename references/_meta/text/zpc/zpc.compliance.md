@@ -24,3 +24,9 @@ Not known (open gaps):
 - Which admin roles and limits apply to policies, benchmarks and ignore rules [gap:zpc.compliance:admin-permissions-limits]: settled by source-read or support-ticket
 
 Area: zpc.compliance, its subjects in references/_meta/spine/zpc/zpc.compliance.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
+- see-also references/_meta/text/portfolio/portfolio.cloud-protection.md (Zscaler Posture Control (ZPC) and Cloud Protection: what ZPC covered, and its end of life)
+- see-also references/_meta/text/zpc/zpc.cloud-assets.md (ZPC cloud assets: asset types, categories and asset details)
+- see-also references/_meta/text/zpc/zpc.investigation.md (ZPC investigation and dashboards: query predicates, reports and the executive report)

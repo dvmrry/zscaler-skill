@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/ai-security/ai-security.asset-management.roles.md (How AI Asset Management business units and custom roles control access)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.scan-rules.md (How AI Asset Management scan rules, scan scopes, scan types and schedules work, and which systems support vulnerability scanning)
 - links-to references/_meta/text/ai-security/ai-security.asset-management.system-logs.md (What the AI Infrastructure scanning system logs show and what the ZS-LP, ZS-DC and ZS-ONBOARDING error codes mean)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)

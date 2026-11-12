@@ -42,3 +42,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.exemptions.md (Writing SSL/TLS inspection exemptions without exempting too much)
 - links-to references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes))
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)
+- see-also references/_meta/text/zia/zia.advanced-settings.m365-one-click.md (Microsoft 365 One Click configurations: the two options, where each is set, and the DNS Control rule)

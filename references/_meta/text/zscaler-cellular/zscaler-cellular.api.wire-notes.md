@@ -49,3 +49,6 @@ Linked (open a file only if the answer needs it):
 - reached-via references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths), from zscaler-cellular.api: The OneAPI Postman collection sets `{{ZCellBaseUrl}}` to `{{oneAPIBaseUrl}}/zcell/config` and appends `/api/v1/...` to it, with the customer ID as the `:id` path variable, for example `{{ZCellBaseUrl}}/api/v1/customers/:id/sims/search`. [zscaler-cellular.api:postman-base-url]
 - links-to references/_meta/text/shared/shared.sdk-python.pagination.md (How the Python SDK pages a list: has_next, next and the per-service branches)
 - links-to references/_meta/text/zscaler-cellular/zscaler-cellular.mcp.md (The Zscaler MCP server's ZCell tools: 20 reads, the customer ID, time windows, prompts and gaps)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.api.md (The Zscaler Cellular (ZCell) API: customer scoping, clients and where the contract and SDK disagree)

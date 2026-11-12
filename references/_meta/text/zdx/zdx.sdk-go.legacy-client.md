@@ -23,3 +23,8 @@ Area: zdx.sdk-go, its subjects in references/_meta/spine/zdx/zdx.sdk-go.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-go.retries.md (How the Go SDK retries requests (and replays writes))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.sdk-go.md (The Go SDK for ZDX: how it reaches the API and where its ZDX behavior is covered)
+- see-also references/_meta/text/zdx/zdx.api.hosts-and-auth.md (ZDX API hosts and sign-in: the OneAPI gateway, the direct ZDX host, and which paths go where)
+- see-also references/_meta/text/zdx/zdx.api.rate-limits.md (ZDX API rate limits: the license tiers, the headers, and how the clients pace themselves)

@@ -25,3 +25,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zscaler-cellular/zscaler-cellular.anomaly-policies.md (Cellular SIM Location Groups, the Anomaly Dashboard and geofence anomaly detection policies)
 - links-to references/_meta/text/shared/shared.logs-fair-use.log-retention.md (How long Zscaler keeps the logs of the products on the Logs and Fair Use pages, and where it stores them)
 - links-to references/_meta/text/zscaler-cellular/zscaler-cellular.api.wire-notes.md (ZCell wire notes: paging, time windows, SIM search, violations, audit search, SIM lock and tower history)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.overview.md (Zscaler Cellular: Zscaler SIM, Cellular Edge and how SIM traffic reaches ZIA and ZPA policy)
+- see-also references/_meta/text/zscaler-cellular/zscaler-cellular.sdk-python.location-groups.md (Python SDK SIM location group writes: the geofence is dropped on create and snake_case keys are ignored)

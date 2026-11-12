@@ -31,3 +31,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.casb.scans.md (CASB scan schedules: states, historical data, stop and restart), from zia.casb: A configured rule inspects nothing until it is added to a scan schedule: the Zscaler service does not inspect content until a scan is configured. [zia.casb:no-scan-no-inspection]
 - links-to references/_meta/text/zia/zia.casb.malware-rules.md (CASB Data at Rest Scanning malware rules)
 - links-to references/_meta/text/zia/zia.reports.saas-security.md (SaaS Security report pages: SaaS Assets Summary, Assets and Assets with Incidents, Activities, Copilot Readiness Assessment and SaaS Workflows)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-tombstone-templates.md (config type)

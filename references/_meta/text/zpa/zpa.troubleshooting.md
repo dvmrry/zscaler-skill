@@ -56,3 +56,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.vpn.dashboards.md (VPN Service Edges, Network Connectors and BGP Peers dashboards)
 - links-to references/_meta/text/zpa/zpa.vpn.diagnostics.md (VPN Connected Users and the VPN Diagnostics pages: user logs, traffic flow logs and access policy data)
 - links-to references/_meta/text/zpa/zpa.vpn.support-information.md (VPN Support Information: diagnostic sessions and commands on VPN Service Edges and Network Connectors)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-connectors.runbook.md (How the Private Access App Connector support troubleshooting runbook is organized and which pages cover each topic)
+- see-also references/_meta/text/zpa/zpa.log-receivers.runbook.md (How the Private Access LSS support troubleshooting runbook describes retention, the log flow and its three common issues)

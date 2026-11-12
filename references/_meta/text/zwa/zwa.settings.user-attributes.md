@@ -23,3 +23,7 @@ Area: zwa.settings, its subjects in references/_meta/spine/zwa/zwa.settings.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.settings.md (Workflow Automation account settings: notification expiry, digests and reminders, approver domains, user data source, obfuscation and quarantine release)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.workflows.mappings.md (Workflow Automation workflow mappings: statement order, Source DLP types, properties, operations and predicates)
+- see-also references/_meta/text/zwa/zwa.api.md (The Workflow Automation API from a client's side: hosts, the Python and Go clients, and what neither SDK covers)

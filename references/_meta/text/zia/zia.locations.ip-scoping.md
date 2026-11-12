@@ -28,3 +28,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.locations.inheritance.md (Which location settings a sublocation has of its own and which it takes from the parent)
 - links-to references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
 - links-to references/_meta/text/zia/zia.locations.workload-scopes.md (AWS workload sublocation scopes (VPC endpoint, VPC, account, namespace))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)

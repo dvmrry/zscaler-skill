@@ -21,3 +21,7 @@ Not known (open gaps):
 - Is a write that starts between the SDK's overlap check and the cache store covered? [gap:shared.sdk-go.cache:cache-done-then-set-window]: settled by source-read or lab-test. Blocks: saying the v3.8.58 overlap check fully closes the stale-after-write case
 
 Area: shared.sdk-go, its subjects in references/_meta/spine/shared/shared.sdk-go.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.sdk-go.retries.md (How the Go SDK retries requests (and replays writes))
+- see-also references/_meta/text/zia/zia.url-filtering.list-pagination.md (Listing URL Filtering rules and URL categories without truncation)

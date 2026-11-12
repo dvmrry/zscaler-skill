@@ -15,3 +15,7 @@ Area: zia.customer-notifications, its subjects in references/_meta/spine/zia/zia
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/portfolio/portfolio.usage-terms.eos-eol-policy.md (Zscaler EOS and EOL Policy: SaaS, software and hardware-refresh milestones)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.cloud-architecture.cloud-names.md (Zscaler cloud names: which cloud a tenant is on, and the production name list)
+- see-also references/_meta/text/shared/shared.multi-cluster.md (Multi-Cluster Load Sharing: several Public Service Edge clusters behind one VIP)

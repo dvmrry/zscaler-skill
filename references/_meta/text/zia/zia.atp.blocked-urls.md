@@ -48,3 +48,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
 - links-to references/_meta/text/zia/zia.url-categories.entry-format.md (What a URL category entry may contain, and category limits)
 - links-to references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/malicious-urls.md (config type)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))

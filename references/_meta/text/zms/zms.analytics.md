@@ -28,3 +28,8 @@ Area: zms.analytics, its subjects in references/_meta/spine/zms/zms.analytics.js
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.logs.microsegmentation-flow.md (What a ZPA Microsegmentation Flow log record says and does not say)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zms/zms.overview.md (Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning)
+- see-also references/_meta/text/zms/zms.dashboards.md (What the Microsegmentation Flow, Agent and Overview dashboards and the Application Map show)
+- see-also references/_meta/text/zms/zms.agents.md (How Microsegmentation agents are installed, edited, deleted and protected against tampering)

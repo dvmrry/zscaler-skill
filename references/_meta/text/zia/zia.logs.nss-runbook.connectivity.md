@@ -20,3 +20,11 @@ Sources disagree (name both sides):
   Impact: The page does not say which interface to capture for a CA connection problem. Do not name one interface as the answer; the CA steps and the capture guidance differ.
 
 Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.diagnostics.md (NSS runbook data collection: health and network commands, packet capture and NSS log files)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.vm-health.md (NSS runbook: VM-based NSS Unhealthy server, alerts and build upgrade checks)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.log-loss.md (NSS runbook: missing and delayed logs on VM-based NSS, smstat counters and where the loss occurs)
+- see-also references/_meta/text/shared/shared.nss.vm-operations.md (Operating and troubleshooting a deployed NSS VM: the nss command set, error codes and connection checks)
+- see-also references/_meta/text/shared/shared.nss.vm-network.md (NSS VM interfaces and firewall requirements: management and service roles, outbound-only, no SSL inspection)

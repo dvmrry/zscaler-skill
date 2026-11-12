@@ -40,3 +40,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.scim.deactivation.md (What SCIM does when a user is disabled or deleted)
 - links-to references/_meta/text/zpa/zpa.scim.group-lifecycle.md (What happens when SCIM users and groups are deleted or renamed)
 - links-to references/_meta/text/zpa/zpa.scim.sync-logs.md (SCIM Sync Logs in Private Access)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria)

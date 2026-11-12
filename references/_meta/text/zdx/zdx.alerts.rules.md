@@ -36,3 +36,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zdx/zdx.score.md (The ZDX Score: scale, bands, score types and what lowers it), from zdx.alerts: ZDX alerts monitor device, application, network performance and ZDX Score; admins create alert rules that trigger when a preset threshold is reached, and triggered alert details are sent by email or webhook. [zdx.alerts:about]
 - links-to references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
 - links-to references/_meta/text/zdx/zdx.alerts.webhooks.md (ZDX alert webhooks: authentication, testing, platform guides and the payload fields the sample scripts read)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.alerts.servicenow.md (The ZDX application on ServiceNow: roles, webhook URLs, Deep Tracing, Root Cause Analysis and incident settings)
+- see-also references/_meta/text/zdx/zdx.probes.managed.md (Managed Monitoring and Zscaler Managed Probes: where they run, what they chart and their subscription limits)

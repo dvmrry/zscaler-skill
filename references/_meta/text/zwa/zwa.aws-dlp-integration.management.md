@@ -21,3 +21,6 @@ Area: zwa.aws-dlp-integration, its subjects in references/_meta/spine/zwa/zwa.aw
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zwa/zwa.aws-dlp-integration.md (The AWS DLP application integration for Workflow Automation: the two forwarding methods, the three AWS resources, regions, support role and validation)
 - links-to references/_meta/text/zwa/zwa.aws-dlp-integration.privacy-settings.md (The Hide privacy checkboxes on the AWS DLP integration: per-role defaults for admins, end users and managers or approvers, and their dependencies)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)

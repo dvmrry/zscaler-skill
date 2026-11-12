@@ -33,3 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.private-service-edges.enrollment.md (Enrolling a Private Service Edge)
 - links-to references/_meta/text/zpa/zpa.software-components.manager.md (The Manager software and its updates on ZPA software components)
 - links-to references/_meta/text/zpa/zpa.vpn.network-connectors.enrollment.md (Network Connector enrollment: OAuth 2.0 tokens and provisioning keys)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.software-components.md (ZPA software components: Manager software, OAuth enrollment, network settings and STIG images)

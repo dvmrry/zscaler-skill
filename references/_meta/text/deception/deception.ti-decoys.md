@@ -19,3 +19,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/deception/deception.decoy-deployment.md (Deploying and stopping decoys, the Deploy Strategy wizard, and Deceive Settings (blocklists, hashed passwords, hostname resolution, decoy groups))
 - links-to references/_meta/text/deception/deception.gen-ai-decoys.md (Interactive and file-based Gen AI decoys: types, datasets, limits, deployment targets and testing)
 - links-to references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.network-decoys.md (Network decoys (Internal and Zero Trust Network): personalities, creation, AD join, MITM detection, RADIUS and management)

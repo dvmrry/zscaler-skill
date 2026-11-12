@@ -43,3 +43,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.api.pagination.md (Paging ZIdentity lists: offset and limit, the list envelope, and how each SDK walks pages)
 - links-to references/_meta/text/zidentity/zidentity.api.query-filters.md (ZIdentity list filters on the wire: key spelling, [like] matching and list values)
 - links-to references/_meta/text/zidentity/zidentity.groups.md (Authentication Service user groups: predefined and custom groups, dynamic groups, membership and limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zidentity/zidentity.api.client-coverage.md (Which clients cover which parts of the ZIdentity API: Python, Go and the MCP server)
+- see-also references/_meta/text/zidentity/zidentity.sdk-go.md (Go SDK for ZIdentity (ziam services): name lookups, write models and where its paths depart from the contract)

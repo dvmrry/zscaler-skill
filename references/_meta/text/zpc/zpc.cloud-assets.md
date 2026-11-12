@@ -14,3 +14,10 @@ Not known (open gaps):
 - Whether the ZPC features these pages describe are still available [gap:zpc.cloud-assets:service-status]: settled by source-read
 
 Area: zpc.cloud-assets, its subjects in references/_meta/spine/zpc/zpc.cloud-assets.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpc/zpc.overview.md (What Zscaler Posture Control (ZPC) is to administer: portal access, setup order, notifications and audit logs)
+- see-also references/_meta/text/portfolio/portfolio.cloud-protection.md (Zscaler Posture Control (ZPC) and Cloud Protection: what ZPC covered, and its end of life)
+- see-also references/_meta/text/zpc/zpc.compliance.md (ZPC compliance: benchmarks, ignore rules and security policies)
+- see-also references/_meta/text/zpc/zpc.cloud-identities.md (ZPC cloud identities: classification, power score and attributes)
+- see-also references/_meta/text/zpc/zpc.investigation.md (ZPC investigation and dashboards: query predicates, reports and the executive report)

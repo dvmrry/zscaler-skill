@@ -37,3 +37,8 @@ Area: zia.insights, its subjects in references/_meta/spine/zia/zia.insights.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.insights.data-types.md (ZIA Insights chart settings: units, chart types, top-N, filters, history and the data types that appear only on an Insights page)
 - links-to references/_meta/text/zia/zia.reports.interactive.md (Interactive Reports: standard, custom and scheduled reports, export, import and printing)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.insights.md (ZIA Insights: the Admin Console's traffic charts, log viewer and dashboards)
+- see-also references/_meta/text/zia/zia.insights.logs.md (ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns)
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)

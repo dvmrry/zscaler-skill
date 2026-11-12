@@ -15,3 +15,8 @@ Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.nss.feed-settings.md (NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields)
+- see-also references/_meta/text/shared/shared.nss.feed-filters.md (What each NSS log type's feed can filter on, and the rules for matching)
+- see-also references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)

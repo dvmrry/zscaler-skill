@@ -35,3 +35,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.oneapi.rate-limits.md (OneAPI rate limits by product, and how the Go SDK throttles)
 - links-to references/_meta/text/shared/shared.sdk-go.retries.md (How the Go SDK retries requests (and replays writes))
 - links-to references/_meta/text/zia/zia.sdk-go.legacy-retry-classification.md (How the Go legacy ZIA client decides which 5xx to retry and what it returns)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.md (The Cloud Connector (ZTW) API from a client's side: hosts, sign-in, limits, coverage and wire notes)
+- see-also references/_meta/text/cloud-connector/cloud-connector.api.conventions.md (Conventions of the Cloud Connector API capture: base path, default responses, paging and decoding)
+- see-also references/_meta/text/zia/zia.api.rate-limits.md (ZIA API rate limits and how the Python SDK retries)

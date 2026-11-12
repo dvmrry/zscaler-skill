@@ -18,3 +18,9 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/cloud-connector/cloud-connector.forwarding.md (Cloud Connector traffic forwarding), from cloud-connector.overview: Traffic Forwarding forwards selected traffic to specific destinations: through Internet & SaaS or Private Access, bypassing them for a portion of workload traffic, or dropping selected workload traffic, configured as rules. [cloud-connector.forwarding:purpose]
 - logged-in references/_meta/text/cloud-connector/cloud-connector.logs.md (Cloud Connector logs: which log types exist and where to read them), from cloud-connector.overview: Cloud & Branch Connector logs are stored for 180 days in the Zscaler Nanolog servers. [cloud-connector.logs:nanolog-180]
 - scoped-by references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling), from cloud-connector.overview: Groups let you apply policies to a set of deployed Cloud Connectors and upgrade the Cloud Connectors in a group while keeping redundancy during the upgrade. [cloud-connector.overview.groups:group-purpose]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.md (Cloud & Branch Connector: what Cloud Connector is and where each area is described)
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.gateway-failover.md (Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.interfaces.md (Cloud Connector on AWS: network interfaces, device indexes, source/destination check)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.security-groups.md (Cloud Connector on AWS: firewall requirements and the reference security groups)

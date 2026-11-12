@@ -36,3 +36,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.sspm.platforms.md (Connecting platforms to Advanced SSPM: the platforms the connect page lists and what each needs)
 - links-to references/_meta/text/zia/zia.sspm.policies.md (The SSPM policy page: predefined policies, compliance types, risk levels and statuses)
 - links-to references/_meta/text/zia/zia.sspm.posture.md (Advanced SSPM Posture, Control Panel and Compliance pages: control and asset statuses, severity, complexity)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.casb.tenants.md (CASB tenants: connecting a SaaS application, states and reauthorization)

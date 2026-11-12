@@ -30,3 +30,10 @@ Not known (open gaps):
 - Which fields each module offers [gap:deception.query-language:module-field-lists]: settled by source-read
 
 Area: deception.query-language, its subjects in references/_meta/spine/deception/deception.query-language.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+- see-also references/_meta/text/deception/deception.orchestration-rules.md (Deception and ITDR orchestration rules: the Orchestrate menu, rule pipeline, actions, testing, pausing and event notification templates)
+- see-also references/_meta/text/deception/deception.siem-integrations.md (Deception and ITDR SIEM integrations: supported SIEMs, the integration list, filters, and the ArcSight, QRadar, Sentinel, DNIF, Splunk, Syslog and Sumo Logic guides)
+- see-also references/_meta/text/deception/deception.miragemaker.md (Deception Miragemaker: strategies, decoy personalities, banners, tags, datalists and ThreatParse rules)
+- see-also references/_meta/text/deception/deception.investigate.md (Deception Investigate: the dashboard, containment actions, event logs and evidence)

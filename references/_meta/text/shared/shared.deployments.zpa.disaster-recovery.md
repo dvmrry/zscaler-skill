@@ -16,3 +16,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.deployments.zia.disaster-recovery.md (What the ZIA disaster recovery deployment and operations guide requires and how clients behave)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.disaster-recovery.md (Disaster recovery mode and Private Service Edge groups)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.disaster-recovery.dns-records.md (Disaster recovery activation TXT records and the Zscaler DNS Record Generator)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.deployments.md (Where the ZIA and ZPA deployment and operations guides and leading practices guides are recorded)

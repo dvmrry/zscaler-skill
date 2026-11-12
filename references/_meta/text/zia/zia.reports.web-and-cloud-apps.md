@@ -35,3 +35,9 @@ Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)
 - links-to references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)
+- see-also references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes)
+- see-also references/_meta/text/zia/zia.ssl-inspection.md (ZIA SSL/TLS inspection)
+- see-also references/_meta/text/portfolio/portfolio.saas-security-report.md (Shadow IT Report (also SaaS Security Report, ZINS): shadow IT discovery, risk index and API surface)

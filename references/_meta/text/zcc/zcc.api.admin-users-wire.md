@@ -20,3 +20,7 @@ Not known (open gaps):
 - Whether admins added elsewhere appear in ZCC only after a sync [gap:zcc.api.admin-users-wire:sync-visibility]: settled by lab-test or support-ticket. Blocks: explaining an admin who exists in ZIA but not in the Client Connector Portal
 
 Area: zcc.api, its subjects in references/_meta/spine/zcc/zcc.api.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.api.md (The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes)
+- see-also references/_meta/text/zcc/zcc.api.rate-limits.md (ZCC API rate limits: 100 calls an hour, 3 a day for downloads, and how the SDKs back off)

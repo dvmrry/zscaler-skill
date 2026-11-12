@@ -15,3 +15,7 @@ Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.sdk-python.request-handling.md (How the Python SDK builds a request: body and query key casing, ID lists)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.server-groups.update-payload.md (What the Python SDK sends when it updates a server group)
+- see-also references/_meta/text/zpa/zpa.app-segments.sdk-behavior.md (What the Python and Go SDKs send for application segments)

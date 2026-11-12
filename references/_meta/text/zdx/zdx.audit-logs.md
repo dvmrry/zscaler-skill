@@ -21,3 +21,8 @@ Area: zdx.audit-logs, its subjects in references/_meta/spine/zdx/zdx.audit-logs.
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/shared/shared.admin-rbac.zdx.md (ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope)
 - links-to references/_meta/text/shared/shared.audit-logs.md (Admin audit logs across Zscaler products: what exists and how to get it)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zdx/zdx.overview.md (ZDX at a glance: what it measures and which subject answers each question)
+- see-also references/_meta/text/zia/zia.audit-logs.md (ZIA audit logs: who changed what)
+- see-also references/_meta/text/zpa/zpa.audit-logs.md (ZPA admin audit logs)

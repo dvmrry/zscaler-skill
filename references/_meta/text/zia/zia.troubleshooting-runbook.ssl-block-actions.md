@@ -29,3 +29,9 @@ Area: zia.troubleshooting-runbook, its subjects in references/_meta/spine/zia/zi
 
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.ssl-inspection.cipher-suites.md (Which TLS versions and cipher suites SSL/TLS inspection supports, and what happens to the rest)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.md (How the Internet & SaaS Access Control Policies troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.troubleshooting-runbook.ssl-policy-reasons.md (Runbook: SSL Policy Reason values and what causes each)
+- see-also references/_meta/text/zia/zia.ssl-inspection.uninspectable.md (What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT)
+- see-also references/_meta/text/zia/zia.advanced-settings.http-tunnel-control.md (HTTP CONNECT tunnel control and the domain fronting blocks in Advanced Settings)
