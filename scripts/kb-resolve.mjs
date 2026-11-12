@@ -1029,19 +1029,25 @@ function recordLine(f) {
 // The most characters of linked records' list lines a read prints; past it, the rest are named by ID only.
 const LIST_CHARS = 8000;
 
-/** Records one line each, as many as fit in LIST_CHARS, then every other one by ID, so each can still be read. */
-function listRecords(records) {
+/**
+ * Linked subjects' records, as [subject ID, record] in rank order, one line each while they fit in LIST_CHARS. Every
+ * other one is named by ID under the linked subject it came through, so a reader can tell which bear on the answer.
+ * The IDs are space-separated, so a run of them pastes as arguments.
+ */
+function listRecords(g, listed) {
   const head = "Company records about linked subjects, one line each (read the ones the answer needs whole, all in one call: `node scripts/kb.mjs read --company <record id> ...`):";
   const lines = [];
   let size = head.length;
-  for (const data of records) {
+  for (const [, data] of listed) {
     const line = recordLine(data);
     if (size + line.length + 1 > LIST_CHARS) break;
     lines.push(line);
     size += line.length + 1;
   }
-  const rest = records.slice(lines.length).map((data) => data.id);
-  return [head, ...lines, ...(rest.length ? [`- and ${rest.length} more, by ID: ${rest.join(", ")}`] : [])].join("\n");
+  const rest = new Map();
+  for (const [id, data] of listed.slice(lines.length)) rest.set(id, [...(rest.get(id) || []), data.id]);
+  const more = [...rest].map(([id, ids]) => `- ${ids.length} more about ${id} (${titleOf(g, id)}), by ID: ${ids.join(" ")}`);
+  return [head, ...lines, ...more].join("\n");
 }
 
 // The most characters of an IaC value a read prints. A pointer can resolve to a whole exported object, kilobytes of
@@ -1052,37 +1058,46 @@ const IAC_VALUE_CHARS = 300;
 function iacValue(value) {
   const s = JSON.stringify(value);
   if (s.length <= IAC_VALUE_CHARS) return s;
-  return `${jsonPrefix(value, IAC_VALUE_CHARS)} (cut: ${s.length} characters in all; the source has the whole value)`;
+  // A value whose one item has no part to cut (a number under a long key) prints whole, a little past the room.
+  const kept = jsonPrefix(value, IAC_VALUE_CHARS);
+  return kept === s ? s : `${kept} (cut: ${s.length} characters in all; the source has the whole value)`;
 }
 
 /**
  * About `room` characters of a value as JSON, never part of an item: an array or object keeps the whole items that
- * fit and marks the rest `…`, cutting into its first item only when none fits whole; a string keeps whole characters.
+ * fit and marks the rest `…`, cutting into its first item only when none fits whole (into its key, when the key alone
+ * fills the room); a string keeps whole characters, counted as JSON writes them; a number, boolean or null is short
+ * and prints whole.
  */
 function jsonPrefix(value, room) {
   const s = JSON.stringify(value);
   if (s.length <= room) return s;
   if (value && typeof value === "object") {
     const array = Array.isArray(value);
-    const items = array ? value.map((v) => ["", v]) : Object.entries(value).map(([k, v]) => [`${JSON.stringify(k)}:`, v]);
+    const items = array ? value.map((v) => [null, v]) : Object.entries(value);
     const kept = [];
     let size = 5; // the brackets and ", …"
-    for (const [key, v] of items) {
+    for (const [k, v] of items) {
+      const key = k === null ? "" : `${JSON.stringify(k)}:`;
       const whole = key + JSON.stringify(v);
       if (size + whole.length + 1 <= room) {
         kept.push(whole);
         size += whole.length + 1;
         continue;
       }
-      if (!kept.length) kept.push(key + jsonPrefix(v, Math.max(room - size - key.length, 20)));
+      if (!kept.length) kept.push(key.length + 10 > room - size ? `${jsonPrefix(k, room - size - 2)}:…` : key + jsonPrefix(v, room - size - key.length));
       break;
     }
     return `${array ? "[" : "{"}${kept.join(",")}${items.length > kept.length ? ", …" : ""}${array ? "]" : "}"}`;
   }
+  if (typeof value !== "string") return s;
   let kept = "";
-  for (const ch of String(value)) {
-    if (kept.length + ch.length > Math.max(room - 3, 10)) break;
+  let size = 3; // the quotes and "…"
+  for (const ch of value) {
+    const n = JSON.stringify(ch).length - 2;
+    if (size + n > Math.max(room, 13)) break;
     kept += ch;
+    size += n;
   }
   return `${JSON.stringify(kept).slice(0, -1)}…"`;
 }
@@ -1146,8 +1161,9 @@ function edgesOf(g, id) {
  * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
  * about it. `company` keeps only those records, for a reader that has the public text already (scripts/gen-text.mjs
  * writes it as files): a subject named stands for its whole area, as the areas agents used to read did. The records
- * about the subjects one hop from those follow, the most strongly linked first, until `linkedRecords` tokens; the rest
- * print one line each, and a record's ID reads it whole. A type or field stands for itself.
+ * about the subjects one hop from those follow, the most strongly linked first, each whole while it fits in
+ * `linkedRecords` tokens; the rest print one line each, past a point by ID only, and a record's ID reads it whole. A
+ * type or field stands for itself.
  *
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
@@ -1182,14 +1198,17 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
-    // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole.
+    // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole. A
+    // trailing comma is dropped, for IDs copied from a comma-separated list.
     if (ov && !g.nodes.has(arg) && arg.startsWith("company.")) {
+      arg = arg.replace(/,+$/, "");
       const data = ov.records.find((r) => r.data?.id === arg)?.data;
       if (data?.status === "active") {
         if (!shown.has(arg)) out.push(`Company record ${arg}:\n${recordText(facetOf(ov, data), new Set())}`);
         shown.add(arg);
         records++;
       } else if (data?.status === "promoted") out.push(`# ${arg}: this company record was promoted to the public claim ${data.promoted_to}`);
+      else if (ov.skipped?.has(arg)) out.push(`# ${arg}: this company record was skipped as invalid (the overlay check says why)`);
       else out.push(`# ${arg}: no active company record has this ID${data ? ` (it is ${data.status})` : ""}`);
       continue;
     }
@@ -1248,10 +1267,11 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
-    // The linked subjects' records, the most strongly linked subject's first: whole until `linkedRecords` tokens, then
-    // one line each, since every link out of an area brings its records, and a large area links to up to 61
-    // subjects. A record is sized without its IaC dates (a few characters each), so one only listed costs no
-    // `git log`. Types are not followed, as in a full read, where a type never fits the budget.
+    // The linked subjects' records, since every link out of an area brings its records, and a large area links to up
+    // to 61 subjects. Each prints whole while it fits in `linkedRecords` tokens, the most strongly linked subject's
+    // first, so one long record lists only itself; the rest print one line each. A record is sized with its subject's
+    // heading and without its IaC dates (a few characters each), so one only listed costs no `git log`. Types are not
+    // followed, as in a full read, where a type never fits the budget.
     if (company) {
       if (!ov) break;
       let spent = 0;
@@ -1262,15 +1282,20 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
         const ids = aboutIds(g, id);
         const found = aboutRecords(ov, ids, shown);
         if (!found.length) continue;
-        for (const data of found) shown.add(data.id);
         records++;
-        const cost = found.map((data) => recordText(facetOf(ov, data, { dated: false }), ids)).join("\n").length / 4;
-        if (spent + cost <= linkedRecords) {
-          spent += cost;
-          out.push(`Company records about ${id}:\n${found.map((data) => recordText(facetOf(ov, data), ids)).join("\n")}`);
-        } else listed.push(...found);
+        const head = `Company records about ${id}:`;
+        const whole = [];
+        for (const data of found) {
+          shown.add(data.id);
+          const cost = ((whole.length ? 0 : head.length + 2) + recordText(facetOf(ov, data, { dated: false }), ids).length + 1) / 4;
+          if (spent + cost <= linkedRecords) {
+            spent += cost;
+            whole.push(data);
+          } else listed.push([id, data]);
+        }
+        if (whole.length) out.push(`${head}\n${whole.map((data) => recordText(facetOf(ov, data), ids)).join("\n")}`);
       }
-      if (listed.length) out.push(listRecords(listed));
+      if (listed.length) out.push(listRecords(g, listed));
       continue;
     }
     out.push(`## Linked subjects (one hop from what was read)`);
@@ -1449,7 +1474,9 @@ export function usableOverlay(g, ov) {
     console.error(e.pointer ? `overlay pointer unresolved (record kept): ${e.file}: ${e.message}` : `overlay record skipped: ${e.file}: ${e.message}`);
     if (!e.pointer) bad.add(e.file);
   }
-  const usable = { ...ov, records: ov.records.filter((r) => !bad.has(r.file)) };
+  // The skipped records' IDs, so a read by ID says why there is none.
+  const skipped = new Set(ov.records.filter((r) => bad.has(r.file) && typeof r.data?.id === "string").map((r) => r.data.id));
+  const usable = { ...ov, records: ov.records.filter((r) => !bad.has(r.file)), skipped };
   // What validation resolved (each IaC file's JSON) stays worked out: the copy is the same overlay.
   if (MEMO.has(ov)) MEMO.set(usable, MEMO.get(ov));
   return usable;

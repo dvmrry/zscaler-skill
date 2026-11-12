@@ -98,9 +98,10 @@ fails a resolve. The contract check below is the strict gate.
 `node scripts/kb.mjs read` follows each subject, type or field it reads with every active record whose `about`
 touches it or the types it binds, and `read --company` prints only those records, for the named subjects' areas and the
 subjects they link to (agents read the public text from `references/_meta/text/` and run it once per answer). It
-prints the linked subjects' records whole up to a budget and lists the rest one line each; a record's ID reads that
-record. A long IaC value prints the whole items that fit in about 300 characters, marks the rest `…`, and gives its
-length. `resolve <id | text>` merges the same
+prints the linked subjects' records whole, the most strongly linked first, while each fits a budget, lists the rest
+one line each, and past a second limit names them by ID under the linked subject they come from; a record's ID
+reads that record. A long IaC value prints the whole items that fit in about 300 characters, marks the rest `…`,
+and gives its length. `resolve <id | text>` merges the same
 records into its bundle as `layer: company` facets, with IaC values whole, and ranks text queries on the records'
 words too. When an answer uses one:
 
