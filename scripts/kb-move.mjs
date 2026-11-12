@@ -91,7 +91,7 @@ export function moveClaim(root, from, to, { merge = false } = {}) {
 
   // Every other mention of the qualified ID, by exact match (not a prefix of a longer ID).
   const exact = new RegExp(`${escapeRegex(from)}(?![a-z0-9-])`, "g");
-  const tracked = execFileSync("git", ["-C", root, "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "references", "agents", "docs", "SKILL.md", "AGENTS.md", "scripts"], { encoding: "utf8" })
+  const tracked = execFileSync("git", ["-C", root, "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "references", "agents", "docs", "SKILL.md", "AGENTS.md", "scripts"], { encoding: "utf8", maxBuffer: 256 << 20 })
     .split("\0")
     .filter((p) => p && /\.(json|md|mjs|py)$/.test(p) && !p.startsWith("vendor/"));
   const rewritten = [];
