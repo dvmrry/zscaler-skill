@@ -1,0 +1,47 @@
+# ZIA Forwarding Control and Source IP Anchoring (zia.forwarding-control)
+Also called: forwarding control; forwarding control policy; zia forwarding rules; egress routing; source ip anchoring; sipa
+
+Forwarding Control decides where matching traffic is forwarded. Forwarding Control policy forwards selected Zscaler traffic to specific endpoints: directly, through a third-party proxy service, through a Zscaler-assigned dedicated IP address or GeoIP address, or to a Private Access App Connector through a Private Access gateway. [zia.forwarding-control:overview] Forwarding Control policies are applicable to traffic originating from a known location or a user using PAC files or Zscaler Client Connector with Z-Tunnel 2.0 and Z-Tunnel 1.0. [zia.forwarding-control:applies-to] Questions about it come in four shapes.
+
+1. **What does the rule do with matching traffic?** The forward method decides, and each method has required and forbidden fields: [Forwarding methods and their required fields](kb:zia.forwarding-control.methods).
+2. **Does the rule match, and in what order?** Criteria, limits and ordering: [Forwarding Control rule criteria, limits and ordering](kb:zia.forwarding-control.rules). Rules Zscaler ships, and what Terraform will not touch: [Predefined Forwarding Control rules](kb:zia.forwarding-control.predefined-rules).
+3. **Is it Source IP Anchoring?** The ZIA side is a Private Access gateway ([The Private Access gateway object in ZIA](kb:zia.forwarding-control.zpa-gateway)) plus a forwarding rule; the Private Access side and the DNS side are in [Source IP Anchoring: what it needs on each side](kb:zia.forwarding-control.sipa) and [Predefined DNS Control rules and the ZPA resolvers](kb:zia.dns-control.predefined-rules). When ZIA is in disaster recovery: [Source IP Anchoring Direct during ZIA disaster recovery](kb:zia.forwarding-control.sipa-direct).
+4. **Is it Terraform?** The ZPA delay and retry, and the provider's handling of Forwarding Control objects: [Terraform behavior of ZPA-method forwarding rules](kb:zia.forwarding-control.terraform). Selectors the provider never sends: [ZIA Terraform resource fields that are not sent, not read back, or sent wrongly](kb:zia.terraform.field-fidelity).
+
+Two neighbours are easy to confuse with Source IP Anchoring: customer-owned Dedicated IP addresses ([Customer-owned Dedicated IP addresses (BYOIP)](kb:zia.forwarding-control.byoip)) and dedicated proxy ports ([Dedicated proxy ports](kb:zia.forwarding-control.proxy-ports)). The Z-Tunnel 1.0 and PAC firewall gate that also applies to Road Warrior forwarding rules is in [Where the firewall sits in the traffic path](kb:zia.firewall.traffic-path).
+
+Zscaler-managed Dedicated IP addresses, their gateways and the migration from Source IP Anchoring are in [Zscaler-managed Dedicated IP: provisioning, IP addresses, gateways and migration from Source IP Anchoring](kb:zia.forwarding-control.dedicated-ip); GeoIP forwarding for countries without a Zscaler data center is in [Geolocalization IP (GeoIP) forwarding: when it applies, how it is enabled and the supported-country table's example rows](kb:zia.forwarding-control.geoip).
+
+Forwarding web traffic on to a third-party proxy service through proxies and proxy gateways is in [Third-Party Proxy Chaining from ZIA: proxies, proxy gateways and fail-close](kb:zia.forwarding-control.third-party-proxies).
+
+Where Forwarding Control sits relative to the other modules is open [gap:zia.forwarding-control:pipeline-position] for the general case; for Source IP Anchoring the inspection-before-hand-off statement is in [Source IP Anchoring: what it needs on each side](kb:zia.forwarding-control.sipa). Surrogate IP is covered in the legacy [Source IP Anchoring across ZIA and Private Access: path, pieces and interactions](kb:shared.source-ip-anchoring).
+
+Not known (open gaps):
+- Where Forwarding Control sits in the module order [gap:zia.forwarding-control:pipeline-position]: settled by lab-test or support-ticket. Blocks: answering whether a Forwarding Control rule can send traffic out before a content rule has judged it, for methods other than ZPA
+
+Area: zia.forwarding-control, its subjects in references/_meta/spine/zia/zia.forwarding-control.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zia/zia.dns-control.predefined-rules.md (Predefined DNS Control rules and the ZPA resolvers): Forwarding rules that match on wildcard FQDNs only evaluate correctly if client DNS requests are forwarded to the Zscaler service. [zia.forwarding-control.rules:wildcard-fqdn-dns]
+- decided-by references/_meta/text/zia/zia.forwarding-control.methods.md (Forwarding methods and their required fields): The console offers these forwarding methods: ZPA (to a Private Access App Connector through the Private Access gateway), Direct, Proxy Chaining (to a third-party proxy service), Dedicated IP (through a dedicated IP gateway) and GeoIP (source IP address mapped to the location of the originating request). [zia.forwarding-control.methods:console-methods]
+- decided-by references/_meta/text/zia/zia.forwarding-control.rules.md (Forwarding Control rule criteria, limits and ordering): Rules are evaluated in ascending rule order. A rule's admin rank is 0 to 7 (0 is the highest), and a rule with a higher admin rank always precedes a rule with a lower admin rank. [zia.forwarding-control.rules:order-and-rank]
+- depends-on references/_meta/text/zia/zia.forwarding-control.zpa-gateway.md (The Private Access gateway object in ZIA): In a ZPA forwarding rule the Forward to Gateway field is enabled only when the selected application segments require Source IP Anchoring and share a common Private Access gateway; an empty list means no common gateway exists for the selected segments. [zia.forwarding-control.zpa-gateway:rule-needs-common-gateway]
+- links-to references/_meta/text/zia/zia.forwarding-control.sipa.md (Source IP Anchoring: what it needs on each side)
+- depends-on references/_meta/text/zia/zia.firewall.licensing.md (Which firewall features need Advanced Firewall): Configuring and applying firewall policies based on users, groups, departments or network applications requires Advanced Firewall. [zia.firewall.licensing:identity-and-apps-need-advanced]
+- scoped-by references/_meta/text/zia/zia.iot.policy-use.md (How IoT traffic is targeted by policy): The Device Groups criterion has an IoT choice that applies a rule to IoT traffic, alongside Cloud Browser Isolation and No Client Connector. It appears in URL Filtering, Cloud App Control, SSL/TLS Inspection and Forwarding Control rules. [zia.iot.policy-use:iot-device-group]
+- scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group): Within the Who, Where and When tab, criteria combine as [Users OR Groups OR Departments] AND [Locations OR Location Groups] AND Device Groups; Services is Network Service Groups OR Network Services; Source is Source IPv4 Groups OR IP Addresses; Destination is Destination Groups OR Destination IP Address/Wildcard FQDN OR Countries OR URL Categories; and the tabs combine with AND. [zia.forwarding-control.rules:criteria-logic]
+- scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many): These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
+- links-to references/_meta/text/shared/shared.source-ip-anchoring.md (Source IP Anchoring across ZIA and Private Access: path, pieces and interactions)
+- links-to references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path)
+- links-to references/_meta/text/zia/zia.forwarding-control.byoip.md (Customer-owned Dedicated IP addresses (BYOIP))
+- links-to references/_meta/text/zia/zia.forwarding-control.dedicated-ip.md (Zscaler-managed Dedicated IP: provisioning, IP addresses, gateways and migration from Source IP Anchoring)
+- links-to references/_meta/text/zia/zia.forwarding-control.geoip.md (Geolocalization IP (GeoIP) forwarding: when it applies, how it is enabled and the supported-country table's example rows)
+- links-to references/_meta/text/zia/zia.forwarding-control.predefined-rules.md (Predefined Forwarding Control rules)
+- links-to references/_meta/text/zia/zia.forwarding-control.proxy-ports.md (Dedicated proxy ports)
+- links-to references/_meta/text/zia/zia.forwarding-control.sipa-direct.md (Source IP Anchoring Direct during ZIA disaster recovery)
+- links-to references/_meta/text/zia/zia.forwarding-control.terraform.md (Terraform behavior of ZPA-method forwarding rules)
+- links-to references/_meta/text/zia/zia.forwarding-control.third-party-proxies.md (Third-Party Proxy Chaining from ZIA: proxies, proxy gateways and fail-close)
+- links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)

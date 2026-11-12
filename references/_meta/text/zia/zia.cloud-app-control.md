@@ -1,0 +1,37 @@
+# ZIA Cloud App Control (zia.cloud-app-control)
+Also called: cloud app control; cac; saas application control; web application rules; cloud app rule
+
+"Why was this cloud app allowed, blocked, or not caught?" needs the questions below answered in order. Cloud App Control (CAC) is a separate rule set from URL Filtering, with its own categories, criteria and actions.
+
+1. **Does CAC decide, or does URL Filtering?** CAC is evaluated first, and only an explicit CAC allow can skip URL Filtering: [Cloud App Control versus URL Filtering: which applies](kb:zia.cloud-app-control.precedence).
+2. **Which rule type (cloud app category) holds the rule?** Rules are organised and capped per category, and some categories have granular controls: [Cloud App Control categories (rule types), limits and predefined rules](kb:zia.cloud-app-control.rule-types). The AI & ML category has its own rule flow: [AI & ML Applications rules: granular actions, prompt capture, tenant profiles](kb:zia.cloud-app-control.ai-ml-rules).
+3. **Does the rule's criteria match?** Which fields combine with AND and OR, and how a single rule names an app: [What a Cloud App Control rule matches on](kb:zia.cloud-app-control.rule-criteria). A rule that names a Risk Profile instead of apps matches by attribute: [Cloud Application Risk Profiles in Cloud App Control](kb:zia.cloud-app-control.risk-profiles). Application status, tags and custom applications: [SaaS Applications page: application status, tags and custom cloud applications](kb:zia.cloud-app-control.custom-applications). A rule that names an instance of an application: [Cloud application instances: identifiers, supported applications and limits](kb:zia.cloud-app-control.app-instances).
+4. **What does the matching rule do?** Console actions, granular action strings, and how to discover them: [Cloud App Control actions and action discovery](kb:zia.cloud-app-control.actions).
+5. **Could CAC see the app at all?** Identification depends on what is visible before decryption: [Cloud App Control and SSL inspection: what CAC can see](kb:zia.cloud-app-control.ssl-visibility).
+
+For "users still reach a blocked app" or "an allowed app is blocked", start with [Cloud App Control troubleshooting: blocked-but-allowed and allowed-but-blocked](kb:zia.cloud-app-control.troubleshooting). For field-level questions about tenant snapshots and the SDKs, see [Cloud App Control API and SDK surface: app entries, flags, duplicate](kb:zia.cloud-app-control.api-surface). Tenant restriction (Tenant Profiles) is a related feature documented in [Tenant Profiles: SaaS tenant restriction](kb:zia.tenant-profiles).
+
+Area: zia.cloud-app-control, its subjects in references/_meta/spine/zia/zia.cloud-app-control.json
+
+Linked (open a file only if the answer needs it):
+- decided-by references/_meta/text/zia/zia.cloud-app-control.rule-criteria.md (What a Cloud App Control rule matches on): A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile]. [zia.cloud-app-control.rule-criteria:criteria-expression]
+- scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group): A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile]. [zia.cloud-app-control.rule-criteria:criteria-expression]
+- logged-in references/_meta/text/zia/zia.logs.web-rule-attribution.md (Which rule decided a web transaction, from the logs): URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty. [zia.logs.web-rule-attribution:separate-layer-labels]
+- interacts-with references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)): For traffic that is not decrypted, including destinations covered by the one-click options, Cloud App Control can use only the domain-level information from the first pass (CONNECT host or SNI), so it has less to identify the application with than for decrypted traffic. [zia.cloud-app-control.ssl-visibility:domain-level-only-when-not-decrypted]
+- interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering): By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire. [zia.cloud-app-control.precedence:cac-allow-skips-url-filtering]
+- links-to references/_meta/text/zia/zia.cloud-app-control.actions.md (Cloud App Control actions and action discovery)
+- links-to references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)
+- links-to references/_meta/text/zia/zia.cloud-app-control.api-surface.md (Cloud App Control API and SDK surface: app entries, flags, duplicate)
+- links-to references/_meta/text/zia/zia.cloud-app-control.app-instances.md (Cloud application instances: identifiers, supported applications and limits)
+- links-to references/_meta/text/zia/zia.cloud-app-control.custom-applications.md (SaaS Applications page: application status, tags and custom cloud applications)
+- links-to references/_meta/text/zia/zia.cloud-app-control.precedence.md (Cloud App Control versus URL Filtering: which applies)
+- links-to references/_meta/text/zia/zia.cloud-app-control.risk-profiles.md (Cloud Application Risk Profiles in Cloud App Control)
+- links-to references/_meta/text/zia/zia.cloud-app-control.rule-types.md (Cloud App Control categories (rule types), limits and predefined rules)
+- links-to references/_meta/text/zia/zia.cloud-app-control.ssl-visibility.md (Cloud App Control and SSL inspection: what CAC can see)
+- links-to references/_meta/text/zia/zia.cloud-app-control.troubleshooting.md (Cloud App Control troubleshooting: blocked-but-allowed and allowed-but-blocked)
+- links-to references/_meta/text/zia/zia.tenant-profiles.md (Tenant Profiles: SaaS tenant restriction)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
+- configured-via references/_meta/text/zia/zia.terraform.cloud-app-control-rule.md (The Cloud App Control rule resource: prompt capture, isolation, import and delete)
+- see-also references/_meta/text/portfolio/portfolio.casb.md (CASB: ZIA inline controls plus out-of-band SaaS security, not one product)

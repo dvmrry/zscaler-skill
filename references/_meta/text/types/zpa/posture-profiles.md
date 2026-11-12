@@ -1,0 +1,19 @@
+# zpa/posture-profiles (zpa/posture-profiles)
+- Names: zscalerctl `zpa posture-profiles`; terraform_data_source `zpa_posture_profile`
+- Live read (read-only): `zscalerctl zpa posture-profiles list`
+- applyToMachineTunnelEnabled
+- creationTime
+- crlCheckEnabled
+- domain
+- id
+- masterCustomerId
+- modifiedBy
+- modifiedTime
+- name
+- nonExportablePrivateKeyEnabled
+- platform
+- postureType
+- postureUdid
+- rootCert
+- zscalerCloud
+- zscalerCustomerId

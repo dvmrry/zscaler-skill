@@ -1,0 +1,37 @@
+# Choosing a Private Service Edge design and node count (zia.private-service-edge.sizing)
+Also called: pse sizing; pse 3 vs pse 5; dedicated lb sizing; pse throughput; pse max nodes per cluster; pse upload throughput cap; pse n+1 sizing; pse over 5 gbps
+
+Sizing is an arithmetic exercise with one assumption and two hard rules.
+
+**The assumption.** The sizing figures assume upload throughput is around 30% of download. When upload is unknown, 30% of the expected download is used. [zia.private-service-edge.sizing:upload-assumption] Private Service Edge sizing is based on throughput, and both upload and download throughput must be considered. [zia.private-service-edge.sizing:size-both-directions]
+
+**The designs.** Private Service Edge 3 with Integrated LB: 3 Service Edge instances, an integrated LB and a 1GE network interface, sized for ISP link speeds of 1 Gbps download. [zia.private-service-edge.sizing:design-pse3] Private Service Edge 5 with Integrated LB: 5 Service Edge instances, an integrated LB and a 10GE network interface, sized for ISP link speeds of 2 Gbps download. [zia.private-service-edge.sizing:design-pse5] Private Service Edge 5 with Dedicated LB: 6 Service Edge instances, a dedicated LB with up to 4 LB instances and a 10GE network interface, sized for ISP link speeds greater than 5 Gbps download. [zia.private-service-edge.sizing:design-pse5-dedicated] Their per-cluster limits: Maximum Private Service Edges per cluster is 3 for Private Service Edge 3 and 5 with Integrated LB and 10 for Private Service Edge 5 with Dedicated LB; the minimum is 2 for all three. The Dedicated LB design has 2 dedicated LBs per cluster. [zia.private-service-edge.sizing:node-counts] A Private Service Edge 3 cluster handles up to 1.2 Gbps of download and 2 Gbps of total throughput; a Private Service Edge 5 cluster handles up to 3.9 Gbps of download and 5 Gbps of total throughput. [zia.private-service-edge.sizing:cluster-totals] Maximum upload throughput per cluster is limited to 800 Mbps on Private Service Edge 3, 2.5 Gbps on Private Service Edge 5, and 6 Gbps per LB instance on Private Service Edge 5 with Dedicated LB (up to 24 Gbps). [zia.private-service-edge.sizing:upload-caps]
+
+**Worked answers.** Worked examples on the page: 800 Mbps download plus 240 Mbps upload is 1.04 Gbps total on a 1GE port, served by two Private Service Edge 3 nodes; 1.8 Gbps download plus 540 Mbps upload is 2.34 Gbps total on a 10GE port, served by two Private Service Edge 5 nodes; 1.75 Gbps download needs 2 x Private Service Edge 5, and 2.45 Gbps and 3.5 Gbps download each need 3 x Private Service Edge 5. [zia.private-service-edge.sizing:worked-examples] Private Service Edge 3 and Private Service Edge 5 are always quoted with N+1 redundancy to meet the Zscaler SLA requirements; the two instances provide additional support for traffic bursts and redundancy in case of a hardware failure. [zia.private-service-edge.sizing:always-quoted-n-plus-one] For more than 1 Gbps of download throughput, the sizing section recommends deploying Private Service Edge 5. [zia.private-service-edge.sizing:pse5-above-1gbps] Whether the PSE 3 limit and the PSE 5 recommendation above 1 Gbps of download reconcile is open [gap:zia.private-service-edge.sizing:pse3-above-1gbps-tension].
+
+**The hard rule.** Any deployment requiring more than 5 Gbps of total throughput must include the Dedicated LB hardware and must be reviewed by Zscaler Cloud Operations. [zia.private-service-edge.sizing:over-5gbps-needs-dedicated-and-review] A deployment above 5 Gbps of total throughput must use the Dedicated LB design (Private Service Edge 5 with Dedicated LB), so its per-node address and port budget is the Dedicated LB budget (6 service addresses, an MTS address, up to 8 x 10GE ports), not the integrated LB budget. [zia.private-service-edge.sizing:above-5gbps-dedicated-budget] The address and port budget per design is in [Addresses, NAT, IPv6 and ports a Private Service Edge needs](kb:zia.private-service-edge.ip-requirements).
+
+Design behavior (why a minimum of two nodes, how the LB pair works) is in [How a Private Service Edge cluster is built and fails over](kb:zia.private-service-edge.cluster-architecture). Whether to deploy a PSE at all is [When a Private Service Edge is warranted](kb:zia.private-service-edge.when-to-deploy).
+
+What to check:
+1. Size on total throughput in both directions, not download alone, using the assumed upload where upload is unknown.
+2. Read the 'up to 24 Gbps' figure as upload across the LB instances, not as a total-throughput ceiling.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.private-service-edge.sizing:above-5gbps-dedicated-budget] Tier B: Compares the two budgets as the ip-requirements page states them; Zscaler Cloud Operations' review may change the design.
+
+Not known (open gaps):
+- PSE 3 versus PSE 5 above 1 Gbps of download [gap:zia.private-service-edge.sizing:pse3-above-1gbps-tension]: settled by support-ticket
+
+Area: zia.private-service-edge, its subjects in references/_meta/spine/zia/zia.private-service-edge.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zia/zia.private-service-edge.ip-requirements.md (Addresses, NAT, IPv6 and ports a Private Service Edge needs), from zia.private-service-edge: The Private Service Edge IP addresses must be public. [zia.private-service-edge.ip-requirements:addresses-must-be-public]
+- scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.private-service-edge: A ZIA Private Service Edge cluster is brought under policy by adding a Location to it. The ZIA pages describe no Private Service Edge group object and no provisioning key; groups and provisioning keys are a ZPA construct. [zia.private-service-edge.what-it-is:binds-through-location-not-group]
+- reached-via references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment), from zia.private-service-edge: Deploying outside the corporate firewall: Zscaler highly recommends sending HTTP/HTTPS traffic through a GRE or IPSec tunnel from the firewall to the Private Service Edges, which needs no firewall changes for the Private Service Edge's communications. Only HTTP/HTTPS goes to the Private Service Edges, all other traffic goes directly to the internet, and the traffic sent through the tunnels should be un-NATed for visibility. [zia.private-service-edge.deployment:outside-firewall-tunnels]
+- reached-via references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover), from zia.private-service-edge: If the organization uses PAC files to forward traffic to the Zscaler service, the PAC variables that point to the Private Service Edges must specify the subcloud Zscaler configured for the organization. [zia.private-service-edge.deployment:pac-subcloud]
+- links-to references/_meta/text/zia/zia.private-service-edge.cluster-architecture.md (How a Private Service Edge cluster is built and fails over)
+- links-to references/_meta/text/zia/zia.private-service-edge.when-to-deploy.md (When a Private Service Edge is warranted)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)

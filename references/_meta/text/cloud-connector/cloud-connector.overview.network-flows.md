@@ -1,0 +1,26 @@
+# Cloud Connector management and service interfaces: which flows each carries (cloud-connector.overview.network-flows)
+Also called: cloud connector management interface; cloud connector service interface; cloud connector network flows; networking flows for cloud connector
+
+Every Cloud Connector has a minimum of two network interfaces that communicate with the Zscaler cloud for different purposes, a management interface and service interfaces. [cloud-connector.overview.network-flows:two-interfaces]
+
+**Management interface.** The management interface's flows include control plane communications with the Zscaler cloud for enrollment, service discovery, log streaming and software updates, retrieval of security credentials from cloud providers, control plane DNS resolution, control plane NTP traffic and Zscaler remote support services. [cloud-connector.overview.network-flows:mgmt-outbound] The page says the inbound network flows provide Secure Socket Shell (SSH) access for troubleshooting. [cloud-connector.overview.network-flows:mgmt-inbound] The page gives no ports or destinations for these flows [gap:cloud-connector.overview.network-flows:flow-ports].
+
+**Service interfaces.** The service interface's flows include Internet & SaaS (ZIA) forwarding, Private Access (ZPA) forwarding, Direct (bypass Zscaler) forwarding, data plane DNS resolution, load balancer health checks and workload traffic; for Amazon Web Services only, the flow also enables the GENEVE Protocol. [cloud-connector.overview.network-flows:service-flows] Cloud Connectors receive traffic from load balancers via the service network interface and then determine where to send the traffic. [cloud-connector.overview.network-flows:lb-to-service]
+
+Not known (open gaps):
+- Ports and destinations of the management and service interface flows [gap:cloud-connector.overview.network-flows:flow-ports]: settled by source-read or support-ticket. Blocks: firewall and security-group design for the management interface
+
+Area: cloud-connector.overview, its subjects in references/_meta/spine/cloud-connector/cloud-connector.overview.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/cloud-connector/cloud-connector.api.provisioning-wire.md (Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields), from cloud-connector.overview: The cloud provisioning URL is a prerequisite for deploying Cloud Connector as a VM in AWS, Azure and GCP, and is obtained by configuring a provisioning template; the same URL can be used multiple times. [cloud-connector.api.provisioning-wire:url-prerequisite]
+- decided-by references/_meta/text/cloud-connector/cloud-connector.dns.policies.md (Cloud & Branch Connector DNS policies: scope, criteria, actions, predefined rules), from cloud-connector.overview: DNS policies monitor and apply policy to all DNS requests and responses whatever the protocol and encryption, including UDP, TCP and DNS over HTTPS (DoH). [cloud-connector.dns.policies:scope-doh]
+- decided-by references/_meta/text/cloud-connector/cloud-connector.forwarding.md (Cloud Connector traffic forwarding), from cloud-connector.overview: Traffic Forwarding forwards selected traffic to specific destinations: through Internet & SaaS or Private Access, bypassing them for a portion of workload traffic, or dropping selected workload traffic, configured as rules. [cloud-connector.forwarding:purpose]
+- logged-in references/_meta/text/cloud-connector/cloud-connector.logs.md (Cloud Connector logs: which log types exist and where to read them), from cloud-connector.overview: Cloud & Branch Connector logs are stored for 180 days in the Zscaler Nanolog servers. [cloud-connector.logs:nanolog-180]
+- scoped-by references/_meta/text/cloud-connector/cloud-connector.overview.groups.md (Cloud Connector groups: what they are for, autoscaling names, status and disabling), from cloud-connector.overview: Groups let you apply policies to a set of deployed Cloud Connectors and upgrade the Cloud Connectors in a group while keeping redundancy during the upgrade. [cloud-connector.overview.groups:group-purpose]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.md (Cloud & Branch Connector: what Cloud Connector is and where each area is described)
+- see-also references/_meta/text/cloud-connector/cloud-connector.overview.gateway-failover.md (Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.interfaces.md (Cloud Connector on AWS: network interfaces, device indexes, source/destination check)
+- see-also references/_meta/text/cloud-connector/cloud-connector.aws.security-groups.md (Cloud Connector on AWS: firewall requirements and the reference security groups)

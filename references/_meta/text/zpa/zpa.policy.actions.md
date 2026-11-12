@@ -1,0 +1,58 @@
+# Rule actions on ZPA policy types (zpa.policy.actions)
+Also called: allow access; block access; conditional access; require approval; allow with privileged approval; step-up authentication zpa; BYPASS INTERCEPT INTERCEPT_ACCESSIBLE; forwarding policy actions; inspection policy actions; pop-up message to user
+Former IDs: zpa-06
+
+The actions a rule can take depend on its policy type, and the access rule's third action has several names.
+
+**Access rule.** The access policy rule action options are Allow Access, Block Access and Conditional Access, plus an Allow with Privileged Approval checkbox for Privileged Remote Access. [zpa.policy.actions:access-actions-ui] Conditional Access applies step-up authentication, is available only with an Authentication Service subscription, and prompts the user to reinforce their authentication if they are not at the defined level. [zpa.policy.actions:conditional-access-step-up] Step-up authentication is supported only with OIDC-based external IdP integrations. [zpa.policy.actions:step-up-oidc-only] [gap:zpa.policy.actions:block-popup-support]
+
+**Names for the third action.** The help and the wire use different names [divergence:zpa.policy.actions:require-approval-name]. Whether they are one action is open [gap:zpa.policy.actions:require-approval-equals-conditional-access]. The v2 rule request accepts these action values: ALLOW, DENY, LOG, RE_AUTH, NEVER, BYPASS, INTERCEPT, NO_DOWNLOAD, BYPASS_RE_AUTH, INTERCEPT_ACCESSIBLE, ISOLATE, BYPASS_ISOLATE, INSPECT, BYPASS_INSPECT, REQUIRE_APPROVAL, INJECT_CREDENTIALS, CHECK_CAPABILITIES, MONITOR, DO_NOT_MONITOR, REDIRECT_DEFAULT, REDIRECT_PREFERRED, REDIRECT_ALWAYS and CHECK_PRIVILEGED_PORTAL_CAPABILITIES; none is named CONDITIONAL. [zpa.policy.actions:access-action-enum]
+
+**Forwarding rule.** The forwarding actions are BYPASS, where traffic goes directly to the destination and skips ZPA entirely; INTERCEPT, where it is routed through ZPA; and INTERCEPT_ACCESSIBLE, where it is intercepted only if the destination is reachable through ZPA. [zpa.policy.actions:forwarding-actions] The client forwarding policy page names the rule actions Bypass ZPA, Only Forward Allowed Applications and Forward to ZPA. [zpa.policy.actions:forwarding-ui-names] The mapping between the two is open [gap:zpa.policy.actions:forwarding-ui-vs-api-names].
+
+**Inspection rule.** The Terraform inspection rule resource accepts the actions INSPECT and BYPASS_INSPECT. [zpa.policy.actions:inspection-actions]
+
+The evaluation of a bypass against access policy is in [If a forwarding rule bypasses the traffic, the access policy rule is never evaluated for it, so a bypass for an application defeats an access rule that would block it.](kb:zpa.policy.evaluation-order:bypass-skips-access). Timeout rule actions are in [The only action the MCP skill supports on a timeout rule is RE_AUTH.](kb:zpa.policy.timeout-rules:action-re-auth-only). The console actions of a forwarding rule are described in [ZPA client forwarding policy rules: actions, precedence and criteria](kb:zpa.policy.forwarding-rules).
+
+What to check:
+1. Check which name the console shows for the action, since the help uses Require Approval and Conditional Access for the access rule.
+2. For a Conditional Access rule, check the Authentication Service subscription, the step-up level and that the IdP integration is OIDC.
+3. For a forwarding rule, check whether the action is BYPASS, which removes the traffic from access policy evaluation.
+4. For an inspection rule, check the action is INSPECT or BYPASS_INSPECT.
+
+Sources disagree (name both sides):
+- The third access rule action is called Require Approval in the rule lists of the access policy, Defined by My Tenant and Global Rules articles, Conditional Access in the configuring articles including the Add Global Rule action list, and REQUIRE_APPROVAL on the wire. [divergence:zpa.policy.actions:require-approval-name]
+  - zscaler-help: The rule list shows Allow Access, Block Access or Require Approval.
+  - zscaler-help: The Defined by My Tenant rule list shows Allow Access, Block Access or Require Approval.
+  - zscaler-help: The Global Rules rule list shows Allow Access, Block Access or Require Approval.
+  - zscaler-help: The Add Global Rule action list offers Conditional Access, which is only an option with an Authentication Service subscription.
+  - zscaler-help: The action form offers Conditional Access.
+  - mcp-server: The MCP skill's action table uses REQUIRE_APPROVAL.
+  Impact: Searching a tenant export for Conditional Access finds nothing, because the wire value is REQUIRE_APPROVAL; whether they are the same action is open in the gap require-approval-equals-conditional-access.
+
+Not known (open gaps):
+- Whether Require Approval, Conditional Access and the REQUIRE_APPROVAL wire value are one action [gap:zpa.policy.actions:require-approval-equals-conditional-access]: settled by lab-test or tenant-data
+- How the client forwarding console actions map to BYPASS, INTERCEPT and INTERCEPT_ACCESSIBLE [gap:zpa.policy.actions:forwarding-ui-vs-api-names]: settled by lab-test or tenant-data
+- Whether the Pop-Up Message to User option is visible only for Block Access and supported only on Client Connector 4.7 for Windows [gap:zpa.policy.actions:block-popup-support]: settled by lab-test. Blocks: the visibility and client-version limits of the Pop-Up Message to User option in the access rule action
+
+Area: zpa.policy, its subjects in references/_meta/spine/zpa/zpa.policy.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types): If a forwarding rule bypasses the traffic, the access policy rule is never evaluated for it, so a bypass for an application defeats an access rule that would block it. [zpa.policy.evaluation-order:bypass-skips-access]
+- interacts-with references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap), from zpa.policy: When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria. [zpa.policy.evaluation-order:segment-then-rules]
+- interacts-with references/_meta/text/zpa/zpa.b2b-federation.access-policy.md (Access policies for federated applications), from zpa.policy: Federated applications are the defined application segments created, owned and managed by the host partner and shared with guest partners. [zpa.b2b-federation.access-policy:federated-apps-ownership]
+- scoped-by references/_meta/text/zpa/zpa.machine-groups.policy-use.md (Using a machine group in a ZPA policy rule), from zpa.policy: The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups. [zpa.policy.criteria:criteria-list]
+- interacts-with references/_meta/text/zpa/zpa.microtenants.policy-evaluation.md (Policy evaluation between Default and custom Microtenants), from zpa.policy: A user in a custom Microtenant accessing a Default Microtenant segment is evaluated against the Default Microtenant first, and only if there is no match does Private Access evaluate access, timeout and client forwarding policy within the custom Microtenant. [zpa.microtenants.policy-evaluation:default-first-for-custom-user]
+- decided-by references/_meta/text/zpa/zpa.policy.access-rule-order.md (Access policy rule order), from zpa.policy: The Rule Order of an access policy rule is its policy evaluation order number; Private Access applies rules in the order listed, and the number can be changed by entering a new value. [zpa.policy.access-rule-order:rule-order-is-evaluation-number]
+- decided-by references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules), from zpa.policy: A user's application request must match all the conditions within a policy rule. [zpa.policy.criteria:all-criteria-must-match]
+- scoped-by references/_meta/text/zpa/zpa.saml-attributes.policy-criteria.md (How SAML attributes act as policy criteria), from zpa.policy: The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups. [zpa.policy.criteria:criteria-list]
+- scoped-by references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria), from zpa.policy: The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups. [zpa.policy.criteria:criteria-list]
+- scoped-by references/_meta/text/zpa/zpa.segment-groups.policy-use.md (How access policy rules use segment groups), from zpa.policy: A rule can include individual application segments as well as segment groups: segments are used to apply different policies to individual applications, and segment groups to give a set of users similar access across many applications. [zpa.policy.criteria:application-segments-criterion]
+- interacts-with references/_meta/text/zpa/zpa.server-groups.md (ZPA server groups), from zpa.policy: An access policy rule can be set to specific App Connector groups, server groups, or a mixture of both, instead of all App Connector groups for the application. [zpa.server-groups.role:rule-can-name-connector-or-server-groups]
+- scoped-by references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules), from zpa.policy: The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups. [zpa.policy.criteria:criteria-list]
+- links-to references/_meta/text/zpa/zpa.policy.forwarding-rules.md (ZPA client forwarding policy rules: actions, precedence and criteria)
+- links-to references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zpa/zpa.terraform.policy-rule-resources.md (ZPA Terraform policy rule resources: v1 and v2 conditions, operand types and provider changes)
+- configured-via references/_meta/text/zpa/zpa.api.policy-wire.md (ZPA policy rule wire behavior: routes, request fields and ordering)

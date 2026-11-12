@@ -1,0 +1,45 @@
+# ztw/forwarding-rules (ztw/forwarding-rules)
+- Names: zscalerctl `ztw forwarding-rules`; terraform `ztc_traffic_forwarding_rule`; terraform_data_source `ztc_traffic_forwarding_rule`
+- Live read (read-only): `zscalerctl ztw forwarding-rules list`
+- accessControl
+- appServiceGroups
+- blockResponseCode
+- defaultRule
+- departments
+- description
+- destAddresses
+- destCountries
+- destIpCategories
+- destIpGroups
+- destIpv6Groups
+- ecGroups
+- forwardMethod
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- nwApplicationGroups
+- nwApplications
+- nwServiceGroups
+- nwServices
+- order
+- proxyGateway
+- rank
+- resCategories
+- sourceCountries
+- sourceIpGroupExclusion
+- srcIpGroups
+- srcIps
+- srcIpv6Groups
+- srcWorkloadGroups
+- state
+- type
+- users
+- wanSelection
+- zpaApplicationSegmentGroups
+- zpaApplicationSegments
+- zpaBrokerRule

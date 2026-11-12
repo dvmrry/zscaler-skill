@@ -1,0 +1,38 @@
+# How a client authenticates to the ZPA API: OneAPI, legacy and government clouds (zpa.api.authentication)
+Also called: LegacyZPAClient; ZPA_CLOUD required; ZPA_CUSTOMER_ID; zpa customerId OneAPI; x-partner-id header; zpa gov govus oneapi; zpa legacy credentials; Zidentity ZPA tenant
+
+ZPA is reached through the unified OneAPI gateway or through the older ZPA-specific legacy API, and the two take different credentials. The OAuth flow itself is described for ZIA in [The ZIA API from a client's side: activation, limits, SDK coverage and wire notes](kb:zia.api).
+
+**OneAPI.** The ZPA OpenAPI document declares the server https://api.zsapi.net/zpa, described as "ZPA Endpoints", and an HTTP bearer security scheme. [zpa.api.authentication:oneapi-server] The extra IDs the Python client needs are [Authenticating to ZPA through OneAPI in the Python SDK needs a customerId in addition to the OneAPI credentials, with microtenantId and partnerId optional.](kb:zpa.sdk-python.client-configuration:oneapi-extra-ids), and the path prefix is [The ZPA OpenAPI document gives paths without a prefix (for example /mgmtconfig/v1/admin/customers/{customerId}/application) under the server https://api.zsapi.net/zpa, so the OneAPI route is /zpa/mgmtconfig/....](kb:zpa.api.base-paths:oneapi-prefix).
+
+**Legacy.** The legacy client's credentials are [A tenant not yet migrated to Zidentity uses the Python SDK's LegacyZPAClient, which takes client_id, client_secret, customer_id and cloud.](kb:zpa.sdk-python.client-configuration:legacy-client) and its environment variables [The Python LegacyZPAClient reads its settings from the configuration or from the environment variables ZPA_CLIENT_ID, ZPA_CLIENT_SECRET, ZPA_CUSTOMER_ID, ZPA_MICROTENANT_ID and ZSCALER_PARTNER_ID, and takes the cloud from ZSCALER_CLOUD with PRODUCTION as the default.](kb:zpa.sdk-python.client-configuration:legacy-client-env). The README names a cloud variable the SDK does not read [zpa.sdk-python.client-configuration:cloud-required](kb:zpa.sdk-python.client-configuration:cloud-required).
+
+**Government clouds.** The provider's statement is [OneAPI reaches the government (FedRAMP) clouds through zscaler_cloud (or ZSCALER_CLOUD) set to gov or govus, and the provider documents this as supported only from v4.4.6; earlier versions are not supported.](kb:zpa.terraform.provider-config:fedramp-oneapi-4-4-6), the Python OneAPI routing is [With cloud set to `gov` or `govus` the Python SDK sends OAuth to a zidentitygov.net or zidentitygov.us identity provider and API calls to api.zscalergov.net or api.zscalergov.us, instead of the commercial gateway.](kb:zia.sdk-python.authentication:gov-cloud-routing), and the legacy hosts are [The Python SDK's legacy host table maps cloud names to config hosts: PRODUCTION to config.private.zscaler.com, ZPATWO to config.zpatwo.net, BETA to config.zpabeta.net, GOV to config.zpagov.net, GOVUS to config.zpagov.us and PREVIEW to config.zpapreview.net.](kb:zpa.api.base-paths:legacy-hosts).
+
+**Headers.** [When partnerId is configured the Python SDK adds an x-partner-id header to every request, for both the OneAPI and the legacy ZPA client.](kb:zpa.sdk-python.client-configuration:partner-header)
+
+**Python SDK generations.** [The Python SDK's 2.x beta supports OneAPI only, with no LegacyZPAClient, and covers only ZIA, ZDX and ZIdentity so far; ZPA stays on 1.x.](kb:zpa.sdk-python.client-configuration:python-v2-no-legacy)
+
+**API keys in the Admin Console.** A ZPA API key consists of a client ID and a client secret, both required for authentication before accessing the publicly available set of ZPA APIs; the page says generating an API key only occurs in the Admin Console from the API Keys page (Administration > API > Private Access API). Client IDs are always accessible from the page, while client secrets are displayed only when the key is first created and are not available in the saved configuration or after the drawer is closed. [zpa.api.authentication:api-key-parts] The Adding API Keys page points to API Client Authentication in Authentication Service for the API keys or secrets needed to access Zscaler OneAPI endpoints. [zpa.api.authentication:oneapi-credentials-elsewhere] An API key has a Name, a Status (enabled by default; a disabled key is unavailable to use), a Session Validity Interval in seconds (the time the key remains active before expiring, at most 3,600 seconds) and a Role. [zpa.api.authentication:key-fields] Roles for API keys enforce granular role-based access control (RBAC) on all publicly available ZPA API operations, and the API Full Access predefined role gives full access to the Private Access API. The RBAC page's own steps for enforcing RBAC on ZPA API operations are to create a predefined or custom role and then an API client. [zpa.api.authentication:key-roles-rbac] The API Keys page can copy the customer ID, needed for making API calls (the page writes "AP calls"), and, only when within a Microtenant, the Microtenant ID, which is needed for API calls and must be passed as microtenantId; the client ID is needed to access the ZPA API Portal. [zpa.api.authentication:customer-and-microtenant-ids] If a tenant is subscribed to Authentication Service and has it enabled, API keys created in Authentication Service appear on the API Keys page and are read only; if an API key is configured using Zscaler Deception, the edit and delete options are unavailable. [zpa.api.authentication:read-only-keys] What the pages leave open is listed in [gap:zpa.api.authentication:api-key-details].
+
+The legacy ZPA API signs in with a form-encoded POST of `client_id` and `client_secret` to `/signin` on the tenant's config host (config.private.zscaler.com in the article, which differs by cloud) and returns a Bearer token with `expires_in` 3600; the token is sent as `Authorization: Bearer` and `/signout` ends it. [zpa.api.authentication:legacy-signin]
+
+Only admins with full access to the API Key Management role can create legacy ZPA API keys, and Zscaler does not officially provide a Postman collection for the legacy ZPA API. [zpa.api.authentication:legacy-key-role]
+
+What to check:
+1. For a government tenant, whether the client in use routes cloud=gov or cloud=govus through OneAPI rather than assuming legacy-only.
+
+Not known (open gaps):
+- What the API key pages leave unstated [gap:zpa.api.authentication:api-key-details]: settled by source-read or lab-test
+
+Area: zpa.api, its subjects in references/_meta/spine/zpa/zpa.api.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zpa/zpa.sdk-python.client-configuration.md (Python SDK settings for ZPA: credentials, tenant ID, microtenant, environment variables and the legacy client)
+- links-to references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)
+- links-to references/_meta/text/zia/zia.api.md (The ZIA API from a client's side: activation, limits, SDK coverage and wire notes)
+- links-to references/_meta/text/zia/zia.sdk-python.authentication.md (How the Python SDK authenticates to ZIA: OneAPI, government clouds and legacy)
+- links-to references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.microtenants.api-scoping.md (How an API call selects a Microtenant)

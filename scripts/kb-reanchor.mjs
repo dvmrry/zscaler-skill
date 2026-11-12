@@ -793,6 +793,7 @@ async function main(argv) {
       if (!ok.includes(r.status)) throw new Error(`node ${args.join(" ")} exited ${r.status}`);
     };
     run(["scripts/gen-spine.mjs"]);
+    run(["scripts/gen-text.mjs"]);
     run(["scripts/kb.mjs", "verified"], [0, 1]);
     spawnSync(process.execPath, ["scripts/kb.mjs", "check", ...subjects], { cwd: ROOT, stdio: "inherit" });
   }

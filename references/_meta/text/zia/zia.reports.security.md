@@ -1,0 +1,37 @@
+# Threat reports: Cybersecurity Insights, Sandbox Activity and Sandbox Files Found Malicious (zia.reports.security)
+Also called: cybersecurity insights; sandbox activity report; sandbox files found malicious report; SFFM; patient 0 events
+
+Cybersecurity Insights provides unified real-time visibility into critical security incidents and policy actions, to understand the security efficacy of layered defense across Malware Protection, Advanced Threat Protection (ATP), Sandbox, Firewall and Zero Trust Browser (formerly Isolation). [zia.reports.security:cyber-insights-what] Cybersecurity Insights can be filtered to the last 1 hour, 4 hours, 1 day, 7 days or 14 days; the default is the last 1 hour. [zia.reports.security:cyber-insights-time] Its threat categories include Sandbox Offensive Security Tools, Sandbox Ransomware, Crypto Mining and Domain Generated Algorithm Domains, and Unknown represents all the incidents the Zscaler service was unable to classify under a threat category. [zia.reports.security:cyber-insights-unknown] Top Locations, Top Users, Top Departments and Top AI/ML Detection Source by Security Incidents each show the top 10. [zia.reports.security:cyber-insights-top10] An incident's details include the Sandbox Category (if the file is sent for sandbox analysis) and the MD5 hash of the file that triggered the rule; Impacted Systems lists each client's Client External IP (the internet gateway location IP address) and the number of related allowed transactions. [zia.reports.security:cyber-insights-incident-detail] The latest Zscaler ThreatLabz updates can be downloaded as a PDF file with Save as PDF. [zia.reports.security:cyber-insights-pdf] Its retention beyond the 14-day filter is open [gap:zia.reports.security:cyber-retention].
+
+**Sandbox Activity Report.** The Sandbox Activity Report highlights the Sandbox policy action taken for known and unknown files. Unknown files are files the sandbox encounters for the first time; files known by cloud effect are files from any organization that the sandbox analyzed and classified as malicious or benign. [zia.reports.security:sandbox-activity-what] The Sandbox Activity Report shows weekly reports from the last 6 months, not including the current week; Transactions include all download attempts, even of the same file, while Unique Files count each file once. The displayed transactions export to a PDF or JSON file. [zia.reports.security:sandbox-activity-weeks] Known malicious files might have been allowed because the organization does not have Advanced Sandbox or the correct Sandbox rule configured. A quarantined file could also be counted under Allow & Scan if it was allowed while in quarantine. Malicious files downloaded due to the Allow & Scan policy action are patient 0 events. [zia.reports.security:sandbox-activity-reading] The API detail report by MD5 is covered in [Sandbox reports, quota, and trusting report content](kb:zia.sandbox.report).
+
+**Sandbox Files Found Malicious Report.** Advanced Sandbox is required to view the Sandbox Files Found Malicious Report, which highlights unknown files sent to the sandbox for analysis and found to be malicious; it shows weekly reports from the last 6 months, not including the current week, and the displayed transactions export to a PDF or CSV file. [zia.reports.security:sffm-needs-advanced] Per file the report shows the MD5 of a file the organization saw for the first time (click it to view the Sandbox Detail Report), the Allowed Transactions before the file was found malicious (patient 0 events) and the Blocked Transactions after. [zia.reports.security:sffm-columns]
+
+**Weekly emails.** The Zscaler service can email recipients a preview of the Sandbox Activity Report and a link to the full report, a static page where recipients can view and print it. Anyone who has the link can access the report. Frequency is weekly and cannot be modified; the administrator chooses the Day and the Time Zone the service uses when it generates the report. [zia.reports.security:sandbox-weekly-email] The Zscaler service can email recipients a preview of the Sandbox Files Found Malicious Report and a link to the full report. Anyone who has the link can access the report. Frequency is weekly and cannot be modified; the administrator chooses the Day. [zia.reports.security:sffm-weekly-email] The link validity of Interactive Reports schedules is in [Scheduled reports are emailed to the recipients as links; when a recipient clicks the link, the report appears in Print View. The link is valid for 15 days only.](kb:zia.reports.interactive:schedule-links). The SFFM scheduling page names a different report page in its click path [divergence:zia.reports.security:sffm-email-path]. Which time zone defines a report week, and whether the static report is frozen at send time, are open [gap:zia.reports.security:week-and-freeze].
+
+What to check:
+1. Whether the organization has Advanced Sandbox before expecting the Sandbox Files Found Malicious Report.
+2. Whether a known malicious file shown as allowed is explained by a missing Advanced Sandbox or Sandbox rule, or by the Allow & Scan action.
+
+Sources disagree (name both sides):
+- The scheduling page for the Sandbox Files Found Malicious weekly email gives a click path to the Instance Discovery Report, while the report's own page places it under the Sandbox Activity Report. [divergence:zia.reports.security:sffm-email-path]
+  - zscaler-help: Step 1 of the SFFM scheduling procedure goes to Analytics > Reports > Instance Discovery Report.
+  - zscaler-help: The report is at Analytics > Reports > Sandbox Activity Report > Sandbox Files Found Malicious.
+  Impact: The scheduling procedure's first step names a different report page than the one that holds the SFFM report.
+
+Not known (open gaps):
+- Cybersecurity Insights retention beyond the 14-day filter [gap:zia.reports.security:cyber-retention]: settled by lab-test or support-ticket
+- Sandbox report week time zone and whether the emailed static report freezes at send time [gap:zia.reports.security:week-and-freeze]: settled by lab-test or support-ticket
+
+Area: zia.reports, its subjects in references/_meta/spine/zia/zia.reports.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zia/zia.reports.interactive.md (Interactive Reports: standard, custom and scheduled reports, export, import and printing)
+- links-to references/_meta/text/zia/zia.sandbox.report.md (Sandbox reports, quota, and trusting report content)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- see-also references/_meta/text/zia/zia.sandbox.rules.md (Sandbox rules: first-time file behavior and the default rule)
+- see-also references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)
+- see-also references/_meta/text/zia/zia.malware-protection.md (ZIA Malware Protection)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)

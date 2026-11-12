@@ -1,0 +1,16 @@
+# zia/bandwidth-classes (zia/bandwidth-classes)
+- Names: zscalerctl `zia bandwidth-classes`; terraform `zia_bandwidth_classes`; terraform_data_source `zia_bandwidth_classes`
+- Live read (read-only): `zscalerctl zia bandwidth-classes list`
+- applicationServiceGroups
+- applications
+- fileSize
+- getfileSize
+- id
+- isNameL10nTag
+- name
+- networkApplications
+- networkServices
+- type
+- urlCategories
+- urls
+- webApplications

@@ -1,0 +1,63 @@
+# NSS feeds: limits, log types, filters and the output format string (shared.nss.feeds)
+Also called: nss feed; nss feed limit; how many nss feeds per server; nss feed filter; nss feed output format; nss log types; nss alert feed; mcas nss feed; http nss feed; tcp nss feed
+
+An NSS feed specifies the data from the logs that the NSS sends to the SIEM; each feed can have different filters and fields and a different output format. [shared.nss.feeds:feed-purpose]
+
+## How many feeds
+
+An NSS server takes as many as 16 feeds, TCP NSS and HTTP NSS together; to ensure optimal performance, Web and Firewall log types are each limited to 8 feeds per server and HTTP logs are restricted to 2 feeds within the total. [shared.nss.feeds:feed-limits] The HTTP feed article states the HTTP limit differently [divergence:shared.nss.feeds:http-feed-count]. The limits page's Cloud & Branch Connector section lists 2 NSS servers and 8 feeds per server, with 1,024 users, departments, locations, clients and threat names per feed. [shared.nss.feeds:cbc-nss-limits] A Cloud NSS instance instead holds one feed per log type: [A Cloud NSS instance supports one feed per Internet and SaaS log type, and the feed format is customizable, with JSON recommended.](kb:zia.logs.nss-feed-format:cloud-feed-limit).
+
+The TCP NSS feed articles allow up to 8 feeds for Web, Firewall, Sandbox Verdict, Authentication, SCIM, 3rd-Party App Governance and Posture Management logs, and up to 16 for DNS, Tunnel, SaaS Security, SaaS Security Activity, Admin Audit, Endpoint DLP and Email DLP logs. [shared.nss.feeds:tcp-per-type-limits] The HTTP NSS feeds article says up to 8 HTTP NSS feeds can be added for each NSS server, with Web and firewall log types each limited to two feeds per NSS server, and it lists articles for adding HTTP NSS feeds per log type, among them Web Logs and Sandbox Verdict Logs. [shared.nss.feeds:http-limits-and-types] The Cloud NSS Authentication and SCIM articles each say one Cloud NSS feed can be configured for that log type. [shared.nss.feeds:cloud-one-feed]
+
+The TCP DNS feed article says to select NSS for Firewall as the NSS Type, while the TCP, HTTP and Cloud Tunnel articles each say NSS for Web is selected by default. [shared.nss.feeds:nss-type-by-log-type] All three Tunnel articles show only the Web default, so whether a Firewall-type server can carry tunnel feeds is open [gap:shared.nss.feeds:tunnel-nss-type]. Its bearing on subscriptions is in [Which subscription carries each log type](kb:shared.nss.delivery-modes:subscription-log-types). The TCP DNS article offers a choice between Firewall, for Internet Access (ZIA) DNS logs, and Cloud & Branch Connector, while the HTTP DNS article says Log Domain: Choose Firewall. [shared.nss.feeds:log-domain] The HTTP Firewall, Cloud Firewall and Cloud DNS articles say to select NSS for Firewall as the NSS Type and that with Zscaler Cloud & Branch Connector it is displayed as NSS for Firewall, Cloud & Branch Connector; the HTTP SaaS Security and Cloud Posture Management articles say NSS for Web is selected by default. [shared.nss.feeds:nss-type-http-cloud] The Cloud Firewall and Cloud DNS articles offer a Log Domain choice: choose Firewall to configure Cloud NSS for Internet Access (ZIA) Firewall or DNS logs, or Cloud & Branch Connector for Cloud & Branch Connector logs; the HTTP Firewall article says "Log Domain: Choose Firewall." [shared.nss.feeds:log-domain-cloud] The HTTP and Cloud article counts per log type are open [gap:shared.nss.feeds:http-cloud-feed-counts], and so is the NSS Server line missing from the HTTP Email DLP article [gap:shared.nss.feeds:email-dlp-nss-server].
+
+Access to 3rd-Party App Governance and Posture Management logs requires Advanced SaaS Security Posture Management (SSPM), available from the Zscaler Account team; their Log Type values are App Governance and Posture. [shared.nss.feeds:sspm-subscription] The Cloud 3rd-Party App Governance and Cloud Posture Management articles each say access to those logs requires Advanced SaaS Security Posture Management (SSPM), from the Zscaler Account team, and give the Log Type values App Governance and Posture. [shared.nss.feeds:sspm-cloud] The initial Authentication feed takes up to 5 hours to stream, on TCP and Cloud NSS, and appropriate Log Streaming role permissions must be enabled in the Authentication Service. The SCIM article says the initial SCIM feed also takes up to 5 hours, and that this delay does not occur if Audit Logs are already configured and streaming. [shared.nss.feeds:auth-scim-delay]
+
+## Kinds of feed and what they carry
+
+From the NSS Feeds page an administrator can add a TCP NSS feed, an MCAS NSS feed or an HTTP NSS feed, go to the Cloud NSS Feeds page and the NSS Collector servers page, and test connectivity to the SIEM, a column populated only for HTTP NSS feeds. [shared.nss.feeds:feed-kinds] For each NSS feed the list shows a Feed Overview (for example Feed Name, NSS Server, Status), the Log Filter (the log type and its attributes), the Feed Output Format, Feed Attributes (for example Duplicate Logs, Time Zone) and the Last Connectivity Test; a Cloud NSS feed's overview shows Feed Name and Status, and its attributes include Time Zone and Max Batch Size. [shared.nss.feeds:feed-columns] The help has configuration articles for TCP NSS feeds and for Cloud NSS feeds for the same fifteen log types: Web, Firewall, DNS, Tunnel, SaaS Security, SaaS Security Activity, Alerts, Admin Audit, Endpoint DLP, Email DLP, Sandbox Verdict, Authentication, SCIM, 3rd-Party App Governance and Posture Management. [shared.nss.feeds:feed-log-types] A separate feed can carry real-time alerts that monitor the NSS connections to the Zscaler Nanolog and to the SIEM; the service sends these alerts in RFC-compliant Syslog format to the specified IP address and port. [shared.nss.feeds:alert-feed] The alert feed's levels, format and thresholds are in [NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format](kb:shared.nss.alerts).
+
+The July ZIA release summary says NSS and Cloud NSS feeds can be configured for 3rd-Party App Governance and Posture Management logs, that access to these log types requires a subscription to Advanced SaaS Security Posture Management (SSPM), and that POSTURE_CONTROL and APP_GOVERNANCE were added to the nssLogType field of the ZmanageNssFeed model. [shared.nss.feeds:sspm-log-types] The Automate nssLogType enum snapshot does not list these values ([Subscription and API values for the 3rd-Party App Governance and Posture Management feeds](kb:shared.nss.feeds:new-log-types)).
+
+## Filters
+
+An NSS feed filter takes up to 1,024 users, 1,024 departments, 1,024 locations, 1,024 clients and 1,024 threat names. [shared.nss.feeds:filter-caps] A record that a feed's filters exclude is not sent by that feed, while the original stays in the Nanolog and other feeds apply their own filters to their own copies. [shared.nss.feeds:filtered-not-sent] The one example of filters on different fields is in [The TCP web feed article says admins can configure multiple filter types and gives one example: if an admin selects the location HQ and the department Finance, the NSS selects logs that belong to both the HQ location and Finance department. It adds that a large number of filters or complex filters, such as string searches, can impact NSS performance.](kb:shared.nss.feed-filters:filters-and). The general rule for how filter values and fields combine is not stated [gap:shared.nss.feeds:filter-logic]. The per-log-type filters are in [What each NSS log type's feed can filter on, and the rules for matching](kb:shared.nss.feed-filters). The July ZIA release summary says the Select All and Hide Deleted options were added to the Users, Departments and Locations filters in TCP NSS, MCAS NSS, HTTP NSS and Cloud NSS feeds, for the listed log types as applicable. [shared.nss.feeds:select-all-hide-deleted] ([Select All and Hide Deleted in feed filters](kb:shared.nss.feeds:filter-select-all-hide-deleted)) The HTTP Firewall, Cloud DNS, HTTP SaaS Security and Cloud Endpoint DLP articles describe Select All and Hide Deleted on the Users filter: Select All selects all results, deleted users appear with a strikethrough line, and Hide Deleted hides them from the list. [shared.nss.feeds:select-all-hide-deleted-http-cloud]
+
+## Output format
+
+Fields must be entered in the Feed Output Format in the order they are to appear in the output. [shared.nss.feeds:field-order] In the Feed Output Format each field name is replaced by its value: `%s{<fieldname>}` prints a string, `%d{<fieldname>}` a decimal number and `%x{<fieldname>}` a hexadecimal number; static text and padding for constant width are allowed, and % is escaped with another %. [shared.nss.feeds:format-specifiers] Field count, escaping, URL encoding and case sensitivity are in [How NSS feeds encode and deliver ZIA log fields](kb:zia.logs.nss-feed-format).
+
+The output types a feed accepts and the full Cloud NSS feed body are in the OpenAPI document behind `node scripts/kb.mjs surface /nssFeeds`; the fields of each log type are the generated types [ZIA web log (NSS web feed)](kb:zia/web-log), [ZIA firewall log (NSS firewall feed)](kb:zia/firewall-log) and [ZIA DNS log (NSS DNS feed)](kb:zia/dns-log).
+
+What to check:
+1. Count the server's existing feeds by log type and transport before adding one: 16 in total, 8 Web and 8 Firewall, and for HTTP either 2 or 8 depending on which article is read.
+2. Whether a record missing from the SIEM was excluded by the feed's own filter rather than lost in transit.
+3. Whether the feed output format uses the right specifier for each field, and the fields in the order the SIEM parser expects.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [shared.nss.feeds:filtered-not-sent] Tier B: Follows from filtering being a per-feed step on a copy; the help does not discuss filtered records further.
+
+Sources disagree (name both sides):
+- The NSS Feeds article and the HTTP NSS feed article state the HTTP feed limit differently. [divergence:shared.nss.feeds:http-feed-count]
+  - zscaler-help: HTTP logs are restricted to 2 feeds within the 16 total, and Web and Firewall are each limited to 8.
+  - zscaler-help: Up to 8 HTTP NSS feeds are allowed per NSS server, with Web and Firewall each limited to two.
+  Impact: How many HTTP feeds a server can carry, 2 or 8, depends on which article is read; the per-server total of 16 is not in dispute.
+
+Not known (open gaps):
+- Feed counts per log type on the HTTP and Cloud feed articles [gap:shared.nss.feeds:http-cloud-feed-counts]: settled by source-read or support-ticket
+- HTTP Email DLP article has no NSS Server line [gap:shared.nss.feeds:email-dlp-nss-server]: settled by source-read or support-ticket
+- How feed filter values and fields combine [gap:shared.nss.feeds:filter-logic]: settled by source-read or lab-test. Blocks: predicting which records a feed with several filter fields or several values sends
+- Whether a Firewall-type NSS server can carry tunnel feeds [gap:shared.nss.feeds:tunnel-nss-type]: settled by support-ticket or lab-test
+
+Area: shared.nss, its subjects in references/_meta/spine/shared/shared.nss.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zia/zia.logs.nss-feed-format.md (How NSS feeds encode and deliver ZIA log fields): Fields must be entered in the Feed Output Format in the order they are to appear in the output. [shared.nss.feeds:field-order]
+- links-to references/_meta/text/shared/shared.nss.feed-filters.md (What each NSS log type's feed can filter on, and the rules for matching)
+- links-to references/_meta/text/shared/shared.nss.alerts.md (NSS and Cloud NSS alert feeds: levels, triggers, thresholds and the Cloud NSS alert format)
+- links-to references/_meta/text/shared/shared.nss.delivery-modes.md (VM-based NSS and Cloud NSS: subscriptions, transport and what each needs)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/zia/zia.api.cloud-nss-feeds.md (Cloud NSS feed settings: HTTPS-only URLs and OAuth fields)
+- see-also references/_meta/text/shared/shared.nss.md (Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud)
+- see-also references/_meta/text/zia/zia.audit-logs.streaming.md (Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT))

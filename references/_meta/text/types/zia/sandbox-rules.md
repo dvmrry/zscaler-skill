@@ -1,0 +1,33 @@
+# zia/sandbox-rules (zia/sandbox-rules)
+- Names: zscalerctl `zia sandbox-rules`; terraform `zia_sandbox_rules`; terraform_data_source `zia_sandbox_rules`
+- Live read (read-only): `zscalerctl zia sandbox-rules list`
+- accessControl
+- baPolicyCategories
+- baRuleAction
+- byThreatScore
+- defaultRule
+- departments
+- description
+- deviceGroups
+- devices
+- fileTypes
+- firstTimeEnable
+- firstTimeOperation
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- mlActionEnabled
+- name
+- order
+- protocols
+- rank
+- state
+- timeWindows
+- urlCategories
+- users
+- zpaAppSegments
+- zpaAppSegments.externalId

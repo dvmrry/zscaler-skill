@@ -1,0 +1,19 @@
+# zpa/segment-groups (zpa/segment-groups)
+- Names: zscalerctl `zpa segment-groups`; terraform `zpa_segment_group`; terraform_data_source `zpa_segment_group`
+- Live read (read-only): `zscalerctl zpa segment-groups list`
+- addedApps
+- applicationNames
+- applications
+- configSpace
+- creationTime
+- deletedApps
+- description
+- enabled
+- id
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- policyMigrated
+- tcpKeepAliveEnabled

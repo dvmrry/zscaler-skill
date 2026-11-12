@@ -1,0 +1,17 @@
+# zcc/fail-open-policy (zcc/fail-open-policy)
+- Names: zscalerctl `zcc fail-open-policy`; terraform `zcc_failopen_policy`; terraform_data_source `zcc_failopen_policy`
+- Live read (read-only): `zscalerctl zcc fail-open-policy list`
+- active
+- captivePortalWebSecDisableMinutes
+- companyId
+- createdBy
+- editedBy
+- enableCaptivePortalDetection
+- enableFailOpen
+- enableStrictEnforcementPrompt
+- enableWebSecOnProxyUnreachable
+- enableWebSecOnTunnelFailure
+- id
+- strictEnforcementPromptDelayMinutes
+- strictEnforcementPromptMessage
+- tunnelFailureRetryCount

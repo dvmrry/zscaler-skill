@@ -1,0 +1,56 @@
+# zia/locations (zia/locations)
+- Names: zscalerctl `zia locations`; terraform `zia_location_management`; terraform_data_source `zia_location_management`
+- Live read (read-only): `zscalerctl zia locations list`
+- aupBlockInternetUntilAccepted
+- aupEnabled
+- aupForceSslInspection
+- aupTimeoutInDays
+- authRequired
+- basicAuthEnabled
+- cautionEnabled
+- cookiesAndProxy
+- country string: Country.
+- defaultExtranetDns
+- defaultExtranetTsPool
+- description string: Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters.
+- digestAuthEnabled
+- dnBandwidth
+- dynamiclocationGroups
+- ecLocation
+- extranet
+- extranetDns
+- extranetIpPool
+- geoOverride
+- id integer: Location ID.
+- idleTimeInMinutes
+- iotDiscoveryEnabled
+- iotEnforcePolicySet
+- ipAddresses array<string>: For locations, IP addresses of the egress points provisioned in the Zscaler Cloud; each entry is a single IP address.
+- ipsControl
+- ipv6Dns64Prefix
+- ipv6Enabled boolean: If set to true, IPv6 is enabled for the location and IPv6 traffic from the location can be forwarded to the Zscaler service to enforce security policies.
+- kerberosAuth
+- language
+- name string: Location name.
+- ofwEnabled
+- other6SubLocation
+- otherSubLocation
+- parentId integer: Parent location ID. If this ID does not exist or is 0, the location is a parent location; otherwise it is a sub-location whose parent has this ID.
+- ports array<integer>: IP ports associated with the location.
+- profile string: Profile tag that specifies the location traffic type. If not specified, this tag defaults to "Unassigned".
+- sslScanEnabled
+- state
+- staticLocationGroups
+- subLocAccIds
+- subLocScope
+- subLocScopeEnabled
+- subLocScopeValues
+- surrogateIP
+- surrogateIPEnforcedForKnownBrowsers
+- surrogateRefreshTimeInMinutes
+- tz string: Timezone of the location. If not specified, it defaults to GMT.
+- upBandwidth
+- virtualZenClusters
+- virtualZens
+- xffForwardEnabled
+- zappSSLScanEnabled

@@ -1,0 +1,22 @@
+# zia/admin-users (zia/admin-users)
+- Names: zscalerctl `zia admin-users`; terraform `zia_admin_users`; terraform_data_source `zia_admin_users`
+- Live read (read-only): `zscalerctl zia admin-users list`
+- adminScopeScopeEntities
+- adminScopeType
+- adminScopescopeGroupMemberEntities
+- comments
+- disabled
+- email
+- id
+- isAuditor
+- isExecMobileAppEnabled
+- isNonEditable
+- isPasswordExpired
+- isPasswordLoginAllowed
+- isProductUpdateCommEnabled
+- isSecurityReportCommEnabled
+- isServiceUpdateCommEnabled
+- loginName
+- pwdLastModifiedTime
+- role
+- userName

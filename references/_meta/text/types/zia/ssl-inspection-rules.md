@@ -1,0 +1,37 @@
+# zia/ssl-inspection-rules (zia/ssl-inspection-rules)
+- Names: zscalerctl `zia ssl-inspection-rules`; terraform `zia_ssl_inspection_rules`; terraform_data_source `zia_ssl_inspection_rules`
+- Live read (read-only): `zscalerctl zia ssl-inspection-rules list`
+- accessControl
+- action
+- action.sslInterceptionCert
+- cloudApplications
+- defaultRule
+- departments
+- description
+- destIpGroups
+- deviceGroups
+- deviceTrustLevels
+- devices
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- order
+- platforms
+- predefined
+- proxyGateways
+- rank
+- roadWarriorForKerberos
+- sourceIpGroups
+- state
+- timeWindows
+- urlCategories
+- userAgentTypes
+- users
+- workloadGroups
+- zpaAppSegments
+- zpaAppSegments.externalId

@@ -1,0 +1,13 @@
+# zpa/cbi-zpa-profiles (zpa/cbi-zpa-profiles)
+- Names: zscalerctl `zpa cbi-zpa-profiles`; terraform_data_source `zpa_cloud_browser_isolation_zpa_profile`
+- Live read (read-only): `zscalerctl zpa cbi-zpa-profiles list`
+- cbiProfileId
+- cbiTenantId
+- cbiUrl
+- creationTime
+- description
+- enabled
+- id
+- modifiedBy
+- modifiedTime
+- name

@@ -1,0 +1,24 @@
+# Incident rules that group alerts into incidents, and incident workflows, in Agentic SOC (soc-workbench.incident-rules)
+Also called: incident rules copilot; auto-dispatch to external systems; outegration
+
+Incidents bring together multiple disparate alerts from different products into a single location; in the article's example, 50 people in an organization receive phishing emails and Agentic SOC consolidates all the alerts into a single incident. [soc-workbench.incident-rules:consolidation] By default Agentic SOC provides a number of incident rules to cover multiple use cases, such as phishing scams that lead to data exfiltration and data exfiltration via cloud storage; you can use Incident Rules Copilot or manually create and customize rules, at Settings > Incident Rules. [soc-workbench.incident-rules:default-rules] The incidents they produce are in [Incidents in Agentic SOC: the Incidents page, detail tabs, verdicts, statuses, custom incidents and customization](kb:soc-workbench.incidents).
+
+**Rule fields.** A manually created incident rule has a unique Rule Name, an Active toggle that is enabled by default, a unique Incident Name, an optional Description, and a section for which alerts can create the incident. [soc-workbench.incident-rules:rule-fields] A rule's grouping steps include selecting whether to create an incident for each alert, to group alerts into 1 incident to reduce noise (optionally only when alerts have the same entities, matching if any or if all of the entities are matched), and to attach alerts to an incident (optionally only when they have the same entities). [soc-workbench.incident-rules:grouping-options] For incident rules you click Save to save your changes, or Save & Process to save them and process alert data with the updates. [soc-workbench.incident-rules:save-and-process] The time window values and Copilot limits are open [gap:soc-workbench.incident-rules:rule-details].
+
+**Workflows.** The Incident Workflows page has an Auto-Dispatch to External Systems category, whose rules automatically create items or alerts in Splunk, AWS S3 and CrowdStrike when specific criteria are met. A rule triggers on incident statuses and incident severity levels, with operators that vary by field type and AND/OR logic for compound rules, and creates a third-party item by selecting the outegration for the system. [soc-workbench.incident-rules:workflow-rules] Saving a workflow rule makes it evaluate against each new incident created in the system; Save & Run saves the rule and immediately runs the rules against all existing incidents. [soc-workbench.incident-rules:workflow-run-timing] Access to incident workflows requires an assigned role with the Read, Create, Edit and Delete permissions under the Threats App - Incident Settings resource, and a rule's audit logs (More > Audit Logs) expand to show detail about the changes made. [soc-workbench.incident-rules:workflow-permission-audit] The Step-by-Step Configuration Guide for Agentic SOC refers to outbound integrations (i.e., outegrations). [soc-workbench.incident-rules:outegration-defined] What each destination receives is open [gap:soc-workbench.incident-rules:workflow-objects].
+
+What to check:
+1. What a rule or workflow save does: for rules, Save & Process saves and processes alert data with the updates; for workflow rules, Save makes them evaluate against each new incident and Save & Run also runs them against all existing incidents.
+
+Not known (open gaps):
+- Time window values, default rule names and Incident Rules Copilot limits [gap:soc-workbench.incident-rules:rule-details]: settled by source-read or lab-test
+- What auto-dispatch creates in each destination [gap:soc-workbench.incident-rules:workflow-objects]: settled by source-read or lab-test
+
+Area: soc-workbench.incident-rules, its subjects in references/_meta/spine/soc-workbench/soc-workbench.incident-rules.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/soc-workbench/soc-workbench.incidents.md (Incidents in Agentic SOC: the Incidents page, detail tabs, verdicts, statuses, custom incidents and customization)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/soc-workbench/soc-workbench.overview.md (SOC Workbench (Agentic SOC): alert unification, correlation and prioritization, and what can be automated)
+- see-also references/_meta/text/soc-workbench/soc-workbench.alerts.md (Alerts in Agentic SOC: the Alerts page, severity score composition, alert-score factors and severity categories)

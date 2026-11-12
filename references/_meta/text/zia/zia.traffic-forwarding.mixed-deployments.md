@@ -1,0 +1,45 @@
+# Mixed forwarding deployments and where they break (zia.traffic-forwarding.mixed-deployments)
+Also called: mixed forwarding; gre and zcc; ztunnel fallback gre; pac on tunnel site; other sublocation pac
+
+Most tenants mix methods, and the combinations fail in specific ways.
+
+**Tunnels and Client Connector.** A site whose egress uses several GRE tunnels with different public source IPs, or ECMP, can present one device's Z-Tunnel 2.0 control and data connections from different IPs; per the vendor that splits them across Service Edges and Z-Tunnel 2.0 falls back to 1.0. [zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress] The Client Connector and tunnel designs are in [Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes](kb:zia.traffic-forwarding.zcc) and [GRE tunnels to ZIA: requirements, bandwidth and deployment](kb:zia.traffic-forwarding.gre).
+
+**PAC users on a tunnel site.** When a location has sublocations, PAC-forwarded traffic from users on that site is not matched to a sublocation unless XFF supplies the inner address, so it can land in the `other` sublocation and take whatever policy reaches it. [zia.traffic-forwarding.mixed-deployments:pac-users-fall-to-other] Sublocations are in [Sublocations: what they are, the auto-created other sublocations, naming and limits](kb:zia.locations.sublocations), and PAC forwarding is in [PAC file forwarding: limits, versions and what it cannot cover](kb:zia.traffic-forwarding.pac).
+
+**Rules that depend on the path.** SSL Inspection rules scoped by the CONNECT User-Agent match only explicit-mode traffic and never tunnel traffic: [SSL/TLS inspection rule criteria and the ones that silently don't match](kb:zia.ssl-inspection.criteria). Rules that need a user need Client Connector or Surrogate IP: [Where SSL inspection sits in ZIA web policy evaluation (the two passes)](kb:zia.ssl-inspection.pipeline), [What happens to traffic with no user identity](kb:zia.authentication.unauthenticated-traffic).
+
+Dynamic Location Groups catching the wrong methods is open [gap:zia.traffic-forwarding.mixed-deployments:location-group-mixing], and whether each method creates its own Location is open [gap:zia.traffic-forwarding.mixed-deployments:location-per-method-mixed]. Group behavior in general is [Location groups: manual and dynamic, conditions, limits, predefined groups](kb:zia.locations.groups).
+
+What to check:
+1. Which methods carry which users at each site.
+2. What the unmatched-address (other) sublocation rules would do to PAC traffic that was not planned for.
+3. Whether the egress uses several GRE tunnels or ECMP, when a device shows Z-Tunnel 1.0 unexpectedly.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress] Tier B: The single-IP requirement and the fallback are stated by the vendor; that a multi-tunnel or ECMP GRE egress produces more than one source IP for one device's connections is the inference, and no source observes it.
+- [zia.traffic-forwarding.mixed-deployments:pac-users-fall-to-other] Tier B: Both parts are stated separately (PAC loses internal IP visibility and sublocation policy; unmatched addresses go to `other`); that PAC traffic is placed in `other` is the combination and is not observed.
+
+Not known (open gaps):
+- Dynamic Location Groups catching the wrong methods in mixed deployments [gap:zia.traffic-forwarding.mixed-deployments:location-group-mixing]: settled by lab-test
+- Each method creating its own Location in a mixed tenant [gap:zia.traffic-forwarding.mixed-deployments:location-per-method-mixed]: settled by support-ticket
+
+Area: zia.traffic-forwarding, its subjects in references/_meta/spine/zia/zia.traffic-forwarding.json
+
+Linked (open a file only if the answer needs it):
+- scoped-by references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits): When a location has sublocations, PAC-forwarded traffic from users on that site is not matched to a sublocation unless XFF supplies the inner address, so it can land in the `other` sublocation and take whatever policy reaches it. [zia.traffic-forwarding.mixed-deployments:pac-users-fall-to-other]
+- interacts-with references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment): A site whose egress uses several GRE tunnels with different public source IPs, or ECMP, can present one device's Z-Tunnel 2.0 control and data connections from different IPs; per the vendor that splits them across Service Edges and Z-Tunnel 2.0 falls back to 1.0. [zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress]
+- interacts-with references/_meta/text/zia/zia.traffic-forwarding.pac.md (PAC file forwarding: limits, versions and what it cannot cover): When a location has sublocations, PAC-forwarded traffic from users on that site is not matched to a sublocation unless XFF supplies the inner address, so it can land in the `other` sublocation and take whatever policy reaches it. [zia.traffic-forwarding.mixed-deployments:pac-users-fall-to-other]
+- interacts-with references/_meta/text/zia/zia.traffic-forwarding.zcc.md (Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes): A site whose egress uses several GRE tunnels with different public source IPs, or ECMP, can present one device's Z-Tunnel 2.0 control and data connections from different IPs; per the vendor that splits them across Service Edges and Z-Tunnel 2.0 falls back to 1.0. [zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress]
+- interacts-with references/_meta/text/zia/zia.authentication.surrogate-ip.md (Surrogate IP: mapping a private IP to an authenticated user), from zia.traffic-forwarding: Surrogate IP requires one IP per user as the service sees it, so NAT cannot be used: all users behind it look like one address. Supported forwarding is a GRE or IPSec tunnel without NAT, forward proxy chaining with XFF forwarding turned on for the location or sublocation, or a dedicated proxy port, and Enforce Authentication must be on for the location or sublocation. [zia.authentication.surrogate-ip:no-nat]
+- interacts-with references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path), from zia.traffic-forwarding: For Z-Tunnel 1.0 and PAC traffic, the firewall must be enabled in Advanced Settings for this type of traffic: the option is Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors. [zia.firewall.traffic-path:ztunnel-pac-opt-in]
+- interacts-with references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring), from zia.traffic-forwarding: Forwarding Control policy forwards selected Zscaler traffic to specific endpoints: directly, through a third-party proxy service, through a Zscaler-assigned dedicated IP address or GeoIP address, or to a Private Access App Connector through a Private Access gateway. [zia.forwarding-control:overview]
+- scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.traffic-forwarding: A location identifies a network from which the organization sends internet traffic; the service checks whether arriving traffic comes from a configured (known) location or an unknown one (remote user traffic), and processes known-location traffic by the location's settings. [zia.locations.model:identifies-networks]
+- interacts-with references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent), from zia.traffic-forwarding: Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode. [zia.proxy-mode.forwarding-map:not-a-setting]
+- links-to references/_meta/text/zia/zia.authentication.unauthenticated-traffic.md (What happens to traffic with no user identity)
+- links-to references/_meta/text/zia/zia.locations.groups.md (Location groups: manual and dynamic, conditions, limits, predefined groups)
+- links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
+- links-to references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes))
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)

@@ -1,0 +1,24 @@
+# What the LSS runbook checks when no logs arrive on the SIEM: receiver configuration, connector status, connectivity and the TLS handshake (zpa.log-receivers.runbook.no-logs)
+Also called: No Logs Received on SIEM Server
+
+**Symptoms.** When the SIEM receives no logs, the runbook's listed symptoms are no incoming data in SIEM dashboards or ingestion services, zero log activity in SIEM monitoring tools, and Private Access Diagnostics showing Active log streaming but no logs recorded; it names a communication breakdown, an invalid log streaming configuration or network barriers as typical causes. [zpa.log-receivers.runbook.no-logs:symptoms-causes] [gap:zpa.log-receivers.runbook.no-logs:active-streaming-no-logs]
+
+**Receiver configuration.** The runbook verifies, in the Log Receivers configuration, what it labels the Server Address, Port Number (matching the SIEM's listening port), Stream Format (for example JSON, CEF or CSV) and Application Connector Mapping (selecting the correct App Connectors), and whether TLS Encryption is enabled or disabled to match SIEM support; the Log Receivers page itself labels these Domain Name or IP Address, TCP Port, Log Stream Content and App Connector Groups. [zpa.log-receivers.runbook.no-logs:receiver-config-checks] If the Log Stream Content is a custom log template, the runbook says to test with a predefined log template such as CSV, TSV or JSON to rule out a syntax issue, and to make sure a custom template's syntax aligns with the Log Stream Content format. [zpa.log-receivers.runbook.no-logs:custom-template-test]
+
+**Connector and network.** For the App Connector tied to the log streaming configuration the runbook requires App Connector Status Enabled and Connection Status Connected, and sends a disconnected connector to the App Connector support runbook. [zpa.log-receivers.runbook.no-logs:connector-status] To validate App Connector to SIEM connectivity the runbook uses ping, telnet to the SIEM port, a firewall review, and a packet capture on the connector with sudo tcpdump -i eth0 -nvvs0 -w /var/tmp/siem.pcap host <SIEM IP>. [zpa.log-receivers.runbook.no-logs:siem-connectivity]
+
+**TLS.** In the capture the runbook checks the TLS handshake for a Server Hello from the SIEM, and its example shows a handshake failure due to an Unknown CA certificate; this can happen when TLS Encryption is enabled on the Log Receiver but the SIEM is not configured for TLS or lacks a certificate the App Connector trusts, and disabling TLS Encryption tests that. [zpa.log-receivers.runbook.no-logs:tls-handshake] For TLS Encryption the runbook says the SIEM server should have a certificate signed by a Public Root CA or a custom CA that the App Connector can trust, and refers to About the Log Streaming Service for the full prerequisites, which also have the log receiver validate the chain of trust to the App Connector's enrollment certificate and limit custom root CAs to those used as that enrollment certificate. [zpa.log-receivers.runbook.no-logs:tls-prerequisite]
+
+Not known (open gaps):
+- What Active log streaming with no logs recorded means in Private Access Diagnostics [gap:zpa.log-receivers.runbook.no-logs:active-streaming-no-logs]: settled by lab-test or support-ticket
+
+Area: zpa.log-receivers, its subjects in references/_meta/spine/zpa/zpa.log-receivers.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors), from zpa.log-receivers: App Connectors must be deployed before a log receiver is configured. [zpa.log-receivers.architecture:connectors-first]
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.runbook.md (How the Private Access LSS support troubleshooting runbook describes retention, the log flow and its three common issues)
+- see-also references/_meta/text/zpa/zpa.log-receivers.tls.md (TLS between the App Connector and the log receiver)
+- see-also references/_meta/text/zpa/zpa.log-receivers.configuration.md (What a ZPA log receiver holds and which fields are required)
+- see-also references/_meta/text/zpa/zpa.app-connectors.runbook.md (How the Private Access App Connector support troubleshooting runbook is organized and which pages cover each topic)

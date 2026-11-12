@@ -1,0 +1,59 @@
+# ZIA Email DLP log (NSS Email DLP feed) (zia/email-dlp-log)
+Also called: nss email dlp log; zia email dlp logs
+- Names: nss `email-dlp`
+- time string: The log time (i.e., when a transaction is logged by the Zscaler Nanolog)
+- ss string: Seconds (0–59)
+- mm string: Minutes (0–59)
+- hh string: Hours (0–23)
+- day string: The day of the week
+- dd string: The day of the month (1–31)
+- mon string: The name of the month
+- mth string: The month of the year
+- yyyy string: Year
+- rtime string: The feed time (i.e., when a transaction is received by the NSS from the Nanolog)
+- rss string: Seconds (0–59) as recorded in the feed time (%s{rtime})
+- rmm string: Minutes (0–59) as recorded in the feed time (%s{rtime})
+- rhh string: Hours (0–23) as recorded in the feed time (%s{rtime})
+- rday string: The day of the week as recorded in the feed time (%s{rtime})
+- rdd string: The day of the month (1–31) as recorded in the feed time (%s{rtime})
+- rmon string: The name of the month as recorded in the feed time (%s{rtime})
+- rmth string: The month of the year as recorded in the feed time (%s{rtime})
+- ryyyy string: Year as recorded in the feed time (%s{rtime})
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- datacenter string: The name of the data center
+- datacentercity string: The city where the data center is located
+- datacentercountry string: The country where the data center is located
+- company string: The name of the company
+- departmentname string: The name of the department
+- username string: The user who sent the email and is provisioned to Internet Access (ZIA)
+- extusername string: The user who sent the email but is not provisioned to Internet Access. The external user can be within your organization. For example, a new employee joins the company and their company email address is created but their user account is not configured in the Zscaler Admin Console. In this case, the employee is treated as an external or "non-provisioned" user even though they are part of the company and can send email from their official company email address.
+- owner string: The username or email address of the user who sent the email. This field is an aggregate of %s{username} and %s{extusername}. If the user is provisioned to Internet Access, they populate in %s{username} and %s{owner}. If the user is not provisioned to Internet Access, they populate in %s{extusername} and %s{owner}. The fields %s{username} and %s{extusername} are not populated at the same time. The field %s{owner} is always populated whether the user is provisioned to Internet Access or not.
+- sender string: The username or email address of the user who sent the email. This field is an aggregate of %s{username} and %s{extusername}. If the user is provisioned to Internet Access, they populate in %s{username} and %s{sender}. If the user is not provisioned to Internet Access, they populate in %s{extusername} and %s{sender}. The fields %s{username} and %s{extusername} are not populated at the same time. The field %s{sender} is always populated whether the user is provisioned to Internet Access or not.
+- mail_sent_time string: The date and time at which the user sent the email
+- zs_rcv_time string: The date and time at which Zscaler received the email
+- zs_sent_time string: The date and time at which Zscaler sent the email
+- epochmail_sent_time string: The date and time at which the email was sent in epoch format
+- tenant string: The name of the email tenant
+- appname string: The name of the email application
+- msgid string: The unique email message identifier
+- subject string: The subject of the email
+- ac_md5s string: The MD5 hash of the email attachment
+- ac_sizes string: The size of the email attachment in bytes
+- ac_filetypes string: The file type of the email attachment
+- ac_doctypes string: The document type of the email attachment
+- ac_doc_subtypes string: The document subtype of the email attachment
+- ac_names string: The file name of the email attachment
+- trigg_rcpts string: The recipients of an email that triggered a DLP rule (i.e., an action was taken)
+- other_rcpts string: The recipients of an email that did not trigger a DLP rule (i.e., no action was taken)
+- trigg_rcpt_doms string: The domain of the recipients of an email that triggered a DLP rule (i.e., an action was taken)
+- other_rcpt_doms string: The domain of the recipients of an email that did not trigger a DLP rule (i.e., no action was taken)
+- scan_time string: The DLP engine scan time, i.e., the duration of time from when Zscaler receives an email until policy evaluation is complete in milliseconds
+- dlpidentifier string: The unique DLP identifier
+- dlpdictnames string: The name of the DLP dictionary
+- dlpdictcnts string: The number of hits for each of the DLP dictionaries
+- dlpengnames string: The name of the DLP engine
+- recordid string: The unique record identifier
+- logtype string: The type of record (i.e., DLP Incident, Sensitive Activity, or Scan). A DLP incident means that a DLP rule violation was detected. A sensitive activity means that movement of sensitive data was detected. A scan is considered normal (i.e., no DLP rule violation or movement of sensitive data was detected).
+- severity string: The severity. A DLP incident violates a DLP rule and the severity (i.e., High, Medium, Low, Information) is based on the rule that was violated. A sensitive activity does not violate a rule but is reported for visibility (i.e., Information). A scan does not violate a rule and the field displays NA.
+- actions string: The action taken (i.e., Allow, Block, Custom Header Insertion). The Zscaler service either allows or blocks transactions. Other actions (e.g., quarantine) are taken by the email application (e.g., Microsoft Exchange) as defined by a custom header (e.g., X-Zscaler-Scan:Quarantine).
+- rulelabels string: The name of the DLP rule

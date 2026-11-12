@@ -1,0 +1,12 @@
+# zpa/trusted-networks (zpa/trusted-networks)
+- Names: zscalerctl `zpa trusted-networks`; terraform_data_source `zpa_trusted_network`
+- Live read (read-only): `zscalerctl zpa trusted-networks list`
+- creationTime
+- domain
+- id
+- masterCustomerId
+- modifiedBy
+- modifiedTime
+- name
+- networkId
+- zscalerCloud

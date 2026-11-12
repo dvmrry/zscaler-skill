@@ -1,0 +1,29 @@
+# zcc/forwarding-profiles (zcc/forwarding-profiles)
+- Names: zscalerctl `zcc forwarding-profiles`; terraform `zcc_forwarding_profile`; terraform_data_source `zcc_forwarding_profile`
+- Live read (read-only): `zscalerctl zcc forwarding-profiles list`
+- active
+- conditionType
+- dnsSearchDomains
+- dnsServers
+- enableAllDefaultAdaptersTN
+- enableLWFDriver
+- enableSplitVpnTN
+- enableUnifiedTunnel
+- evaluateTrustedNetwork
+- forwardingProfileActions
+- forwardingProfileZpaActions
+- hostname
+- id
+- name
+- predefinedTnAll
+- predefinedTrustedNetworks
+- resolvedIpsForHostname
+- skipTrustedCriteriaMatch
+- trustedDhcpServers
+- trustedEgressIps
+- trustedGateways
+- trustedNetworkIds
+- trustedNetworkIdsSelected
+- trustedNetworks
+- trustedSubnets
+- unifiedTunnel

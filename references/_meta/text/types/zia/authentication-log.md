@@ -1,0 +1,23 @@
+# ZIA authentication log (NSS authentication feed) (zia/authentication-log)
+Also called: nss authentication log; zia authentication logs
+- Names: nss `authentication`
+- time string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59)
+- mm integer: Minutes (0–59)
+- hh integer: Hours (0–23)
+- dd integer: The day of the month (1–31)
+- mth integer: The month of the year
+- yyyy integer: Year
+- mon string: The name of the month
+- day string: The day of the week
+- intlogtime integer: The epoch time of the transaction
+- action string: The action performed by the admin in the Zscaler Admin Console
+- resource string: The specific entity within a subcategory
+- oresource string: The obfuscated version of the resource.
+- interface string: The means by which the user performs their actions
+- clientip string: The source IP address for the admin
+- result string: The outcome of an action
+- recordid integer: The unique record identifier for each log
+- category string: The location in the Zscaler Admin Console where the action was performed
+- subcategory string: The entity under the selected category where the action was performed

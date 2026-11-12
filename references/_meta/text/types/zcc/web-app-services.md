@@ -1,0 +1,15 @@
+# zcc/web-app-services (zcc/web-app-services)
+- Names: zscalerctl `zcc web-app-services`; terraform_data_source `zcc_web_app_service`
+- Live read (read-only): `zscalerctl zcc web-app-services list`
+- active
+- appDataBlob
+- appDataBlobV6
+- appName
+- appSvcId
+- appVersion
+- createdBy
+- editedBy
+- editedTimestamp
+- id
+- uid
+- version

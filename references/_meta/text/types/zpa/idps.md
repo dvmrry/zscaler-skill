@@ -1,0 +1,32 @@
+# zpa/idps (zpa/idps)
+- Names: zscalerctl `zpa idps`; terraform_data_source `zpa_idp_controller`
+- Live read (read-only): `zscalerctl zpa idps list`
+- adminMetadata
+- adminSpSigningCertId
+- autoProvision
+- creationTime
+- description
+- disableSamlBasedPolicy
+- domainList
+- enableArbitraryAuthDomains
+- enableScimBasedPolicy
+- enabled
+- forceAuth
+- id
+- idpEntityId
+- loginHint
+- loginNameAttribute
+- loginUrl
+- modifiedBy
+- modifiedTime
+- name
+- reauthOnUserUpdate
+- redirectBinding
+- scimEnabled
+- scimServiceProviderEndpoint
+- scimSharedSecretExists
+- signSamlRequest
+- ssoType
+- useCustomSPMetadata
+- userMetadata
+- userSpSigningCertId

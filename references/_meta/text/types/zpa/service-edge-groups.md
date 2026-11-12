@@ -1,0 +1,44 @@
+# zpa/service-edge-groups (zpa/service-edge-groups)
+- Names: zscalerctl `zpa service-edge-groups`; terraform `zpa_service_edge_group`; terraform_data_source `zpa_service_edge_group`
+- Live read (read-only): `zscalerctl zpa service-edge-groups list`
+- altCloud
+- city
+- cityCountry
+- countryCode
+- creationTime
+- description
+- enabled
+- enrollmentCertId
+- exclusiveForBusinessContinuity
+- geoLocationId
+- graceDistanceEnabled
+- graceDistanceValue
+- graceDistanceValueUnit
+- id
+- isPublic
+- latitude
+- location
+- longitude
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- nameWithoutTrim
+- objectType
+- overrideVersionProfile
+- readOnly
+- restrictedEntity
+- restrictionType
+- scopeName
+- serviceEdges
+- siteId
+- siteName
+- trustedNetworks
+- upgradeDay
+- upgradeTimeInSecs
+- useInDrMode
+- versionProfileId
+- versionProfileName
+- versionProfileVisibilityScope
+- zscalerManaged

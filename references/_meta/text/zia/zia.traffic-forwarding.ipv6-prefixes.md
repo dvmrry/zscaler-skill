@@ -1,0 +1,41 @@
+# NAT64 and DNS64 prefixes: custom prefixes, selection order and limits (zia.traffic-forwarding.ipv6-prefixes)
+Also called: NAT64 prefix; DNS64 prefix; well-known prefix; NAT64 Prefixes
+
+A NAT64 prefix is used in the algorithmic translation of a synthetic IPv6 address to an IPv4 address: the service matches the prefixes against the destination address prefix in inbound IPv6 packets and derives the IPv4 address of the destination server. The service provides a default NAT64 prefix, supports the well-known prefix, and allows network-specific prefixes to be added in the Admin Console. [zia.traffic-forwarding.ipv6-prefixes:nat64-prefix] The DNS64 prefix is an IPv6 address prefix that Zscaler's DNS64 mechanism uses to synthesize AAAA records from A records returned to servers reachable over IPv4. One of the configured NAT64 prefixes can be designated as the organization's DNS64 prefix, and individual locations can have their own DNS64 prefix that overrides the global one. [zia.traffic-forwarding.ipv6-prefixes:dns64-prefix] How the service uses them when it connects to the destination is in [IPv6 through ZIA: forwarding per method, prerequisites, processing and policy](kb:zia.traffic-forwarding.ipv6).
+
+**When they apply.** Traffic forwarded in transparent proxy mode, through GRE or IPSec tunnels or Client Connector Tunnel 2.0, can use Zscaler's DNS64/NAT64 mechanism to connect IPv6 clients to IPv4 destinations. The mechanism uses the well-known prefix and Zscaler's default NAT64 and DNS64 prefixes without any additional configuration by the organization. [zia.traffic-forwarding.ipv6-prefixes:transparent-only] If DNS traffic is forwarded to the Zscaler service, custom NAT64 and DNS64 prefixes can be configured globally or per location, and both must be configured because they are interdependent. If DNS traffic is not forwarded and an external service performs DNS64, no DNS64 prefix is needed, globally or per location, though NAT64 prefixes can still be configured to match inbound traffic for translation by the service. [zia.traffic-forwarding.ipv6-prefixes:when-to-configure]
+
+**Writing a prefix.** A NAT64 prefix is entered as the well-known NAT64 prefix or a network-specific prefix, with a subnet mask selected for it. [zia.traffic-forwarding.ipv6-prefixes:nat64-fields] The well-known prefix is written two ways in the pages [divergence:zia.traffic-forwarding.ipv6-prefixes:well-known-prefix-spelling].
+
+**Limits and overrides.** An organization can have at most 128 NAT64 prefixes and only one global DNS64 prefix. Global and location-specific DNS64 prefixes are both selected from the list of NAT64 prefixes. [zia.traffic-forwarding.ipv6-prefixes:limits] A location-specific DNS64 prefix overrides the global prefix for that location; if no prefix is selected, the global prefix is used. [zia.traffic-forwarding.ipv6-prefixes:location-override] A NAT64 prefix designated as the DNS64 prefix cannot be deleted, and the DNS64 prefix itself cannot be deleted, only changed by designating a different NAT64 prefix. When IPv6 support is disabled, both the NAT64 prefixes and the DNS64 prefix are view-only. [zia.traffic-forwarding.ipv6-prefixes:delete-and-view-only]
+
+**Which DNS64 prefix is used.** The service selects the DNS64 prefix in this order: the Client Connector-shared prefix, the prefix configured for the location in the Admin Console, the prefix configured for the organization, Zscaler's default prefix for the cloud the organization is provisioned on, then the well-known NAT64 prefix. [zia.traffic-forwarding.ipv6-prefixes:selection-order] What the Client Connector-shared prefix is, and the default prefix per cloud, are open [gap:zia.traffic-forwarding.ipv6-prefixes:default-prefix-values].
+
+What to check:
+1. Whether a prefix copied from the Configuring IPv6 Settings or About the DNS64 Prefix introductory sentence is the well-known prefix, since those sentences spell it differently from the field description.
+2. Whether DNS traffic is forwarded to Zscaler, which decides whether both NAT64 and DNS64 prefixes must be configured.
+
+Sources disagree (name both sides):
+- The well-known NAT64 prefix is written 64:ff:9b::/96 in the introductory sentences of two pages and 64:ff9b::/96 in their field descriptions and in the About NAT64 Prefixes page. [divergence:zia.traffic-forwarding.ipv6-prefixes:well-known-prefix-spelling]
+  - zscaler-help: The Configuring IPv6 Settings introduction writes the well-known prefix as 64:ff:9b::/96.
+  - zscaler-help: The About the DNS64 Prefix introduction writes the well-known prefix as 64:ff:9b::/96.
+  - zscaler-help: The same page's NAT Prefix field writes it as 64:ff9b::/96.
+  - zscaler-help: The About NAT64 Prefixes page writes it as 64:ff9b::/96.
+  Impact: 64:ff:9b::/96 is a different address from 64:ff9b::/96, so a prefix copied from the introductory sentences would not match the well-known prefix; the pages do not say which spelling is intended.
+
+Not known (open gaps):
+- The Client Connector-shared prefix, Zscaler's default prefix per cloud and the mask choices [gap:zia.traffic-forwarding.ipv6-prefixes:default-prefix-values]: settled by source-read or tenant-data
+
+Area: zia.traffic-forwarding, its subjects in references/_meta/spine/zia/zia.traffic-forwarding.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zia/zia.authentication.surrogate-ip.md (Surrogate IP: mapping a private IP to an authenticated user), from zia.traffic-forwarding: Surrogate IP requires one IP per user as the service sees it, so NAT cannot be used: all users behind it look like one address. Supported forwarding is a GRE or IPSec tunnel without NAT, forward proxy chaining with XFF forwarding turned on for the location or sublocation, or a dedicated proxy port, and Enforce Authentication must be on for the location or sublocation. [zia.authentication.surrogate-ip:no-nat]
+- interacts-with references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path), from zia.traffic-forwarding: For Z-Tunnel 1.0 and PAC traffic, the firewall must be enabled in Advanced Settings for this type of traffic: the option is Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors. [zia.firewall.traffic-path:ztunnel-pac-opt-in]
+- interacts-with references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring), from zia.traffic-forwarding: Forwarding Control policy forwards selected Zscaler traffic to specific endpoints: directly, through a third-party proxy service, through a Zscaler-assigned dedicated IP address or GeoIP address, or to a Private Access App Connector through a Private Access gateway. [zia.forwarding-control:overview]
+- scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.traffic-forwarding: A location identifies a network from which the organization sends internet traffic; the service checks whether arriving traffic comes from a configured (known) location or an unknown one (remote user traffic), and processes known-location traffic by the location's settings. [zia.locations.model:identifies-networks]
+- interacts-with references/_meta/text/zia/zia.proxy-mode.md (ZIA proxy modes: explicit and transparent), from zia.traffic-forwarding: Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode. [zia.proxy-mode.forwarding-map:not-a-setting]
+- links-to references/_meta/text/zia/zia.traffic-forwarding.ipv6.md (IPv6 through ZIA: forwarding per method, prerequisites, processing and policy)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.traffic-forwarding.md (How traffic reaches ZIA)
+- see-also references/_meta/text/zia/zia.traffic-forwarding.dns-resolution.md (Who resolves DNS for each forwarding method)

@@ -1,0 +1,14 @@
+# zcc/predefined-ip-apps (zcc/predefined-ip-apps)
+- Names: zscalerctl `zcc predefined-ip-apps`; terraform_data_source `zcc_predefined_ip_apps`
+- Live read (read-only): `zscalerctl zcc predefined-ip-apps list`
+- active
+- appDataBlob
+- appDataBlobV6
+- appName
+- appSvcId
+- appVersion
+- createdBy
+- editedBy
+- editedTimestamp
+- id
+- uid

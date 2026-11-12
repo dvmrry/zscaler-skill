@@ -1,0 +1,34 @@
+# zia/dlp-dictionaries (zia/dlp-dictionaries)
+- Names: zscalerctl `zia dlp-dictionaries`; terraform `zia_dlp_dictionaries`; terraform_data_source `zia_dlp_dictionaries`
+- Live read (read-only): `zscalerctl zia dlp-dictionaries list`
+- binNumbers
+- confidenceLevelForPredefinedDict
+- confidenceThreshold
+- custom
+- customPhraseMatchType
+- customPhraseSupported
+- description
+- dictTemplateId
+- dictionaryCloningEnabled
+- dictionaryType
+- exactDataMatchDetails
+- exactDataMatchDetails.schemaId
+- hierarchicalDictionary
+- hierarchicalIdentifiers
+- id
+- idmProfileMatchAccuracyDetails
+- idmProfileMatchAccuracyDetails.adpIdmProfile
+- ignoreExactMatchIdmDict
+- includeBinNumbers
+- name
+- nameL10nTag
+- patterns
+- phrases
+- predefinedClone
+- predefinedCountActionType
+- predefinedPhrases
+- proximity
+- proximityEnabledForCustomDictionary
+- proximityLengthEnabled
+- thresholdAllowed
+- thresholdType

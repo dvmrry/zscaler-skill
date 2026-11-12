@@ -1,0 +1,17 @@
+# ztw/traffic-log-rules (ztw/traffic-log-rules)
+- Names: zscalerctl `ztw traffic-log-rules`; terraform `ztc_traffic_forwarding_log_rule`; terraform_data_source `ztc_traffic_forwarding_log_rule`
+- Live read (read-only): `zscalerctl ztw traffic-log-rules list`
+- defaultRule
+- description
+- ecGroups
+- forwardMethod
+- id
+- lastModifiedBy
+- lastModifiedTime
+- locations
+- name
+- order
+- proxyGateway
+- rank
+- state
+- type

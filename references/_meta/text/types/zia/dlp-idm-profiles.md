@@ -1,0 +1,24 @@
+# zia/dlp-idm-profiles (zia/dlp-idm-profiles)
+- Names: zscalerctl `zia dlp-idm-profiles`; terraform_data_source `zia_dlp_idm_profiles`
+- Live read (read-only): `zscalerctl zia dlp-idm-profiles list`
+- host
+- idmClient
+- lastModifiedTime
+- modifiedBy
+- numDocuments
+- port
+- profileDesc
+- profileDirPath
+- profileId
+- profileName
+- profileType
+- scheduleDay
+- scheduleDayOfMonth
+- scheduleDayOfWeek
+- scheduleDisabled
+- scheduleTime
+- scheduleType
+- uploadStatus
+- userName
+- version
+- volumeOfDocuments

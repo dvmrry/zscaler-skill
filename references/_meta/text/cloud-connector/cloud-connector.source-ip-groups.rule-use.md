@@ -1,0 +1,53 @@
+# Which Cloud Connector rules take source IP groups, and how the source criterion behaves (cloud-connector.source-ip-groups.rule-use)
+Also called: srcIpGroups; src_ip_groups ztc; source_ip_group_exclusion; sourceIpGroupExclusion cloud connector; srcIpv6Groups; src_ips vs src_ip_groups; log and control rule source ip group
+Former IDs: cloud-connector-05
+
+**Forwarding rules.** The forwarding rule criteria for source IP groups and inline source addresses are in [Source IP Groups can be any number of source IP address groups or App Connector source IP addresses (none selected applies to all); Source IP Addresses take an individual address, a subnet, or a range.](kb:cloud-connector.forwarding.criteria:source-ip), and the App Connector looping advice is [In the Private Access, Direct, Drop and Local procedures, the form advises preventing App Connector looping by excluding the IP addresses the App Connector uses to open connections, or including the IP addresses of all non-App Connector devices.](kb:cloud-connector.forwarding.criteria:app-connector-looping). How groups, inline addresses and workload groups combine as sources is not stated [gap:cloud-connector.source-ip-groups.rule-use:match-logic], nor how criteria combine in general: [How forwarding rule criteria combine](kb:cloud-connector.forwarding.criteria:combination-logic).
+
+**DNS rules.** DNS rules carry their own source IP group field: [The DNS rule model has its own source and destination IP group fields, and the ZTC DNS rule resource writes them. They use the same field names and reference type as the forwarding-rule fields that the IP source group and IP destination group deletes sweep.](kb:cloud-connector.terraform.delete-detach:dns-rules-reference-ip-groups).
+
+**Log and control rules.** The help's Log and Control forwarding rule form lists Location/Sublocation and Cloud & Branch Connector Groups as the rule attributes to configure in its Source section. [cloud-connector.source-ip-groups.rule-use:log-rule-help-source] The contract's log and control rule create body (POST /ecRules/self), described as traffic forwarding rule details, carries `srcIpGroups`. [cloud-connector.source-ip-groups.rule-use:log-rule-contract-groups] The two disagree [divergence:cloud-connector.source-ip-groups.rule-use:log-rule-source-groups]. The Go SDK's log and control rule struct has no source IP group field: its members are ID, name, description, order, rank, state, type, forward method, default flag, locations, proxy gateway, last-modified fields and Cloud Connector groups. [cloud-connector.source-ip-groups.rule-use:log-rule-sdk-no-groups] The console form for these rules is in [A rule's name is at most 31 characters; its source is all locations or up to 8, or all or specific Cloud & Branch Connector groups; its action is a Log and Control Gateway; its description is at most 10,240 characters.](kb:cloud-connector.forwarding.log-and-control:rule-fields).
+
+**Exclusion.** The Go SDK's forwarding rule struct carries `SourceIpGroupExclusion` with the comment 'Not applicable to Cloud & Branch Connector.' [cloud-connector.source-ip-groups.rule-use:exclusion-sdk-not-applicable] The API contract's forwarding rule create body has no `sourceIpGroupExclusion` member. [cloud-connector.source-ip-groups.rule-use:exclusion-not-in-forwarding-contract] The contract's DNS rule body does carry `sourceIpGroupExclusion`, described as whether source IP addresses and groups are included or excluded. [cloud-connector.source-ip-groups.rule-use:exclusion-in-dns-contract] The ZTC provider's `ztc_traffic_forwarding_rule` exposes an optional boolean `source_ip_group_exclusion` ('Source IP groups that must be excluded from the rule application') and copies it into the SDK request. [cloud-connector.source-ip-groups.rule-use:exclusion-terraform-sends] What the API does with the flag on a forwarding rule is unknown [gap:cloud-connector.source-ip-groups.rule-use:exclusion-applicability].
+
+**IPv6 group fields.** The contract describes the forwarding rule's `srcIpv6Groups` as not applicable to Cloud & Branch Connector. [cloud-connector.source-ip-groups.rule-use:ipv6-forwarding-not-applicable] The contract's DNS rule body describes its `srcIpv6Groups` as the source IPv6 addresses to which the rule applies. [cloud-connector.source-ip-groups.rule-use:ipv6-dns-described] What an IPv6 group is remains open: [IPv6 entries in a source IP group, and what srcIpv6Groups refers to](kb:cloud-connector.source-ip-groups:ipv6-entries).
+
+**Source address seen by the rule.** Whether a source group matches the workload address when traffic was translated before reaching Cloud Connector is not documented [gap:cloud-connector.source-ip-groups.rule-use:pre-nat-source]. Local rules can translate source addresses themselves: [A Local rule can also apply source NAT, translating workload source IPs to the Cloud Connector service IP, and destination NAT and port translation to the virtual IP and fixed single port of the internal load balancer that spreads ingress traffic over the workload servers.](kb:cloud-connector.forwarding.methods:local-nat).
+
+**Changes and deletes.** The help's forwarding rule procedures end with saving the rule and activating the change. [cloud-connector.source-ip-groups.rule-use:save-and-activate] A change takes effect only after activation: [The Activation API resources activate configuration changes by pushing them to the Central Authority (CA); for any configuration change to take effect, the service requires it to be activated.](kb:cloud-connector.api.activation-wire:activation-pushes-to-ca). Activation from Terraform is in [The provider documentation says the ZTC platform requires every configuration to be activated, and offers an out-of-band CLI (ztcActivator) or the `ztc_activation_status` resource for it.](kb:cloud-connector.terraform.activation:two-ways). Deleting a group through Terraform detaches it from forwarding rules only: [So deleting an IP source group or IP destination group never removes it from DNS rules that use it. The detach step edits only forwarding rules, and the delete follows regardless.](kb:cloud-connector.terraform.delete-detach:ip-group-references-in-dns-rules-not-detached). Whether the API refuses to delete a group that rules still reference is open: [How ZTC treats deleting an object that rules still reference](kb:cloud-connector.terraform.delete-detach:in-use-enforcement).
+
+What to check:
+1. Which rule type the policy needs: forwarding and DNS rules take source IP groups; log and control rules cannot be given them through the SDK or Terraform.
+2. Before relying on `source_ip_group_exclusion` on a forwarding rule, read the rule back from the API and test whether exclusion is applied.
+3. For a ZPA, Direct, Drop or Local rule with source criteria, whether the App Connector's own addresses are excluded.
+4. Whether the change was activated after saving.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [cloud-connector.source-ip-groups.rule-use:log-rule-sdk-no-groups] Tier B: Absence read from the whole ECTrafficLogRules struct at the pin; the quotes anchor its first and last members.
+
+Sources disagree (name both sides):
+- The help's log and control rule form has no source IP group criterion; the contract documents the log and control rule body with the forwarding rule schema, which carries `srcIpGroups`. [divergence:cloud-connector.source-ip-groups.rule-use:log-rule-source-groups]
+  - zscaler-help: A log and control rule's source is a location or sublocation, or a Cloud & Branch Connector group; there is no source IP group criterion.
+  - api-specs: The log and control rule body carries source IP groups.
+  Impact: Whether the API honors `srcIpGroups` on a log and control rule is unconfirmed; the contract may reuse the forwarding schema without the field applying. The Go SDK, and the ZTC provider built on it, cannot send the field at all.
+
+Not known (open gaps):
+- How source IP groups, inline source addresses and other criteria combine [gap:cloud-connector.source-ip-groups.rule-use:match-logic]: settled by lab-test or support-ticket. Blocks: Predicting whether a rule with both source groups and inline addresses, or with workload groups, matches a flow.
+- What the API does with sourceIpGroupExclusion on a Cloud Connector forwarding rule [gap:cloud-connector.source-ip-groups.rule-use:exclusion-applicability]: settled by lab-test. Blocks: Writing a forwarding rule meant to exclude a set of source addresses.
+- Source address seen by source IP group matching after upstream NAT [gap:cloud-connector.source-ip-groups.rule-use:pre-nat-source]: settled by lab-test. Blocks: Explaining a source-group rule that does not match traffic routed through a NAT before Cloud Connector.
+
+Area: cloud-connector.source-ip-groups, its subjects in references/_meta/spine/cloud-connector/cloud-connector.source-ip-groups.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.criteria.md (Cloud Connector forwarding rule criteria: scope, services, sources, destinations, FQDNs)
+- links-to references/_meta/text/cloud-connector/cloud-connector.terraform.delete-detach.md (How the ZTC Terraform provider detaches references before deleting objects)
+- links-to references/_meta/text/cloud-connector/cloud-connector.api.activation-wire.md (Cloud Connector activation on the wire: activate, forced activate, and what the clients send)
+- links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.log-and-control.md (Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud)
+- links-to references/_meta/text/cloud-connector/cloud-connector.forwarding.methods.md (Cloud Connector forwarding methods: ZIA, ZPA, Direct, Drop, Local, and their API tokens)
+- links-to references/_meta/text/cloud-connector/cloud-connector.source-ip-groups.md (Cloud Connector source IP groups: what they are and what is unknown about them)
+- links-to references/_meta/text/cloud-connector/cloud-connector.terraform.activation.md (Activating ZTC changes from Terraform: the activation resource and the ztcActivator CLI)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)
+- configured-via references/_meta/text/types/ztw/traffic-dns-rules.md (config type)
+- see-also references/_meta/text/zia/zia.workload-groups.rule-scoping.md (Which ZIA rules accept workload groups, and how many)

@@ -1,0 +1,12 @@
+# zia/proxy-gateways (zia/proxy-gateways)
+- Names: zscalerctl `zia proxy-gateways`; terraform_data_source `zia_forwarding_control_proxy_gateway`
+- Live read (read-only): `zscalerctl zia proxy-gateways list`
+- description
+- failClosed
+- id
+- lastModifiedBy
+- lastModifiedTime
+- name
+- primaryProxy
+- secondaryProxy
+- type

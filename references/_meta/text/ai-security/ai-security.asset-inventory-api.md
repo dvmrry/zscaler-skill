@@ -1,0 +1,37 @@
+# The AI Security inventory API (AI Infrastructure, AI-SPM): read-only assets and issues, cursor paging, filters and limits (ai-security.asset-inventory-api)
+Also called: ai security api; ai infrastructure api; aispm; ai-spm; /aisecurity/aispm; ai asset inventory api; ai agents inventory; mcp servers inventory; ai security issues api; ai datastores api; next_cursor; total_count zero; ai security rate limit
+
+The AI Infrastructure part of the AI Security API lists the AI assets and issues Zscaler's scanners have discovered: agents, code repositories, data stores, guardrails, identities, MCP servers and their tools, workloads and issues. Its paths, filters and response fields are generated: run `node scripts/kb.mjs surface aisec` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json`.
+
+**What it is.** The AI Infrastructure endpoints expose AI asset inventory, resource metadata and governance data collected by Zscaler's scanning and discovery engines, for consumers such as SIEM, SOAR and ITSM systems, dashboards and partners; every endpoint requires a bearer token issued by Authentication Service. [ai-security.asset-inventory-api:purpose] The API provides programmatic access to AI asset inventory, resource metadata and governance data, for consumers such as SIEMs, SOARs, ITSM platforms and custom dashboards. [ai-security.asset-inventory-api:api-purpose] The AI Security API authenticates with API keys issued and managed through the Authentication Service (ZID) platform, scoped to roles and Business Units. [ai-security.asset-inventory-api:api-auth] Whether the API-key and bearer-token statements describe one mechanism is open [gap:ai-security.asset-inventory-api:auth-mechanism]. All 17 AI Infrastructure operations are GET operations, one per path; the API lists and reads assets and issues. [ai-security.asset-inventory-api:read-only] No vendored SDK, Terraform provider, Ansible collection or MCP server tool calls the AI Infrastructure API. [ai-security.asset-inventory-api:no-client] It is a different API from AI Guard's, which evaluates prompts and manages policy: [The AI Guard configuration API: behavior the contract states, limits and errors, and what the Python SDK covers](kb:ai-security.ai-guard.admin-api). Both families of the AI Security specification are in [The captured AI Security API specification combines two families: AI Infrastructure, 17 operations served from `https://api.zsapi.net/aisecurity/aispm`, and AI Red Teaming, 97 operations served from `https://api.zsapi.net/aisecurity/airt`.](kb:ai-security.family:api-families).
+
+**Paging.** Every collection endpoint uses cursor paging: `cursor` takes the previous response's `next_cursor`, passed back exactly as received, and `page_size` defaults to 25 with a maximum of 200; filters, sort and page size must not change within one sequence (changing them can skip or duplicate records), a new sequence starts by omitting the cursor, and a cursor the server cannot decode restarts paging from the first page without an error. [ai-security.asset-inventory-api:cursor-paging] On the agents list and the issues list, `total_count` is filled only on the first page and is 0 on later pages; the first-page value is an estimate that concurrent changes can make drift, so paging continues until `next_cursor` is empty rather than by count. [ai-security.asset-inventory-api:total-count]
+
+**Filters and sorting.** Filters use field=value query parameters combined with AND, and `sort` takes a field name, prefixed with a minus sign for descending order. [ai-security.asset-inventory-api:filters] Parameter names and sort fields are case-sensitive while filter and enum values are not; an undocumented parameter is rejected with 400; a repeated parameter keeps only its first value, and several values go in a comma-separated list instead; an empty value means no filter; invalid `risk_level` and `sort` values are rejected with 400, while other filters are normalized and unmatched values return an empty result. [ai-security.asset-inventory-api:validation]
+
+**Limits.** The AI Security API allows 100 requests per second per tenant; beyond that it answers 429 Too Many Requests with rate-limit headers, and clients should back off exponentially; `x-ratelimit-reset` is a Unix epoch timestamp in seconds. [ai-security.asset-inventory-api:rate-limit] Whether the window is a second or a minute is open [gap:ai-security.asset-inventory-api:rate-window].
+
+**Not settled.** Entitlement and what data a tenant returns are open [gap:ai-security.asset-inventory-api:entitlement].
+
+What to check:
+1. Follow next_cursor until it is empty, with the same filters, sort and page size throughout; do not stop on total_count, which is 0 after the first page.
+2. On a 400, an undocumented query parameter, a misspelled (case-sensitive) parameter or sort field, or an invalid risk_level.
+3. On an empty result, a filter value that matched nothing; filters other than risk_level and sort do not error on unknown values.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [ai-security.asset-inventory-api:no-client] Tier B: Rests on a search: the generated aisec surface has empty Python and Go SDK sections, and a search of the Python and Go SDKs, the MCP server, the ZIA, ZPA and ZTC Terraform providers and both Ansible collections at their pins finds no aispm or aisecurity reference. Absence in vendored clients says nothing about private or future ones.
+
+Not known (open gaps):
+- Whether API keys and bearer tokens are one authentication mechanism for the AI Security API [gap:ai-security.asset-inventory-api:auth-mechanism]: settled by source-read or lab-test
+- Whether the AI Security rate limit is per second or per minute [gap:ai-security.asset-inventory-api:rate-window]: settled by lab-test or source-read. Blocks: client throttling for bulk inventory reads
+- Entitlement, scopes and data availability for the AI Infrastructure API [gap:ai-security.asset-inventory-api:entitlement] (data gap): filled by operator; settled by tenant-data. Blocks: whether a tenant can call the inventory API and what it returns
+
+Area: ai-security.asset-inventory-api, its subjects in references/_meta/spine/ai-security/ai-security.asset-inventory-api.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/ai-security/ai-security.ai-guard.admin-api.md (The AI Guard configuration API: behavior the contract states, limits and errors, and what the Python SDK covers)
+- links-to references/_meta/text/ai-security/ai-security.family.md (The AI Security family: AI Access Security, AI Guard (AI Guardrails), AI Red Teaming and the AI asset inventory)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.oneapi.base-urls.md (OneAPI hosts and per-product base paths)
+- see-also references/_meta/text/ai-security/ai-security.asset-management.md (AI Asset Management in the AI Security Admin Portal: what it inventories, signing in, first-time configuration order, table behavior)

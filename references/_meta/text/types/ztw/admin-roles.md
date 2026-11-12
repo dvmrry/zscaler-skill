@@ -1,0 +1,19 @@
+# ztw/admin-roles (ztw/admin-roles)
+- Names: zscalerctl `ztw admin-roles`
+- Live read (read-only): `zscalerctl ztw admin-roles list`
+- adminAcctAccess
+- alertingAccess
+- analysisAccess
+- dashboardAccess
+- deviceInfoAccess
+- id
+- isAuditor
+- isNonEditable
+- logsLimit
+- name
+- permissions
+- policyAccess
+- rank
+- reportAccess
+- roleType
+- usernameAccess

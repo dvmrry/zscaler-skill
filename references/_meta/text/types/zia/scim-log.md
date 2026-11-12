@@ -1,0 +1,26 @@
+# ZIA SCIM log (NSS SCIM feed) (zia/scim-log)
+Also called: nss scim log; zia scim logs
+- Names: nss `scim`
+- time string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59)
+- mm integer: Minutes (0–59)
+- hh integer: Hours (0–23)
+- dd integer: The day of the month (1–31)
+- mth integer: The month of the year
+- yyyy integer: Year
+- mon string: The name of the month
+- day string: The day of the week
+- intlogtime integer: The epoch time of the transaction
+- recordid integer: The unique record identifier for each log
+- result string: The outcome of an action
+- method string: The method used for the action
+- resource string: An entity within a subcategory
+- oresource string: The obfuscated version of the resource.
+- resourcetype string: The type of resource
+- externalidp string: The name of the IdP for which the request was sent
+- statuscode string: The status code of the entity
+- errorcode string: An optional field that exists only if the result is a failure
+- preaction string: Data before any policy or configuration changes
+- postaction string: Data after any policy or configuration changes
+- clientip string: The source IP address for the admin

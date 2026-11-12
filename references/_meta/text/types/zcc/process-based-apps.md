@@ -1,0 +1,13 @@
+# zcc/process-based-apps (zcc/process-based-apps)
+- Names: zscalerctl `zcc process-based-apps`; terraform_data_source `zcc_process_based_apps`
+- Live read (read-only): `zscalerctl zcc process-based-apps list`
+- appName
+- certificatePayload
+- createdBy
+- editedBy
+- editedTimestamp
+- fileNames
+- filePaths
+- id
+- matchingCriteria
+- signaturePayload

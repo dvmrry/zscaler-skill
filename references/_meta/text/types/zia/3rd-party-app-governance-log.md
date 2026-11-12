@@ -1,0 +1,22 @@
+# ZIA 3rd-Party App Governance log (NSS 3rd-Party App Governance feed) (zia/3rd-party-app-governance-log)
+Also called: nss 3rd-party app governance log; zia 3rd-party app governance logs
+- Names: nss `3rd-party-app-governance`
+- time string: The time that the alert was sent
+- recordid integer: The unique record identifier
+- platformname string: The name of the sanctioned SaaS platform
+- tenant string: The name of the onboarded tenant
+- tenantlabel string: The labels associated with the tenant
+- policytitle string: The name of the 3rd-Party App Governance policy
+- policyid string: The unique ID of the 3rd-Party App Governance policy
+- appname string: The name of the third-party application, add-on, or extension
+- appid string: The application ID (i.e., client ID, extension ID, bot ID)
+- apptypes string: The type of application
+- apppublisher string: The publisher of the third-party application
+- riskscore integer: The risk score of the third-party application
+- firstauthorizedby string: The user who authorized the integration
+- lastusagetime string: The time of the last activity in the application
+- installtime string: The time that the third-party application was installed
+- permissions string: The permissions granted to the third-party application
+- usercount integer: The number of users who have installed third-party applications
+- appstatus string: The status of the third-party application
+- appclassification string: The classification of an application, selected either via policy or manually

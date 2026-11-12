@@ -1,0 +1,38 @@
+# Internet & SaaS device trust levels: how posture becomes a policy criterion (shared.device-posture.trust-levels)
+Also called: device trust level; zia posture profile; internet & saas posture profile; high trust medium trust low trust; trust level unknown; posture in url filtering
+
+Internet & SaaS does not refer to a device posture profile directly. It refers to a trust level that an Internet & SaaS posture profile derives from device posture profiles.
+
+**Building the levels.** An Internet & SaaS posture profile holds an expression for each of High Trust, Medium Trust and Low Trust; Client Connector evaluates the checks of all levels on the device and the highest matching level is used. [shared.device-posture.trust-levels:level-expressions] A level's expression is built from device posture profiles, with up to 5 selectable; within a group the logic is AND, and between groups it is OR. [shared.device-posture.trust-levels:expression-logic] The vendor describes Internet & SaaS posture profiles as a way to apply different policies to users' personal devices than to their corporate devices. [shared.device-posture.trust-levels:personal-versus-corporate]
+
+**Getting it onto a device.** An Internet & SaaS posture profile is added to an app profile, and posture profiles are evaluated on the devices assigned to app profiles. [shared.device-posture.trust-levels:via-app-profile] The app profile field is in [An app profile, on each platform's policy page (Windows, macOS, Linux, iOS and Android), can apply an Internet & SaaS (ZIA) posture profile.](kb:zcc.device-posture:zia-posture-profile), and the device's resulting level is shown on its details page: [A device's details page shows its Device Trust Level, Low, Medium, High or Unknown, based on the levels configured in Internet & SaaS posture profiles.](kb:zcc.device-posture:trust-level-shown).
+
+**Using it in policy.** The trust level (High, Medium, Low) given to devices is selected when configuring a Firewall, Firewall Filtering, URL Filtering, File Type Control, SSL Inspection or Cloud App Control policy. [shared.device-posture.trust-levels:policy-types] In URL Filtering rules the Device Trust Level criterion takes High Trust, Medium Trust, Low Trust or Unknown; the first three are evaluated only for Client Connector traffic, Unknown for all traffic, and selecting no value ignores the criterion. The levels assigned to devices come from the posture configuration. [shared.device-posture.trust-levels:criterion-scope] The same scope is held for Firewall Filtering in [High, Medium and Low device trust evaluation applies only to Zscaler Client Connector traffic, while the Unknown level applies to all traffic; with no value the criterion is ignored.](kb:zia.firewall.criteria:device-trust-scope) and for SSL/TLS inspection in [Device Trust Level values High, Medium and Low apply only to Client Connector traffic; Unknown applies to all traffic.](kb:zia.ssl-inspection.criteria:device-trust-scope), and the rule expressions that hold the criterion are in [A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile].](kb:zia.cloud-app-control.rule-criteria:criteria-expression) and [A rule fires when all of these hold: File Types AND URL Categories AND Cloud Applications AND Application Segment; Users OR Groups OR Departments; Location Groups OR Locations; Time; Device Groups OR Devices; Protocols; Device Trust Level; Minimum File Size; Maximum File Size.](kb:zia.file-type-control.criteria:criteria-expression).
+
+**Open.** When a Client Connector device is given Unknown rather than a level is open [gap:shared.device-posture.trust-levels:unknown-assignment].
+
+The API shape of a v2 posture profile with its three levels is in [A v2 ZIA posture profile as the Go SDK models it has an integer `id`, a `name`, an integer `platform`, and three trust levels (`highTrustCriteria`, `mediumTrustCriteria`, `lowTrustCriteria`), each a `cs` array of criteria sets whose `cn` arrays hold criteria with `id`, `name` and `udid`.](kb:zcc.api.v2-wire:posture-shape).
+
+What to check:
+1. Which Internet & SaaS posture profile the device's app profile applies, and the trust level shown on the device's details page.
+2. Whether the device met the expression of a higher level than expected; the highest matching level is used.
+3. Whether the traffic came through Client Connector: High, Medium and Low apply only to Client Connector traffic, Unknown to all traffic.
+
+Not known (open gaps):
+- When a Client Connector device gets the Unknown trust level [gap:shared.device-posture.trust-levels:unknown-assignment]: settled by lab-test or tenant-data. Blocks: predicting which trust-level rule a device that matches no level falls into
+
+Area: shared.device-posture, its subjects in references/_meta/spine/shared/shared.device-posture.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zcc/zcc.device-posture.md (ZCC device posture profiles): An app profile, on each platform's policy page (Windows, macOS, Linux, iOS and Android), can apply an Internet & SaaS (ZIA) posture profile. [zcc.device-posture:zia-posture-profile]
+- interacts-with references/_meta/text/zcc/zcc.trusted-networks.md (ZCC trusted networks), from shared.device-posture: A Private Access rule that carries both a posture condition and a trusted network condition matches only when both hold. A rule meant to admit on-premises devices without posture must not carry the posture condition and must be ordered above the rule that checks posture. [shared.device-posture:posture-and-trusted-network]
+- interacts-with references/_meta/text/zpa/zpa.posture-profiles.policy-operand.md (The POSTURE operand in ZPA policy rules), from shared.device-posture: A Private Access rule that carries both a posture condition and a trusted network condition matches only when both hold. A rule meant to admit on-premises devices without posture must not carry the posture condition and must be ordered above the rule that checks posture. [shared.device-posture:posture-and-trusted-network]
+- links-to references/_meta/text/zcc/zcc.api.v2-wire.md (The ZCC v2 API: RESTful paths, offset paging and the list envelope)
+- links-to references/_meta/text/zia/zia.cloud-app-control.rule-criteria.md (What a Cloud App Control rule matches on)
+- links-to references/_meta/text/zia/zia.file-type-control.criteria.md (File Type Control rule criteria)
+- links-to references/_meta/text/zia/zia.firewall.criteria.md (Firewall Filtering rule criteria)
+- links-to references/_meta/text/zia/zia.ssl-inspection.criteria.md (SSL/TLS inspection rule criteria and the ones that silently don't match)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/shared/shared.device-posture.md (Device posture across products: Client Connector evaluates, Private Access and Internet & SaaS consume)
+- see-also references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine)

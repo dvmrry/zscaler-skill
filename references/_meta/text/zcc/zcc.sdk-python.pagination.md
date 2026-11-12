@@ -1,0 +1,34 @@
+# Paging through ZCC lists with the Python SDK (zcc.sdk-python.pagination)
+Also called: zcc python pagination; list_devices has_next; zcc page_size 5000; zcc page_size 0; zcc next StopIteration; zcc flat array pagination; list_devices only first page
+
+Most ZCC v1 lists return a bare JSON array, and the Python response object walks it with `has_next()` and `next()` on page-fullness guesses alone. The application-profiles list returns a `policies` envelope, which `get_application_profiles` unwraps itself. [zcc.sdk-python.pagination:app-profiles-envelope] The Go helpers are in [How the Go SDK sends ZCC requests and pages v1 and v2 lists](kb:zcc.sdk-go.paging-and-requests).
+
+**Page size.** The `list_devices` docstring gives a default page size of 50 and a maximum of 5000. [zcc.sdk-python.pagination:list-devices-docstring-size] The contract's own default and maximum are [The device list takes `page` (default 1) and `pageSize`, which defaults to 50 with a maximum of 5000, and filters by `username` and `osType`.](kb:zcc.api.devices-wire:api-page-size). The key goes on the wire camel-cased: [The contract names list query parameters in camelCase, for example `page`, `pageSize`, `search` and `searchType` on `/webTrustedNetwork/listByCompany`, and the Python SDK camel-cases every ZCC query parameter key before sending, so `page_size` goes on the wire as `pageSize`.](kb:zcc.api.conventions:query-params-camel) The Python response object's page-size table gives ZCC a default of 50, a minimum of 1 and a maximum of 5000. [zcc.sdk-python.pagination:wrapper-zcc-limits] A caller-supplied page size is clamped into that range by `validate_page_size`, which the response object runs when it is built, storing the result as its own `_limit`; `execute` builds that object only after `fire_request` has sent the request. Outside the ZPA branch, `_prepare_params` camel-cases the query parameters and drops `microtenantId`. [zcc.sdk-python.pagination:limit-clamp-local-only] So a `page_size` above the ZCC maximum is sent unchanged as `pageSize`; the clamp changes only the response object's own continuation limit. [zcc.sdk-python.pagination:oversized-page-size-sent] When the caller gives no page size the SDK sends none, on the first request or on later pages, and the API's own default applies. [zcc.sdk-python.pagination:no-default-size-sent] An explicit `page_size` of 0 is sent as `pageSize=0`, but the response object reads its limit with an `or` chain, so it treats 0 as no size given and pages as if the size were omitted. [zcc.sdk-python.pagination:zero-page-size]
+
+**Walking pages.** Since release 1.9.42 (PR 564) a ZCC flat JSON array is not marked as a complete, unpaged response, so `has_next()` and `next()` can walk a list such as `list_devices`. [zcc.sdk-python.pagination:flat-array-fix] A `page` the caller passes on a ZCC list seeds the response object's page counter, so `next()` asks for the page after it. Any integer is accepted, including 0 or a negative number. [zcc.sdk-python.pagination:page-seeds-counter] `next()` tests the service type for zdx, zcell, zia and ziam in turn, so ZCC (service type `zcc`) takes the final else branch: it adds one to the page counter, sets `page`, and resends the original query parameters. [zcc.sdk-python.pagination:zcc-next-branch] After the first page, `has_next()` is true whenever that page held any item, even a page shorter than the requested size. A ZCC response that is a single object is held as a one-item list, so it counts as a non-empty page too. [zcc.sdk-python.pagination:has-next-first-page] On later pages, with a page size given, `has_next()` is true only when the last page was at least that size; without one, any non-empty page continues, so the walk stops only after a request returns an empty page. [zcc.sdk-python.pagination:has-next-later-pages] [`next()` raises StopIteration only when `has_next()` is already false; when the page it fetches is empty it returns None with no error instead.](kb:shared.sdk-python.pagination:next-empty-page)
+
+**Limits of the heuristic.** Nothing in the response object detects a repeated page or caps the number of pages, so if an endpoint ignores `page` and returns the same full page each time, `has_next()` stays true and a loop on it does not end. [zcc.sdk-python.pagination:no-loop-guard] Whether every ZCC v1 list endpoint honours `page` and `pageSize` is open [gap:zcc.sdk-python.pagination:page-param-honored]. Client-side filtering of a page is [The response object's search method applies a JMESPath expression to the current page of results only, so filtering across a collection means searching each page.](kb:shared.sdk-python.response-handling:search-current-page).
+
+What to check:
+1. Whether the caller looped on `has_next()` and `next()`, and capped the loop and checked for repeated pages, since nothing in the SDK stops a server that ignores `page`.
+2. Whether a `page_size` above 5000 or of 0 was passed, since it is sent as given.
+3. Whether a `next()` that returned None meant an empty page rather than an error, by checking the error slot.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zcc.sdk-python.pagination:oversized-page-size-sent] Tier B: Rests on the clamp running in the response constructor after fire_request, and on a read of the whole of _prepare_params at the pin finding no page-size check outside the ZPA branch; not observed on the wire.
+- [zcc.sdk-python.pagination:no-loop-guard] Tier B: Read from oneapi_response.py, which keeps only the page counter, item counts and the last page; no endpoint was observed ignoring `page`.
+
+Not known (open gaps):
+- Whether every ZCC v1 list endpoint honours page and pageSize [gap:zcc.sdk-python.pagination:page-param-honored]: settled by lab-test. Blocks: trusting a drained Python or Go list as the complete inventory
+
+Area: zcc.sdk-python, its subjects in references/_meta/spine/zcc/zcc.sdk-python.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/shared/shared.sdk-python.pagination.md (How the Python SDK pages a list: has_next, next and the per-service branches)
+- links-to references/_meta/text/shared/shared.sdk-python.response-handling.md (What the Python SDK does with a response: key casing, models, the response object)
+- links-to references/_meta/text/zcc/zcc.api.conventions.md (Conventions of the ZCC v1 API: casing, query parameters, caching, status codes)
+- links-to references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)
+- links-to references/_meta/text/zcc/zcc.sdk-go.paging-and-requests.md (How the Go SDK sends ZCC requests and pages v1 and v2 lists)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.sdk-python.pagination.md (Paging through ZIA lists with the Python SDK)

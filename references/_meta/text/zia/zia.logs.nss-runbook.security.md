@@ -1,0 +1,16 @@
+# NSS runbook: vulnerability scan findings, ZSOS patching and hardening answers (zia.logs.nss-runbook.security)
+Also called: NSS Vulnerabilities; NSS Commonly Asked Questions; NSS Hardening; ZSOS
+
+**Base OS.** The NSS VM runs ZSOS, a customized FreeBSD-based OS, and base-OS vulnerabilities are typically not applicable because the NSS application's libraries are statically compiled into its binary. [zia.logs.nss-runbook.security:zsos-and-base-os] The runbook says ZSOS fixes are pushed out regularly and that the Zscaler architecture mandates all its systems be always on the latest version, failing which the server would not be able to communicate with the Zscaler cloud. [zia.logs.nss-runbook.security:zsos-patching] As of July 2025 ZSOS42 was updated on all customer managed Zscaler components including NSS, based on FreeBSD 13.2, with OS patches and new libraries, OpenSSL 3.0 support and ASLR support. [zia.logs.nss-runbook.security:zsos42]
+
+**Reporting a vulnerability.** For vulnerabilities on specific base OS, ZSOS or package libraries the runbook says to contact Zscaler Support to confirm whether NSS needs them, giving the product, the cloud and scan reports. [zia.logs.nss-runbook.security:vulnerability-escalation] Zscaler states it performs weekly vulnerability scans, SAST, DAST, SCA, regular penetration testing and other security assessments on its applications' libraries and codebase, including NSS. [zia.logs.nss-runbook.security:vulnerability-management]
+
+**Ciphers and hardening.** For vulnerabilities flagged against static cipher suites in SSH configuration, customers may modify sshd_config; Zscaler retains the suites for legacy customers, and the server cipher suite order prioritizes the strongest ciphers in TLS negotiations, using the weaker suites only if a connecting client does not support stronger ones. [zia.logs.nss-runbook.security:ssh-ciphers] On the Weak Permissions vulnerability the runbook says NSS is a privileged system to which only administrators should have access, because administrators have access to the files irrespective of the permissions set. [zia.logs.nss-runbook.security:weak-permissions-and-hardening] On NSS hardening the runbook says Zscaler applies the necessary hardening to the nodes it provides, that any additional hardening by the customer beyond what is preconfigured could potentially affect the functionality and performance of the NSS, and that its hardening approach for both VSE and NSS is consistent. [zia.logs.nss-runbook.security:nss-hardening]
+
+Area: zia.logs, its subjects in references/_meta/spine/zia/zia.logs.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.md (How the Internet & SaaS NSS support troubleshooting runbook triages a case and routes it to its pages)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.vm-health.md (NSS runbook: VM-based NSS Unhealthy server, alerts and build upgrade checks)
+- see-also references/_meta/text/zia/zia.logs.nss-runbook.corner-cases.md (NSS runbook corner cases: private and multi-cluster Nanolog, SIEM rate, explicit proxy, log replay, password reset and third-party software)
+- see-also references/_meta/text/shared/shared.nss.servers.md (NSS servers: the VM record, its certificate, platforms and Nanolog capacity)

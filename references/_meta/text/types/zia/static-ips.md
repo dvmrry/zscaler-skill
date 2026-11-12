@@ -1,0 +1,14 @@
+# zia/static-ips (zia/static-ips)
+- Names: zscalerctl `zia static-ips`; terraform `zia_traffic_forwarding_static_ip`; terraform_data_source `zia_traffic_forwarding_static_ip`
+- Live read (read-only): `zscalerctl zia static-ips list`
+- city
+- comment
+- geoOverride
+- id
+- ipAddress
+- lastModificationTime
+- lastModifiedBy
+- latitude
+- longitude
+- managedBy
+- routableIP

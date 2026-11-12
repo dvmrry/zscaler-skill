@@ -1,0 +1,24 @@
+# zia/bandwidth-control-rules (zia/bandwidth-control-rules)
+- Names: zscalerctl `zia bandwidth-control-rules`; terraform `zia_bandwidth_control_rule`; terraform_data_source `zia_bandwidth_control_rule`
+- Live read (read-only): `zscalerctl zia bandwidth-control-rules list`
+- accessControl
+- bandwidthClasses
+- defaultRule
+- description
+- deviceGroups
+- deviceTrustLevels
+- devices
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- maxBandwidth
+- minBandwidth
+- name
+- order
+- protocols
+- rank
+- state
+- timeWindows

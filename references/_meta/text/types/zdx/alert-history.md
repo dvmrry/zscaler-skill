@@ -1,0 +1,16 @@
+# zdx/alert-history (zdx/alert-history)
+- Names: zscalerctl `zdx alert-history`
+- Live read (read-only): `zscalerctl zdx alert-history report`
+- alert_status
+- alert_type
+- application
+- departments
+- ended_on
+- geolocations
+- id
+- locations
+- num_devices
+- num_geolocations
+- rule_name
+- severity
+- started_on

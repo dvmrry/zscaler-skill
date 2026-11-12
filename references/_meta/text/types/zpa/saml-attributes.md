@@ -1,0 +1,13 @@
+# zpa/saml-attributes (zpa/saml-attributes)
+- Names: zscalerctl `zpa saml-attributes`; terraform_data_source `zpa_saml_attribute`
+- Live read (read-only): `zscalerctl zpa saml-attributes list`
+- creationTime
+- delta
+- id
+- idpId
+- idpName
+- modifiedBy
+- modifiedTime
+- name
+- samlName
+- userAttribute

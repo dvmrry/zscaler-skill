@@ -1,0 +1,3 @@
+# BRK_MT_SETUP_FAIL_CANNOT_PROMOTE: a status code of ZPA User Activity Log (LSS zpn_trans_log) (zpa/user-activity-log)
+- Help article (Error codes): SE: Error in promoting connection to Public Service Edge. The Private Service Edge cannot promote the application tunnel to the Public Service Edge. The Public Service Edge might be unreachable, or the Private Service Edge is setting up a data connection with the Public Service Edge. Resolution: No action required. If the problem persists, contact Zscaler Support.
+- Source: `vendor/zscaler-help/zpa-understanding-private-access-session-status-codes.json:83`

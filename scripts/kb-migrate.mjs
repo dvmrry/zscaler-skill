@@ -3053,12 +3053,17 @@ const LINK = /\[([^\]]*)\]\(([^)\s]+)\)/g;
 const SCAN_DIRS = ["references", "agents", "docs", ".agents", ".claude", ".devin"];
 const SCAN_FILES = ["SKILL.md", "README.md", "AGENTS.md", "zscaler"];
 
-function* markdownFiles(root) {
+// The reading text, generated from the subject files (scripts/gen-text.mjs). Rewriting it is the generator's job, and
+// its type file paths (types/zcc/devices.md) read as converted docs' names; but it is the one place a subject's
+// prose shows as Markdown, so the checks of what Markdown names (tenant types, zscalerctl reads) still read it.
+const GENERATED = "references/_meta/text";
+
+function* markdownFiles(root, { generated = false } = {}) {
   for (const f of SCAN_FILES) if (fs.existsSync(path.join(root, f))) yield f;
   const walk = function* (dir) {
     for (const e of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
       const rel = `${dir}/${e.name}`;
-      if (e.isDirectory()) { if (e.name !== "worktrees" && e.name !== "archive") yield* walk(rel); }
+      if (e.isDirectory()) { if (e.name !== "worktrees" && e.name !== "archive" && (generated || rel !== GENERATED)) yield* walk(rel); }
       else if (e.name.endsWith(".md")) yield rel;
     }
   };
@@ -3148,7 +3153,7 @@ export function migrateLinks(root, g, args) {
 export function tenantRefs(root, products) {
   const type = new RegExp(`\`((?:${[...products].join("|")})/[a-z0-9][a-z0-9-]*)(?:#([a-z0-9_.-]+))?\``, "g");
   const found = [];
-  for (const file of markdownFiles(root)) {
+  for (const file of markdownFiles(root, { generated: true })) {
     const text = fs.readFileSync(path.join(root, file), "utf8");
     for (const m of text.matchAll(type)) found.push({ file, kind: "type", id: m[2] ? `${m[1]}#${m[2]}` : m[1] });
     for (const m of text.matchAll(/zscalerctl ([a-z]+) ([a-z0-9-]+) (?:list|get)\b/g)) found.push({ file, kind: "read", product: m[1], resource: m[2] });

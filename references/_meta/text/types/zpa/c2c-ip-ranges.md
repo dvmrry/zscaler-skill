@@ -1,0 +1,24 @@
+# zpa/c2c-ip-ranges (zpa/c2c-ip-ranges)
+- Names: zscalerctl `zpa c2c-ip-ranges`; terraform `zpa_c2c_ip_ranges`; terraform_data_source `zpa_c2c_ip_ranges`
+- Live read (read-only): `zscalerctl zpa c2c-ip-ranges list`
+- availableIps
+- countryCode
+- creationTime
+- customerId
+- description
+- enabled
+- id
+- ipRangeBegin
+- ipRangeEnd
+- isDeleted
+- latitudeInDb
+- location
+- locationHint
+- longitudeInDb
+- modifiedBy
+- modifiedTime
+- name
+- sccmFlag
+- subnetCidr
+- totalIps
+- usedIps

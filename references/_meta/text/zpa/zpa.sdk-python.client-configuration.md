@@ -1,0 +1,48 @@
+# Python SDK settings for ZPA: credentials, tenant ID, microtenant, environment variables and the legacy client (zpa.sdk-python.client-configuration)
+Also called: ZPA_CUSTOMER_ID not read; ZSCALER_CUSTOMER_ID; customers/None; LegacyZPAClient environment variables; ZPA_MICROTENANT_ID; zpa customerId missing python; ZPA government cloud terraform 4.4.6; request body camel case python zpa; LegacyZPAClient; ZPA_CLOUD required; ZPA_CUSTOMER_ID; zpa customerId OneAPI; x-partner-id header; zpa legacy credentials; Zidentity ZPA tenant
+
+These are claims about how the Python SDK is configured and authenticated for ZPA, not about the ZPA product. The OneAPI client and the legacy client read different environment variable names for the same settings.
+
+**OneAPI client.** Authenticating to ZPA through OneAPI in the Python SDK needs a customerId in addition to the OneAPI credentials, with microtenantId and partnerId optional. [zpa.sdk-python.client-configuration:oneapi-extra-ids] [The Python OneAPI configuration setter reads each client setting from an environment variable named ZSCALER_ followed by the upper-cased snake_case form of the setting key.](kb:shared.sdk-python.client-configuration:env-key-format) The OneAPI client reads the ZPA customer ID from the `customerId` configuration key, falling back to the environment variable ZSCALER_CUSTOMER_ID. [zpa.sdk-python.client-configuration:oneapi-customer-env] For the OneAPI client the tenant ID and microtenant ID environment variables are ZSCALER_CUSTOMER_ID and ZSCALER_MICROTENANT_ID. [zpa.sdk-python.client-configuration:oneapi-zpa-env-names] The README disagrees [divergence:zpa.sdk-python.client-configuration:readme-zpa-env-names]. The shared OneAPI settings (client ID, secret, vanity domain, cloud, partner ID) are in [How the Python SDK authenticates to ZIA: OneAPI, government clouds and legacy](kb:zia.sdk-python.authentication).
+
+**What the tenant ID is used for.** Most ZPA service clients, the customer controller among them, build their base URL path from the `customerId` value in the client configuration without checking that it is set; the App Connector and Service Edge schedule clients are the exceptions. [zpa.sdk-python.client-configuration:zpa-base-path-from-config] The App Connector and Service Edge schedule client constructors each take the tenant ID from the configuration or from the environment variable ZPA_CUSTOMER_ID and raise ValueError when neither is set. [zpa.sdk-python.client-configuration:schedule-env-fallback]
+
+**Legacy client.** A tenant not yet migrated to Zidentity uses the Python SDK's LegacyZPAClient, which takes client_id, client_secret, customer_id and cloud. [zpa.sdk-python.client-configuration:legacy-client] The Python SDK README says the legacy ZPA credentials can be given in the environment variables ZPA_CLIENT_ID, ZPA_CLIENT_SECRET, ZPA_CUSTOMER_ID, ZPA_CLOUD and ZSCALER_PARTNER_ID, and that ZPA_CLOUD is required to pick the API gateway. [zpa.sdk-python.client-configuration:legacy-env-vars] The Python LegacyZPAClient reads its settings from the configuration or from the environment variables ZPA_CLIENT_ID, ZPA_CLIENT_SECRET, ZPA_CUSTOMER_ID, ZPA_MICROTENANT_ID and ZSCALER_PARTNER_ID, and takes the cloud from ZSCALER_CLOUD with PRODUCTION as the default. [zpa.sdk-python.client-configuration:legacy-client-env] The legacy ZPA helper raises ValueError for a cloud name that is not a key of its ZPA base URL table. [zpa.sdk-python.client-configuration:legacy-cloud-validated] The README names a cloud variable the code does not read [divergence:zpa.sdk-python.client-configuration:cloud-required].
+
+**Headers.** When partnerId is configured the Python SDK adds an x-partner-id header to every request, for both the OneAPI and the legacy ZPA client. [zpa.sdk-python.client-configuration:partner-header] The ZIA statement of the same header is [When a partner ID is supplied through configuration or ZSCALER_PARTNER_ID the SDK adds an x-partner-id header to every request, on both the OneAPI and the legacy clients; without one the header is not sent.](kb:zia.sdk-python.authentication:partner-id-header).
+
+**Request bodies.** The executor camel-cases ZPA request body keys: [How the Python SDK sends the microtenant ID on ZPA calls](kb:zpa.sdk-python.microtenant-scoping).
+
+**Python SDK generations.** The Python SDK's 2.x beta supports OneAPI only, with no LegacyZPAClient, and covers only ZIA, ZDX and ZIdentity so far; ZPA stays on 1.x. [zpa.sdk-python.client-configuration:python-v2-no-legacy] The ZIA statement is [Python SDK v2.x is a public-preview line that supports OneAPI only and does not provide the legacy clients such as LegacyZIAClient, while v1.x remains the GA release.](kb:zia.sdk-python.authentication:v2-oneapi-only).
+
+**Government clouds.** The provider side is [OneAPI reaches the government (FedRAMP) clouds through zscaler_cloud (or ZSCALER_CLOUD) set to gov or govus, and the provider documents this as supported only from v4.4.6; earlier versions are not supported.](kb:zpa.terraform.provider-config:fedramp-oneapi-4-4-6). The Python client side is in [With cloud set to `gov` or `govus` the Python SDK sends OAuth to a zidentitygov.net or zidentitygov.us identity provider and API calls to api.zscalergov.net or api.zscalergov.us, instead of the commercial gateway.](kb:zia.sdk-python.authentication:gov-cloud-routing), and the legacy ZPA host table is [The Python SDK's legacy host table maps cloud names to config hosts: PRODUCTION to config.private.zscaler.com, ZPATWO to config.zpatwo.net, BETA to config.zpabeta.net, GOV to config.zpagov.net, GOVUS to config.zpagov.us and PREVIEW to config.zpapreview.net.](kb:zpa.api.base-paths:legacy-hosts).
+
+What to check:
+1. Which environment variable names the process sets for the tenant ID, because the OneAPI client reads ZSCALER_CUSTOMER_ID and the legacy client reads ZPA_CUSTOMER_ID.
+2. Whether request URLs contain the real tenant ID, by reading the base path the SDK built before sending.
+3. Whether the tenant is on Zidentity: if so OneAPI credentials plus the ZPA customer ID apply, otherwise the legacy client ID, secret, customer ID and cloud.
+4. For a legacy client on a non-production cloud, that the cloud is set in the configuration or in ZSCALER_CLOUD, since ZPA_CLOUD is not read.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zpa.sdk-python.client-configuration:oneapi-zpa-env-names] Tier B: Assumes the SDK's to_snake_case turns customerId into customer_id and microtenantId into microtenant_id (zscaler/helpers.py), which was not exercised.
+
+Sources disagree (name both sides):
+- Environment variable that supplies the ZPA tenant ID to the OneAPI client [divergence:zpa.sdk-python.client-configuration:readme-zpa-env-names]
+  - sdk-python: The README's OneAPI table for ZPA lists ZPA_CUSTOMER_ID and ZPA_MICROTENANT_ID as the environment variables for customerId and microtenantId.
+  - sdk-python: The OneAPI client code reads ZSCALER_CUSTOMER_ID for the same setting; ZPA_CUSTOMER_ID is read only by the legacy client and by the App Connector and Service Edge schedule clients.
+  Impact: A OneAPI script that sets only ZPA_CUSTOMER_ID and no customerId in its configuration gives the OneAPI client no tenant ID (only the schedule clients read ZPA_CUSTOMER_ID). Service clients then build their base path from an empty value, so requests go to the wrong path rather than failing at start-up. Set customerId in the configuration or use ZSCALER_CUSTOMER_ID.
+- The Python SDK README says the legacy client requires ZPA_CLOUD, but the LegacyZPAClient code never reads that variable. [divergence:zpa.sdk-python.client-configuration:cloud-required]
+  - sdk-python: The README says the ZPA_CLOUD environment variable is required because it selects the API gateway.
+  - sdk-python: LegacyZPAClient takes the cloud from the configuration or from ZSCALER_CLOUD, with PRODUCTION as the default; no code reads ZPA_CLOUD.
+  Impact: A legacy client that sets the cloud only through ZPA_CLOUD has it ignored and silently uses PRODUCTION. Set cloud in the configuration or in ZSCALER_CLOUD.
+
+Area: zpa.sdk-python, its subjects in references/_meta/spine/zpa/zpa.sdk-python.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zia/zia.sdk-python.authentication.md (How the Python SDK authenticates to ZIA: OneAPI, government clouds and legacy)
+- depends-on references/_meta/text/zpa/zpa.api.authentication.md (How a client authenticates to the ZPA API: OneAPI, legacy and government clouds): Authenticating to ZPA through OneAPI in the Python SDK needs a customerId in addition to the OneAPI credentials, with microtenantId and partnerId optional. [zpa.sdk-python.client-configuration:oneapi-extra-ids]
+- scoped-by references/_meta/text/zpa/zpa.microtenants.api-scoping.md (How an API call selects a Microtenant): For the OneAPI client the tenant ID and microtenant ID environment variables are ZSCALER_CUSTOMER_ID and ZSCALER_MICROTENANT_ID. [zpa.sdk-python.client-configuration:oneapi-zpa-env-names]
+- links-to references/_meta/text/shared/shared.sdk-python.client-configuration.md (How the Python SDK's unified client is configured: OneAPI or legacy, settings, environment variables)
+- links-to references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)
+- links-to references/_meta/text/zpa/zpa.sdk-python.microtenant-scoping.md (How the Python SDK sends the microtenant ID on ZPA calls)
+- links-to references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits)

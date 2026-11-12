@@ -1,0 +1,43 @@
+# Red Teaming probes: categories, custom probes and datasets, risk priority, coverage and attack strategies (ai-security.ai-red-teaming.probes)
+Also called: probe; red teaming probe; custom probe; custom dataset probe; custom q&a probe; risk priority; coverage level; attack strategies; attack multiplier; overall risk score; probe settings
+
+Probe is the adversarial testing module in Zscaler AI Security, and all probes are designed to provoke and detect specific vulnerabilities. [ai-security.ai-red-teaming.probes:what-a-probe-is] Probes fall into categories: Security probes test how well a target resists adversarial inputs such as prompt injection, phishing or XSS, focus on model behavior and policy enforcement, and do not scan infrastructure; Safety probes test whether a target avoids harmful, abusive, or dangerous content; Hallucination & Trustworthiness probes test whether a target produces accurate, grounded, and verifiable outputs, using datasets and RAG context where applicable; Business Alignment probes test whether a target follows the organization's business rules and brand guardrails; Custom probes let the customer define testing rules and datasets. [ai-security.ai-red-teaming.probes:categories] Probes test an app; the detectors in [AI Guard's detectors: the capabilities Help lists and the detectors the policy editor configures](kb:ai-security.ai-guard.detectors) guard traffic.
+
+**Custom probes.** Custom probes include the custom probe tests the AI app against rules the customer defines, the Platform generating and sending prompts (including variations) to verify that the chatbot follows the allowed behaviors and avoids the banned ones; the custom dataset probe uses an uploaded CSV dataset as the source of attacks or test cases, can generate additional variants (languages, paraphrases, strategies), and evaluates responses using either regex-based detection or an LLM-based evaluator; and the Q&A probe tests whether the application answers the questions defined correctly, evaluating whether the response matches the correct answers in the CSV. [ai-security.ai-red-teaming.probes:custom-types] A Custom Probe takes a Probe Name, a Risk Priority (Low, Medium, High, or Critical), a Coverage, a Probe Description of what the probe should test for, and lists of Allowed Behaviors and Banned Behaviors. [ai-security.ai-red-teaming.probes:custom-probe-form] A custom dataset probe takes a CSV file of up to 5 MB, a Risk Priority (the weight assigned to each probe), a Probe Intent, Attack Variations, Attack Strategies, an On-Domain or Adversarial dataset type, Languages, a Depth (number of turns or steps in a conversation) and an Attack Multiplier (attack variants generated per dataset entry; higher values increase coverage at the cost of more requests). [ai-security.ai-red-teaming.probes:custom-dataset-form] A Q&A probe takes a Risk Priority (the weight assigned to each probe), a Q&A dataset in a CSV file of up to 5 MB, and the Company Name of the company that owns the AI application. [ai-security.ai-red-teaming.probes:qa-probe-form]
+
+**Enabling.** A predefined or a custom probe is enabled with the toggle against the probe name, which opens a Predefined Probe Configuration window whose values can be retained or modified to make the simulated attacks more domain-specific. [ai-security.ai-red-teaming.probes:enable] The probes available are not listed in the captures [gap:ai-security.ai-red-teaming.probes:probe-catalog]; the dataset form is cut off in the capture [gap:ai-security.ai-red-teaming.probes:dataset-form-cut-off].
+
+**Attack strategies.** The attack strategies are One Shot with Retry (a new conversation for each prompt with no context from previous interactions), Multi-Shot (each prompt creates a new conversation within the test case, with the attack history available to Probe components to improve future attacks), Delayed Attack (one attack within a single conversation, where regular prompts prepare the target context and adversarial prompts run later) and Tree of Attack (a thought arrangement for red teamers to discover weaknesses in their attacks and improve subsequent prompts). [ai-security.ai-red-teaming.probes:attack-strategies]
+
+**Priority, coverage and scores.** Each probe has a Risk Priority (Low, Medium, High, Critical) reflecting the severity and likelihood of exploitation; a higher Risk Priority means vulnerabilities the probe identifies contribute more to the AI app's Overall Risk Score shown on the Overview page, and default values are set according to the AI app type. [ai-security.ai-red-teaming.probes:risk-priority] A probe's assigned Coverage Level defines the depth of weakness testing; higher coverage levels typically include a broader set of checks and more thorough probing, which can increase test duration. [ai-security.ai-red-teaming.probes:coverage-depth] The levels are named differently by two pages [divergence:ai-security.ai-red-teaming.probes:coverage-names]. The metric probe priority feeds is named differently from the one the Overview page shows [divergence:ai-security.ai-red-teaming.probes:risk-score-name]; how either is computed is open [gap:ai-security.ai-red-teaming.probes:score-computation].
+
+**Runs.** Probes are run from [Red Teaming test runs: units, new runs, scheduling and history](kb:ai-security.ai-red-teaming.test-runs); the Overview page is in [AI Red Teaming: adversarial testing of AI apps, the Overview page, and where each part is documented](kb:ai-security.ai-red-teaming).
+
+What to check:
+1. Which coverage level name an answer uses: the overview and the custom-probe form disagree (Extended against Extensive), so quote the page being relied on.
+2. Whether a probe's Risk Priority is being compared with the Health Score on the Overview page; the pages do not say whether the two scores are one metric.
+
+Sources disagree (name both sides):
+- The probe coverage levels are named Basic, Medium, Extended on the Understanding Probes page and Basic, Medium, Extensive on the custom-probe form page. [divergence:ai-security.ai-red-teaming.probes:coverage-names]
+  - zscaler-help: The coverage levels are Basic, Medium and Extended.
+  - zscaler-help: The Coverage field offers Basic, Medium or Extensive.
+  Impact: Which top-level name the console shows is not established; whether Extended and Extensive are one level is not stated, so quote the page being relied on.
+- The Understanding Probes page says probe risk priority feeds an Overall Risk Score shown on the Overview page; the Overview page names a Health Score and no risk score. [divergence:ai-security.ai-red-teaming.probes:risk-score-name]
+  - zscaler-help: Probe vulnerabilities contribute to an Overall Risk Score shown on the Overview page.
+  - zscaler-help: The Overview page's tested-asset score is the Health Score, where higher usually indicates better posture; the page names no risk score.
+  Impact: Whether the Health Score and the Overall Risk Score are one metric under two names, or inverse scales, is not stated; do not equate them or state which direction a probe priority moves the Health Score.
+
+Not known (open gaps):
+- The predefined probes available to an app [gap:ai-security.ai-red-teaming.probes:probe-catalog] (data gap): filled by operator; settled by tenant-data or source-read
+- The Custom Dataset form text is cut off in the capture [gap:ai-security.ai-red-teaming.probes:dataset-form-cut-off]: settled by source-read
+- How the Health Score and the Overall Risk Score are computed [gap:ai-security.ai-red-teaming.probes:score-computation]: settled by source-read or lab-test
+
+Area: ai-security.ai-red-teaming, its subjects in references/_meta/spine/ai-security/ai-security.ai-red-teaming.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/ai-security/ai-security.ai-guard.detectors.md (AI Guard's detectors: the capabilities Help lists and the detectors the policy editor configures)
+- links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.md (AI Red Teaming: adversarial testing of AI apps, the Overview page, and where each part is documented)
+- links-to references/_meta/text/ai-security/ai-security.ai-red-teaming.test-runs.md (Red Teaming test runs: units, new runs, scheduling and history)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/ai-security/ai-security.ai-red-teaming.assets.md (Connecting an AI app for red teaming: network type, private access, and the application profile that shapes tests)

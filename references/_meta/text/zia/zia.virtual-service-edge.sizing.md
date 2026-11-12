@@ -1,0 +1,34 @@
+# How much a Virtual Service Edge VM can do (zia.virtual-service-edge.sizing)
+Also called: vse sizing; vse throughput; vse 600 mbps; vse memory; vse ssl card; vse nitrox; vse ssl cps; vse 48 gb; vse 64 gb ram; vse vcpu
+
+**One size.** Virtual Service Edges are available in a single-sized VM that supports up to 600 Mbps of total throughput. [zia.virtual-service-edge.sizing:single-vm-size] In the specifications table the 600 Mbps total throughput, the SSL acceleration card and the 3500 SSL CPS figure are listed under VMware ESXi only; the other platform columns show no value for them. [zia.virtual-service-edge.sizing:throughput-listed-for-esxi-only] The SKU wording elsewhere is not reconciled with a single size ([Virtual Service Edge SKU types versus a single-sized VM](kb:zia.virtual-service-edge.sizing:sku-type-vs-single-size)).
+
+**SSL inspection is what the card is for.** Without the acceleration card the SSL connection rate is 400 CPS on every platform. [zia.virtual-service-edge.sizing:ssl-cps-without-card] An SSL acceleration card, sold separately, is recommended for deployments that need 100 Mbps or more of throughput in order to perform SSL inspection on Virtual Service Edges; the alternative is to scale horizontally by deploying more Virtual Service Edges. [zia.virtual-service-edge.sizing:ssl-card-recommendation] The documented card is a Marvell NITROX (the cluster article calls it Cavium NITROX), listed for VMware ESXi only. One card is needed for each large Virtual Service Edge in a cluster, because a single card cannot be shared across multiple Virtual Service Edges on one VMware host. [zia.virtual-service-edge.sizing:nitrox-card-esxi] The SSL acceleration card is documented for VMware ESXi only, and the documented alternative to the card is deploying more Virtual Service Edges; with no card documented for other platforms, scaling out is the only documented option there. [zia.virtual-service-edge.sizing:card-esxi-scale-out-elsewhere]
+
+**Resources.** Each VM has 4 vCPUs, 500 GB of disk and 3 virtual interfaces, on every platform, and runs one Public Service Edge instance. The cluster article recommends SSD storage. [zia.virtual-service-edge.sizing:vm-resources] The minimum memory is 48 GB for a standalone Virtual Service Edge and 48 GB for a cluster node, plus 8 GB of extra free host memory when an SSL card is installed. [zia.virtual-service-edge.sizing:memory-48gb-standalone-and-cluster] Scanning large files without hurting performance needs more memory; Zscaler suggests 64 GB RAM in standalone or cluster mode, and expanding to 64 GB makes the system enable a third antivirus process on each instance. [zia.virtual-service-edge.sizing:memory-64gb-large-files]
+
+**Scaling out.** Scaling horizontally multiplies the per-VM figure: sixteen VMs, the cluster maximum, would be 9,600 Mbps if throughput scaled linearly. No source publishes a cluster aggregate. [zia.virtual-service-edge.sizing:cluster-aggregate-derived] The cluster limits themselves are in [The Virtual Service Edge cluster: limits, object, build order and Location binding](kb:zia.virtual-service-edge.clusters). The hardware designs in [Choosing a Private Service Edge design and node count](kb:zia.private-service-edge.sizing) use different assumptions.
+
+What to check:
+1. Whether the deployment is on VMware ESXi, the only platform with the 600 Mbps figure, before borrowing that figure for a sizing exercise.
+2. Whether the SSL acceleration card applies, which is an ESXi-only card, or whether capacity should come from more instances.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.virtual-service-edge.sizing:cluster-aggregate-derived] Tier B: Arithmetic only (16 x 600 Mbps). It assumes linear scaling and an even load-balancer spread; the vendor states neither a cluster aggregate nor linearity.
+- [zia.virtual-service-edge.sizing:card-esxi-scale-out-elsewhere] Tier B: Inference from the card being listed for ESXi only; the sources do not say a card is impossible on other platforms.
+
+Not known (open gaps):
+- Virtual Service Edge SKU types versus a single-sized VM [gap:zia.virtual-service-edge.sizing:sku-type-vs-single-size]: settled by source-read or support-ticket
+
+Area: zia.virtual-service-edge, its subjects in references/_meta/spine/zia/zia.virtual-service-edge.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zia/zia.virtual-service-edge.clusters.md (The Virtual Service Edge cluster: limits, object, build order and Location binding), from zia.virtual-service-edge: For production, a Virtual Service Edge is deployed in a cluster. A cluster requires at least two Virtual Service Edges for active-active redundancy and load balancing, which provides N+1 redundancy for production. [zia.virtual-service-edge.clusters:production-needs-cluster]
+- interacts-with references/_meta/text/zia/zia.forwarding-control.sipa.md (Source IP Anchoring: what it needs on each side), from zia.virtual-service-edge: The Source IP Anchoring feature is not supported with Virtual Service Edges. [zia.virtual-service-edge.limits:no-sipa]
+- scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it), from zia.virtual-service-edge: A Virtual Service Edge cluster, or a standalone Virtual Service Edge, is bound to a Location so the organization can enable authentication, firewall, SSL/TLS inspection and location-level policies; the service associates the traffic the Virtual Service Edge receives with that Location and applies its policies. [zia.virtual-service-edge.clusters:bind-to-location]
+- depends-on references/_meta/text/zia/zia.virtual-service-edge.platforms.md (Where a Virtual Service Edge runs and which platforms can cluster), from zia.virtual-service-edge: Virtual Service Edges are supported on VMware ESX/ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V and Google Cloud Platform. [zia.virtual-service-edge.platforms:supported-platforms]
+- links-to references/_meta/text/zia/zia.private-service-edge.sizing.md (Choosing a Private Service Edge design and node count)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)
+- see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

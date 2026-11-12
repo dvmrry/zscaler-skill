@@ -1,0 +1,14 @@
+# Explore in the admin portal: searching logs, the Queries Library and Entity Explorer (unified.secops-platform.console.explore)
+Also called: secops platform log search; Queries Library; Entity Explorer; QL syntax advanced query
+
+**Log search.** Explore > Logs searches the data collected from connected sources before it is processed and pushed into the data model. [unified.secops-platform.console.explore:logs-purpose] The basic query builder (field, operator, value, AND or OR) and the advanced QL-syntax editor are independent of each other even within one query; the selected time frame is not saved with the query. [unified.secops-platform.console.explore:logs-query-builders] In a log's drawer, hovering a field offers Breakdown By Field, Exclude (a Not Equal filter), Add to Search (an equals filter), Add/Remove Column and Copy Value. [unified.secops-platform.console.explore:logs-drawer-actions] Log results show a Time Series chart of matching log counts over the selected time frame and a pie chart grouped by a chosen Breakdown by field with a chosen number of top values; the table exports to CSV. [unified.secops-platform.console.explore:logs-charts-export]
+
+**Queries Library.** The Queries Library lists each saved query's name, query type (basic or advanced builder), category, description and last update time and user; a modified copy of a query can be saved with Save As New. [unified.secops-platform.console.explore:queries-library-fields] Deleting a saved query gives no warning and is immediate; deleting a category either removes only the folder or the category with all queries saved to it. [unified.secops-platform.console.explore:queries-library-delete]
+
+**Entity Explorer.** Entity Explorer shows all relevant data per entity, both active and inactive, unlike entity-specific views that show active components; Investigate mode shows source fields next to the platform fields and the table exports to CSV. [unified.secops-platform.console.explore:entity-explorer]
+
+Area: unified.secops-platform, its subjects in references/_meta/spine/unified/unified.secops-platform.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.secops-platform.console.md (The Agentic SecOps Platform admin portal: supported browsers, egress IPs, status board, account settings, failure emails, AI capabilities and audit logs)
+- see-also references/_meta/text/unified/unified.secops-platform.console.access-control.md (Admin portal roles, users and content permissions: system and custom roles, resource categories, RBAC and ABAC, and the scope of content permissions)

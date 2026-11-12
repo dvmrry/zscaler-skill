@@ -1,0 +1,17 @@
+# zia/dns-gateways (zia/dns-gateways)
+- Names: zscalerctl `zia dns-gateways`
+- Live read (read-only): `zscalerctl zia dns-gateways list`
+- autoCreated
+- dnsGatewayProtocols
+- dnsGatewayType
+- failureBehavior
+- id
+- lastModifiedBy
+- lastModifiedTime
+- name
+- natZtrGateway
+- primaryIpOrFqdn
+- primaryPorts
+- protocols
+- secondaryIpOrFqdn
+- secondaryPorts

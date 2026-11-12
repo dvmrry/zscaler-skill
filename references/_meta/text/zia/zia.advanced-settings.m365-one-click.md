@@ -1,0 +1,30 @@
+# Microsoft 365 One Click configurations: the two options, where each is set, and the DNS Control rule (zia.advanced-settings.m365-one-click)
+Also called: Office 365 One Click Configuration; Microsoft-Recommended One Click Office 365 Configuration; M365 One Click
+
+Zscaler has two configuration options for Microsoft 365 traffic. Microsoft recommends using its preferred configuration because it incorporates its connectivity principles and recommendations, and the other configuration was built prior to Microsoft's current connectivity principles and recommendations. [zia.advanced-settings.m365-one-click:two-options]
+
+**Microsoft-Recommended option.** The Microsoft-Recommended Microsoft 365 One Click Configuration option allows Zscaler to map several but not all Microsoft IP address ranges and domains for most Microsoft 365 apps, and Zscaler uses the REST-based web service published by Microsoft to keep the mapping up to date. Zscaler excludes specific Microsoft-listed FQDNs and IP address ranges from SSL/TLS Inspection, as outlined in the Microsoft 365 endpoints for Worldwide (+GCC), operated by 21 Vianet, U.S. Government DoD and U.S. Government GCC High. [zia.advanced-settings.m365-one-click:recommended-option] Zscaler overrides the destination IP address of Microsoft 365 traffic with the closest CDN destination for the Microsoft 365 application and leverages DNS servers at each of its data centers. DNS optimization is done automatically when the Microsoft-Recommended Office 365 One Click Configuration option is enabled. [zia.advanced-settings.m365-one-click:dns-optimization] After the steps that enable the Microsoft-Recommended option, the page lists these results: the Office 365 One Click Configuration option is grayed out, the Zscaler service automatically configures authentication exemption for Microsoft domains, and a predefined Office 365 One Click Rule is enabled in the SSL/TLS Inspection, Firewall Control, DNS Control and Cloud App Control policies. [zia.advanced-settings.m365-one-click:recommended-results]
+
+**Default category.** Zscaler exempts some IP addresses, FQDNs or URLs from One Click if they are part of the Default category. Default category endpoints can be treated like regular destinations, which allows customers to apply the appropriate security controls. [zia.advanced-settings.m365-one-click:default-category]
+
+**Older option.** With the Office 365 One Click Configuration feature, the Zscaler service automatically configures the authentication exemption and decryption exemption rules required to support and secure Microsoft 365 traffic, and if the option is enabled it exempts select Microsoft 365 applications from SSL/TLS Inspection. [zia.advanced-settings.m365-one-click:older-option]
+
+**Exemptions.** Zscaler does not publish the complete list of IP address ranges and FQDNs or wildcard domain names exempted from SSL/TLS Inspection by the Microsoft-Recommended option. If further exemptions are required, SSL/TLS Inspection rules can be defined. [zia.advanced-settings.m365-one-click:unpublished-exemptions]
+
+**Where each is set.** The page's steps for the older option go to Internet Access > Setting > Advanced Settings and select the Enable Office 365 One Click Configuration option, and say the Enable Microsoft-Recommended Office 365 One Click Configuration option should be disabled. Its steps for the Microsoft-Recommended option go to Data Security > Inline CASB > Advanced Policy Settings and select Enable Microsoft-Recommended One Click Office 365 Configuration, and say the Office 365 One Click Configuration option should be disabled. [zia.advanced-settings.m365-one-click:option-locations] An error message after trying to enable the Microsoft-Recommended option relates to the admin rank: Zscaler compares the admin rank to that of two existing custom Firewall and DNS rules with top order, and if the admin rank is less than those two ranks, the admin does not have permission to enable the option. [zia.advanced-settings.m365-one-click:admin-rank-error]
+
+**DNS Control rule.** The DNS Control One Click rule allows DNS traffic destined to Microsoft 365. It is not configurable and cannot be deleted, but its rule order can be changed, and if the admin rank is greater than or equal to that of the DNS rule with top order, the rule appears at rule order one with the admin's rank. [zia.advanced-settings.m365-one-click:dns-rule]
+
+**Rules in the other policies.** The Firewall Control rule is in [Default and predefined Firewall Filtering rules: what each does and what can be changed](kb:zia.firewall.predefined-rules), the Cloud App Control rules in [Cloud App Control versus URL Filtering: which applies](kb:zia.cloud-app-control.precedence) and the SSL/TLS Inspection rule in [SSL/TLS inspection rule order, predefined and default rules, limits](kb:zia.ssl-inspection.rules).
+
+Area: zia.advanced-settings, its subjects in references/_meta/spine/zia/zia.advanced-settings.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zia/zia.cloud-app-control.precedence.md (Cloud App Control versus URL Filtering: which applies)
+- links-to references/_meta/text/zia/zia.firewall.predefined-rules.md (Default and predefined Firewall Filtering rules: what each does and what can be changed)
+- links-to references/_meta/text/zia/zia.ssl-inspection.rules.md (SSL/TLS inspection rule order, predefined and default rules, limits)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.advanced-settings.md (ZIA Advanced Settings page: its sections, three settings explained here, and where other sections are routed)
+- see-also references/_meta/text/zia/zia.advanced-settings.dns-optimization.md (DNS optimization: proxy-side DNS lookup that overrides the client-resolved IP)
+- see-also references/_meta/text/zia/zia.dns-control.predefined-rules.md (Predefined DNS Control rules and the ZPA resolvers)

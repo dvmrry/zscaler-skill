@@ -1,0 +1,11 @@
+# zia/c2c-incident-receivers (zia/c2c-incident-receivers)
+- Names: zscalerctl `zia c2c-incident-receivers`
+- Live read (read-only): `zscalerctl zia c2c-incident-receivers list`
+- id
+- lastModifiedBy
+- lastTenantValidationTime
+- lastValidationMsg
+- modifiedTime
+- name
+- onboardableEntity
+- status

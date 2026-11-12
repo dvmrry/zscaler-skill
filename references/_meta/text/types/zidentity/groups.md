@@ -1,0 +1,12 @@
+# zidentity/groups (zidentity/groups)
+- Names: zscalerctl `zidentity groups`
+- Live read (read-only): `zscalerctl zidentity groups list`
+- adminEntitlementEnabled
+- description
+- dynamicGroup
+- id
+- idp
+- isDynamicGroup
+- name
+- serviceEntitlementEnabled
+- source

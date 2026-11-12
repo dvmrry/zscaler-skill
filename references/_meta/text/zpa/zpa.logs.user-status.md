@@ -1,0 +1,65 @@
+# What a ZPA User Status log record says and does not say (zpa.logs.user-status)
+Also called: zpn_auth_log record; user status log fields; SessionStatus ZPN_STATUS_AUTHENTICATED; PosturesMiss PosturesHit; TrustedNetworks; FQDNRegisteredError; SAMLAttributes; user cannot connect to ZPA log
+Former IDs: log-19
+
+The User Status log (zpn_auth_log) records a Zscaler Client Connector session with Private Access: its status, location, posture and trusted-network results. Several of its field examples disagree with its field table.
+
+**Status values.** SessionStatus is ZPN_STATUS_AUTHENTICATED when the user successfully authenticated in Private Access and ZPN_STATUS_AUTH_FAILED when the user failed to authenticate; the third value, ZPN_STATUS_DISCONNECTED, is described as 'The user connected from a Public Service Edge for Private Access or a Private Service Edge for Private Access'. [zpa.logs.user-status:session-status-values] The DISCONNECTED description is worded as a connect [divergence:zpa.logs.user-status:disconnected-description]. Whether Private and Public Service Edge disconnects differ is open [gap:zpa.logs.user-status:disconnect-by-edge-kind].
+
+**Record cardinality.** TotalBytesRx and TotalBytesTx are described only as the total bytes received and transmitted, and the example record shows both populated on an AUTHENTICATED record with TimestampUnAuthentication empty. [zpa.logs.user-status:totals-undefined-scope] How many records a session produces, and when the byte counters are filled, is open [gap:zpa.logs.user-status:record-granularity]. Where the records are indexed relative to User Activity is open [gap:zpa.logs.user-status:receiver-per-type].
+
+**Client and edge.** The Version field is the Zscaler Client Connector version. When a connection is established through a Private Service Edge, an additional log is sent with the Version field updated to the Private Service Edge version. [zpa.logs.user-status:version-via-pse] ClientType is described as Zscaler Client Connector, ZPA LSS or Web Browser, and the example record carries the internal code zpn_client_type_zapp. [zpa.logs.user-status:client-type-words-and-code] ZENLatitude, ZENLongitude and ZENCountryCode describe the Public Service Edge, while Latitude, Longitude and CountryCode describe the Zscaler Client Connector location. [zpa.logs.user-status:service-edge-location-fields]
+
+**Posture and network lists.** In the example record SAMLAttributes is one string of name:value pairs separated by commas, and PosturesHit is a comma-separated string; the field table describes SAMLAttributes only as 'The list of SAML attributes reported by the IdP', with no format. The User Status (zpn_auth_log) JSON format in the LSS API article's example response for all log formats instead writes PosturesHit, PosturesMiss, TrustedNetworks and TrustedNetworksNames as JSON arrays and SAMLAttributes as a single value. [zpa.logs.user-status:list-fields-delimited] The posture-miss field is named differently in the example [divergence:zpa.logs.user-status:posture-miss-name], and the trusted-network fields look swapped [divergence:zpa.logs.user-status:trusted-networks-swap]. What a pattern of results implies is open [gap:zpa.logs.user-status:status-reading-guide].
+
+**Client-to-client.** FQDNRegisteredError is FQDN_MATCH when the hostname matches the configured regular expression, and otherwise FQDN_NO_MATCH, FQDN_BAD_SCHEMA, FQDN_BAD_REGEX, FQDN_TOO_MANY_REGEX, FQDN_NO_ENTRIES, FQDN_EMPTY, BROKER_NOT_ENABLED or CUSTOMER_NOT_ENABLED; FQDN_BAD_SCHEMA and BROKER_NOT_ENABLED are given the same meaning, client-to-client disabled for the Public Service Edge. [zpa.logs.user-status:fqdn-error-codes] The registered flag is true or false in the table but 0 in the example [divergence:zpa.logs.user-status:fqdn-registered-value]. The default template reads both fields as fqdn_registered and fqdn_register_error, not the table names [divergence:zpa.logs.user-status:fqdn-template-variables]. What these hold without client-to-client is open [gap:zpa.logs.user-status:c2c-fields-population].
+
+**In Diagnostics.** The User Status diagnostics are one of the views in [ZPA Live Logs and Private Diagnostics: views, time ranges, retention, filters and export](kb:zpa.troubleshooting.diagnostics). User Status diagnostics show a record's status as Authenticated (an authenticated user has connected to Private Access, true for first time authentication and subsequent reauthentications), Authentication Failed (the user was unable to authenticate) or Disconnected (the user successfully disconnected). [zpa.logs.user-status:diag-status-values] In User Status diagnostics the Disconnect Reason Code field is visible and indicates the internal code for why the user disconnected, and records can be filtered by a specific reason code. [zpa.logs.user-status:disconnect-reason-code] Zscaler IP is the virtual IP that is assigned to Zscaler Client Connector for server-to-client connectivity. [zpa.logs.user-status:zscaler-ip] For every status code, User Status diagnostics show the Private Service Edge selection method (for example Default, Preferred or Always) associated with the user's redirection policy, and whether the domain being accessed by Zscaler Client Connector matches the regular expression (Client-To-Client Enrolled). [zpa.logs.user-status:pse-selection] There are two parts to every hop in User Status diagnostics: the user's Zscaler Client Connector connecting to a Private Service Edge, and then the Private Service Edge connecting to a Public Service Edge. The first part is the logs that already appear for the session, and a link shows the second part. [zpa.logs.user-status:hop-two-parts] In User Status diagnostics Client Version is the version number of the client the user uses (for example the Zscaler Client Connector version), and Client Type is Branch Connector, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated, ZIA Inspection or ZIA Public Service Edge. [zpa.logs.user-status:client-version-and-types] User Status diagnostics byte counters include bytes transmitted to and received from a client by a Public or Private Service Edge (Tx to Client, Rx from Client) and bytes transmitted by a Public Service Edge to a Private Service Edge (Tx to Private Service Edge). [zpa.logs.user-status:diag-byte-directions] User Status diagnostics can show users' logs by Private Cloud Controller name, and show the name of the Private Cloud Controller group. [zpa.logs.user-status:pcc-fields]
+
+What to check:
+1. Whether the custom template spells the posture field PosturesMiss, as the table and default template do, rather than the example's PosturesMisses.
+2. Whether a custom template reads the client-to-client fields as fqdn_registered and fqdn_register_error, as the default template does, rather than the table's FQDNRegistered and FQDNRegisteredError.
+3. Whether session counts were deduplicated by SessionID before counting authenticated or disconnected sessions.
+4. Whether a record's Version is the Private Service Edge's version, from the additional log sent when the connection came through one, rather than the Client Connector version.
+5. Whether FQDNRegisteredError is read against the client-to-client configuration before treating a non-match code as a fault.
+
+Sources disagree (name both sides):
+- PosturesMiss as named in the field table and default template versus the example record [divergence:zpa.logs.user-status:posture-miss-name]
+  - zscaler-help: The field table names the field PosturesMiss, the posture profiles Zscaler Client Connector failed to verify.
+  - zscaler-help: The example record names the same field PosturesMisses.
+  - zscaler-help: The default User Status template writes it as PosturesMiss ([[zpa/user-status-log]]).
+  Impact: Field names are case sensitive and exact. The table and the default template spell it PosturesMiss; the example spells it PosturesMisses. Use PosturesMiss in a custom template and check a real record before building a parser on either.
+- The client-to-client FQDN field names in the table versus the default template's variables [divergence:zpa.logs.user-status:fqdn-template-variables]
+  - zscaler-help: The field table names the fields FQDNRegistered and FQDNRegisteredError.
+  - zscaler-help: The default User Status template reads the variables fqdn_registered and fqdn_register_error, labelling them FQDNRegistered and FQDNRegisteredError in its JSON form ([[zpa/user-status-log]]).
+  Impact: Field names are case sensitive and exact. The table names them FQDNRegistered and FQDNRegisteredError; the default template reads fqdn_registered and fqdn_register_error. A custom template built from the table names may not emit these fields; copy the variables from the default template and check a real record.
+- TrustedNetworks and TrustedNetworksNames contents as described versus in the example [divergence:zpa.logs.user-status:trusted-networks-swap]
+  - zscaler-help: TrustedNetworks holds the unique IDs of the trusted networks and TrustedNetworksNames holds their names.
+  - zscaler-help: In the example record TrustedNetworks holds a name-like value and TrustedNetworksNames holds a numeric ID.
+  Impact: The example looks swapped relative to the descriptions. Do not rely on which of the two fields holds the ID until a real record is checked.
+- FQDNRegistered values as described versus in the example [divergence:zpa.logs.user-status:fqdn-registered-value]
+  - zscaler-help: FQDNRegistered is described with expected values true or false.
+  - zscaler-help: The example record has FQDNRegistered 0.
+  Impact: A filter on true or false misses records that carry 0 or 1.
+- The ZPN_STATUS_DISCONNECTED description in User Status versus the other status logs [divergence:zpa.logs.user-status:disconnected-description]
+  - zscaler-help: The User Status description reads 'The user connected from a Public Service Edge for Private Access or a Private Service Edge for Private Access'.
+  - zscaler-help: The App Connector Status description for the same value reads 'App Connector disconnected from a Service Edge for Private Access'.
+  Impact: The User Status wording is probably a typo for disconnected; the value name and the sibling logs point that way, but the capture does not say so.
+
+Not known (open gaps):
+- User Status record cardinality per session and when the byte counters are populated [gap:zpa.logs.user-status:record-granularity]: settled by tenant-data or lab-test. Blocks: counting authenticated sessions or summing session bytes from User Status records
+- What a User Status record pattern implies about the user's problem [gap:zpa.logs.user-status:status-reading-guide]: settled by lab-test or tenant-data. Blocks: diagnosing why a user cannot connect to ZPA or reach an application
+- What the client-to-client FQDN fields hold when client-to-client is not configured [gap:zpa.logs.user-status:c2c-fields-population]: settled by tenant-data. Blocks: filtering on FQDNRegisteredError to find real registration problems
+- Whether User Status and User Activity logs land in separate receivers or indexes [gap:zpa.logs.user-status:receiver-per-type]: settled by tenant-data. Blocks: choosing an index when joining User Status and User Activity logs in a SIEM
+- Whether ZPN_STATUS_DISCONNECTED differs for Private versus Public Service Edge terminations [gap:zpa.logs.user-status:disconnect-by-edge-kind]: settled by tenant-data or support-ticket. Blocks: distinguishing a user disconnected from a Private Service Edge from one disconnected from a Public Service Edge
+
+Area: zpa.logs, its subjects in references/_meta/spine/zpa/zpa.logs.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zpa/zpa.troubleshooting.diagnostics.md (ZPA Live Logs and Private Diagnostics: views, time ranges, retention, filters and export)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.log-receivers.log-types.md (Log types a ZPA log receiver can carry, and their codes)
+- see-also references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
+- see-also references/_meta/text/zpa/zpa.logs.control-session-status.md (ZPA status logs for connectors, Private Service Edges and Private Cloud Controllers)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.log-fields.md (What the ZPA User Activity log fields say when diagnosing access: outcome and status codes, timing phases, bytes)

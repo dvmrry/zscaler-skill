@@ -1,0 +1,14 @@
+# zia/network-services (zia/network-services)
+- Names: zscalerctl `zia network-services`; terraform `zia_firewall_filtering_network_service`; terraform_data_source `zia_firewall_filtering_network_service`
+- Live read (read-only): `zscalerctl zia network-services list`
+- description
+- destTcpPorts
+- destUdpPorts
+- id
+- isNameL10nTag
+- name
+- protocol
+- srcTcpPorts
+- srcUdpPorts
+- tag
+- type

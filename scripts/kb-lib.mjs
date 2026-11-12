@@ -40,9 +40,12 @@ export function qualify(subjectId, ref) {
   return ID.local.test(ref) ? `${subjectId}:${ref}` : ref;
 }
 
-/** A legacy-checker exclusion: a .md file with a sibling .json of the same stem is KB prose. */
+/**
+ * A legacy-checker exclusion: a .md file with a sibling .json of the same stem is KB prose, and so is the reading text
+ * generated from the subjects (references/_meta/text/, scripts/gen-text.mjs).
+ */
 export function isKbProse(file) {
-  return file.endsWith(".md") && fs.existsSync(file.slice(0, -3) + ".json");
+  return file.endsWith(".md") && (fs.existsSync(file.slice(0, -3) + ".json") || file.split(path.sep).join("/").includes(`${META}/text/`));
 }
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));

@@ -1,0 +1,28 @@
+# Merge tags in Workflow Automation notification templates: tag group names, example digest tags, per-notification caps and the special links (zwa.notifications.merge-tags)
+Also called: merge tags; magic link; incident justification magic link; partial list of recipients; notification maximum files
+
+The Slack notification template builder offers separate merge-tag groups for End User and Escalation templates, End User Digest templates, DLP Admin Digest templates and digest templates of unspecified type; the Digest Type selection determines which merge tags are available. [zwa.notifications.merge-tags:tag-groups-slack] For button text, the email template builder lists the merge-tag groups End User and Escalation, End User Digest, DLP Admin Digest, and Digest (Type Not Specified); the Digest Type field selection determines which merge tags are available for buttons, headings, paragraphs and tables. [zwa.notifications.merge-tags:tag-groups-email] The Microsoft Teams template page lists the merge-tag groups End User and Escalation, End User Digest, DLP Admin Digest, and Digest (Type Not Specified). [zwa.notifications.merge-tags:teams-same-as-slack] The templates themselves are in [Workflow Automation notification templates (email, Slack, Teams): default families, status and edit rules, the digest flag and email builder settings](kb:zwa.notifications).
+
+**Digest tags.** The End User Digest Notification Templates group of Slack merge tags includes All Incidents Waiting For Feedback Count and High Priority Incidents Waiting For Feedback Count. [zwa.notifications.merge-tags:end-user-digest-tags] The DLP Admin Digest Notification Templates group of Slack merge tags includes New Incidents Count, Open Incidents Count and State Changes Count. [zwa.notifications.merge-tags:admin-digest-tags]
+
+**Caps.** In the End User and Escalation merge tags, Matched Files is a combination of file name and file size, and a notification can contain at most 10 files. [zwa.notifications.merge-tags:matched-files-cap] In the End User and Escalation merge tags, a notification can contain at most 10 recipient emails (Recipient Email tag); the full list is in the Incident Details drawer. [zwa.notifications.merge-tags:recipient-email-cap] The help states that a notification can contain at most 10 collaborators (listed under the External Collaborators and Internal Collaborators merge tags), with the full list in the Incident Details drawer. [zwa.notifications.merge-tags:collaborator-cap] The help states that a notification can contain at most 10 recipients (listed under the External Recipients and Internal Recipients merge tags), with the full list in the Incident Details drawer. [zwa.notifications.merge-tags:recipient-cap] The Rules and Recipients merge tag is shown for incidents of Source DLP type Email; a notification can contain at most 5 rules, each with at most 10 recipients, more than 5 rules adds a "Partial list of rules and recipients" statement and more than 10 recipients for a rule adds a "Partial list of recipients" statement. [zwa.notifications.merge-tags:rules-and-recipients]
+
+**Special links.** The Slack template builder's special links are Incident Justification Magic Link (user views and enters justification on the Incident page), Incident Escalation Magic Link (manager or approver does so), and Incident List Page Magic Link (user or DLP admin views incidents needing attention). [zwa.notifications.merge-tags:special-links] In an email template button's Open Website action, choosing a special link replaces the value in the URL field; the Target is New Tab or Same Tab. [zwa.notifications.merge-tags:email-special-link-url] The survey templates are in [Workflow Automation survey (questionnaire) templates: the mandatory Reason question, default families, toolbox question types and edit rules](kb:zwa.notifications.survey-templates). Which tags the email table tool offers is open [gap:zwa.notifications.merge-tags:email-table-tags], so are definitions of most tags [gap:zwa.notifications.merge-tags:tag-definitions], and so are the full tag name lists [gap:zwa.notifications.merge-tags:tag-name-lists].
+
+What to check:
+1. Which Digest Type the template has, since it determines which merge tags are available.
+2. Whether a missing file, recipient, collaborator or rule in a notification is one of the stated maximums, with the full list in the Incident Details drawer.
+
+Not known (open gaps):
+- Which merge tags does the email table tool offer under each group? [gap:zwa.notifications.merge-tags:email-table-tags]: settled by lab-test or source-read
+- What are the full tag name lists per group, and do the Teams and email pages match the Slack page? [gap:zwa.notifications.merge-tags:tag-name-lists]: settled by source-read
+- What do the individual merge tags mean? [gap:zwa.notifications.merge-tags:tag-definitions]: settled by source-read or lab-test
+
+Area: zwa.notifications, its subjects in references/_meta/spine/zwa/zwa.notifications.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zwa/zwa.notifications.md (Workflow Automation notification templates (email, Slack, Teams): default families, status and edit rules, the digest flag and email builder settings)
+- links-to references/_meta/text/zwa/zwa.notifications.survey-templates.md (Workflow Automation survey (questionnaire) templates: the mandatory Reason question, default families, toolbox question types and edit rules)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting)

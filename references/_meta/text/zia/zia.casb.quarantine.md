@@ -1,0 +1,38 @@
+# CASB quarantine and tombstone files (zia.casb.quarantine)
+Also called: quarantine tombstone; Zscaler_Quarantine; tombstone template; quarantine location; restore quarantined file; OFLCASB_DLP_QUARANTINE
+
+Quarantine is the one remediation that moves a file out of its place. The quarantine action leaves a tombstone file in the original location, built from the description of the tombstone template selected on the rule. [zia.casb.quarantine:tombstone-in-original-location] A tombstone file template is a customizable message telling the user why a file was quarantined; its description is the text included in the tombstone file, and it is associated with DLP or malware policy rules. [zia.casb.quarantine:tombstone-template-purpose] A quarantine tombstone template is created for the tombstone file made when a file is quarantined through the SaaS Security API Quarantine policy rules; it has a Name and a Description holding the text the tombstone file contains. [zia.casb.quarantine:tombstone-template-fields]
+
+**Where the file goes.** For malware quarantine, Zscaler creates a channel named Zscaler_Quarantine in Slack, a site named Zscaler_Quarantine in SharePoint for Microsoft Teams, and a team named Zscaler_Quarantine in Webex Teams. [zia.casb.quarantine:collab-quarantine-places] For file-sharing applications the malware quarantine location is given as the ID of the user who owns the folder (or the SharePoint site address), and Zscaler creates a folder or library called Zscaler_Quarantine there. [zia.casb.quarantine:file-quarantine-owner-folder] The DLP Admin Quarantine action moves sensitive files to the location the administrator chose while onboarding the tenant, while Quarantine to User Root Folder moves them to the user's root folder. [zia.casb.quarantine:admin-quarantine] For Amazon S3 the onboarding asks for a quarantine bucket name, and a Malware Detection rule with Quarantine Malware moves the malicious files to that bucket. [zia.casb.quarantine:s3-quarantine-bucket] The API describes a rule's `quarantineLocation` as the location where quarantined files are moved and where necessary actions are taken by either deleting or restoring the data. [zia.casb.quarantine:quarantine-location-delete-or-restore]
+
+**Collaboration applications.** For Slack, Microsoft Teams and Webex Teams, a DLP rule whose action is Quarantine must select a tombstone template; the tombstone appears to end users as a message in Slack or Webex Teams. [zia.casb.quarantine:collab-quarantine-needs-template]
+
+**Reviewing.** After a message or file has been quarantined, admins can use the SaaS Security Assets Report to review and remove the quarantined content. [zia.casb.quarantine:assets-report-review]
+
+**Restoring.** In the File Sharing section of the Assets with Incidents page, Restore restores a quarantined file to its original location, after which subsequent policy scans bypass the restored file until it is modified, and is available only for quarantined files; Restore Admin Quarantine restores a file previously quarantined to the admin-specified location. Elsewhere on the page, restoring a quarantined message or file is for Slack only, and restoring a quarantined malware file to its original location needs the file to have been quarantined with the Quarantine Malware action in the DLP Malware policy and is currently available only for Salesforce. [zia.casb.quarantine:restore-from-assets-report] In the File Sharing section of the Assets with Incidents page, Restore Most Recent Redacted Version restores the most recent file to which redaction characters were applied via a redaction profile, and Zscaler stores both the original and the redacted file version for possible recovery by administrators in the event of inadvertent file deletions. [zia.casb.quarantine:redacted-version-restore] What stopping a scan does to quarantined files, and restores outside the Assets with Incidents page, are open [gap:zia.casb.quarantine:reversal]. The report page is in [SaaS Security report pages: SaaS Assets Summary, Assets and Assets with Incidents, Activities, Copilot Readiness Assessment and SaaS Workflows](kb:zia.reports.saas-security).
+
+The location asked for at onboarding is in [CASB tenants: connecting a SaaS application, states and reauthorization](kb:zia.casb.tenants). The rule fields that carry the location and the tombstone template are in [CASB Data at Rest Scanning DLP rules](kb:zia.casb.dlp-rules) and [CASB Data at Rest Scanning malware rules](kb:zia.casb.malware-rules).
+
+What to check:
+1. Where the application puts quarantined content, and whether the quarantine location was set at onboarding or on the rule.
+2. Whether a collaboration-application rule with a Quarantine action names a tombstone template.
+3. Which application the file is in before describing a restore, since the Assets with Incidents page limits some restores to Slack or Salesforce, and whether the question needs a restore outside that page, which no source states.
+
+Not known (open gaps):
+- How a quarantined file is restored [gap:zia.casb.quarantine:reversal]: settled by lab-test or support-ticket
+
+Area: zia.casb, its subjects in references/_meta/spine/zia/zia.casb.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zia/zia.casb.tenants.md (CASB tenants: connecting a SaaS application, states and reauthorization): Choosing DLP and Malware Scanning SaaS API at onboarding asks for a DLP Quarantine Location (a folder path or URL for relocated files) and a DLP Admin Email ID for supported file share applications. [zia.casb.tenants:onboarding-quarantine-location]
+- decided-by references/_meta/text/zia/zia.casb.dlp-rules.md (CASB Data at Rest Scanning DLP rules), from zia.casb: Data at Rest Scanning DLP rules are evaluated in ascending rule order, and a disabled rule keeps its place in the order while the service skips it and moves to the next rule. [zia.casb.dlp-rules:rule-order-ascending]
+- logged-in references/_meta/text/zia/zia.casb.insights-logs.md (CASB SaaS Security Insights logs: what the records mean, filtering, export and streaming), from zia.casb: SaaS Security Insights logs show every scan performed by the Zscaler SaaS Connector for a SaaS application tenant and are stored for 180 days on the Nanolog servers. [zia.casb.insights-logs:retention-180]
+- decided-by references/_meta/text/zia/zia.casb.rule-types.md (CASB rule types: the eight categories and their separate rule lists), from zia.casb: DLP rule order is defined relative to other Data at Rest Scanning DLP rules and malware rule order relative to other Data at Rest Scanning Malware rules, so the two kinds are separate ordered lists. [zia.casb.rule-types:order-separate-lists]
+- depends-on references/_meta/text/zia/zia.casb.scans.md (CASB scan schedules: states, historical data, stop and restart), from zia.casb: A configured rule inspects nothing until it is added to a scan schedule: the Zscaler service does not inspect content until a scan is configured. [zia.casb:no-scan-no-inspection]
+- links-to references/_meta/text/zia/zia.casb.malware-rules.md (CASB Data at Rest Scanning malware rules)
+- links-to references/_meta/text/zia/zia.reports.saas-security.md (SaaS Security report pages: SaaS Assets Summary, Assets and Assets with Incidents, Activities, Copilot Readiness Assessment and SaaS Workflows)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/casb-tombstone-templates.md (config type)
+- configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
+- configured-via references/_meta/text/types/zia/casb-malware-rules.md (config type)

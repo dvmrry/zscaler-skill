@@ -1,0 +1,22 @@
+# zpa/version-profiles (zpa/version-profiles)
+- Names: zscalerctl `zpa version-profiles`; terraform_data_source `zpa_customer_version_profile`
+- Live read (read-only): `zscalerctl zpa version-profiles list`
+- creationTime
+- customScopeCustomerIds
+- customScopeRequestCustomerIds
+- customerId
+- description
+- id
+- modifiedBy
+- modifiedTime
+- name
+- numberOfAssistants
+- numberOfCustomers
+- numberOfPrivateBrokers
+- numberOfSiteControllers
+- numberOfUpdatedAssistants
+- numberOfUpdatedPrivateBrokers
+- numberOfUpdatedSiteControllers
+- upgradePriority
+- versions
+- visibilityScope

@@ -95,7 +95,9 @@ Keep scratch output outside the checkout (`$TMP` below).
    read every `in-change` entry against its claim.
 5. **Generated layers.** `node scripts/gen-surfaces.mjs all` (or one product) after a spec capture or an SDK or
    provider pin changes, `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes, and
-   `node scripts/gen-releases.mjs` after a release-note page changes; each takes `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` (needs Go) and
+   `node scripts/gen-releases.mjs` after a release-note page changes; each takes `--check`. Then
+   `node scripts/gen-spine.mjs` and `node scripts/gen-text.mjs` (the spine and the reading text agents open), after
+   any of those or any subject edit. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` (needs Go) and
    `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`: rewrite them with
    `node scripts/regen-goldens.mjs` and read the diff.
 6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
@@ -207,7 +209,7 @@ empties the record when the next run is recorded, so record any run in flight fi
     `review`. It asks the model once more about the
     decisions the checks rejected. It restates a claim only when every restate
     decision of the reply that wrote the statement was accepted. It regenerates
-    the spines and `verified.json`, and leaves what the page no longer supports
+    the spines, the reading text and `verified.json`, and leaves what the page no longer supports
     for a person. Read its `--report` before committing;
   - read every in-change entry against its claim;
   - run the claim audit on the claims you touched.
@@ -239,7 +241,7 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
   - the API surfaces;
   - the zscalerctl import and config types;
   - the resolve goldens;
-  - the spines and `verified.json`.
+  - the spines, the reading text and `verified.json`.
 
   It dispatches the required checks, since its push starts no workflows.
   Renovate leaves the branch alone after that, and the next bump comes once

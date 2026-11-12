@@ -1,0 +1,28 @@
+# Where Zero Trust Branch operations are documented: forwarding, Routed Tunnels, segmentation, integrations, logging, monitoring, the Debug Console, troubleshooting and upgrades (zero-trust-branch.operations)
+Also called: ztb operations; operating zero trust branch; zero trust branch administration
+
+Internet & SaaS gateways, private application connectivity and site DNS policies are in [How Zero Trust Branch forwards branch traffic: default and custom Internet & SaaS gateways, private application connectivity and site DNS policies](kb:zero-trust-branch.operations.sd-wan), and site-to-site hubs and spokes are in [How Zero Trust Branch connects sites over Routed Tunnels: hubs, spokes, activation, sharing, policy-based routing and verification](kb:zero-trust-branch.operations.routed-tunnels).
+
+Airgap, Airgap-Lite, assets, tags and the Ransomware Kill Switch are in [How Zero Trust Branch segments devices: Airgap, Airgap-Lite and Airgap+ protection, /32 incompatibilities, assets, tags, the NAC MAC list and the Ransomware Kill Switch](kb:zero-trust-branch.operations.segmentation), and Airgap+ address layout is in [How Zero Trust Branch Airgap+ micro-subnets work: address layout, DHCP server requirement, VLAN fields and CSV import](kb:zero-trust-branch.operations.micro-subnets).
+
+API keys, SIEM, CrowdStrike, Armis and SentinelOne are in [How Zero Trust Branch integrates with other systems: API keys, SIEM syslog, CrowdStrike, Armis and SentinelOne](kb:zero-trust-branch.operations.integrations), log types and retention are in [How Zero Trust Branch logs traffic: architecture, log types and formats, retention and limits, throttling and tenant isolation](kb:zero-trust-branch.operations.logging), and dashboards, alarms, SNMP and interface health are in [How Zero Trust Branch is monitored: the Insights dashboard, traffic flow chart, alarms, SNMP and interface health monitoring](kb:zero-trust-branch.operations.monitoring).
+
+The Debug Console is in [What the Zero Trust Branch Debug Console documents: site scope, command limits, NTP, IPSec, enrollment files, DNS proxy and SNMP interfaces](kb:zero-trust-branch.operations.debug-console), documented symptoms and checks are in [What the Zero Trust Branch configuration and activation troubleshooting page documents: symptoms and the checks it gives](kb:zero-trust-branch.operations.troubleshooting), and software upgrades are in [How Zero Trust Branch appliance software upgrades run: standalone and HA workflow, the Root FS method and upgrade statuses](kb:zero-trust-branch.operations.upgrades).
+
+What the product is is in [Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed](kb:zero-trust-branch.overview), and how an appliance is deployed is in [How a Zero Trust Branch appliance is deployed: activation, ZTP, virtual machines, mainland China, upgrades and admin roles](kb:zero-trust-branch.deployment).
+
+Area: zero-trust-branch.operations, its subjects in references/_meta/spine/zero-trust-branch/zero-trust-branch.operations.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.deployment.md (How a Zero Trust Branch appliance is deployed: activation, ZTP, virtual machines, mainland China, upgrades and admin roles)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.debug-console.md (What the Zero Trust Branch Debug Console documents: site scope, command limits, NTP, IPSec, enrollment files, DNS proxy and SNMP interfaces)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.integrations.md (How Zero Trust Branch integrates with other systems: API keys, SIEM syslog, CrowdStrike, Armis and SentinelOne)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.logging.md (How Zero Trust Branch logs traffic: architecture, log types and formats, retention and limits, throttling and tenant isolation)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.micro-subnets.md (How Zero Trust Branch Airgap+ micro-subnets work: address layout, DHCP server requirement, VLAN fields and CSV import)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.monitoring.md (How Zero Trust Branch is monitored: the Insights dashboard, traffic flow chart, alarms, SNMP and interface health monitoring)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.routed-tunnels.md (How Zero Trust Branch connects sites over Routed Tunnels: hubs, spokes, activation, sharing, policy-based routing and verification)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.sd-wan.md (How Zero Trust Branch forwards branch traffic: default and custom Internet & SaaS gateways, private application connectivity and site DNS policies)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.segmentation.md (How Zero Trust Branch segments devices: Airgap, Airgap-Lite and Airgap+ protection, /32 incompatibilities, assets, tags, the NAC MAC list and the Ransomware Kill Switch)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.troubleshooting.md (What the Zero Trust Branch configuration and activation troubleshooting page documents: symptoms and the checks it gives)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.operations.upgrades.md (How Zero Trust Branch appliance software upgrades run: standalone and HA workflow, the Root FS method and upgrade statuses)
+- links-to references/_meta/text/zero-trust-branch/zero-trust-branch.overview.md (Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed)

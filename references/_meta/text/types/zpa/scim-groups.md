@@ -1,0 +1,13 @@
+# zpa/scim-groups (zpa/scim-groups)
+- Names: zscalerctl `zpa scim-groups`; terraform_data_source `zpa_scim_groups`
+- Live read (read-only): `zscalerctl zpa scim-groups list`
+- creationTime
+- iamIdpId
+- iamIdpName
+- id
+- idpGroupId
+- idpId
+- idpName
+- internalId
+- modifiedTime
+- name

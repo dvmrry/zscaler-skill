@@ -1,0 +1,48 @@
+# ZIA Advanced Threat Protection (zia.atp)
+Also called: atp; advanced threat protection; advanced threats policy; zia atp; cyberthreat protection; why is this blocked as a threat
+
+"Why was this blocked as a threat?" and "what is ATP set to?" are answered in a fixed order. ATP is the policy of inline URL, content and behavior detections; file scanning is [ZIA Malware Protection](kb:zia.malware-protection), and which engine produced a block is read from the log: [Diagnosing a Malware Protection or ATP block from the logs](kb:zia.atp.block-diagnosis), [Which engine blocked the file, and what a Sandbox verdict means](kb:zia.sandbox.verdicts).
+
+Advanced Threat Protection is a global policy that applies to all users. [zia.atp:global-policy] The Zscaler service identifies malicious scripts and applications on both hacked and legitimate websites and prevents them from downloading to the end user's browser. [zia.atp:malicious-scripts-blocked] There is no per-user, per-group or per-location scope for ATP: each toggle is on or off for the whole tenant, and the API is one settings object plus two URL lists. [zia.atp:no-scoping] When a tenant has both Advanced Threat Protection and IPS Control, the rules created for Advanced Threat Protection are evaluated first. [zia.atp:before-ips] IPS Control itself is covered in [IPS Control](kb:zia.firewall.ips). The User Risk Score is in [User Risk Score: its static and real-time parts, the indicators and variables the page names, and where it is used](kb:zia.atp.user-risk-score).
+
+1. **Which detection fired?** The toggles and their groups: [ATP detection categories and what each toggle covers](kb:zia.atp.categories), with the Page Risk threshold in [ATP Page Risk threshold and how the score is built](kb:zia.atp.page-risk), C2 and DGA in [ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA](kb:zia.atp.botnet), country blocking in [ATP Blocked Countries: server location, not user location](kb:zia.atp.blocked-countries) and Tor in [Fully blocking Tor: the ATP toggle is not enough](kb:zia.atp.tor).
+2. **Is a list involved?** The tenant denylist is [ATP Blocked Malicious URLs list: capacity, matching and API](kb:zia.atp.blocked-urls); the allowlist is [ATP Security Exceptions (the allowlist): what it skips and what it does not](kb:zia.atp.security-exceptions).
+3. **Did the policy change at all?** A URL can start blocking with no edit: [ATP AI/ML recategorization: why a URL can start blocking with no policy change](kb:zia.atp.ai-ml-recategorization).
+4. **Where does it run?** The order of checks, and what an exception skips: [Where Malware Protection and ATP checks fall in the web enforcement order](kb:zia.atp.enforcement-order). Content detections need decryption: [What stops working when traffic bypasses SSL/TLS inspection](kb:zia.ssl-inspection.bypass-impact).
+5. **What does the user see?** When ATP blocks malicious activity matching a user's traffic, Zscaler Client Connector shows a notification that the activity was blocked as potentially harmful. [zia.atp:client-connector-notice]
+
+The reference configuration: The recommended policy sets Page Risk to 35; in Botnet Protection it blocks Command & Control Servers, Command & Control Traffic and Domain Generation Algorithm (DGA) Domains and enables Alert for Unknown/Suspicious C2 Traffic; it blocks everything in Malicious Active Content, Fraud, Unauthorized Communication and XSS protection, and blocks BitTorrent, Tor and Google Hangouts. [zia.atp:recommended-policy] A change to the policy is saved and then activated in the console. [zia.atp:save-and-activate]
+
+API and field-name traps are in [ATP API: one settings object, two URL lists, and the field-name traps](kb:zia.atp.api-surface); provider defects are in [ZIA Terraform operations that take several API writes with no rollback](kb:zia.terraform.multi-step-writes), [When the ZIA Terraform provider reports success after an error, or crashes](kb:zia.terraform.error-handling) and [When the ZIA Terraform provider activates configuration](kb:zia.terraform.activation). The console reports that grade or score ATP settings are in [ZIA reports: which subject describes each report family](kb:zia.reports).
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.atp:no-scoping] Tier B: Derived from the policy being global; no source describes a scoping control and none was found in the help page or the API.
+
+Area: zia.atp, its subjects in references/_meta/spine/zia/zia.atp.json
+
+Linked (open a file only if the answer needs it):
+- decided-by references/_meta/text/zia/zia.atp.enforcement-order.md (Where Malware Protection and ATP checks fall in the web enforcement order): When the web module finds a transaction violates a policy, the Public Service Edge blocks it immediately and does not enforce the policies that follow; the firewall module does not evaluate it, though firewall logs still show the web transaction as blocked. [zia.atp.enforcement-order:first-violation-blocks]
+- decided-by references/_meta/text/zia/zia.atp.security-exceptions.md (ATP Security Exceptions (the allowlist): what it skips and what it does not): URLs on the allowlist take precedence over the ATP options on the policy page: an allowlisted URL hosted on a web server in a blocked country is still reachable. [zia.atp.security-exceptions:precedence-over-options]
+- interacts-with references/_meta/text/zia/zia.firewall.ips.md (IPS Control): When a tenant has both Advanced Threat Protection and IPS Control, the rules created for Advanced Threat Protection are evaluated first. [zia.atp:before-ips]
+- interacts-with references/_meta/text/zia/zia.malware-protection.md (ZIA Malware Protection): In the POST request and in the response, the Malware Protection check comes after the ATP checks, so an ATP block ends the transaction before file scanning would run. [zia.atp.enforcement-order:mp-after-atp-checks]
+- depends-on references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection): These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System. [zia.ssl-inspection.bypass-impact:dependent-features]
+- logged-in references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named): The threat category of a detection is carried by malwarecat (shown as Threat Category), with threatname for the named threat. urlcat also includes the Advanced Threat Category, listed in the Advanced Threat Category filter of Web Insights. [zia.atp.block-diagnosis:threat-fields]
+- logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)): The web log field ruletype, shown in Web Insights as Blocked Policy Type, gives the type of policy and applies only to Block rules, not Allow. The documented example values are File Type Control, Data Loss Prevention and Sandbox. [zia.atp.block-diagnosis:ruletype-column]
+- links-to references/_meta/text/zia/zia.atp.ai-ml-recategorization.md (ATP AI/ML recategorization: why a URL can start blocking with no policy change)
+- links-to references/_meta/text/zia/zia.atp.api-surface.md (ATP API: one settings object, two URL lists, and the field-name traps)
+- links-to references/_meta/text/zia/zia.atp.block-diagnosis.md (Diagnosing a Malware Protection or ATP block from the logs)
+- links-to references/_meta/text/zia/zia.atp.blocked-countries.md (ATP Blocked Countries: server location, not user location)
+- links-to references/_meta/text/zia/zia.atp.blocked-urls.md (ATP Blocked Malicious URLs list: capacity, matching and API)
+- links-to references/_meta/text/zia/zia.atp.botnet.md (ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA)
+- links-to references/_meta/text/zia/zia.atp.categories.md (ATP detection categories and what each toggle covers)
+- links-to references/_meta/text/zia/zia.atp.page-risk.md (ATP Page Risk threshold and how the score is built)
+- links-to references/_meta/text/zia/zia.atp.tor.md (Fully blocking Tor: the ATP toggle is not enough)
+- links-to references/_meta/text/zia/zia.atp.user-risk-score.md (User Risk Score: its static and real-time parts, the indicators and variables the page names, and where it is used)
+- links-to references/_meta/text/zia/zia.reports.md (ZIA reports: which subject describes each report family)
+- links-to references/_meta/text/zia/zia.sandbox.verdicts.md (Which engine blocked the file, and what a Sandbox verdict means)
+- links-to references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)
+- links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
+- links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)

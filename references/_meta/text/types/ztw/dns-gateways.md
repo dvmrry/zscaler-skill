@@ -1,0 +1,13 @@
+# ztw/dns-gateways (ztw/dns-gateways)
+- Names: zscalerctl `ztw dns-gateways`; terraform `ztc_dns_gateway`; terraform_data_source `ztc_dns_gateway`
+- Live read (read-only): `zscalerctl ztw dns-gateways list`
+- dnsGatewayType
+- ecDnsGatewayOptionsPrimary
+- ecDnsGatewayOptionsSecondary
+- failureBehavior
+- id
+- lastModifiedBy
+- lastModifiedTime
+- name
+- primaryIp
+- secondaryIp

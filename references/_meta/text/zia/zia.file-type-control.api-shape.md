@@ -1,0 +1,56 @@
+# File Type Control API shape: rules, categories and custom types (zia.file-type-control.api-shape)
+Also called: file type control api; fileTypeRules; filteringAction; fileTypeCategories; customFileTypes; file type enum; ftp protocols token FOHTTP_RULE; zia_file_type_control_rules
+Former IDs: zia-57
+
+**The rule resource.** File Type Control is a rule resource: `GET` and `POST` on `/fileTypeRules`, and `GET`, `PUT` and `DELETE` on `/fileTypeRules/{ruleId}`, with a reduced `GET /fileTypeRules/lite`. [zia.file-type-control.api-shape:rule-crud] `filteringAction` takes BLOCK, CAUTION or ALLOW. `operation` takes UPLOAD, DOWNLOAD or UPLOAD_DOWNLOAD, and `state` takes ENABLED or DISABLED. [zia.file-type-control.api-shape:filtering-action-enum] `minSize`, `maxSize` and `sizeQuota` are in KB; `timeQuota` is in minutes. `minSize` and `maxSize` default to 0 in the Python model. [zia.file-type-control.api-shape:size-in-kb]
+
+**Protocols.** `protocols` takes ANY_RULE, SMRULEF_CASCADING_ALLOWED, FOHTTP_RULE, FTP_RULE, HTTPS_RULE and HTTP_RULE. The Python SDK model stores it as an unconstrained list of strings. [zia.file-type-control.api-shape:protocols-enum] The four protocol choices in the console map to the contract tokens as FTP over HTTP = FOHTTP_RULE, HTTP = HTTP_RULE, HTTPS = HTTPS_RULE and Native FTP = FTP_RULE. The console choices that require a Firewall subscription are FTP over HTTP and Native FTP. [zia.file-type-control.api-shape:protocol-token-mapping]
+
+**File types.** The contract marks `fileTypes` as replaced by `fileTypeCategories`, a list of objects with `id`, `name` and `parent`, and recommends moving to the new attribute. The Python model has `fileTypes` only. [zia.file-type-control.api-shape:file-types-deprecated] The contract's `fileTypes` vocabulary is a closed list beginning ANY and NONE followed by FTCATEGORY_* tokens (JAVASCRIPT, FLASH, ZIP and so on, ending FTCATEGORY_TS). The Terraform provider declares `file_types` as an unconstrained set of strings, so it does not check values against this list. [zia.file-type-control.api-shape:file-types-contract-enum] `GET /fileTypeCategories` returns predefined and custom file types for use as rule conditions. The `enums` query parameter selects ZSCALERDLP (DLP rules with content inspection), EXTERNALDLP (DLP rules without content inspection) or FILETYPECATEGORYFORFILETYPECONTROL (File Type Control); `excludeCustomFileTypes` drops custom types. [zia.file-type-control.api-shape:categories-lookup] Terraform's data source for it has its own failure behavior: [To look a category up by ID or name without an enum, the file type categories data source queries three enum scopes. A failure of any one scope is logged as a warning and skipped. If the category lives in the failed scope the result is a not-found error, and otherwise the lookup succeeds from the scopes that answered, with the failure shown only as a logged warning.](kb:zia.terraform.data-source-fidelity:file-type-categories-swallow-enum-failure).
+
+**Custom types.** Custom file types are managed at `/customFileTypes` (list, create, update on the collection), `/customFileTypes/{id}` (get, delete) and `/customFileTypes/count`. An `extension` is at most 10 characters and cannot reuse an existing Zscaler extension; `fileTypeId` is the ID kept across predefined and custom types and differs from the record's own `id`. [zia.file-type-control.api-shape:custom-file-types] The console Help describes custom file types as simple extension-based detections, and the feature is enabled by contacting Zscaler Support. A custom file type name can contain only alphanumeric characters, underscores, hyphens, periods, parentheses and spaces; the maximum extension length is 10 characters; existing Zscaler extensions cannot be added; custom file types are restricted for the ServiceNow application; and only standard file extensions are supported. [zia.file-type-control.api-shape:custom-file-types-console] What the ServiceNow restriction means and how many custom types an organization can hold are open [gap:zia.file-type-control.api-shape:servicenow-restriction] [gap:zia.file-type-control.api-shape:custom-file-type-count]. The update path is open [divergence:zia.file-type-control.api-shape:custom-file-type-update-path].
+
+The help page and the Python SDK disagree on the maximum rule name length [divergence:zia.file-type-control.api-shape:rule-name-length]. Which field combinations the API accepts is open [gap:zia.file-type-control.api-shape:filtering-action-dependencies].
+
+A Terraform defect sends `passwordProtected` as false on every write; see [The file type control rule resource has no `password_protected` attribute and never references the field, while the SDK model sends `passwordProtected` without `omitempty`. Every create and update therefore carries `passwordProtected:false`.](kb:zia.terraform.field-fidelity:file-type-password-protected-never-mapped).
+
+What to check:
+1. Which file-type representation a rule uses, the deprecated fileTypes list or fileTypeCategories.
+2. Whether a passwordProtected false on a Terraform-managed rule reflects an admin choice, since the provider sends it on every write.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.file-type-control.api-shape:protocol-token-mapping] Tier B: The token-to-label pairing is inferred from the names; no source lists the mapping. The legacy page read FTP_RULE as 'FTP' in general and omitted FOHTTP_RULE.
+
+Sources disagree (name both sides):
+- The contract updates a custom file type with `PUT /customFileTypes` on the collection; the Python SDK sends the update to `/customFileTypes/{id}`. [divergence:zia.file-type-control.api-shape:custom-file-type-update-path]
+  - api-specs: Update is a PUT on /customFileTypes, with no ID in the path.
+  - sdk-python: Update is a PUT on /customFileTypes/{file_id}.
+  Impact: A client built from the contract and a client built from the Python SDK address different URLs for the same update. Which one the service accepts is not shown.
+- The help page and the Python SDK disagree on the maximum rule name length. [divergence:zia.file-type-control.api-shape:rule-name-length]
+  - zscaler-help: A rule name is at most 63 characters.
+  - sdk-python: A rule name is at most 31 characters.
+  Impact: A name between 32 and 63 characters is accepted by the console per the help page but is documented as invalid by the SDK. Which limit the API enforces is not shown.
+
+Not known (open gaps):
+- What "restricted for the ServiceNow application" means for custom file types [gap:zia.file-type-control.api-shape:servicenow-restriction]: settled by lab-test or support-ticket
+- How many custom file types an organization can hold [gap:zia.file-type-control.api-shape:custom-file-type-count]: settled by source-read or support-ticket
+- Field combinations the API accepts or rejects [gap:zia.file-type-control.api-shape:filtering-action-dependencies]: settled by lab-test. Blocks: knowing whether a rejected rule write is a provider check or an API rule
+
+Area: zia.file-type-control, its subjects in references/_meta/spine/zia/zia.file-type-control.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zia/zia.dlp.evaluation.md (Why DLP did or did not fire: pipeline position, evaluation mode and exemptions), from zia.file-type-control: For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention. [zia.dlp.evaluation:dlp-after-url-and-file-type]
+- decided-by references/_meta/text/zia/zia.file-type-control.actions.md (File Type Control actions, direction and defaults), from zia.file-type-control: Each rule's action applies to uploads, downloads or both. [zia.file-type-control.actions:operation]
+- decided-by references/_meta/text/zia/zia.file-type-control.criteria.md (File Type Control rule criteria), from zia.file-type-control: A rule fires when all of these hold: File Types AND URL Categories AND Cloud Applications AND Application Segment; Users OR Groups OR Departments; Location Groups OR Locations; Time; Device Groups OR Devices; Protocols; Device Trust Level; Minimum File Size; Maximum File Size. [zia.file-type-control.criteria:criteria-expression]
+- interacts-with references/_meta/text/zia/zia.file-type-control.pipeline.md (Where File Type Control sits in the inspection order), from zia.file-type-control: For an HTTP POST request, File Type Control checks the POST after Malware Protection and before Data Loss Prevention. For a GET or POST response, it checks the files in the response after Malware Protection and before the Sandbox analysis of unknown files. [zia.file-type-control.pipeline:post-and-response-position]
+- interacts-with references/_meta/text/zia/zia.ftp-control.md (ZIA FTP Control), from zia.file-type-control: A File Type Control rule's Protocols criterion includes FTP over HTTP (files from FTP over HTTP websites) and Native FTP (files from native FTP servers); both require a Firewall subscription. [zia.file-type-control.actions:ftp-via-protocol-criterion]
+- scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group), from zia.file-type-control: A rule's Locations and Location Groups each take Any or up to 32 entries, and Time takes Always or up to two time intervals. A rule for unauthenticated traffic must apply to all Groups and Departments. [zia.file-type-control.criteria:scope-limits]
+- depends-on references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection), from zia.file-type-control: These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System. [zia.ssl-inspection.bypass-impact:dependent-features]
+- scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.file-type-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
+- links-to references/_meta/text/zia/zia.terraform.data-source-fidelity.md (What ZIA Terraform data sources return, drop, or get wrong)
+- links-to references/_meta/text/zia/zia.terraform.field-fidelity.md (ZIA Terraform resource fields that are not sent, not read back, or sent wrongly)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/file-type-rules.md (config type)
+- configured-via references/_meta/text/types/zia/custom-file-types.md (config type)
+- see-also references/_meta/text/zia/zia.file-type-control.md (ZIA File Type Control)

@@ -564,7 +564,7 @@ function neighborsOf(g, subjectId) {
   return out.sort((a, b) => order[a.rel] - order[b.rel] || a.id.localeCompare(b.id));
 }
 
-function titleOf(g, id) {
+export function titleOf(g, id) {
   const n = g.nodes.get(id);
   return n?.data?.title || n?.data?.statement || id;
 }
@@ -574,7 +574,7 @@ function itemsOf(g, subjectId, kind) {
 }
 
 /** The types and fields a subject and its claims bind (`<type>` or `<type>#<field>`). */
-function bindsOf(g, subjectId) {
+export function bindsOf(g, subjectId) {
   return [...(g.nodes.get(subjectId).data.binds || []), ...itemsOf(g, subjectId, "claim").flatMap((n) => n.data.binds || [])];
 }
 
@@ -852,7 +852,7 @@ export function subjectMap(g, prefixes = []) {
  * One subject as reading text: prose with every claim inlined and marked with its citable ID, the claims the prose
  * does not carry, and the open gaps. No evidence quotes: they are for verifying a claim, not for answering.
  */
-function readSubject(g, id) {
+export function readSubject(g, id) {
   const s = g.nodes.get(id).data;
   const { text, order } = renderProse(g, id, { footnotes: false, qualified: true });
   const parts = [`# ${s.title} (${id})`, text];
@@ -882,8 +882,29 @@ function readSubject(g, id) {
   return parts.filter(Boolean).join("\n\n");
 }
 
-/** A type as reading text: one line per field, or per field in `paths`. */
-function readType(g, id, paths = null) {
+// Where scripts/gen-text.mjs writes each node's reading text, relative to the repo root: the paths an agent opens.
+const TEXT = `${META}/text`;
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export const textFile = {
+  subject: (id) => `${TEXT}/${id.split(".")[0]}/${id}.md`,
+  type: (id) => `${TEXT}/types/${id}.md`,
+  code: (code) => `${TEXT}/codes/${code}.md`,
+  reason: (key) => `${TEXT}/codes/reason-${slug(key)}.md`,
+};
+
+/** What a reading-text file is about (subject, type, status code or policy reason), so `read` takes its path too. */
+function fromTextFile(g, arg) {
+  const m = arg.match(/(?:^|\/)references\/_meta\/text\/(?:types\/(.+)|codes\/reason-(.+)|codes\/(.+)|[^/]+\/(.+))\.md$/);
+  if (!m) return arg;
+  if (m[2]) return [...g.policyReasons.keys()].find((k) => slug(k) === m[2]) ?? arg;
+  return m[1] ?? m[3] ?? m[4];
+}
+
+/**
+ * A type as reading text: one line per field, or per field in `paths`. `files` names the status code and policy
+ * reason files under references/_meta/text/ where the text would otherwise say to `read` one.
+ */
+export function readType(g, id, paths = null, { files = false } = {}) {
   const t = g.nodes.get(id).data;
   const head = [];
   const names = Object.entries(t.names || {}).map(([k, v]) => `${k} \`${v}\``);
@@ -893,9 +914,9 @@ function readType(g, id, paths = null) {
   const lines = Object.entries(t.fields).filter(([p]) => !paths || paths.includes(p)).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
   // A log type's status codes are too many to print with its fields; each reads by name.
   const codes = Object.keys(t.status_codes || {});
-  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; read one by its code (\`read ${codes[0]}\`)`);
+  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; ${files ? `each has its own file, \`${TEXT}/codes/<code>.md\`` : `read one by its code (\`read ${codes[0]}\`)`}`);
   const reasons = Object.keys(t.policy_reasons || {});
-  if (reasons.length) lines.push(`- Policy reasons: ${reasons.length} reason strings from the Policy Reasons help article, which the reason field points to; read one by its text (\`read "${reasons[0]}"\`)`);
+  if (reasons.length) lines.push(`- Policy reasons: ${reasons.length} reason strings from the Policy Reasons help article, which the reason field points to; ${files ? `each has its own file under \`${TEXT}/codes/\`: search there for the reason's text` : `read one by its text (\`read "${reasons[0]}"\`)`}`);
   return [`# ${t.title || id} (${id})`, ...head, ...lines].join("\n");
 }
 
@@ -964,8 +985,28 @@ function readCompany(ov, ids, shown = new Set()) {
 const AREA_TOKENS = 20000;
 
 // How strongly `read` follows each edge type: the mechanisms that settle an outcome first, prose links next.
-// see-also and configured-via are listed by title, not read; so is any type (a log's field list is long).
-const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-on": 3, "reached-via": 3, "logged-in": 3, "links-to": 2, "configured-via": 0, "see-also": 0 };
+// see-also and configured-via are not followed: the reading-text files list them by title (scripts/gen-text.mjs).
+// A type is listed, not read (a log's field list is long).
+export const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-on": 3, "reached-via": 3, "logged-in": 3, "links-to": 2, "configured-via": 0, "see-also": 0 };
+
+/**
+ * What is one hop from the subjects in `from` (subjects and types not in `seen`), most strongly linked first: each
+ * with the summed weight of the edges pointing at it and those edges, each with the subject it leaves from.
+ */
+export function neighbours(g, from, seen = new Set(from)) {
+  const votes = new Map();
+  for (const id of from) {
+    if (g.nodes.get(id).kind !== "subject") continue;
+    for (const e of edgesOf(g, id)) {
+      if (seen.has(e.to) || !FOLLOW[e.rel]) continue;
+      const v = votes.get(e.to) || { w: 0, edges: [] };
+      v.w += FOLLOW[e.rel];
+      v.edges.push({ ...e, from: e.via || id });
+      votes.set(e.to, v);
+    }
+  }
+  return [...votes.entries()].sort((a, b) => b[1].w - a[1].w || a[0].localeCompare(b[0]));
+}
 
 /**
  * A subject's outgoing edges: its typed `related` entries, the typed edges of the hubs above it (a child shares what
@@ -980,7 +1021,8 @@ function edgesOf(g, id) {
     if (hub?.kind !== "subject") continue;
     for (const e of hub.data.related || []) if (FOLLOW[e.rel] >= 3 && e.to !== id) out.push({ to: e.to, rel: e.rel, because: e.because, via: hub.id });
   }
-  for (const m of JSON.stringify(n.data.prose || []).matchAll(/\[\[([^\]:#|]+)/g)) {
+  // An ID starts with a letter or digit: a table's rows open with `[["` in the JSON, which is not a link.
+  for (const m of JSON.stringify(n.data.prose || []).matchAll(/\[\[([a-z0-9][^\]:#|"]*)/g)) {
     const to = g.nodes.get(m[1])?.kind === "subject" ? m[1] : g.nodes.get(m[1])?.subject;
     if (to && to !== id) out.push({ to, rel: "links-to" });
   }
@@ -993,45 +1035,56 @@ function edgesOf(g, id) {
  * `zia.ssl-inspection`, `zpa`), which reads that subject and every subject under it. The subjects those point to are
  * read next, the ones most of the reading set points to first, until `budget` tokens; every other neighbour prints as
  * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
- * about it.
+ * about it. `company` keeps only those records, for a reader that has the public text already (scripts/gen-text.mjs
+ * writes it as files): a subject named stands for its whole area, as the areas agents used to read did, and the
+ * records about every subject one hop from those follow. A type or field stands for itself.
  *
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
  */
-export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS } = {}) {
+export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS, company = false } = {}) {
+  if (company) areaTokens = Infinity;
   const out = [];
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
   if (repos.length) out.push(`IaC repos: ${repos.map((r) => `${r.id} = ${r.path}/${r.committed ? ` (last commit ${r.committed})` : ""}`).join("; ")}`);
   const missing = (ov?.iacRepos || []).filter((r) => !r.available);
   if (missing.length) out.push(`IaC repos not checked out: ${missing.map((r) => `${r.id} (${r.path})`).join("; ")}`);
-  if (ov?.config.live) out.push(`Live tier: ${ov.config.live.tool} is declared; each config type below names its read-only command`);
+  if (ov?.config.live) out.push(`Live tier: ${ov.config.live.tool} is declared; each config type ${company ? `(${META}/text/types/<type id>.md)` : "below"} names its read-only command`);
   const seen = new Set();
   const shown = new Set(); // company records already printed in this read
+  let records = 0;
+  const named = []; // the arguments that name a subject, type or field, for a reader told there are no records
   const emit = (id) => {
     seen.add(id);
     const n = g.nodes.get(id);
     const text = n.kind === "type" ? readType(g, id) : readSubject(g, id);
-    out.push(text);
-    const company = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
-    if (company) out.push(`Company records:\n${company}`);
+    if (!company) out.push(text);
+    const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
+    if (about) {
+      out.push(company ? `Company records about ${id}:\n${about}` : `Company records:\n${about}`);
+      records++;
+    }
     return text.length / 4;
   };
   const fields = new Map();
   for (const given of args) {
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
-    let arg = given.replace(/^(gap|divergence):/, "");
+    let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
-      out.push(readStatusCode(g, arg));
+      if (!company) out.push(readStatusCode(g, arg));
+      else named.push(given);
       continue;
     }
     if (!g.nodes.has(arg) && g.policyReasons.has(arg.toLowerCase())) {
-      out.push(readPolicyReason(g, arg.toLowerCase()));
+      if (!company) out.push(readPolicyReason(g, arg.toLowerCase()));
+      else named.push(given);
       continue;
     }
     if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);
     if (g.nodes.get(arg)?.subject) arg = g.nodes.get(arg).subject;
+    if (company && g.nodes.get(arg)?.kind === "subject") arg = areaOf(arg);
     // A whole product is hundreds of thousands of tokens; its spine says which areas a question needs.
     if (!g.nodes.has(arg) && !/[./]/.test(arg) && subjectsOf(g).some((n) => n.id.startsWith(`${arg}.`))) {
       out.push(`# ${arg}: a whole product is too large to read; pick its areas from references/_meta/spine/${arg}.json`);
@@ -1039,6 +1092,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     const node = g.nodes.get(arg);
     if (node?.kind === "field") {
+      named.push(given);
       fields.set(node.type, [...(fields.get(node.type) || []), node.path]);
       continue;
     }
@@ -1047,6 +1101,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     const ids = node?.kind === "type" ? [arg]
       : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
     if (!ids.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
+    else named.push(given);
     const cost = new Map(ids.map((id) => [id, g.nodes.get(id).kind === "subject" ? Math.round(readSubject(g, id).length / 4) : 0]));
     const total = [...cost.values()].reduce((a, b) => a + b, 0);
     if (ids.length > 1 && total > areaTokens) {
@@ -1061,25 +1116,23 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   for (const [type, paths] of fields) {
     // A type already read whole holds the fields named with it.
     if (seen.has(type)) continue;
-    out.push(readType(g, type, paths));
-    const company = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
-    if (company) out.push(`Company records:\n${company}`);
+    if (!company) out.push(readType(g, type, paths));
+    const about = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
+    if (about) {
+      out.push(company ? `Company records about ${paths.map((p) => `${type}#${p}`).join(", ")}:\n${about}` : `Company records:\n${about}`);
+      records++;
+    }
   }
   for (let hop = 0; hop < hops; hop++) {
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
-    const votes = new Map();
-    for (const id of seen) {
-      if (g.nodes.get(id).kind !== "subject") continue;
-      for (const e of edgesOf(g, id)) {
-        if (seen.has(e.to) || !FOLLOW[e.rel]) continue;
-        const v = votes.get(e.to) || { w: 0, edges: [] };
-        v.w += FOLLOW[e.rel];
-        v.edges.push({ ...e, from: e.via || id });
-        votes.set(e.to, v);
-      }
-    }
-    const ranked = [...votes.entries()].sort((a, b) => b[1].w - a[1].w || a[0].localeCompare(b[0]));
+    const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
+    // Records alone are short: every linked subject's, with no budget and no heading (types are not followed, as in
+    // a full read, where a type never fits the budget).
+    if (company) {
+      for (const [id] of ranked) if (g.nodes.get(id).kind === "subject") emit(id);
+      continue;
+    }
     out.push(`## Linked subjects (one hop from what was read)`);
     let spent = 0;
     const listed = [];
@@ -1096,11 +1149,12 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     if (listed.length) out.push(fit("Linked, not read here (each with the claim that links it; read one by ID for the rest):", listed, 12000, "linked subjects"));
   }
+  if (company && ov && named.length && !records) out.push(`No company records are about ${named.join(", ")}, its area, what it binds or what it links to.`);
   return `${out.join("\n\n")}\n`;
 }
 
 /** A heading and as many lines as fit in `room` characters, then a count of the rest. */
-function fit(head, lines, room, what) {
+export function fit(head, lines, room, what) {
   const kept = [];
   let size = head.length;
   for (const l of lines) {
@@ -1305,14 +1359,17 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
   }
   if (cmd === "read") {
     const ids = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--overlay");
-    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay", "--overlay"].includes(a));
-    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links] [--overlay <dir> | --no-overlay]`);
+    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--company", "--no-overlay", "--overlay"].includes(a));
+    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links | --company] [--overlay <dir> | --no-overlay]`);
     if (!ids.length) usage("read needs one or more area, subject or type IDs");
+    // --company: only the company records, for a reader that read the public text from references/_meta/text/.
+    const company = args.includes("--company");
     // Say when there is no overlay, so a reader does not go looking for company records or IaC, and when a configured
     // one could not be used, so a broken overlay is not mistaken for none.
-    if (failure) process.stdout.write(`The company overlay could not be used (${failure}): this is the public graph only.\n\n`);
-    else if (!ov) process.stdout.write("No company overlay is configured: this is the public graph only.\n\n");
-    process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1 }));
+    if (failure) process.stdout.write(`The company overlay could not be used (${failure}): ${company ? "there are no company records to read" : "this is the public graph only"}.\n\n`);
+    else if (!ov) process.stdout.write(`No company overlay is configured: ${company ? "there are no company records to read" : "this is the public graph only"}.\n${company ? "" : "\n"}`);
+    if (company && !ov) return 0;
+    process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1, company }));
     return 0;
   }
   if (cmd === "render") {

@@ -1,0 +1,24 @@
+# ztw/traffic-dns-rules (ztw/traffic-dns-rules)
+- Names: zscalerctl `ztw traffic-dns-rules`; terraform `ztc_traffic_forwarding_dns_rule`; terraform_data_source `ztc_traffic_forwarding_dns_rule`
+- Live read (read-only): `zscalerctl ztw traffic-dns-rules list`
+- action
+- defaultRule
+- description
+- destAddresses
+- destIpGroups
+- dnsGateway
+- ecGroups
+- id
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- order
+- predefined
+- rank
+- srcIpGroups
+- srcIps
+- state
+- type
+- zpaIpGroup

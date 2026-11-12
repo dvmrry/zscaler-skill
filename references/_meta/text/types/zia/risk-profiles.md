@@ -1,0 +1,40 @@
+# zia/risk-profiles (zia/risk-profiles)
+- Names: zscalerctl `zia risk-profiles`; terraform `zia_risk_profiles`; terraform_data_source `zia_risk_profiles`
+- Live read (read-only): `zscalerctl zia risk-profiles list`
+- adminAuditLogs
+- certifications
+- createTime
+- customTags
+- dataBreach
+- dataEncryptionInTransit
+- dnsCaaPolicy
+- domainBasedMessageAuth
+- domainKeysIdentifiedMail
+- evasive
+- excludeCertificates
+- fileSharing
+- httpSecurityHeaders
+- id
+- lastModTime
+- malwareScanningForContent
+- mfaSupport
+- modifiedBy
+- passwordStrength
+- poorItemsOfService
+- profileName
+- profileType
+- remoteScreenSharing
+- riskIndex
+- senderPolicyFramework
+- sourceIpRestrictions
+- sslCertKeySize
+- sslCertValidity
+- sslPinned
+- status
+- supportForWaf
+- vulnerability
+- vulnerabilityDisclosure
+- vulnerableToHeartBleed
+- vulnerableToLogJam
+- vulnerableToPoodle
+- weakCipherSupport

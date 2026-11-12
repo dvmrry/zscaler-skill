@@ -1,0 +1,31 @@
+# Browser Protection: monitored users, browser fingerprints and Clientless Access diagnostics (zpa.appprotection.browser-protection)
+Also called: browser protection dashboard; clientless access diagnostics; browser fingerprint; monitored users
+
+Browser Protection is monitored in the console through a dashboard and a Clientless Access diagnostics log type. Whether it is part of the subscription is in [Which AppProtection capabilities depend on the subscription](kb:zpa.appprotection.entitlement), and the AppProtection views are in [AppProtection dashboards and diagnostics: violations, API protection, Protocol Discovery and MITRE ATT&CK](kb:zpa.appprotection.monitoring). The rules and profiles that produce the fingerprints are in [Browser Protection policy rules and profiles: actions, criteria and fingerprint settings](kb:zpa.appprotection.browser-protection-policy).
+
+**Dashboard.** The Browser Protection dashboard shows data over 1 Hour to 14 Days or a Custom Range. It categorizes users as Monitored and Unmonitored by their percentages in the selected time frame, and a table gives each monitored user's number of unique fingerprints, the browser sessions with Fingerprint enabled that the user has accessed. [zpa.appprotection.browser-protection:dashboard] The dashboard page says that if frequent changes exist on a fingerprint, there is a high possibility of malicious activity. [zpa.appprotection.browser-protection:fingerprint-frequency]
+
+**Clientless Access diagnostics.** By default the Clientless Access diagnostics table displays the total number of clientless access requests made by monitored users; it also counts requests with fingerprints and requests with fingerprints that changed over the specified time range. A filter shows requests for a browser fingerprint changed after the monitored user logged in, and another one currently present. [zpa.appprotection.browser-protection:clientless-diag] A filter shows all fingerprints captured for a session. All fingerprints should be the same for all domains the user accesses in the same session, and a change means attributes of the fingerprint, such as location or screen resolution, have changed for the user. [zpa.appprotection.browser-protection:fingerprint-session] A Clientless Access entry shows whether a mobile device was used for the request (True or False) and the latitude and longitude of the fingerprint's location. The JA3 fingerprint shows only if the JA3 hash was selected when configuring Browser Protection profiles, and results might differ by machine and browser. [zpa.appprotection.browser-protection:fingerprint-fields] The User Portal field is the name, ID and domain of the application segment, and when User Portal criteria are selected it replaces the Application Segment, Application ID and Application Domain fields. [zpa.appprotection.browser-protection:user-portal-field] The values of some fields are not listed [gap:zpa.appprotection.browser-protection:undefined-values].
+
+What to check:
+1. Whether a changed fingerprint is the same session showing different attributes such as location or screen resolution.
+2. Whether the JA3 field is empty because the JA3 hash was not selected in the Browser Protection profile.
+
+Not known (open gaps):
+- Field values the Clientless Access diagnostics page names but does not list [gap:zpa.appprotection.browser-protection:undefined-values]: settled by tenant-data or support-ticket
+
+Area: zpa.appprotection, its subjects in references/_meta/spine/zpa/zpa.appprotection.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/zpa/zpa.appprotection.entitlement.md (Which AppProtection capabilities depend on the subscription), from zpa.appprotection: Depending on the AppProtection subscription, the AppProtection Policy page shows a Browser Protection security policy option. [zpa.appprotection.entitlement:browser-protection-option]
+- logged-in references/_meta/text/zpa/zpa.appprotection.logging.md (Where AppProtection events go: the LSS log type and its fields), from zpa.appprotection: A Log Streaming Service log receiver can capture an AppProtection log type: information related to AppProtection policy activity. [zpa.appprotection.logging:lss-log-type]
+- decided-by references/_meta/text/zpa/zpa.appprotection.policy.md (AppProtection policy rules: actions, criteria and operators), from zpa.appprotection: Private Access policy rules, a set that includes AppProtection policy, are evaluated top-down and the first matching rule is enforced. [zpa.appprotection.policy:first-match]
+- decided-by references/_meta/text/zpa/zpa.appprotection.profiles.md (AppProtection profiles: control selection, paranoia level, actions and the default profile), from zpa.appprotection: A profile's override options are Override None, Override All Controls and Override Specific Controls; Override None is the default, and Specific can set a different action on each selected control. [zpa.appprotection.profiles:override-modes]
+- scoped-by references/_meta/text/zpa/zpa.appprotection.segment-opt-in.md (Enabling AppProtection on an application segment), from zpa.appprotection: The segment's Auto AppProtection setting lets the segment's traffic be inspected by AppProtection; enabling it requires an Enrollment (CA) Certificate. [zpa.appprotection.segment-opt-in:auto-appprotection]
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types), from zpa.appprotection: Private Access has separate policy types, including access, client forwarding, isolation, timeout, redirection, AppProtection and Browser Protection policy. [zpa.policy.evaluation-order:policy-types]
+- links-to references/_meta/text/zpa/zpa.appprotection.browser-protection-policy.md (Browser Protection policy rules and profiles: actions, criteria and fingerprint settings)
+- links-to references/_meta/text/zpa/zpa.appprotection.monitoring.md (AppProtection dashboards and diagnostics: violations, API protection, Protocol Discovery and MITRE ATT&CK)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.appprotection.md (ZPA AppProtection)
+- see-also references/_meta/text/zpa/zpa.troubleshooting.md (Troubleshooting ZPA access: from symptom to layer)

@@ -1,0 +1,42 @@
+# ZIA Sandbox Verdict log (NSS Sandbox Verdict feed) (zia/sandbox-verdict-log)
+Also called: nss sandbox verdict log; zia sandbox verdict logs
+- Names: nss `sandbox-verdict`
+- time string: The log time (i.e., when a transaction is logged by the Zscaler Nanolog)
+- ss string: Seconds (0–59)
+- mm string: Minutes (0–59)
+- hh string: Hours (0–23)
+- day string: The day of the week
+- dd string: The day of the month (1–31)
+- mon string: The name of the month
+- mth string: The month of the year
+- yyyy string: Year
+- int_time string: The log time (i.e., when a transaction is logged by the Zscaler Nanolog) in integer format
+- rtime string: The feed time (i.e., when a transaction is received by the NSS from the Nanolog)
+- rss string: Seconds (0–59) as recorded in the feed time (%s{rtime})
+- rmm string: Minutes (0–59) as recorded in the feed time (%s{rtime})
+- rhh string: Hours (0–23) as recorded in the feed time (%s{rtime})
+- rday string: The day of the week as recorded in the feed time (%s{rtime})
+- rdd string: The day of the month (1–31) as recorded in the feed time (%s{rtime})
+- rmon string: The name of the month as recorded in the feed time (%s{rtime})
+- rmth string: The month of the year as recorded in the feed time (%s{rtime})
+- ryyyy string: Year as recorded in the feed time (%s{rtime})
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- eventtime string: The event time (i.e., when the Sandbox analysis response is processed by the Public Service Edge for Internet Access (ZIA)). The Public Service Edge sends the payload to the Sandbox for analysis at time X and processes the response from the Sandbox at time X+2, which is the event time.
+- int_eventtime string: The event time (i.e., when the Sandbox analysis response is processed by the Public Service Edge for Internet Access) in integer format
+- datacenter string: The name of the data center
+- datacentercity string: The city where the data center is located
+- datacentercountry string: The country where the data center is located
+- company string: The name of the company
+- recordid string: The unique record identifier
+- analysis_completed_time string: The timestamp of when the Sandbox analysis of the payload is completed
+- int_analysis_completed_time string: The timestamp of when the Sandbox analysis of the payload is completed in integer format
+- filetype string: The file type
+- filetypecategory string: The file type category
+- file_md5 string: The file MD5 hash
+- bamd5url string: The encoded link to the Sandbox MD5 report, which can be retrieved using the Sandbox Submission API. This field is included in the feed output by default.
+- file_sha256 string: The file SHA-256 hash
+- verdict string: The verdict of the Sandbox analysis. Verdicts include Benign, Suspicious, Threat Category, or Sandbox subtypes (i.e., Ransomware, Sandbox Offensive Security Tools, etc.). Sent for Analysis is not included.
+- threatname string: The name of the threat that was detected in the transaction, if any
+- children_md5_values string: If the file is an archive file (e.g., ZIP), the field displays the MD5 hashes of its child files; otherwise, the field displays Null.
+- mitre_tactics string: The MITRE ATT&CK Tactics IDs. The field can display None for various reasons, such as: There is no active content in the file. The file does not contain any threats.
+- mitre_tekniks string: The MITRE ATT&CK Techniques IDs. The field can display None for various reasons, such as: There is no active content in the file. The file does not contain any threats.

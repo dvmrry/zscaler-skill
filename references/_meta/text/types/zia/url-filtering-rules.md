@@ -1,0 +1,47 @@
+# zia/url-filtering-rules (zia/url-filtering-rules)
+- Names: zscalerctl `zia url-filtering-rules`; terraform `zia_url_filtering_rules`; terraform_data_source `zia_url_filtering_rules`
+- Live read (read-only): `zscalerctl zia url-filtering-rules list`
+- action string: Action taken when traffic matches the rule criteria.
+- blockOverride boolean: When true, a BLOCK action triggered by the rule could be overridden.
+- browserEunTemplateId
+- cbiProfile
+- cbiProfileId
+- ciparule
+- departments
+- description string: Additional information about the URL filtering rule.
+- deviceGroups
+- deviceTrustLevels
+- devices
+- endUserNotificationUrl
+- enforceTimeValidity
+- groups
+- httpHeaderActionProfiles
+- httpHeaderProfiles
+- id integer: URL filtering rule ID.
+- labels array<reference>: The URL filtering rule's labels; labels logically group policy rules.
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations array<reference>: Name-ID pairs of locations for which the rule must be applied.
+- name string: Rule name.
+- order integer: Order of execution of the rule with respect to other URL filtering rules.
+- overrideGroups
+- overrideUsers
+- protocols array<string>: Protocol criteria.
+- rank
+- requestMethods array<string>: Request methods for which the rule must be applied. If not set, the rule is applied to all methods.
+- sizeQuota
+- sourceCountries
+- sourceIpGroups
+- state string: Rule state.
+- timeQuota
+- timeWindows
+- urlCategories array<string>: List of URL categories for which the rule must be applied.
+- urlCategories2
+- userAgentTypes
+- userRiskScoreLevels
+- users
+- validityEndTime
+- validityStartTime
+- validityTimeZoneId
+- workloadGroups

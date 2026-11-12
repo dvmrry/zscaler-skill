@@ -1,0 +1,35 @@
+# What a ZIA location is and what the console enforces for it (zia.locations.model)
+Also called: zia location; location management; known location; road warrior; location limits; ssl_scan_enabled location
+
+A location is the unit the service recognizes traffic by. A location identifies a network from which the organization sends internet traffic; the service checks whether arriving traffic comes from a configured (known) location or an unknown one (remote user traffic), and processes known-location traffic by the location's settings. [zia.locations.model:identifies-networks] When Zscaler Client Connector traffic matches none of a location's listed IP addresses, the location is tagged as Road Warrior in the logs. [zia.locations.model:road-warrior]
+
+What a location holds: A location associates a VPN credential, static IP address and GRE tunnel, Virtual Service Edges, and upload/download bandwidth limits, and enables per-location features: firewall control, AUP, Caution, authentication, and reading the XFF header from forwarded traffic. [zia.locations.model:what-a-location-holds] When a location is named in a policy, the policy is applied according to that location's time zone. [zia.locations.model:time-zone-in-policy] A location is most commonly defined by a static public IP; without one, it can be defined by subscribing to a dedicated proxy port or by an IPSec tunnel whose VPN credential is an FQDN. The CSV format likewise requires a location to have an IP, a VPN type and username, a dedicated port, or a Virtual Service Edge or cluster name. [zia.locations.model:without-static-ip] Whether a location is the forwarding-grouping primitive is partly answered [gap:zia.locations.model:forwarding-primitive-wording].
+
+One setting that no longer does what its name says: The per-location SSL Inspection flag (`sslScanEnabled`, Terraform `ssl_scan_enabled`) is deprecated and no longer affects SSL policy; it stays in the API payload for backward compatibility. [zia.locations.model:ssl-scan-flag-deprecated] So a statement that a rule or group "scopes by SSL Inspection on the location" has nothing behind it; check the SSL Inspection rules instead: [Where SSL inspection sits in ZIA web policy evaluation (the two passes)](kb:zia.ssl-inspection.pipeline).
+
+Scale: Per organization the console allows 32K locations and sublocations in total, location names and states of up to 128 characters, and 1,000 entries per CSV import. [zia.locations.model:org-limits] With thousands of locations or sublocations, the Locations page and any policy that selects locations can take noticeable time to load the full list. [zia.locations.model:large-lists-slow]
+
+Sublocations, groups and rule scoping each have their own subject: [Sublocations: what they are, the auto-created other sublocations, naming and limits](kb:zia.locations.sublocations), [Location groups: manual and dynamic, conditions, limits, predefined groups](kb:zia.locations.groups), [Which policies scope by location and location group](kb:zia.locations.rule-scoping). Firewall enablement per location is in [ZIA Firewall Control](kb:zia.firewall).
+
+Not known (open gaps):
+- Legacy description of a location as a forwarding-grouping primitive with MTU and SSL toggles [gap:zia.locations.model:forwarding-primitive-wording]: settled by source-read or tenant-data
+
+Area: zia.locations, its subjects in references/_meta/spine/zia/zia.locations.json
+
+Linked (open a file only if the answer needs it):
+- reached-via references/_meta/text/zia/zia.traffic-forwarding.gre.md (GRE tunnels to ZIA: requirements, bandwidth and deployment): A location associates a VPN credential, static IP address and GRE tunnel, Virtual Service Edges, and upload/download bandwidth limits, and enables per-location features: firewall control, AUP, Caution, authentication, and reading the XFF header from forwarded traffic. [zia.locations.model:what-a-location-holds]
+- reached-via references/_meta/text/zia/zia.traffic-forwarding.ipsec.md (IPSec tunnels to ZIA: limits, IKE and device settings): A location associates a VPN credential, static IP address and GRE tunnel, Virtual Service Edges, and upload/download bandwidth limits, and enables per-location features: firewall control, AUP, Caution, authentication, and reading the XFF header from forwarded traffic. [zia.locations.model:what-a-location-holds]
+- logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)): When Zscaler Client Connector traffic matches none of a location's listed IP addresses, the location is tagged as Road Warrior in the logs. [zia.locations.model:road-warrior]
+- interacts-with references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control): Firewall Control is enabled per location, so a location without it enabled gets no firewall policy enforcement. [zia.firewall:per-location]
+- reached-via references/_meta/text/zia/zia.private-service-edge.location-binding.md (Binding a Private Service Edge cluster to a Location, and the open-proxy hazard), from zia.locations: Adding a location to a Private Service Edge cluster allows transaction logs to be viewed, categorized and reported per cluster, lets the organization manage authentication settings, IP Surrogacy settings, XFF consumption and Location group settings for SSL inspection and web filtering policies, and maps traffic and enforcement in a NAT environment. [zia.private-service-edge.location-binding:location-benefits]
+- interacts-with references/_meta/text/zia/zia.time-intervals.timezone.md (Which time zone a time interval is evaluated in): When a location is named in a policy, the policy is applied according to that location's time zone. [zia.locations.model:time-zone-in-policy]
+- reached-via references/_meta/text/zia/zia.virtual-service-edge.clusters.md (The Virtual Service Edge cluster: limits, object, build order and Location binding), from zia.locations: A Virtual Service Edge cluster, or a standalone Virtual Service Edge, is bound to a Location so the organization can enable authentication, firewall, SSL/TLS inspection and location-level policies; the service associates the traffic the Virtual Service Edge receives with that Location and applies its policies. [zia.virtual-service-edge.clusters:bind-to-location]
+- links-to references/_meta/text/zia/zia.locations.groups.md (Location groups: manual and dynamic, conditions, limits, predefined groups)
+- links-to references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group)
+- links-to references/_meta/text/zia/zia.locations.sublocations.md (Sublocations: what they are, the auto-created other sublocations, naming and limits)
+- links-to references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes))
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)
+- configured-via references/_meta/text/types/zia/locations-lite.md (config type)
+- see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)

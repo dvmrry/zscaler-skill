@@ -1,0 +1,20 @@
+# zia/dlp-edm-schemas (zia/dlp-edm-schemas)
+- Names: zscalerctl `zia dlp-edm-schemas`; terraform_data_source `zia_dlp_edm_schema`
+- Live read (read-only): `zscalerctl zia dlp-edm-schemas list`
+- cellsUsed
+- createdBy
+- edmClient
+- fileUploadStatus
+- filename
+- lastModifiedTime
+- modifiedBy
+- origColCount
+- originalFileName
+- projectName
+- revision
+- schedule
+- schedulePresent
+- schemaActive
+- schemaId
+- schemaStatus
+- tokenList

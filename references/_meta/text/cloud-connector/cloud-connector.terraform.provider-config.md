@@ -1,0 +1,60 @@
+# ZTC Terraform provider configuration: OneAPI or legacy credentials, environment variables, defaults and government clouds (cloud-connector.terraform.provider-config)
+Also called: ztc provider use_legacy_client; ZSCALER_USE_LEGACY_CLIENT ztc; ztc provider environment variables; ztc max_retries default; ztc provider fedramp; ztc zscaler_cloud gov; ztc_cloud; ztc oneapi only resources; ztc terraform version; zidentitygov ztc
+Former IDs: cloud-connector-16, cloud-connector-19
+
+The ZTC provider builds either a OneAPI client or a legacy ZTW client, chosen by one flag. The argument list and its validators are generated (`node scripts/kb.mjs surface provider:ztw`); this subject holds how the provider reads them, which defaults it really uses, and where its documentation disagrees with its code.
+
+**Choosing the framework.** The provider uses the legacy client when `use_legacy_client` is set, or, when that argument is not set, when `ZSCALER_USE_LEGACY_CLIENT` is `true` (case-insensitive); otherwise it builds the OneAPI client. [cloud-connector.terraform.provider-config:auth-mode-selection] Setting `use_legacy_client = false` in the provider block does not override `ZSCALER_USE_LEGACY_CLIENT=true`: the provider reads the argument with `GetOk`, which treats a false boolean as not set, and then falls back to the environment variable. [cloud-connector.terraform.provider-config:explicit-false-defers-to-env]
+
+**OneAPI credentials.** In OneAPI mode the provider needs a client ID and a vanity domain together with either a client secret or a private key; any other combination fails with "invalid authentication configuration: missing required parameters". It passes `zscaler_cloud` to the SDK only when it is non-empty. [cloud-connector.terraform.provider-config:oneapi-required-values] Each OneAPI argument left empty is taken from an environment variable: `client_id` from `ZSCALER_CLIENT_ID`, `client_secret` from `ZSCALER_CLIENT_SECRET`, `private_key` from `ZSCALER_PRIVATE_KEY`, `vanity_domain` from `ZSCALER_VANITY_DOMAIN`, `zscaler_cloud` from `ZSCALER_CLOUD`, and `http_proxy` from `ZSCALER_HTTP_PROXY`. [cloud-connector.terraform.provider-config:oneapi-env-vars] The documentation says `private_key` may be a file path or the key itself, in PKCS#1 or PKCS#8 unencrypted form, and conflicts with `client_secret`. [cloud-connector.terraform.provider-config:private-key-format] The documentation says `zscaler_cloud` is not needed for the production commercial clouds, is `beta` for the test commercial cloud, and is `gov` or `govus` for the FedRAMP clouds. [cloud-connector.terraform.provider-config:zscaler-cloud-values]
+
+**Legacy credentials.** In legacy mode the provider requires `username`, `password`, `api_key` and `ztc_cloud`, each from its argument or from `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY` or `ZTC_CLOUD`, and fails configuration with an error naming the missing value. [cloud-connector.terraform.provider-config:legacy-required-values] The documentation says the legacy `api_key` is the obfuscated API key from the portal's API key management page and requires the `Z_API` SKU. [cloud-connector.terraform.provider-config:api-key-sku] The legacy host is described differently by the provider documentation and the SDK [divergence:cloud-connector.terraform.provider-config:legacy-base-url]; the SDK's legacy client and its session handling are in [Reaching and signing in to the Cloud Connector API: OneAPI, legacy ZTC credentials and government clouds](kb:cloud-connector.api.authentication).
+
+**Which resources need OneAPI.** The documentation for `ztc_traffic_forwarding_dns_rule` and `ztc_traffic_forwarding_log_rule` (resources and data sources) says each is available only via OneAPI; the `ztc_traffic_forwarding_rule` pages carry no such note. [cloud-connector.terraform.provider-config:dns-log-rules-oneapi-only] The legacy API overview documents DNS forwarding rule, log and control forwarding rule, and policy management (traffic forwarding rule) resources, with create and update operations. [cloud-connector.terraform.provider-config:legacy-api-documents-rules] The SDK calls that fail when only the legacy ZTW client exists (activation status, provisioning URL writes) are in [Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects](kb:cloud-connector.sdk-go.service-defects). Whether the rule resources work through the provider's legacy client is open [gap:cloud-connector.terraform.provider-config:legacy-mode-rule-resources].
+
+**Defaults.** The retry default differs between the documentation and the code [divergence:cloud-connector.terraform.provider-config:max-retries-default]. The `parallelism` setting changes nothing: [ZTC Terraform provider: configuration, field handling and read behavior](kb:cloud-connector.terraform.provider-behavior).
+
+**Government (FedRAMP) clouds.** The SDK's government routes are in [Reaching OneAPI on government (FedRAMP) and non-production clouds](kb:shared.oneapi.government-clouds). The Go SDK changelog records OneAPI support for the government (FedRAMP) clouds through `cloud=gov` and `cloud=govus` in release 3.8.39; before it those clouds produced non-resolvable hostnames. [cloud-connector.terraform.provider-config:gov-routes-added-3-8-39] The provider passes a non-empty `zscaler_cloud` to the SDK unchanged, and v0.2.0 is built with SDK v3.8.40, which already builds the gov and govus OneAPI routes, so setting `zscaler_cloud` to `gov` or `govus` sends authentication and API calls to the government hosts. [cloud-connector.terraform.provider-config:provider-carries-gov-routes] The provider's main documentation page says OneAPI and ZIdentity now support the government (FedRAMP) clouds through `cloud=gov` and `cloud=govus`. [cloud-connector.terraform.provider-config:docs-claim-gov-support] The provider's resource-importer guide, which documents the separate zscaler-terraformer tool, says OneAPI and ZIdentity are not currently supported for the ZIA/ZTC clouds `zscalergov` and `zscalerten` or the ZPA clouds `GOV` and `GOVUS`, and points to the legacy framework there. [cloud-connector.terraform.provider-config:importer-guide-no-gov] The version floors the documentation gives, v4.0.0 for legacy compatibility and >=v4.7.25 for FedRAMP, are not releases of this provider, whose changelog runs through 0.x releases to 0.2.0; they read as copied from another provider's documentation. [cloud-connector.terraform.provider-config:version-floors-not-ztc] Whether a ZTW tenant on gov or govus accepts OneAPI calls is open [gap:cloud-connector.terraform.provider-config:fedramp-live-acceptance].
+
+**Terraform version.** The changelog for release 0.2.0 gives the supported Terraform version as v1.x. [cloud-connector.terraform.provider-config:terraform-version]
+
+How the provider stores and logs secrets is in [How the Zscaler Terraform providers store, log, and send secrets](kb:shared.terraform.credential-handling); how it builds its client twice is in [ZTC Terraform provider: configuration, field handling and read behavior](kb:cloud-connector.terraform.provider-behavior).
+
+What to check:
+1. Whether use_legacy_client or ZSCALER_USE_LEGACY_CLIENT=true is in effect, remembering that use_legacy_client = false does not override the environment variable.
+2. For OneAPI, that client ID, vanity domain and exactly one of client secret or private key reach the provider, from arguments or ZSCALER_* variables.
+3. For legacy mode, that username, password, API key and ztc_cloud are set (ZTC_* variables) and that the configuration does not manage DNS or log forwarding rules, which the documentation lists as OneAPI only.
+4. For a government tenant, whether OneAPI on gov or govus has been confirmed for ZTW before moving off legacy credentials.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [cloud-connector.terraform.provider-config:explicit-false-defers-to-env] Tier B: Rests on the Terraform plugin SDK's documented behavior that GetOk returns ok=false for a zero value (false for a bool); not run against the provider.
+- [cloud-connector.terraform.provider-config:dns-log-rules-oneapi-only] Tier B: Absence: the provider's docs/resources and docs/data-sources pages were searched at the pin for OneAPI; only the four DNS-rule and log-rule pages carry the note.
+- [cloud-connector.terraform.provider-config:provider-carries-gov-routes] Tier B: Route construction only; this does not show that the ZTW API accepts the calls there (see the gap).
+- [cloud-connector.terraform.provider-config:version-floors-not-ztc] Tier B: Compared the version strings in docs/index.md with the release headings in CHANGELOG.md at the pin (latest 0.2.0). That they were copied is an inference.
+
+Sources disagree (name both sides):
+- The documentation gives `max_retries` a default of 5; the code's default retry count is 30, passed to the SDK's rate-limit retry setting. [divergence:cloud-connector.terraform.provider-config:max-retries-default]
+  - tf-ztc: max_retries defaults to 5.
+  - tf-ztc: With max_retries unset, the provider's retry count is 30, and that value is what it passes to WithRateLimitMaxRetries.
+  Impact: An operator sizing retries from the documentation expects 5; an unset max_retries actually allows 30 rate-limit retries.
+- The documentation describes the legacy API host as a zsapi host for the cloud name; the SDK's legacy ZTW client builds a connector.<cloud>.net host. [divergence:cloud-connector.terraform.provider-config:legacy-base-url]
+  - tf-ztc: The host and base path for the legacy API is $zsapi.<cloud name>/api/v1.
+  - sdk-go: The legacy ZTW client sends requests to https://connector.<cloud>.net/api/v1.
+  Impact: Firewall or proxy allow-lists built from the documentation name the wrong host for legacy-mode traffic.
+  Resolved (source-rank) by cloud-connector.api.authentication:go-legacy-host: The SDK code is what the provider runs.
+
+Not known (open gaps):
+- Whether a ZTW tenant on the gov or govus cloud accepts OneAPI calls through the ZTC provider [gap:cloud-connector.terraform.provider-config:fedramp-live-acceptance]: settled by lab-test or source-read. Blocks: Whether a government Cloud and Branch Connector tenant can move from legacy credentials to OneAPI with this provider.
+- Whether the ZTC rule resources work through the provider's legacy client [gap:cloud-connector.terraform.provider-config:legacy-mode-rule-resources]: settled by lab-test. Blocks: Whether a legacy-mode configuration can manage forwarding, DNS and log forwarding rules.
+
+Area: cloud-connector.terraform, its subjects in references/_meta/spine/cloud-connector/cloud-connector.terraform.json
+
+Linked (open a file only if the answer needs it):
+- depends-on references/_meta/text/cloud-connector/cloud-connector.api.authentication.md (Reaching and signing in to the Cloud Connector API: OneAPI, legacy ZTC credentials and government clouds): The provider uses the legacy client when `use_legacy_client` is set, or, when that argument is not set, when `ZSCALER_USE_LEGACY_CLIENT` is `true` (case-insensitive); otherwise it builds the OneAPI client. [cloud-connector.terraform.provider-config:auth-mode-selection]
+- links-to references/_meta/text/cloud-connector/cloud-connector.terraform.provider-behavior.md (ZTC Terraform provider: configuration, field handling and read behavior)
+- links-to references/_meta/text/cloud-connector/cloud-connector.sdk-go.service-defects.md (Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects)
+- links-to references/_meta/text/shared/shared.oneapi.government-clouds.md (Reaching OneAPI on government (FedRAMP) and non-production clouds)
+- links-to references/_meta/text/shared/shared.terraform.credential-handling.md (How the Zscaler Terraform providers store, log, and send secrets)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/cloud-connector/cloud-connector.terraform.activation.md (Activating ZTC changes from Terraform: the activation resource and the ztcActivator CLI)

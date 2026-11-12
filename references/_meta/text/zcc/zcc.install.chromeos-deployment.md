@@ -1,0 +1,27 @@
+# Deploying Client Connector on ChromeOS and ChromeOS Flex through the Google Admin console (zcc.install.chromeos-deployment)
+Also called: zcc chromeos flex; zcc chromebook; zcc google workspace chromeos; chromeos flex arcvm zcc
+
+Zscaler supports ChromeOS Flex for managed devices through ChromeOS Device Management, which is accessible through the Google Admin console. [zcc.install.chromeos-deployment:flex-support]
+
+**ChromeOS Flex requirements.** To run Client Connector with ChromeOS Flex, a device needs 16 GB of RAM, a 32 GB or larger solid-state storage device, an AMD-based device from 2019 or later or an Intel-based device from 2017 (Kaby Lake +) or later (excluding Ice Lake), and hardware virtualization enabled in the BIOS. [zcc.install.chromeos-deployment:flex-hardware] The ChromeOS Flex guide's prerequisites are that ChromeOS Flex is installed on the device, the device is enrolled in the Google Admin console, and the device is updated to the minimum ChromeOS Flex version 135. [zcc.install.chromeos-deployment:flex-prerequisites] Android Runtime for Chrome controls preloading a VM (ArcVM) image to devices running ChromeOS Flex, ArcVM being the current method for booting Android under ChromeOS; selecting Enable ArcVM image preloading is required to deploy and run Client Connector on ChromeOS Flex. [zcc.install.chromeos-deployment:flex-arcvm]
+
+**Force install and Always on VPN.** ChromeOS Flex requires a force install of Client Connector for users in the organization, with Installation policy Force install + pin to ChromeOS taskbar or Force install; the Google Workspace guide selects the Client Connector - Chromebook app from the Google Play Store and Force install to install the application at the endpoint. [zcc.install.chromeos-deployment:force-install] On ChromeOS Flex, Client Connector uses the ChromeOS Flex Android VPN app to establish and maintain a secure connection to the internet and the Zscaler cloud, and Client Connector - Chromebook is selected in the Select an Always on VPN app window. The page says only apps with the Installation Policy Force install appear in the search when selecting the app, and users might be required to restart Chromebooks for the changes to be applied. [zcc.install.chromeos-deployment:always-on-vpn]
+
+**Install parameters.** Google Workspace deployment needs a required license for managing ChromeOS devices before deployment, and the app's Managed configuration takes parameters as JSON; the vendor's example has userDomain, cloudName zscalerone, autoEnrollWithMDM "1", deviceToken and externalDeviceId ${DEVICE_SERIAL_NUMBER}. [zcc.install.chromeos-deployment:workspace-managed-config] The parameter behavior itself is in [On Android, autoEnrollWithMDM configures auto-enrollment without user interaction when Client Connector is the IdP: 0 disables it, 1 always auto-enrolls, even after logout, and 2 auto-enrolls once. With 1 or 2, deviceToken, cloudName and userDomain must be set; without userName, or without the contacts permission granted from the MDM, users are prompted to give Zscaler access to their contacts so it can read the Google account username.](kb:zcc.install.enrollment:android-auto-enroll).
+
+**Certificates.** The ChromeOS Flex certificate steps are in [The ChromeOS Flex guide says the certificates must be installed manually on ChromeOS Flex, Android and iOS devices, or using the Google Admin console; for ChromeOS Flex, the certificate is uploaded in the Google Admin console under Devices > Networks for an organizational unit, in the Certificates section, selecting the platform for which the certificate acts as a certificate authority.](kb:zcc.ssl-inspection.certificate-install:chromeos-flex); the general certificate deployment is in [Who installs the SSL inspection certificate on Client Connector devices, per platform](kb:zcc.ssl-inspection.certificate-install).
+
+**Open points.** Requirements for ChromeOS devices other than Flex, and whether ArcVM preloading is needed outside Flex, are open [gap:zcc.install.chromeos-deployment:non-flex-requirements].
+
+Not known (open gaps):
+- Requirements for ChromeOS devices other than Flex, and ArcVM outside Flex [gap:zcc.install.chromeos-deployment:non-flex-requirements]: settled by source-read or support-ticket
+
+Area: zcc.install, its subjects in references/_meta/spine/zcc/zcc.install.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/zcc/zcc.ssl-inspection.certificate-install.md (Who installs the SSL inspection certificate on Client Connector devices, per platform)
+- links-to references/_meta/text/zcc/zcc.install.enrollment.md (Install parameters that identify the tenant and user at enrollment)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zcc/zcc.install.md (Client Connector install parameters and deployment)
+- see-also references/_meta/text/zcc/zcc.install.android-deployment.md (Deploying Client Connector on Android through an MDM: Android Enterprise, the APK, minimum OS and Always-on VPN)

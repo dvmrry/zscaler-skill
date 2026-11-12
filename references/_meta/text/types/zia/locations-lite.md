@@ -1,0 +1,22 @@
+# zia/locations-lite (zia/locations-lite)
+- Names: zscalerctl `zia locations-lite`; terraform_data_source `zia_location_lite`
+- Live read (read-only): `zscalerctl zia locations-lite list`
+- aupBlockInternetUntilAccepted
+- aupEnabled
+- aupForceSslInspection
+- cautionEnabled
+- digestAuthEnabled
+- ecLocation
+- id
+- iotDiscoveryEnabled
+- ipsControl
+- kerberosAuth
+- name
+- ofwEnabled
+- otherSubLocation
+- parentId
+- surrogateIP
+- surrogateIPEnforcedForKnownBrowsers
+- tz
+- xffForwardEnabled
+- zappSslScanEnabled

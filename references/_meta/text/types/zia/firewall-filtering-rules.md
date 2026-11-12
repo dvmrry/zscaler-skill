@@ -1,0 +1,46 @@
+# zia/firewall-filtering-rules (zia/firewall-filtering-rules)
+- Names: zscalerctl `zia firewall-filtering-rules`; terraform `zia_firewall_filtering_rule`; terraform_data_source `zia_firewall_filtering_rule`
+- Live read (read-only): `zscalerctl zia firewall-filtering-rules list`
+- accessControl
+- action
+- appServiceGroups
+- appServices
+- defaultRule
+- departments
+- description
+- destAddresses
+- destCountries
+- destIpCategories
+- destIpGroups
+- deviceGroups
+- deviceTrustLevels
+- devices
+- enableFullLogging
+- eunTemplateId
+- excludeContextShieldEndPoint
+- excludeSrcCountries
+- groups
+- id
+- isEunEnabled
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- nwApplicationGroups
+- nwApplications
+- nwServiceGroups
+- nwServices
+- order
+- predefined
+- rank
+- sourceCountries
+- srcIpGroups
+- srcIps
+- state
+- timeWindows
+- users
+- workloadGroups
+- zpaAppSegments
+- zpaAppSegments.externalId

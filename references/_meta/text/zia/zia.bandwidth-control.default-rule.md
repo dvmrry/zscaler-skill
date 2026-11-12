@@ -1,0 +1,36 @@
+# The default rule and unreferenced classes (zia.bandwidth-control.default-rule)
+Also called: default bandwidth rule; orphan bandwidth class; new bandwidth class capped; unreferenced bandwidth class
+
+Every location's policy ends with a default rule. The Bandwidth Control policy contains a default rule that can be edited but not deleted. [zia.bandwidth-control.default-rule:editable-not-deletable] The default rule's priority cannot be changed; the service always applies it last. Its minimum and maximum bandwidth limits can be edited. [zia.bandwidth-control.default-rule:always-last] The default rule includes all internet traffic not covered by other rules. By default it is not guaranteed any bandwidth but can consume up to 100% when available. [zia.bandwidth-control.default-rule:default-terms] Besides the default rule, which can be edited but not deleted, the Bandwidth Control policy has two predefined rules that can be edited or deleted; administrator-defined rules can also be edited or deleted. [zia.bandwidth-control.default-rule:two-predefined-rules] The article does not name those two rules [gap:zia.bandwidth-control.default-rule:predefined-rules-unnamed].
+
+**Unreferenced classes.** A custom bandwidth class that is not used in any policy for a location is added to that location's default Bandwidth Control rule. [zia.bandwidth-control.default-rule:orphan-class] An unreferenced custom class therefore gets whatever minimum and maximum the location's default rule carries; if an administrator has tightened the default rule, the new class is capped by it, and if the default rule is generous the class is not capped at all. [zia.bandwidth-control.default-rule:orphan-takes-default-terms] Whether an unreferenced predefined class is treated the same way is open [gap:zia.bandwidth-control.default-rule:predefined-unreferenced]. Whether the API lists unreferenced custom classes on the default rule is open [gap:zia.bandwidth-control.default-rule:orphan-api-visibility].
+
+How rules and classes otherwise combine: [Bandwidth Control rules: terms, order and rank](kb:zia.bandwidth-control.rules), [Bandwidth classes: what a class is and which exist](kb:zia.bandwidth-control.classes). What the default rule's minimum and maximum mean under load: [How Bandwidth Control allocates bandwidth: minimum, maximum, contention](kb:zia.bandwidth-control.allocation).
+
+What to check:
+1. Whether the location's default rule minimum and maximum are the terms the traffic is expected to get, since a class with no explicit rule is held by them.
+2. Whether the class appears in any explicit rule, since an unreferenced custom class falls into the default rule.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.bandwidth-control.default-rule:orphan-takes-default-terms] Tier B: Derived: the class joins the default rule and the default rule covers traffic outside other rules. No source shows a tightened default rule applied to an orphan class.
+
+Not known (open gaps):
+- Which two rules are the predefined Bandwidth Control rules [gap:zia.bandwidth-control.default-rule:predefined-rules-unnamed]: settled by tenant-data or source-read
+- Unreferenced predefined classes [gap:zia.bandwidth-control.default-rule:predefined-unreferenced]: settled by lab-test or tenant-data
+- How an unreferenced class shows in the rule API [gap:zia.bandwidth-control.default-rule:orphan-api-visibility] (data gap): filled by live; run `zscalerctl zia bandwidth-control-rules list`; settled by tenant-data
+
+Area: zia.bandwidth-control, its subjects in references/_meta/spine/zia/zia.bandwidth-control.json
+
+Linked (open a file only if the answer needs it):
+- decided-by references/_meta/text/zia/zia.bandwidth-control.rules.md (Bandwidth Control rules: terms, order and rank): The default rule's priority cannot be changed; the service always applies it last. Its minimum and maximum bandwidth limits can be edited. [zia.bandwidth-control.default-rule:always-last]
+- decided-by references/_meta/text/zia/zia.bandwidth-control.allocation.md (How Bandwidth Control allocates bandwidth: minimum, maximum, contention), from zia.bandwidth-control: The service distributes bandwidth rule by rule from top to bottom looking at the minimum first, then passes through each rule a second time to allocate what remains according to the maximums. [zia.bandwidth-control.allocation:two-pass]
+- interacts-with references/_meta/text/zia/zia.bandwidth-control.classes.md (Bandwidth classes: what a class is and which exist): An unreferenced custom class therefore gets whatever minimum and maximum the location's default rule carries; if an administrator has tightened the default rule, the new class is capped by it, and if the default rule is generous the class is not capped at all. [zia.bandwidth-control.default-rule:orphan-takes-default-terms]
+- scoped-by references/_meta/text/zia/zia.bandwidth-control.location-scope.md (Which traffic Bandwidth Control covers: locations and limits), from zia.bandwidth-control: Bandwidth controls apply to traffic from configured locations only. They do not apply to remote users, whose traffic does not come from a configured location and whose source IP has unknown upload and download bandwidth. [zia.bandwidth-control.location-scope:known-locations-only]
+- interacts-with references/_meta/text/zia/zia.firewall.traffic-path.md (Where the firewall sits in the traffic path), from zia.bandwidth-control: Traffic blocked by the Firewall module or by an earlier web policy never reaches Bandwidth Control, so Bandwidth Control only shapes transactions that every earlier stage allowed. [zia.bandwidth-control.pipeline-position:only-surviving-traffic]
+- depends-on references/_meta/text/zia/zia.locations.bandwidth.md (How a location and its sublocations share bandwidth limits), from zia.bandwidth-control: Bandwidth Control rules therefore shape a location's traffic only where that location enforces Bandwidth Control and has limits; with the switch off, rules and classes for that location have no effect. [zia.bandwidth-control.location-scope:toggle-gates-rules]
+- scoped-by references/_meta/text/zia/zia.time-intervals.rule-usage.md (Which ZIA rules take a time interval, and how many), from zia.bandwidth-control: These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP. [zia.time-intervals.rule-usage:rule-types]
+- interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.bandwidth-control: Bandwidth Control is the final entry in the ordered policy lists the web module applies to HTTP GET and POST requests, to responses, and to the domain-only pass on CONNECT or SNI. [zia.bandwidth-control.pipeline-position:last-in-web-order]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/bandwidth-control-rules.md (config type)
+- configured-via references/_meta/text/types/zia/bandwidth-classes.md (config type)

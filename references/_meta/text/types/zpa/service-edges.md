@@ -1,0 +1,47 @@
+# zpa/service-edges (zpa/service-edges)
+- Names: zscalerctl `zpa service-edges`; terraform_data_source `zpa_service_edge_controller`
+- Live read (read-only): `zscalerctl zpa service-edges list`
+- applicationStartTime
+- controlChannelStatus
+- creationTime
+- ctrlBrokerName
+- currentVersion
+- description
+- enabled
+- expectedUpgradeTime
+- expectedVersion
+- fingerprint
+- id
+- ipAcl
+- issuedCertId
+- lastBrokerConnectTime
+- lastBrokerConnectTimeDuration
+- lastBrokerDisconnectTime
+- lastBrokerDisconnectTimeDuration
+- lastUpgradeTime
+- latitude
+- listenIps
+- location
+- longitude
+- microtenantId
+- microtenantName
+- modifiedBy
+- modifiedTime
+- name
+- platform
+- platformDetail
+- previousVersion
+- privateBrokerVersion
+- privateBrokerVersion.serviceEdgeGroupId
+- privateIp
+- provisioningKeyId
+- provisioningKeyName
+- publicIp
+- publishIps
+- publishIpv6
+- runtimeOS
+- sargeVersion
+- serviceEdgeGroupId
+- serviceEdgeGroupName
+- upgradeAttempt
+- upgradeStatus

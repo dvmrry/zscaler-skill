@@ -1,0 +1,183 @@
+# ZIA web log (NSS web feed) (zia/web-log)
+Also called: nss web log; zia web logs; web insights logs; zia proxy logs
+- Names: nss `web`
+- time (Logged Time) string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59) (Insights: This field is derived from Logged Time)
+- mm integer: Minutes (0–59) (Insights: This field is derived from Logged Time)
+- hh integer: Hours (0–23) (Insights: This field is derived from Logged Time)
+- dd integer: The day of the month (1–31) (Insights: This field is derived from Logged Time)
+- mth integer: The month of the year (Insights: This field is derived from Logged Time)
+- yyyy integer: Year (Insights: This field is derived from Logged Time)
+- mon string: The name of the month (Insights: This field is derived from Logged Time)
+- day string: The day of the week (Insights: This field is derived from Logged Time)
+- epochtime integer: The epoch time of the transaction
+- login (User) string: The user's login name in email address format
+- dept (Department) string: The department of the user
+- company string: The name of the company (Insights: This field is specific to NSS)
+- cloudname string: The name of the Zscaler cloud (Insights: This field is specific to NSS)
+- txn_delay_req (Request latency due to bandwidth control (ms)) integer: Displays the bandwidth transaction request delay in milliseconds
+- txn_delay_resp (Response latency due to bandwidth control (ms)) integer: Displays the bandwidth transaction response delay in milliseconds
+- throttlereqsize (Throttled request bytes) integer: The throttled transaction size in the Uplink direction (Upload) in bytes
+- throttlerespsize (Throttled response bytes) integer: The throttled transaction size in the Downlink direction (Download) in bytes
+- bwthrottle string: Indicates whether the transaction was throttled due to a configured bandwidth policy
+- bwclassname (Bandwidth Class) string: The name of the bandwidth class
+- bwrulename (Bandwidth Rule) string: The name of the bandwidth rule
+- appname (Cloud Application) string: The name of the cloud application
+- appclass (Cloud Application Class) string: The cloud application category of the application that was accessed
+- app_risk_score (Risk Index) string: The computed or assigned risk index for the cloud application, with 1 being the lowest risk and 5 being the highest. If the risk index is not available, the field displays None.
+- app_status (Application Status) string: The status of the cloud application
+- activity (Application Activity) string: The name of the action the user performed on the application
+- prompt_req (Prompt) string: The prompt entered by the user in the generative AI application
+- prompt_class (Prompt Classification) string: The type or category assigned to the user's input prompt in the generative AI application
+- inst_level1_type (App Instance Level 1 Type) string: The level 1 type (e.g., Organization for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.
+- inst_level1_id (App Instance Level 1) string: The level 1 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.
+- inst_level1_name string: Additional information regarding the discovered cloud application instance, if available.
+- inst_level2_type (App Instance Level 2 Type) string: The level 2 type (e.g., Project for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.
+- inst_level2_id (App Instance Level 2) string: The level 2 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.
+- inst_level2_name string: Additional information regarding the discovered cloud application instance, if available.
+- inst_level3_type (App Instance Level 3 Type) string: The level 3 type (e.g., Resource Type for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.
+- inst_level3_id (App Instance Level 3) string: The level 3 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.
+- inst_level3_name string: Additional information regarding the discovered cloud application instance, if available.
+- datacenter (Data Center) string: The name of the data center
+- datacentercity string: The city where the data center is located
+- datacentercountry string: The country where the data center is located
+- dlpdict (DLP Dictionaries) string: The DLP dictionaries that were matched, if any
+- dlpdicthitcount string: The number of hits for each of the dictionaries that were matched in the transaction
+- dlpeng (DLP Engine) string: The DLP engine that was matched, if any
+- dlpidentifier (DLP Identifier) integer: The unique DLP identifier of the transaction. Whenever a DLP rule is triggered, and the appropriate alert is configured, an email containing this ID is sent to your auditors. This field is not populated if %d{exempt_dlpidentifier} is populated.
+- exempt_dlpidentifier (Exempted DLP Identifier) integer: The unique DLP identifier of the transaction. This field is populated in cases where the DLP scan times out, exempting the transaction from policy enforcement. This field is not populated if %d{dlpidentifier} is populated.
+- dlpmd5 (DLP MD5) string: The MD5 hash of the transaction
+- dlprulename (Allowed DLP Rule Name) string: The name of the DLP rule applied to the transaction. Applies only to Allow rules, not Block. To enable logging for DLP Allowed Rule Name, contact Zscaler Support.
+- trig_dlprulename string: The name of the DLP rule that triggered a transaction, which can be either allowed or blocked.
+- other_dlprulenames (Other DLP Rules) string: The names of all the DLP rules that were evaluated and passed, but no action was taken.
+- all_dlprulenames string: The names of all DLP rules whether they were triggered or not. This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}.
+- dlp_policy_action (DLP Policy Action) string: The DLP policy action that was taken on the transaction
+- dlp_confirm_just_str (DLP Confirmation Message) string: The message entered by a user to justify a transaction that triggers a DLP rule with the Confirm action
+- extranet_name (Extranet Resource) string: The name of the extranet resource associated with the transaction
+- ft_rulename (Allowed File Type Rule) string: The name of the File Type Control rule applied to the transaction. Applies only to Allow rules, not Block
+- fileclass string: The class of file downloaded during the transaction
+- filetype (Download File Type) string: The type of file downloaded during the transaction
+- filename (Download File Name) string: The name of downloaded files during the transaction
+- filesubtype string: The subtype of the downloaded file (extension name)
+- upload_fileclass string: The class of file uploaded during the transaction
+- upload_filetype (Upload File Type) string: The type of file uploaded during the transaction
+- upload_filename (Upload File Name) string: The name of uploaded files during the transaction
+- upload_filesubtype string: The subtype of the uploaded file (extension name)
+- upload_doctypename (Document Type) string: The type of document uploaded or downloaded during the transaction
+- upload_doc_sub_type (Subdocument Type) string: The subtype of the document uploaded or downloaded during the transaction
+- unscannabletype (Unscannable Type) string: The unscannable file type: Encrypted or password-protected (e.g., GZIP, PDF) Unscannable (e.g., corrupt archive) Undetectable (unable to determine the file type, based on multiple methods)
+- rdr_rulename (Forwarding Rule) string: The name of the redirect/forwarding policy
+- fwd_type (Forwarding Method) string: The type of forwarding method used
+- fwd_gw_name (Gateway Name) string: The name of the gateway defined in a forwarding rule
+- fwd_gw_ip (Gateway IP) string: The IP address of the gateway used
+- zpa_app_seg_name (Application Segment) string: The name of the Private Access (ZPA) application segment
+- reqdatasize integer: The size of the HTTP request payload, excluding the headers, in bytes
+- reqhdrsize integer: The size of the HTTP request header in bytes
+- reqsize (Sent Bytes) integer: The request size in bytes
+- respdatasize integer: The size of the HTTP response payload, excluding the headers, in bytes
+- resphdrsize integer: The size of the HTTP response header in bytes
+- respsize (Received Bytes) integer: The total size of the HTTP response, including the header and payload, in bytes
+- totalsize (Total Bytes) integer: The total size of the HTTP transaction in bytes. The sum of the total request size and total response size.
+- reqmethod (Request Method) string: The HTTP request method
+- reqversion (Request HTTP Version) string: The HTTP request version
+- respcode (Response Code) string: The HTTP response code sent to the client. The service generates a 403-Forbidden response for blocked transactions.
+- respversion (Response HTTP Version) string: The HTTP response version
+- referer (Referrer URL) string: The HTTP referrer URL
+- refererhost string: The hostname of the referrer URL
+- uaclass string: The user agent class
+- ua (User Agent) string: The full user agent string for both known and unknown agents. The user agent string contains browser and system information that the destination server can use to provide appropriate content.
+- ua_token string: The user agent token. This displays None if the user agent token doesn't exist.
+- host string: The destination hostname. If present, the host value in the HTTP request line populates this field. If the host value in the HTTP request line is not present, the host header is used.
+- url (URL) string: The destination URL. It excludes the protocol identifier (e.g., http:// or https://).
+- df_hostname (Domain Fronted SNI) string: An optional field that contains the TLS connection's Server Name Indication (SNI) in cases that the HTTPS request host header does not match the SNI. TLS Inspection must be enabled for this field to be populated. The field is present in the logs only if there is a mismatch.
+- df_hosthead (Domain Fronted Host Header) string: The field contains HTTP/S transactions that indicate domain fronting due to an FQDN mismatch between the request URL and the request's host header. The field is present in the logs only if there is a mismatch.
+- contenttype (Content Type) string: The name of the content type
+- mobappname (Mobile Application) string: The name of the mobile app, if any
+- mobappcat (Mobile Application Category) string: The category of the mobile app, if any
+- mobdevtype (Mobile Device Type) string: The type of mobile device
+- cip (Client IP) string: The IP address of the user. It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}.
+- cintip string: The client's internet (NATed Public) IP address. This is different from the %s{cip} value if the internal IP address is visible. Otherwise, it is the same as %s{cip}.
+- cpubip (Client External IP) string: The client public IP address
+- clt_sport (Client Source Port) integer: The client source port. To enable logging for Client Source Port, contact Zscaler Support.
+- srcip_country (Source IP Country) string: The country associated with the source IP address
+- dstip_country (Destination IP Country) string: The country associated with the destination IP address
+- is_src_cntry_risky string: Indicates whether the country associated with the source IP address is risky or not
+- is_dst_cntry_risky string: Indicates whether the country associated with the destination IP address is risky or not
+- sip (Server IP) string: The destination server IP address. This displays 0.0.0.0 if the request was blocked.
+- srv_dport (Server Destination Port) integer: The server destination port. To enable logging for Server Destination Port, contact Zscaler Support.
+- proto (Protocol) string: The protocol type of the transaction
+- alpnprotocol (ALPN Protocol) string: The Application-Layer Protocol Negotiation (ALPN) protocol
+- trafficredirectmethod (Traffic Forwarding) string: The traffic forwarding method to Public Service Edges for Internet Access (ZIA)
+- location (Location) string: The gateway location or sub-location of the source. To learn more, see About Locations.
+- userlocationname (User Location) string: Applicable to the web traffic processed via Zero Trust Browser (formerly Isolation). The field shows the actual traffic origination point, whereas the %s{location} field displays the isolation location. When the web traffic is not handled by Zero Trust Browser, the field value is None.
+- ruletype (Blocked Policy Type) string: The type of policy. Applies only to Block rules, not Allow.
+- rulelabel (Blocked Policy Name) string: The name of the rule that was applied to the transaction. Applies only to Block rules, not Allow.
+- action (Policy Action) string: The action that the service took on the transaction
+- reason string: The action that the service took and the policy that was applied, if the transaction was blocked. To learn more about the reasons for policy actions, see Policy Reasons.
+- urlfilterrulelabel (URL Filtering Policy Name) string: The name of the rule that was applied to the URL filter
+- apprulelabel (Cloud Application Policy Name) string: The name of the rule that was applied to the application
+- bamd5 (MD5) string: The MD5 hash of the malware file that was detected in the transaction, or the MD5 of the file that was sent for analysis to the Sandbox engine
+- sha256 (SHA-256) string: The hash of identical files
+- ssldecrypted (SSL/TLS Inspected) string: Indicates whether the transaction was SSL/TLS inspected or not
+- ssl_rulename (SSL/TLS Policy Name) string: The name of the SSL/TLS Inspection policy rule that was applied to the transaction
+- externalspr (SSL/TLS Policy Reason) string: The SSL/TLS policy reasons
+- keyprotectiontype (Intermediate CA Protection Type) string: Indicates whether an HSM Protection or a Software Protection intermediate CA certificate is used for the SSL/TLS interception
+- ja4_str (JA4 Fingerprint) string: The JA4 network fingerprint associated with the SSL/TLS connection. To enable logging for JA4 fingerprints, contact Zscaler Support.
+- clientsslcipher (Client Connection Cipher) string: The negotiated cipher suite for communication between the client and Zscaler
+- clienttlsversion (Client Connection TLS Version) string: The TLS version used for communication between the client and Zscaler
+- clientsslsessreuse (Client Session Reused) string: Client cipher reuse information
+- cltsslfailreason (Client SSL/TLS Handshake Failure Reason) string: The reason for the client SSL/TLS handshake failure
+- cltsslfailcount (Client SSL/TLS Handshake Failure Aggregate Count) integer: The number of failed client SSL/TLS handshake attempts
+- client_tls_keyex_pqc_offers integer: Indicates if the TLS client offered a post-quantum cryptography (PQC) key exchange algorithm
+- client_tls_keyex_non_pqc_offers integer: Indicates if the TLS client offered a non-PQC key exchange algorithm
+- client_tls_keyex_hybrid_offers integer: Indicates if the TLS client offered a hybrid key exchange algorithm
+- client_tls_keyex_unknown_offers integer: Indicates if the TLS client offered an unknown key exchange algorithm
+- client_tls_sig_pqc_offers integer: Indicates if the TLS client offered a PQC digital signature algorithm
+- client_tls_sig_non_pqc_offers integer: Indicates if the TLS client offered a non-PQC digital signature algorithm
+- client_tls_sig_hybrid_offers integer: Indicates if the TLS client offered a hybrid digital signature algorithm
+- client_tls_sig_unknown_offers integer: Indicates if the TLS client offered an unknown digital signature algorithm
+- client_tls_keyex_alg (Client Side Key Exchange Algorithm) string: The TLS client key exchange algorithm
+- client_tls_sig_alg (Client Side Digital Signature Algorithm) string: The TLS client digital signature algorithm
+- srvsslcipher (Server Connection Cipher) string: The negotiated cipher suite for communication between Zscaler and the server
+- srvtlsversion (Server Connection TLS Version) string: The SSL/TLS version used for communication between the Public Service Edge for Internet Access and the server
+- serversslsessreuse (Server Session Reused) string: Server cipher reuse information
+- srvocspresult (Server Connection OCSP Result) string: The OCSP result/certificate revocation result
+- srvcertchainvalpass (Server Connection Cert Chain Validity) string: The validation of the certificate chain
+- srvwildcardcert (Server Wildcard Certificate) string: The server wildcard certificate
+- srvcertvalidationtype (Server Certificate Validation Type) string: The validation method of the server certificate
+- srvcertvalidityperiod (Server Certificate Validity Period) string: The expiration of the server certificate
+- is_ssluntrustedca (Certificate Chain Validity) string: Indicates whether the server certificate is signed by a Zscaler-trusted certificate authority or not
+- is_sslselfsigned (Server Certificate Self Signed) string: Indicates whether the certificate presented by the server to the Public Service Edge for Internet Access was self-signed
+- is_sslexpiredca (Server Connection Cert Expiry) string: Indicates whether the certificate presented by the server is expired or not
+- server_tls_keyex_alg (Server Side Key Exchange Algorithm) string: The TLS server key exchange algorithm
+- server_tls_sig_alg (Server Side Digital Signature Algorithm) string: The TLS server digital signature algorithm
+- riskscore (Suspicious Content) integer: The Page Risk Index score of the destination URL. The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious. The range is 0–100, from the lowest to the highest risk.
+- threatseverity (Threat Severity) string: The severity of the threat that was detected in the transaction, if any. The severity relates to the Page Risk Index score. For example, if the value of %d{riskscore} is between 90 and 100, then the value of %s{threatseverity} is Critical.
+- threatname (Threat Name) string: The name of the threat that was detected in the transaction, if any
+- malwarecat (Threat Category) string: The category of malware that was detected in the transaction, if any. Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis.
+- malwareclass (Threat Super Category) string: The class of malware that was detected in the transaction, if any
+- ai_ml_detect_src (AI/ML Detection Source) string: The AI/ML detection source for the transaction
+- urlclass (URL Class) string: The class of the destination URL
+- urlsupercat (URL Super Category) string: The super category of the destination URL
+- urlcat (URL Category) string: The category of the destination URL
+- urlcatmethod (URL Categorization Method) string: Refers to the source of the URL's category. To learn more, see Web Insights Logs: Columns.
+- devicehostname (Device Hostname) string: The hostname of the device
+- devicemodel (Device Model) string: The model of the device
+- devicename (Device Name) string: The name of the device
+- devicetype (Device Type) string: The type of device
+- deviceostype (OS Type) string: The OS type of the device
+- deviceosversion (OS Version) string: The OS version the device uses
+- deviceowner (Device Owner) string: The owner of the device
+- deviceappversion (Enrolled Device appversion) string: The app version the device uses
+- ztunnelversion (Zscaler Client Connector Tunnel Version) string: The Z-Tunnel version
+- external_devid (External Device ID) string: The external device ID that associates a user’s device with the mobile device management (MDM) solution
+- bypassed_traffic (Bypassed Transaction) integer: Indicates whether the traffic bypassed the Zscaler Client Connector or not
+- bypassed_etime (Bypassed Transaction Event Time) string: The date and time when the traffic bypassed the Zscaler Client Connector
+- flow_type (Flow Type) string: The flow type of the transaction
+- recordid integer: The unique record identifier for each log (Insights: This field is specific to NSS)
+- pcapid (Capture) string: The path of the packet capture (PCAP) file that captured the transaction. The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>. The company ID is the internal ID of an organization and can be found on the Organization profile page. The directory is the log type. To download the PCAP file, go to the Capture column on the Web Insights Logs page.
+- productversion string: The current version of the product. Useful for SIEMs whose format requires the product internal version to be sent in the log output. (Insights: This field is specific to NSS)
+- nsssvcip string: The service IP address of the NSS. Useful for syslog-format logs that require the origin host IP address to be specified. (Insights: This field is specific to NSS)
+- eedone string: Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded (Insights: This field is specific to NSS)
+- Policy reasons: 121 reason strings from the Policy Reasons help article, which the reason field points to; each has its own file under `references/_meta/text/codes/`: search there for the reason's text

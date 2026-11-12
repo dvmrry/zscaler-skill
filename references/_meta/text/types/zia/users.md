@@ -1,0 +1,14 @@
+# zia/users (zia/users)
+- Names: zscalerctl `zia users`; terraform `zia_user_management`; terraform_data_source `zia_user_management`
+- Live read (read-only): `zscalerctl zia users list`
+- adminUser
+- authMethods
+- comments
+- deleted
+- department
+- email
+- groups
+- id
+- name
+- tempAuthEmail
+- type

@@ -1,0 +1,53 @@
+# ATP API: one settings object, two URL lists, and the field-name traps (zia.atp.api-surface)
+Also called: advancedThreatSettings; update_atp_settings; get_atp_settings; fileFormatVunerabilitesBlocked; cookieStealingPCAPEnabled; atp put replace; atp settings api; zia_advanced_threat_settings
+Former IDs: zia-61
+
+Reading or writing ATP through the API has three endpoints and several traps. ATP is three endpoints under cyberThreatProtection: advancedThreatSettings (one settings object), securityExceptions (the allowlist) and maliciousUrls (the denylist). The settings object and the allowlist are read with GET and written with PUT; the denylist is written with an action parameter. [zia.atp.api-surface:endpoints]
+
+**Shape.** The settings object has 48 flat properties. riskTolerance is an integer, blockedCountries an array, and the rest booleans; most threat classes have a Blocked flag and a Capture flag, and the exceptions are cookie stealing (cookieStealingPCAPEnabled) maliciousUrlsCapture (no Blocked partner), blockCountriesCapture and riskToleranceCapture (attached to blockedCountries and riskTolerance), and alertForUnknownOrSuspiciousC2Traffic (no Capture flag). [zia.atp.api-surface:settings-shape] Console-toggle-to-key pairs are in [ATP detection categories and what each toggle covers](kb:zia.atp.categories).
+
+**Two naming traps.** The file-format-vulnerability keys are misspelled on the wire: fileFormatVunerabilitesBlocked and fileFormatVunerabilitesCapture, missing the first l and an i. The Go fields are spelled correctly but their json tags carry the misspelled keys. The Python model's attributes and request_format use the misspelled keys, but update_atp_settings sends the caller's keyword arguments as the body and documents them as file_format_vulnerabilities_blocked and file_format_vulnerabilities_capture. [zia.atp.api-surface:misspelled-file-format-key] The cookie-stealing Capture flag is cookieStealingPCAPEnabled, not cookieStealingCapture, which the spec does not define. [zia.atp.api-surface:cookie-stealing-pcap-key]
+
+**Writing.** The Python update_atp_settings builds its request body from the keyword arguments alone, with no read and merge, and passes that body to the request. The MCP server describes the input as the complete ATP policy and tells callers to fetch and merge first. [zia.atp.api-surface:put-replaces-whole-object] The denylist is not a whole-object write: [ATP Blocked Malicious URLs list: capacity, matching and API](kb:zia.atp.blocked-urls). The allowlist is: [ATP Security Exceptions (the allowlist): what it skips and what it does not](kb:zia.atp.security-exceptions). The MCP server's ATP tools state that writes are staged until zia_activate_configuration is run, and the Python SDK PUT methods contain no activation call. [zia.atp.api-surface:writes-staged] MCP tools for these settings: [MCP server issue #61 asked for tools to read the ZIA Advanced Threat Protection policy, malware protection policy, advanced settings and mobile malware protection policy; it was closed as completed on 2026-05-17 with a reply signed Zscaler DevRel to upgrade to v0.12.1, and the changelog lists tools for ATP settings and security exceptions, malware protection, advanced settings and mobile advanced threat settings in the 0.12.0 section.](kb:shared.mcp-server.tool-inventory:mcp-atp-tools-request).
+
+Malware Protection uses a different shape: [Malware Protection API: four singleton objects and a Python response bug](kb:zia.malware-protection.api-surface). Provider behavior for the denylist resource is in [ZIA Terraform operations that take several API writes with no rollback](kb:zia.terraform.multi-step-writes); read-error handling is in [When the ZIA Terraform provider reports success after an error, or crashes](kb:zia.terraform.error-handling); SDK encoding defects are in [How the Go SDK encodes ZIA writes (omitted zero values, empty responses)](kb:zia.sdk-go.write-encoding).
+
+What to check:
+1. Whether the whole settings object was fetched before the write, so that keys left out of the PUT are not reset.
+2. Which wire name each key is sent under, including the misspelled file-format keys and the cookie-stealing Capture flag.
+3. Whether the write takes effect only after activation, by re-reading the object after activating.
+
+Inferred, not quoted (say so when an answer rests on one):
+- [zia.atp.api-surface:settings-shape] Tier B: The count and the 'rest are booleans' reading come from the spec's property list; the validator checks only the pointed members.
+- [zia.atp.api-surface:cookie-stealing-pcap-key] Tier B: The second half is an absence in the spec's property list.
+- [zia.atp.api-surface:writes-staged] Tier B: The second half is read from the SDK source: no activation call appears in the update methods. Provider activation behavior is in zia.terraform.activation.
+
+Not known (open gaps):
+- What the server does with ATP settings keys left out of a PUT [gap:zia.atp.api-surface:omitted-key-server-behavior]: settled by lab-test. Blocks: Whether a partial write is safe.
+- What a fresh tenant ships with for the ATP and Malware toggles [gap:zia.atp.api-surface:tenant-defaults] (data gap): filled by live; run `zscalerctl zia advanced-threat-settings show`; settled by tenant-data or lab-test
+- Whether a cyberThreatProtection PUT activates on its own [gap:zia.atp.api-surface:put-auto-activate]: settled by lab-test
+
+Area: zia.atp, its subjects in references/_meta/spine/zia/zia.atp.json
+
+Linked (open a file only if the answer needs it):
+- decided-by references/_meta/text/zia/zia.atp.security-exceptions.md (ATP Security Exceptions (the allowlist): what it skips and what it does not), from zia.atp: URLs on the allowlist take precedence over the ATP options on the policy page: an allowlisted URL hosted on a web server in a blocked country is still reachable. [zia.atp.security-exceptions:precedence-over-options]
+- decided-by references/_meta/text/zia/zia.atp.enforcement-order.md (Where Malware Protection and ATP checks fall in the web enforcement order), from zia.atp: When the web module finds a transaction violates a policy, the Public Service Edge blocks it immediately and does not enforce the policies that follow; the firewall module does not evaluate it, though firewall logs still show the web transaction as blocked. [zia.atp.enforcement-order:first-violation-blocks]
+- interacts-with references/_meta/text/zia/zia.firewall.ips.md (IPS Control), from zia.atp: When a tenant has both Advanced Threat Protection and IPS Control, the rules created for Advanced Threat Protection are evaluated first. [zia.atp:before-ips]
+- logged-in references/_meta/text/zia/zia.logs.web-records.md (What a ZIA web log record is and how its fields are named), from zia.atp: The threat category of a detection is carried by malwarecat (shown as Threat Category), with threatname for the named threat. urlcat also includes the Advanced Threat Category, listed in the Advanced Threat Category filter of Web Insights. [zia.atp.block-diagnosis:threat-fields]
+- interacts-with references/_meta/text/zia/zia.malware-protection.md (ZIA Malware Protection), from zia.atp: In the POST request and in the response, the Malware Protection check comes after the ATP checks, so an ATP block ends the transaction before file scanning would run. [zia.atp.enforcement-order:mp-after-atp-checks]
+- depends-on references/_meta/text/zia/zia.ssl-inspection.bypass-impact.md (What stops working when traffic bypasses SSL/TLS inspection), from zia.atp: These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System. [zia.ssl-inspection.bypass-impact:dependent-features]
+- logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.atp: The web log field ruletype, shown in Web Insights as Blocked Policy Type, gives the type of policy and applies only to Block rules, not Allow. The documented example values are File Type Control, Data Loss Prevention and Sandbox. [zia.atp.block-diagnosis:ruletype-column]
+- links-to references/_meta/text/shared/shared.mcp-server.tool-inventory.md (Which tools a Zscaler MCP server registers: toolsets, entitlements and the write gate)
+- links-to references/_meta/text/zia/zia.atp.blocked-urls.md (ATP Blocked Malicious URLs list: capacity, matching and API)
+- links-to references/_meta/text/zia/zia.atp.categories.md (ATP detection categories and what each toggle covers)
+- links-to references/_meta/text/zia/zia.malware-protection.api-surface.md (Malware Protection API: four singleton objects and a Python response bug)
+- links-to references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))
+- links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
+- links-to references/_meta/text/zia/zia.terraform.multi-step-writes.md (ZIA Terraform operations that take several API writes with no rollback)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)
+- configured-via references/_meta/text/types/zia/security-exceptions.md (config type)
+- configured-via references/_meta/text/types/zia/malicious-urls.md (config type)
+- see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
+- see-also references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)

@@ -1,0 +1,79 @@
+# ZIA Endpoint DLP log (NSS Endpoint DLP feed) (zia/endpoint-dlp-log)
+Also called: nss endpoint dlp log; zia endpoint dlp logs
+- Names: nss `endpoint-dlp`
+- time string: The log time (i.e., when a transaction is logged by the Zscaler Nanolog)
+- rtime string: The feed time (i.e., when a transaction is received by the NSS from the Nanolog)
+- eventtime string: The event time (i.e., when an event is intercepted and evaluated by the DLP service). An event (e.g., file copied to local drive) can be classified as an activity or as an incident, if it violates a DLP rule.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59)
+- mm integer: Minutes (0–59)
+- hh integer: Hours (0–23)
+- dd integer: The day of the month (1–31)
+- mth integer: The month of the year
+- yyyy integer: Year
+- mon string: The name of the month
+- day string: The day of the week
+- scantime string: The scan time in milliseconds
+- numdlpengids string: The number of DLP engines hit
+- numdlpdictids string: The number of DLP dictionaries hit
+- recordid string: The unique record identifier
+- scanned_bytes string: The scanned item (file or text) size in bytes
+- dlpidentifier string: The unique DLP identifier
+- user string: The username
+- ouser string: The obfuscated version of the username. This displays a random string.
+- department string: The name of the department
+- odepartment string: The obfuscated version of the department name. This displays a random string.
+- devicename string: The device name
+- odevicename string: The obfuscated version of the device name. This displays a random string.
+- devicetype string: The device type
+- deviceostype string: The device OS type
+- deviceplatform string: The device platform
+- deviceosversion string: The device OS version
+- devicemodel string: The device model
+- deviceappversion string: The device application version
+- deviceowner string: The device owner
+- odeviceowner string: The obfuscated version of the device owner. This displays a random string.
+- devicehostname string: The device hostname
+- odevicehostname string: The obfuscated version of the device hostname. This displays a random string.
+- datacenter string: The name of the data center
+- datacentercity string: The city where the data center is located
+- datacentercountry string: The country where the data center is located
+- filesrcpath string: The file source path
+- ofilesrcpath string: The obfuscated version of the file source path. This displays a random string.
+- filedstpath string: The file destination path
+- ofiledstpath string: The obfuscated version of the file destination path. This displays a random string.
+- filemd5 string: The file MD5 hash
+- filesha string: The file SHA256 hash
+- filetypename string: The file type
+- filetypecategory string: The file type category
+- filedoctype string: The type of document uploaded or downloaded during the transaction
+- doc_subtype string: The subtype of the document uploaded or downloaded during the transaction
+- itemtype string: The item (file or text) type
+- srctype string: The source type
+- dsttype string: The destination type
+- itemname string: The item name
+- oitemname string: The obfuscated version of the item name. This displays a random string.
+- itemsrcname string: The item source name
+- oitemsrcname string: The obfuscated version of the item source name. This displays a random string.
+- itemdstname string: The item destination name
+- oitemdstname string: The obfuscated version of the item destination name. This displays a random string.
+- dlpengnames string: The DLP engine names
+- odlpengnames string: The obfuscated version of the DLP engine names. This displays a random string.
+- dlpdictnames string: The DLP dictionary names
+- odlpdictnames string: The obfuscated version of the DLP dictionary names. This displays a random string.
+- dlpcounts string: The number of hits for each of the DLP dictionaries
+- confirmaction string: The confirmation action by the user
+- actiontaken string: The action taken by Endpoint DLP
+- severity string: The severity of the event. An event is either an incident or a sensitive activity. An incident violates an Endpoint DLP rule and the severity (High, Medium, Low, Info) is based on the rule that was violated. A sensitive activity does not violate a rule and is reported for visibility (Info).
+- triggeredrulelabel string: The DLP rule that was triggered. An event can trigger multiple rules, out of which the DLP service applies the most restrictive rule. The applied rule is the "triggered" rule, while the other rules are stored as "other" rules (i.e., %s{otherrulelabels}).
+- otriggeredrulelabel string: The obfuscated version of the triggered DLP rule. This displays a random string.
+- otherrulelabels string: The labels of other rules that were triggered. See %s{triggeredrulelabel}.
+- ootherrulelabels string: The obfuscated version of the other rule labels. This displays a random string.
+- logtype string: The type of record
+- channel string: The channel
+- activitytype string: The activity type
+- expectedaction string: The expected action by Endpoint DLP
+- zdpmode string: The ZDP mode
+- addinfo string: Additional information
+- confirmjust string: The option selected by the user to justify a transaction that triggers a DLP rule with the Confirm action
+- dlp_confirm_just_str string: The message entered by a user to justify a transaction that triggers a DLP rule with the Confirm action

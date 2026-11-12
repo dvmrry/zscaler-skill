@@ -1,0 +1,20 @@
+# zia/admin-roles (zia/admin-roles)
+- Names: zscalerctl `zia admin-roles`; terraform `zia_admin_roles`; terraform_data_source `zia_admin_roles`
+- Live read (read-only): `zscalerctl zia admin-roles list`
+- adminAcctAccess
+- alertingAccess
+- analysisAccess
+- dashboardAccess
+- deviceInfoAccess
+- id
+- isAuditor
+- isNonEditable
+- logsLimit
+- name
+- permissions
+- policyAccess
+- rank
+- reportAccess
+- reportTimeDuration
+- roleType
+- usernameAccess

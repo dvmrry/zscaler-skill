@@ -1,0 +1,75 @@
+# ZIA firewall log (NSS firewall feed) (zia/firewall-log)
+Also called: nss firewall log; zia firewall logs; firewall insights logs
+- Names: nss `firewall`
+- time (Logged Time) string: The time and date of the transaction. This excludes the time zone.
+- tz string: The time zone. This is the same as the time zone you specified when you configured the NSS feed.
+- ss integer: Seconds (0–59) (Insights: This field is derived from Logged Time)
+- mm integer: Minutes (0–59) (Insights: This field is derived from Logged Time)
+- hh integer: Hours (0–23) (Insights: This field is derived from Logged Time)
+- dd integer: The day of the month (1–31) (Insights: This field is derived from Logged Time)
+- mth integer: The month of the year (Insights: This field is derived from Logged Time)
+- yyyy integer: Year (Insights: This field is derived from Logged Time)
+- mon string: The name of the month (Insights: This field is derived from Logged Time)
+- day string: The day of the week (Insights: This field is derived from Logged Time)
+- epochtime integer: The epoch time of the transaction
+- csip (Client Source IP) string: The client source IP address. For aggregated sessions, this is the client source IP address of the last session in the aggregate.
+- csport (Client Source Port) integer: The client source port. For aggregated sessions, this is the client source port of the last session in the aggregate.
+- cdip (Client Destination IP) string: The client destination IP address. For aggregated sessions, this is the client destination IP address of the last session in the aggregate.
+- cdport (Client Destination Port) integer: The client destination port. For aggregated sessions, this is the client destination port of the last session in the aggregate.
+- cdfqdn (Client Destination Name) string: The client destination FDQN (e.g., the HTTP host header)
+- tsip (Client Tunnel IP) string: The tunnel IP address of the client (source). For aggregated sessions, this is the client's tunnel IP address corresponding to the last session in the aggregate.
+- location (Location) string: The name of the location from which the session was initiated
+- ttype (Traffic Forwarding) string: The traffic forwarding method used to send the traffic to the Firewall
+- aggregate (Aggregated Session) string: Indicates whether the Firewall session is aggregated
+- srcip_country (Source Country) string: The traffic's source country, which is determined by the client IP address location. There is no source country value in logs for aggregated sessions that are allowed.
+- extranet_name (Extranet Resource) string: The name of the extranet resource associated with the transaction
+- threatcat (Advanced Threat Category) string: The category of the threat in the Firewall session by the IPS engine
+- threatname (Threat Name) string: The name of the threat detected in the Firewall session by the IPS engine
+- threat_score (Threat Score) integer: The score of the threat detected in the Firewall session by the IPS engine. The score is assigned to the threat by Zscaler ThreatLabz and reflected in the Zscaler Threat Library. The score ranges from 0–100, from the least to the greatest threat.
+- threat_severity (Threat Severity) string: The severity of the threat detected in the Firewall session by the IPS engine. The severity relates directly to the threat score. For example, if the value of %d{threat_score} is between 90 and 100, then the value of %s{threat_severity} is Critical.
+- ipsrulelabel (IPS Rule Name) string: The name of the IPS policy that was applied to the Firewall session
+- ips_custom_signature (IPS Custom Signature) integer: Indicates if a custom IPS signature rule was applied. It is a numeric value (1 or 0).
+- sdport (Server Destination Port) integer: The server destination port. For aggregated sessions, this is the server destination port of the last session in the aggregate.
+- sdip (Server Destination IP) string: The server destination IP address. For aggregated sessions, this is the server destination IP address of the last session in the aggregate.
+- ssip (Server Source IP) string: The server source IP address. For aggregated sessions, this is the server source IP address of the last session in the aggregate.
+- ssport (Server Source Port) integer: The server source port. For aggregated sessions, this is the server source port of the last session in the aggregate.
+- ipcat (Server IP Category) string: The URL category that corresponds to the server IP address
+- avgduration integer: The average session duration, in milliseconds, if the sessions were aggregated
+- duration integer: The session or request duration in seconds
+- durationms (Session Duration) integer: The session or request duration in milliseconds
+- numsessions integer: The number of sessions that were aggregated
+- stateful string: Indicates if the Firewall session is stateful
+- rulelabel (Rule Name) string: The name of the rule that was applied to the transaction
+- action (Action) string: The action that the service took on the transaction: Allowed or Blocked
+- dnat string: Indicates if the destination NAT policy was applied
+- dnatrulelabel (DNAT Rule Name) string: The name of the destination NAT policy that was applied
+- recordid integer: The record ID (Insights: This field is specific to NSS)
+- pcapid (Capture) string: The path of the packet capture (PCAP) file that captured the transaction. The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>. The company ID is the internal ID of an organization and can be found on the Organization profile page. The directory is the log type. To download the PCAP file, go to the Capture column on the Firewall Insights Logs page.
+- inbytes (Inbound Bytes) integer: The number of bytes sent from the server to the client
+- outbytes (Outbound Bytes) integer: The number of bytes sent from the client to the server
+- nwapp (Network Application) string: The network application that was accessed
+- nwsvc (Network Service) string: The network service that was used
+- ipproto (Network Protocol) string: The type of IP protocol
+- destcountry (Dest Country) string: The abbreviated code of the country of the destination IP address
+- eedone string: Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded (Insights: This field is specific to NSS)
+- login (User) string: The user's login name in email address format
+- dept (Department) string: The department of the user
+- devicehostname (Device Hostname) string: The hostname of the device
+- devicemodel (Device Model) string: The model of the device
+- devicename (Device Name) string: The name of the device
+- deviceostype (OS Type) string: The OS type of the device
+- deviceosversion (OS Version) string: The OS version that the device uses
+- deviceowner (Device Owner) string: The owner of the device
+- deviceappversion (Enrolled Device appversion) string: The app version that the device app uses
+- external_deviceid (External Device ID) string: The external device ID that associates a user’s device with the mobile device management (MDM) solution
+- ztunnelversion (Zscaler Client Connector Tunnel Version) string: The Z-Tunnel version
+- bypassed_session (Bypassed Session) integer: Indicates whether the traffic bypassed the Zscaler Client Connector. It is a numeric value (1 or 0).
+- bypass_etime (Bypassed Session Event Time) string: The date and time when the traffic bypassed the Zscaler Client Connector
+- flow_type (Flow Type) string: The flow type of the transaction
+- datacenter (Data Center) string: The name of the data center
+- datacentercity string: The city where the data center is located
+- datacentercountry string: The country where the data center is located
+- rdr_rulename (Forwarding Rule) string: The name of the redirect/forwarding policy
+- fwd_type (Forwarding Method) string: The type of forwarding method used
+- fwd_gw_name (Gateway Name) string: The name of the gateway defined in a forwarding rule
+- zpa_app_seg_name (Application Segment) string: The name of the Zscaler Private Access (ZPA) application segment

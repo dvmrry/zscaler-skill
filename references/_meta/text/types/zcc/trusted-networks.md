@@ -1,0 +1,20 @@
+# zcc/trusted-networks (zcc/trusted-networks)
+- Names: zscalerctl `zcc trusted-networks`; terraform `zcc_trusted_network`; terraform_data_source `zcc_trusted_network`
+- Live read (read-only): `zscalerctl zcc trusted-networks list`
+- active
+- companyId
+- conditionType
+- createdBy
+- dnsSearchDomains
+- dnsServers
+- editedBy
+- guid
+- hostnames
+- id
+- networkName
+- resolvedIpsForHostname
+- ssids
+- trustedDhcpServers
+- trustedEgressIps
+- trustedGateways
+- trustedSubnets

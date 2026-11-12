@@ -1,0 +1,13 @@
+# zia/devices (zia/devices)
+- Names: zscalerctl `zia devices`; terraform_data_source `zia_devices`
+- Live read (read-only): `zscalerctl zia devices list`
+- description
+- deviceGroupType
+- deviceModel
+- hostName
+- id
+- name
+- osType
+- osVersion
+- ownerName
+- ownerUserId

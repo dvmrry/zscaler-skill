@@ -1,0 +1,33 @@
+# Data Security dashboards: channel views (Inline CASB, Inline DLP, SaaS, Endpoint, Email) and sensitive data at rest (unified.analytics.data-security)
+Also called: data security dashboard; inline casb dashboard; inline dlp dashboard; saas data security dashboard; endpoint data security dashboard; email data security dashboard; top sensitive data at rest
+
+Under Data Security, Analytics lists Inline CASB, Inline DLP (incidents from inline web sources), SaaS Security (incidents from SaaS applications), Endpoint (incidents from endpoints, for example printers, network shares and removable storage), Email (incidents from email) and Incidents (high-level visibility into DLP incidents). [unified.analytics.data-security:views] Where Inline CASB's incidents come from differs between two pages [divergence:unified.analytics.data-security:inline-casb-source]. The reports these dashboards open are in [DLP reports: Email Security (Email DLP), Endpoint DLP and Data Discovery](kb:zia.reports.data-protection), and the Incidents view is described in [Workflow Automation Incident Analytics dashboard: access by workflow permission, time ranges, KPI tiles, triage and resolve times, and top-10 views](kb:zwa.incident-analytics).
+
+**Time range.** The Data Security, SaaS Data Security and Endpoint dashboards take a time range between 1 Day and 30 Days and the Email Data Security dashboard between 1 Day and 7 Days; each applies it to all data in the dashboard and defaults to 7 Days. [unified.analytics.data-security:time-range] The Inline CASB and Inline DLP pages state no time-range filter [gap:unified.analytics.data-security:page-details].
+
+**Data Security dashboard.** The Data Security dashboard's Total Incidents donut and Users with Most Incidents chart break data loss incidents into Inline DLP (inline web sources), SaaS (SaaS applications), Endpoint (printers, network shares, etc.) and Email; clicking a channel opens a dashboard with more detail about incidents on that channel. [unified.analytics.data-security:incident-types] Top Sensitive Data at Rest shows the total sensitive data at rest by category (such as social security information, HIPAA data and PCI data), the file count per category across public clouds, on-premises or SaaS, and links to the Data Inventory page; it filters by Channels (Public Clouds, On-Premises, SaaS), AI Classification (sensitive data exposed to AI models and services, classified using DLP engines; the Exact AI Type checkbox shows a Gen AI Category filter) and DLP Engines. [unified.analytics.data-security:data-at-rest] Data security posture management is in [Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated](kb:dspm.overview).
+
+**Channel dashboards.** The Inline CASB Data Security dashboard shows GenAI applications by data volume and by number of transactions, and two tables of applications with the biggest risk of data loss: those with the lowest usage and those with the highest usage by users, each with a colour-coded risk index from 4 (riskiest, red) to 1 (least risky, green), the number of users and a recommended action. [unified.analytics.data-security:inline-casb] The Inline DLP Data Security dashboard shows the total incidents involving Inline DLP policy violations, the top types of sensitive inline DLP data, and a Sankey chart of sensitive files in the top 10 ML categories that links to the Data Discovery Report filtered for machine learning categories. [unified.analytics.data-security:inline-dlp] The SaaS Data Security dashboard (Analytics > Data Security > SaaS Security) breaks SaaS incidents down, on hover, as Private (compromising personal information), Internal (a security breach within the organization) and External (originating outside), and shows the Application Tenant Name responsible for a data loss incident. [unified.analytics.data-security:saas] The Endpoint data security dashboard filters by Status (Allowed or Blocked), shows the types of endpoints most commonly responsible for incidents and the endpoints most responsible for sensitive data exposure by DLP engines or ML categories, and links to the Endpoint DLP Report. [unified.analytics.data-security:endpoint] The Email Data Security dashboard shows the total incidents involving Outbound Email DLP policy violations and the top email domains to which data has been exposed, and links to the Email Security Report. [unified.analytics.data-security:email]
+
+What to check:
+1. Where the Inline CASB dashboard's incidents come from, since the Analytics overview and the dashboard page name different sources.
+
+Sources disagree (name both sides):
+- The Analytics overview says the Inline CASB entry covers data loss incidents from web applications; the Inline CASB dashboard page says it covers incidents from SaaS Security API sources. [divergence:unified.analytics.data-security:inline-casb-source]
+  - zscaler-help: Inline CASB: data loss incidents from web applications.
+  - zscaler-help: Inline CASB dashboard: data loss incidents from SaaS Security API sources.
+  Impact: An operator cannot tell from the pages whether the Inline CASB dashboard shows inline web traffic incidents or API-scanned SaaS incidents; the SaaS Security dashboard is listed separately as covering incidents from SaaS applications.
+
+Not known (open gaps):
+- Data Security dashboard details the pages leave open [gap:unified.analytics.data-security:page-details]: settled by tenant-data or source-read
+
+Area: unified.analytics, its subjects in references/_meta/spine/unified/unified.analytics.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/dspm/dspm.overview.md (Data Security Posture Management (DSPM): what it finds in stored data, how it differs from inline DLP, and what can be automated)
+- links-to references/_meta/text/zia/zia.reports.data-protection.md (DLP reports: Email Security (Email DLP), Endpoint DLP and Data Discovery)
+- links-to references/_meta/text/zwa/zwa.incident-analytics.md (Workflow Automation Incident Analytics dashboard: access by workflow permission, time ranges, KPI tiles, triage and resolve times, and top-10 views)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/unified/unified.analytics.md (Experience Center Analytics: the dashboard and report families and which subject owns each)
+- see-also references/_meta/text/zia/zia.casb.md (ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications)

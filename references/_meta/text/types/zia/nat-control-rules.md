@@ -1,0 +1,39 @@
+# zia/nat-control-rules (zia/nat-control-rules)
+- Names: zscalerctl `zia nat-control-rules`; terraform `zia_nat_control_rules`; terraform_data_source `zia_nat_control_rules`
+- Live read (read-only): `zscalerctl zia nat-control-rules list`
+- accessControl
+- defaultRule
+- departments
+- description
+- destAddresses
+- destCountries
+- destIpCategories
+- destIpGroups
+- destIpv6Groups
+- deviceGroups
+- devices
+- enableFullLogging
+- groups
+- id
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- nwServiceGroups
+- nwServices
+- order
+- predefined
+- rank
+- redirectFqdn
+- redirectIp
+- redirectPort
+- resCategories
+- srcIpGroups
+- srcIps
+- srcIpv6Groups
+- state
+- timeWindows
+- trustedResolverRule
+- users

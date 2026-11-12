@@ -1,0 +1,33 @@
+# Zscaler cloud names: which cloud a tenant is on, and the production name list (shared.cloud-architecture.cloud-names)
+Also called: zscaler cloud name; which cloud am i on; zscaler.net; zscalerone.net; zscalertwo.net; zscalerthree.net; zscloud.net; private.zscaler.com; zpatwo.net; zdxcloud.net; mobile.zscaler.net; connector.zscaler.net; production clouds
+
+A Zscaler cloud is a separate deployment that a tenant is provisioned on. An organization is provisioned on one cloud, and its traffic is processed by that cloud only. The Experience Center clouds page says it per product: an organization is provisioned on one Internet & SaaS cloud, processed by that cloud only, and an organization that has Private Access is provisioned on one Private Access cloud, processed by that cloud only. [shared.cloud-architecture.cloud-names:one-cloud] With multiple Internet & SaaS and Private Access tenants, any postures, machine tunnel tokens and trusted networks in use come from one Internet & SaaS tenant and one Private Access tenant; users who need access to both services can be consolidated into a single Internet & SaaS tenant and a single Private Access tenant. [shared.cloud-architecture.cloud-names:multi-tenant-sources] Within Experience Center, Internet & SaaS clouds (for example zscaler.net, zscalertwo.net) communicate with Private Access clouds (for example private.zscaler.com, zpatwo.net). [shared.cloud-architecture.cloud-names:experience-center-clouds]
+
+**Finding the tenant's cloud.** The names of the Internet & SaaS (ZIA) and Private Access (ZPA) clouds an organization is provisioned on are shown on the Account Settings page of the Zscaler Admin Console. [shared.cloud-architecture.cloud-names:where-to-find] The cloud name is also in the URL admins use to log in: an organization that logs in to admin.zscalertwo.net is on zscalertwo.net. [shared.cloud-architecture.cloud-names:name-from-admin-url] Some configurations require the cloud name, for example SAML for admin Single Sign-On; the name is also needed to find configuration information on config.zscaler.com and maintenance notifications on the Zscaler Trust Portal, and when working with Zscaler Support and account teams. [shared.cloud-architecture.cloud-names:when-name-needed]
+
+**The production list.** The help lists the production clouds an organization might be provisioned on per service: for Internet & SaaS `zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net` and `zscloud.net`; for Private Access `private.zscaler.com` and `zpatwo.net`; for Digital Experience (ZDX) `zdxcloud.net`. [shared.cloud-architecture.cloud-names:zia-zpa-zdx-names] The Zscaler Client Connector and Cloud & Branch Connector clouds follow the organization's Internet & SaaS cloud: a tenant on `zscaler.net` uses `mobile.zscaler.net` for Client Connector and `connector.zscaler.net` for Cloud & Branch Connector, and each of the five Internet & SaaS clouds has a `mobile.` and a `connector.` counterpart. [shared.cloud-architecture.cloud-names:derived-names] The same list gives `goairgap.com` for Zero Trust Branch, `ztsim.com` for Zscaler Cellular, `zscalerrisk.net` for Zscaler Risk360 and `zslogin.net` for the Authentication Service. [shared.cloud-architecture.cloud-names:other-services]
+
+**What the list is not.** Which non-production or government clouds exist, and their names, is open [gap:shared.cloud-architecture.cloud-names:non-production-clouds]. API hosts for government clouds are in [Reaching OneAPI on government (FedRAMP) and non-production clouds](kb:shared.oneapi.government-clouds).
+
+**Names the tools accept.** The ZIA Terraform provider's documentation lists nine ZIA cloud names: zscaler, zscloud, zscalerone, zscalertwo, zscalerthree, zscalerbeta, zscalergov, zscalerten and zspreview. [shared.cloud-architecture.cloud-names:zia-provider-cloud-names] When no cloud is given in configuration and ZSCALER_CLOUD is unset, the Python SDK's base client uses PRODUCTION as its cloud, and the ZIA provider's activation CLI likewise uses the default production cloud when ZSCALER_CLOUD is unset or empty. [shared.cloud-architecture.cloud-names:unset-cloud-production] The legacy ZPA config hosts for the GOV and GOVUS values are in [The Python SDK's legacy host table maps cloud names to config hosts: PRODUCTION to config.private.zscaler.com, ZPATWO to config.zpatwo.net, BETA to config.zpabeta.net, GOV to config.zpagov.net, GOVUS to config.zpagov.us and PREVIEW to config.zpapreview.net.](kb:zpa.api.base-paths:legacy-hosts). Admin hosts for government tenants are open [gap:shared.cloud-architecture.cloud-names:admin-host-gov], and reading the cloud from SDK configuration is open [gap:shared.cloud-architecture.cloud-names:cloud-from-sdk-config].
+
+What to check:
+1. Read the tenant's Internet & SaaS and Private Access cloud names from Account Settings, or from the admin login host, before naming any host or config.zscaler.com page.
+2. For Client Connector and Cloud & Branch Connector, derive the cloud from the tenant's Internet & SaaS cloud.
+3. If the tenant's cloud is not on the production list, do not reason from the list.
+
+Not known (open gaps):
+- Non-production and government cloud names [gap:shared.cloud-architecture.cloud-names:non-production-clouds]: settled by source-read. Blocks: naming hosts, config.zscaler.com pages or endpoints for a tenant on a cloud the production list does not include
+- Admin host names for government clouds [gap:shared.cloud-architecture.cloud-names:admin-host-gov]: settled by source-read. Blocks: naming a government tenant's cloud from its admin login URL
+- Reading a tenant's cloud from SDK configuration [gap:shared.cloud-architecture.cloud-names:cloud-from-sdk-config]: settled by source-read. Blocks: a cloud name when the admin URL and environment give none
+
+Area: shared.cloud-architecture, its subjects in references/_meta/spine/shared/shared.cloud-architecture.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/shared/shared.oneapi.government-clouds.md (Reaching OneAPI on government (FedRAMP) and non-production clouds)
+- links-to references/_meta/text/zpa/zpa.api.base-paths.md (ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/portfolio/portfolio.federal-clouds.md (Federal and government cloud editions: FedRAMP, DoD IL5 and other certifications as marketed)
+- see-also references/_meta/text/shared/shared.cloud-architecture.md (Zscaler cloud architecture)
+- see-also references/_meta/text/shared/shared.subclouds.md (Subclouds: restricting which Service Edges handle a tenant's traffic)

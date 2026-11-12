@@ -1,0 +1,23 @@
+# Bulk URL Upload tool: file operations, config file and exit codes (zia.url-categories.bulk-upload)
+Also called: Bulk URL Upload tool; urlupload.jar; UrlUpload.gz
+
+The Bulk URL Upload tool is a JAVA CLI tool that runs locally on the client to update URLs in bulk, using the cloud service API credentials. The UrlUpload.gz file consists of urlupload.jar, truststore and example.csv, and the tool needs JAVA Runtime (JRE) version 8 or later. [zia.url-categories.bulk-upload:tool-overview]
+
+**Config file.** The API config file sets BASE_URI (the base URI for the cloud) and API_KEY (the API key provisioned for the organization), and optionally USERNAME (the cloud service API username) and UPLOAD_CSV_FILE (the URL upload path for the CSV file). [zia.url-categories.bulk-upload:config-file]
+
+**Upload file.** A URL line has the form `+, <category name>, <categorization type>, <url>`, where the categorization type is either CUSTOM or RETAIN_PARENT. The delete-category operation dissociates all the URLs associated to the category and then deletes the category. [zia.url-categories.bulk-upload:line-format] The `+` operator adds or associates a URL to a category, and a new category can be added only if a URL is associated with it. `- or D` deletes a category or a URL from a category. `* or R` replaces all the existing URLs of a category: the asterisk adds the first URL and the plus sign the subsequent instances under the same category. `#` marks a comment line that is not executed. RESET ignores all lines before it, and only the last RESET takes effect when there are several. [zia.url-categories.bulk-upload:operators]
+
+**Running it.** When the username is defined in the API config file, it is auto-populated at the prompt. The tool can also be run as `java -jar urlupload.jar -c <API Config File Path> -f <url Upload CSV>`, which overrides the URL upload file path in the API config file. [zia.url-categories.bulk-upload:run-modes] The download location and version are open [gap:zia.url-categories.bulk-upload:download-and-version], and so is whether OneAPI or ZIdentity credentials work [gap:zia.url-categories.bulk-upload:credential-types].
+
+**Exit statuses.** The error table gives exit status 1 for a failure to establish the authenticated channel (a server error or incorrect credentials) and 2 for a failure to fetch URL categories. Statuses 3 and 5 are Invalid Operation, for example adding a new category without any URL or deleting a category that does not exist. Status 6 is a wrong format, 7 is file not found, and 8 is a Java IO error reading the file. Statuses 9, 10 and 11 are failures to add (POST), modify (PUT) or delete a category, and 12 is a failure to close the session, with no intervention required. Statuses 13 and 14 are an unknown classification (use RETAIN_PARENT or CUSTOM), and 15 to 18 are a missing JSON response for GET, POST, PUT and DELETE. Status 19 is no input provided, 20 is an error asking to specify BASE_URI, API_KEY, USERNAME(OPTIONAL) and UPLOAD_CSV_FILE(OPTIONAL) in the API config file (the API config file does not have a proper format), and 21 is that no console instance could be obtained. [zia.url-categories.bulk-upload:exit-statuses] The table skips 4 [gap:zia.url-categories.bulk-upload:exit-status-4].
+
+Not known (open gaps):
+- Where UrlUpload.gz is downloaded and which version is current [gap:zia.url-categories.bulk-upload:download-and-version] (data gap): filled by operator; settled by source-read
+- Whether the tool works with OneAPI or ZIdentity credentials [gap:zia.url-categories.bulk-upload:credential-types]: settled by lab-test or support-ticket
+- What exit status 4 means [gap:zia.url-categories.bulk-upload:exit-status-4]: settled by source-read
+
+Area: zia.url-categories, its subjects in references/_meta/spine/zia/zia.url-categories.json
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to)
+- see-also references/_meta/text/zia/zia.url-categories.entry-format.md (What a URL category entry may contain, and category limits)

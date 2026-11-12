@@ -1,0 +1,14 @@
+# zia/zpa-gateways (zia/zpa-gateways)
+- Names: zscalerctl `zia zpa-gateways`; terraform `zia_forwarding_control_zpa_gateway`; terraform_data_source `zia_forwarding_control_zpa_gateway`
+- Live read (read-only): `zscalerctl zia zpa-gateways list`
+- description
+- id
+- lastModifiedBy
+- lastModifiedTime
+- name
+- type
+- zpaAppSegments
+- zpaAppSegments.externalId
+- zpaServerGroup
+- zpaServerGroup.externalId
+- zpaTenantId

@@ -1,0 +1,36 @@
+# Indicators of Intent: predefined risky-behaviour rules on the endpoint and their exceptions (zia.dlp.endpoint-intent)
+Also called: Indicators of Intent; intent control; intent rule
+
+Indicators of Intent detect signals of risky user behavior on the endpoint, such as unusual data movement, policy bypass activity, security setting changes, or attempts to hide sensitive files. They consist of predefined policy rules whose status, severity and criteria administrators can modify, and to which they can add exceptions for specific users, user groups or departments. [zia.dlp.endpoint-intent:what] The predefined rules are Suspicious Volume of Data Transfer to Removable Storage, to a Network Share and to Personal Cloud Storage, Suspicious Volume of Data Sent for Print, Bypass Initiated, Bypass Mode Ended, Network Settings Changed, Safe Mode Reboot, Security Audit Logs Cleared, Firewall Settings Changed, Sensitive File Extension Renamed, Password-Protected File Created and File Password Protection Enabled by User. [zia.dlp.endpoint-intent:predefined-rules]
+
+**Prerequisites and enforcement.** Some indicators of intent require the continuous classification scan to be enabled. [zia.dlp.endpoint-intent:needs-continuous-classification] Enable Indicators of Intent enforces Indicator of Intent rules. When it is disabled, rules remain visible and configurable but are not enforced on the endpoints. [zia.dlp.endpoint-intent:enforcement-toggle] Which indicators need continuous classification, and what counts as a suspicious volume, are open [gap:zia.dlp.endpoint-intent:intent-thresholds].
+
+**Exception rules.** An intent exception rule's description cannot exceed 250 characters. Intent policy rules are evaluated in ascending numerical order and rule evaluation stops at the first match. The criteria include Users and Departments, and the rules need to be activated to be enforced. [zia.dlp.endpoint-intent:exception-rules]
+
+**Where events appear.** Intent events show in a user's Overview and Timeline in [Endpoint Data Scan reports: the daily data-at-rest report, User and Device Investigation, DLP Operational and the End User Report](kb:zia.dlp.endpoint-data-scan).
+
+What to check:
+1. Whether Enable Indicators of Intent is on before reasoning about why an intent rule did not fire, since rules stay visible but are not enforced when it is off.
+
+Not known (open gaps):
+- Which indicators need continuous classification, and what a suspicious volume is [gap:zia.dlp.endpoint-intent:intent-thresholds]: settled by lab-test or support-ticket
+
+Area: zia.dlp, its subjects in references/_meta/spine/zia/zia.dlp.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zia/zia.cloud-app-control.precedence.md (Cloud App Control versus URL Filtering: which applies), from zia.dlp: For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention. [zia.dlp.evaluation:dlp-after-url-and-file-type]
+- depends-on references/_meta/text/zia/zia.dlp.engines.md (DLP engines: the unit a rule references), from zia.dlp: DLP policy rules and Endpoint DLP policy rules must reference engines, not dictionaries. To use a custom dictionary in a rule, put it in an engine first. [zia.dlp.engines:rules-reference-engines]
+- decided-by references/_meta/text/zia/zia.dlp.evaluation.md (Why DLP did or did not fire: pipeline position, evaluation mode and exemptions), from zia.dlp: By default inline DLP rules are evaluated in rule order and evaluation stops at the first match. In Evaluate All Rules mode (enabled through the Zscaler account team) the service evaluates all rules and enforces the rule with the most restrictive action; the Evaluate All Rules article says that mode uses rule order only when multiple rules with the same action are matched. [zia.dlp.evaluation:evaluate-all-default-vs-mode]
+- decided-by references/_meta/text/zia/zia.dlp.rules.md (Web DLP policy rules: order, criteria and actions), from zia.dlp: DLP policy rules are evaluated in ascending rule order and, by default, evaluation stops at the first match; a disabled rule keeps its place in the order while the service skips it. Evaluate All Rules mode (see zia.dlp.evaluation) changes this. [zia.dlp.rules:ascending-order]
+- scoped-by references/_meta/text/zia/zia.locations.rule-scoping.md (Which policies scope by location and location group), from zia.dlp: URL Filtering, SSL Inspection, Cloud App Control, Firewall Filtering, Web DLP and Bandwidth Control rules each carry both a `locations` array and a `locationGroups` array, so a rule can name individual locations as well as groups. [zia.locations.rule-scoping:rules-take-both]
+- logged-in references/_meta/text/zia/zia.logs.web-field-semantics.md (Value encodings and caveats of ZIA web log fields), from zia.dlp: dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename. [zia.logs.web-field-semantics:dlp-rule-fields]
+- depends-on references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)), from zia.dlp: Payload-based checks, DLP among them, do not run on traffic that SSL inspection does not decrypt, so an SSL inspection bypass upstream silently removes DLP for that traffic. [zia.dlp.evaluation:decrypt-dependency]
+- interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.dlp: For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control all come before Data Loss Prevention. [zia.dlp.evaluation:dlp-after-url-and-file-type]
+- logged-in references/_meta/text/types/zia/web-log.md (ZIA web log (NSS web feed)), from zia.dlp: dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename. [zia.logs.web-field-semantics:dlp-rule-fields]
+- links-to references/_meta/text/zia/zia.dlp.endpoint-data-scan.md (Endpoint Data Scan reports: the daily data-at-rest report, User and Device Investigation, DLP Operational and the End User Report)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zia/zia.dlp.md (ZIA Data Loss Prevention)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-dlp.md (Endpoint DLP API families in the SDKs and Terraform provider)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-settings.md (Endpoint Data Scan configuration: scan reporting, End User Reports, continuous and real-time classification, exemption, trusted applications, channel exceptions, activation)
+- see-also references/_meta/text/zia/zia.dlp.endpoint-device-control.md (Device Control rules per device class, the default rule, first-match evaluation and device control resources)

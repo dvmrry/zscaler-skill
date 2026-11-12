@@ -1,0 +1,3 @@
+# Bypassed due to missing config: a policy reason of ZIA web log (NSS web feed) (zia/web-log#reason)
+- Firewall Filtering: This implicit rule action is logged when the Service Edge for Internet & SaaS (ZIA) fails to establish a connection with the Zscaler Central Authority (CA), resulting in the traffic flow passing through Zscaler Firewall or DNS without policy application. This might occur when traffic flow from a specific user or location arrives at the Service Edge for the first time and a connection to the CA is required to apply policies.
+- Source: `vendor/zscaler-help/zia-policy-reasons.json:29`

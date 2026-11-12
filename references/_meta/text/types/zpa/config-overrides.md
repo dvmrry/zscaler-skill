@@ -1,0 +1,13 @@
+# zpa/config-overrides (zpa/config-overrides)
+- Names: zscalerctl `zpa config-overrides`
+- Live read (read-only): `zscalerctl zpa config-overrides list`
+- brokerName
+- configKey
+- configValue
+- configValueInt
+- customerId
+- customerName
+- description
+- targetGid
+- targetName
+- targetType

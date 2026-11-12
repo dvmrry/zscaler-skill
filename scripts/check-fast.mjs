@@ -79,6 +79,8 @@ const CHECKS = [
   },
   { name: "capability registry", command: "node", args: ["scripts/check-capability-registry.mjs"] },
   { name: "AGENTS routing block", command: "node", args: ["scripts/gen-capability-routing.mjs", "--check"] },
+  // Any prose or claim edit changes it, so it is checked before a push, not only in CI.
+  { name: "generated reading text", command: "node", args: ["scripts/gen-text.mjs", "--check"] },
   {
     name: "worktree whitespace",
     command: "node",

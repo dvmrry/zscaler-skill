@@ -1,0 +1,11 @@
+# zia/mobile-threat-settings (zia/mobile-threat-settings)
+- Names: zscalerctl `zia mobile-threat-settings`; terraform `zia_mobile_malware_protection_policy`; terraform_data_source `zia_mobile_malware_protection_policy`
+- Live read (read-only): `zscalerctl zia mobile-threat-settings show`
+- blockAppsCommunicatingWithAdWebsites
+- blockAppsCommunicatingWithRemoteUnknownServers
+- blockAppsSendingDeviceIdentifier
+- blockAppsSendingLocationInfo
+- blockAppsSendingPersonallyIdentifiableInfo
+- blockAppsSendingUnencryptedUserCredentials
+- blockAppsWithKnownVulnerabilities
+- blockAppsWithMaliciousActivity

@@ -1,0 +1,40 @@
+# The Workflow Automation custom workflow builder (Beta): tiles, connection rules, time zones, justification conditions and publishing (zwa.workflows.custom-builder)
+Also called: custom workflow builder; add custom workflow; notify tile; policy exception tile; close incident tile; justification conditions
+
+The custom workflow feature is a preview version, shown by the Beta label on the Add Custom Workflow button. [zwa.workflows.custom-builder:beta] The workflow types and mapping are in [Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover](kb:zwa.workflows) and [Workflow Automation workflow mappings: statement order, Source DLP types, properties, operations and predicates](kb:zwa.workflows.mappings).
+
+**Tiles.** A custom workflow is built from the Notify, Close Incident and Policy Exception tiles starting from the Start tile, with as many tiles as required; any tile except the Start tile can be duplicated. [zwa.workflows.custom-builder:tiles] A Close Incident tile cannot be connected immediately to another Close Incident tile, two Close Incident tiles cannot be in the same branch, and an escalation-to-manager Notify tile cannot follow a Close Incident tile. [zwa.workflows.custom-builder:close-incident-limits] No maximum number of branches is stated [gap:zwa.workflows.custom-builder:builder-limits].
+
+**Notify tiles.** On a user Notify tile the wait time for a response is entered in days, hours and minutes and is optional; if no wait time is entered the workflow immediately performs the action without waiting. [zwa.workflows.custom-builder:notify-wait] An escalation Notify tile can target a manager, an approver, or someone other than a manager or approver identified by an entered email address; each waits a timeout entered in days, hours and minutes and uses a channel of Email, Slack or Teams, and for a manager the workflow can send the escalation to a fallback approver if the manager does not exist. [zwa.workflows.custom-builder:notify-escalation-targets] On a user Notify tile, a survey template is optional; the user notification still contains the system default survey template content when none is selected, and when none is selected the workflow does not depend on a justification the user may provide. [zwa.workflows.custom-builder:survey-template-default] The time zone used for time-related merge tags in a notification a workflow creates is, in order: the one set on the Notify tile, the one on the notification template, the one assigned to the admin on the Admin Assignment page, else UTC+00:00 by default. [zwa.workflows.custom-builder:time-zone-precedence]
+
+**Connections and policy exceptions.** A connection line from a configured tile can carry a justification condition: a justification type taken from the survey template of the source tile, Any Response or No Response; in the Notify tile procedure, if the source tile has no templates the dialog does not appear. [zwa.workflows.custom-builder:justification-conditions] The dialog for a source tile with no survey template is described two ways [divergence:zwa.workflows.custom-builder:justification-dialog-no-template]. Custom workflows with Policy Exception tiles are supported only for incidents of Source DLP type Inline and Email; a Policy Exception tile is connected only to Notify tiles configured with the Policy Exception action context, the default exception duration is entered in days, hours and minutes, and a Policy Exception tile can be added either by dragging it from the Tile pane or by configuring a Notify tile with an Action Context of Policy Exception, which adds the tile automatically. [zwa.workflows.custom-builder:policy-exception] The Policy Exception action context on a user notification tile is described two ways [divergence:zwa.workflows.custom-builder:policy-exception-action-context].
+
+**Saving and editing.** Validate checks the structure and configuration of a custom workflow and highlights tiles with errors in red; Save as Draft keeps it in Draft status; Publish Workflow publishes it and then asks whether to create a workflow mapping. [zwa.workflows.custom-builder:validate-and-publish] When editing a custom workflow its name cannot be changed; for a published one Update Workflow keeps the status Published and the changes apply only to future incidents, not to current custom workflow executions. [zwa.workflows.custom-builder:edit-published]
+
+What to check:
+1. Whether a Close Incident tile follows another Close Incident tile in the same branch, or an escalation-to-manager Notify tile follows a Close Incident tile.
+2. Which time zone applies to a notification a workflow creates: the Notify tile, the notification template, the admin assignment, or the UTC+00:00 default.
+
+Sources disagree (name both sides):
+- The Notify tile procedure says the Justification Conditions dialog does not appear when the source tile has no templates, and the Policy Exception tile procedure says it then shows only policy exception types and Any or No Response. [divergence:zwa.workflows.custom-builder:justification-dialog-no-template]
+  - zscaler-help: The dialog does not appear when the source tile was not configured with templates.
+  - zscaler-help: The dialog displays only Policy Exception Allowed, Policy Exception Denied, Any Response and No Response.
+  Impact: The page does not say whether the dialog appears for a connection from a tile with no survey template in general, or only in one procedure.
+- The user Notify tile procedure says the Policy Exception action context is not allowed unless a Policy Exception tile precedes it, and the Policy Exception tile section says configuring a Notify tile with that action context adds the tile automatically. [divergence:zwa.workflows.custom-builder:policy-exception-action-context]
+  - zscaler-help: A user notification tile cannot use the Policy Exception action context unless a Policy Exception tile precedes it.
+  - zscaler-help: Configuring a Notify tile with the Policy Exception action context adds the Policy Exception tile automatically.
+  Impact: The page does not say whether a user Notify tile can be created first with the Policy Exception action context.
+
+Not known (open gaps):
+- Whether the custom builder limits the number of branches, and what the Notify wait and exception durations default to [gap:zwa.workflows.custom-builder:builder-limits]: settled by source-read or lab-test
+
+Area: zwa.workflows, its subjects in references/_meta/spine/zwa/zwa.workflows.json
+
+Linked (open a file only if the answer needs it):
+- logged-in references/_meta/text/zwa/zwa.audit-logs.md (Workflow Automation audit logs: the customer audit search, what it records, and how the SDKs read it), from zwa.workflows: The audit log search filters by time range and field values and returns audit information for every action admins take in the Workflow Automation Admin Portal and every action made through the APIs; the supported filter fields are Action, Resource, Admin and Module. [zwa.audit-logs:what-recorded]
+- scoped-by references/_meta/text/zwa/zwa.incidents.md (Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting), from zwa.workflows: After configuring a predefined or custom workflow, the admin must map it to one or more incident transaction attributes; the workflow then triggers automatically for incidents with those attributes. [zwa.workflows:mapping-required]
+- links-to references/_meta/text/zwa/zwa.workflows.md (Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover)
+- links-to references/_meta/text/zwa/zwa.workflows.mappings.md (Workflow Automation workflow mappings: statement order, Source DLP types, properties, operations and predicates)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zwa/zwa.settings.access.md (Workflow Automation access: roles and permissions, admin assignments, approvers and integration users)

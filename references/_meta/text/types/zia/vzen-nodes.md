@@ -1,0 +1,19 @@
+# zia/vzen-nodes (zia/vzen-nodes)
+- Names: zscalerctl `zia vzen-nodes`; terraform `zia_virtual_service_edge_node`; terraform_data_source `zia_virtual_service_edge_node`
+- Live read (read-only): `zscalerctl zia vzen-nodes list`
+- clusterName
+- defaultGateway
+- deploymentMode
+- establishSupportTunnelEnabled
+- id
+- inProduction
+- ipAddress
+- ipSecEnabled
+- loadBalancerIpAddress
+- name
+- onDemandSupportTunnelEnabled
+- status
+- subnetMask
+- type
+- vzenSkuType
+- zgatewayId

@@ -1,0 +1,39 @@
+# What the IoT Report discovers, and what it takes to get data (zia.iot.discovery)
+Also called: iot report; iot discovery; iot device discovery; iot report empty; location not in iot report; enable iot discovery; shadow iot; discovered devices
+Former IDs: zia.iot.discovery:discovery-scope, zia.iot.discovery:org-entitlement
+
+The IoT Report shows the device inventory discovered from unauthenticated web traffic; Zscaler's AI/ML engine classifies all unauthenticated devices automatically to help generate it. [zia.iot.discovery:report-scope] It is a device inventory and observation surface; whether any rule can act on it is in [How IoT traffic is targeted by policy](kb:zia.iot.policy-use), and how devices are labelled is in [How IoT devices are classified: type, category, classification](kb:zia.iot.classification).
+
+**Cadence.** The report is updated every 6 hours and covers the active devices discovered in the last 24 hours. [zia.iot.discovery:refresh-window] The Device Type Distribution chart has four device types: User Devices (unmanaged user devices whose traffic does not flow via Zscaler Client Connector), IoT Devices, Servers, and Unknown (devices not classified for lack of information for the AI/ML engine). [zia.iot.discovery:device-types]
+
+**Getting data for a location.** The report is filtered to locations that have IoT discovery enabled, and a location must have IoT enabled on the Location Management page for a report to be generated for it. [zia.iot.discovery:per-location-enable] Adding or removing a location can take up to 24 hours to reflect in the location filter, and the first report for a new location takes 24 hours to generate. [zia.iot.discovery:location-lag] What discovery collects at a location, and what the organization must have enabled first, is open [gap:zia.iot.discovery:location-iot-options].
+
+**The two location flags.** The location object carries two independent IoT booleans, `iotDiscoveryEnabled` (Terraform `iot_discovery_enabled`, described as enabling IoT discovery at the location) and `iotEnforcePolicySet` (Terraform `iot_enforce_policy_set`, whose description is empty). The provider reads and writes them separately. [zia.iot.discovery:two-location-flags] What the second one does to policy is in [How IoT traffic is targeted by policy](kb:zia.iot.policy-use). Setting the location type to IoT traffic is a separate choice that places the location in the predefined IoT Traffic Group: [Location groups: manual and dynamic, conditions, limits, predefined groups](kb:zia.locations.groups).
+
+**What the page shows.** The report page shows IoT Device Classification (top classifications, with a carousel past 12), IoT Device Distribution by Policy Status, Device Type Distribution, Top User Device Classification, and a Devices Location section counting devices by city; classifications and device types drill into the Discovered Devices page, and the report downloads as PDF. [zia.iot.discovery:report-sections]
+
+**The Discovered Devices page.** The Discovered Devices page shows detailed information about all the discovered devices in the IoT Report, which includes IoT devices, servers and unmanaged user devices. The table can be filtered by Device Type, Category, Classification, Policy Status or Location, searched by IP address or auto label, and downloaded in CSV format. [zia.iot.discovery:discovered-devices-scope] A device's detail view shows its auto label, category, classification, location, type and protocols used, a graph of hourly inbound, outbound and total bandwidth for the device in the last 24 hours, and a chart of its traffic flow showing which IPs and corresponding domains it communicates with and the action taken. [zia.iot.discovery:per-device-detail] Auto Label is the device descriptor based on its internet traffic, which lets users familiar with the network identify the device, and it might contain a model number, model name, OS or manufacturer name. [zia.iot.discovery:auto-label]
+
+**Open.** The signals the engine uses are open [gap:zia.iot.discovery:input-signals]. How long device history is kept is open [gap:zia.iot.discovery:history-retention]. Whether NSS logs carry IoT fields is open [gap:zia.iot.discovery:nss-iot-fields]. How often devices are misclassified is open [gap:zia.iot.discovery:mobile-misclassification].
+
+What to check:
+1. Whether the location has IoT discovery enabled and the 24-hour lag has passed, before concluding that a location is missing or a device was not seen.
+
+Not known (open gaps):
+- Which signals the AI/ML engine uses to discover and classify devices [gap:zia.iot.discovery:input-signals]: settled by support-ticket or lab-test. Blocks: predicting which devices will classify, and whether proxy-mode (PAC) deployments classify as well as tunnelled ones
+- Whether device-to-classification history is kept beyond the 24-hour window [gap:zia.iot.discovery:history-retention] (data gap): filled by operator; settled by support-ticket or tenant-data
+- Whether NSS web or firewall logs carry IoT classification fields [gap:zia.iot.discovery:nss-iot-fields] (data gap): filled by operator; settled by source-read or tenant-data
+- Accuracy limits of classification [gap:zia.iot.discovery:mobile-misclassification]: settled by operator-experience or support-ticket
+- What Enable IoT Discovery collects at a location, and what the organization must have enabled first [gap:zia.iot.discovery:location-iot-options]: settled by source-read or lab-test. Blocks: telling an operator what turning on IoT discovery at a location will inventory, and why the location options may be missing from the console
+
+Area: zia.iot, its subjects in references/_meta/spine/zia/zia.iot.json
+
+Linked (open a file only if the answer needs it):
+- scoped-by references/_meta/text/zia/zia.locations.groups.md (Location groups: manual and dynamic, conditions, limits, predefined groups), from zia.iot: Targeting IoT traffic through the IoT Traffic Group selects by the location's type, so it covers every device at that location, not only IoT-classified ones. [zia.iot.policy-use:group-is-by-location]
+- links-to references/_meta/text/zia/zia.iot.policy-use.md (How IoT traffic is targeted by policy)
+- interacts-with references/_meta/text/zia/zia.cloud-app-control.rule-types.md (Cloud App Control categories (rule types), limits and predefined rules), from zia.iot: Cloud App Control rules apply to IoT devices from a location or sublocation that has Enforce IoT Policy Control enabled, to devices the AI/ML engine identified and classified (for example printers, sensors) under the IoT group in the Device Groups criterion. [zia.iot.policy-use:cac-iot-needs-enforce]
+- scoped-by references/_meta/text/zia/zia.locations.model.md (What a ZIA location is and what the console enforces for it): The report is filtered to locations that have IoT discovery enabled, and a location must have IoT enabled on the Location Management page for a report to be generated for it. [zia.iot.discovery:per-location-enable]
+- links-to references/_meta/text/zia/zia.iot.classification.md (How IoT devices are classified: type, category, classification)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/locations.md (config type)

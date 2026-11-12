@@ -17,8 +17,9 @@ _REF = re.compile(r"`?(?:kb:[\w.:/#-]+|(?:\.\./|\./)*[\w./-]+\.md(?:#[\w-]+)?|(?
 
 
 def is_kb_prose(path: Path | str) -> bool:
+    """A subject's rendering beside its JSON, or the reading text generated from the subjects (scripts/gen-text.mjs)."""
     p = Path(path)
-    return p.suffix == ".md" and p.with_suffix(".json").exists()
+    return p.suffix == ".md" and (p.with_suffix(".json").exists() or "references/_meta/text/" in p.as_posix())
 
 
 def links_blanked(text: str) -> str:

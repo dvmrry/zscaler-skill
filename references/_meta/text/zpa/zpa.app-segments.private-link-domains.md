@@ -1,0 +1,23 @@
+# How private link domains route CNAME-matched traffic to private link resources (zpa.app-segments.private-link-domains)
+Also called: private link domains; Azure Private Link; Frontend Wildcard Domains for DNS Request and CNAME Match; privatelink.database.windows.net
+
+Private link domains are in limited availability. Configuring them enables Private Access to identify and route traffic to applications hosted behind a private link such as Azure Private Link: when enabled, Private Access evaluates CNAME records returned during DNS resolution, and if a returned CNAME matches a configured private link domain, it forwards the request through the configured application segment. [zpa.app-segments.private-link-domains:what-it-is] Private Access evaluates up to 5 CNAME records (from left to right in ascending order) in the public DNS response. [zpa.app-segments.private-link-domains:five-cnames]
+
+**What must hold.** Private Access routes traffic only if both conditions are met: the resolved CNAME must match a configured private link domain, and the corresponding private link alias (for example *.privatelink.database.windows.net) must be defined in an application segment, including associated ports and protocols. [zpa.app-segments.private-link-domains:both-conditions] A private link domain is entered in the Frontend Wildcard Domains for DNS Request and CNAME Match field; the page's example enters the regular expression *.database.windows.net to match Azure SQL private link domains. [zpa.app-segments.private-link-domains:field]
+
+**Why not a broad domain.** Configuring a public domain such as *.database.windows.net in an application segment can cause all traffic for that domain, including resources not associated with a private link, to be routed through Private Access, which can result in unnecessary or incorrect routing; private link domains let Private Access route only traffic that matches configured private link domains. [zpa.app-segments.private-link-domains:why-not-broad-domain] The setting that lets Client Connector receive CNAME records is in [Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring](kb:zpa.app-segments.settings). Which component evaluates the CNAMEs, how this interacts with that setting and Multimatch, and any limit on domains are open [gap:zpa.app-segments.private-link-domains:evaluation-details].
+
+Not known (open gaps):
+- Which component evaluates the CNAMEs, how private link domains interact with Client Connector can receive CNAME and Multimatch, and any domain limit [gap:zpa.app-segments.private-link-domains:evaluation-details]: settled by lab-test or support-ticket or source-read
+
+Area: zpa.app-segments, its subjects in references/_meta/spine/zpa/zpa.app-segments.json
+
+Linked (open a file only if the answer needs it):
+- decided-by references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks), from zpa.app-segments: The Bypass setting within an application segment always takes precedence over any newly added client forwarding policy rule. [zpa.app-segments.bypass:bypass-beats-cfp]
+- decided-by references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap), from zpa.app-segments: Granularity is judged on the domain or address: an exact host is more specific than a wildcard that contains it, and for IPs a /32 host is more specific than the /24 that contains it. [zpa.app-segments.matching:granularity-ranking]
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types), from zpa.app-segments: When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria. [zpa.policy.evaluation-order:segment-then-rules]
+- decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]
+- links-to references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)

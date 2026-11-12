@@ -1,0 +1,24 @@
+# zidentity/users (zidentity/users)
+- Names: zscalerctl `zidentity users`
+- Live read (read-only): `zscalerctl zidentity users list`
+- belongInternalDomain
+- costCenter
+- department
+- displayName
+- division
+- entityType
+- firstName
+- groups
+- guest
+- hostedIdp
+- id
+- idp
+- lastName
+- loginName
+- organization
+- primaryEmail
+- secondaryEmail
+- skipMfaUntil
+- source
+- status
+- title

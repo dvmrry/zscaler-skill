@@ -1,0 +1,36 @@
+# Deception and ITDR orchestration rules: the Orchestrate menu, rule pipeline, actions, testing, pausing and event notification templates (deception.orchestration-rules)
+Also called: itdr orchestration rules; deception orchestration rules; orchestrate rules; orchestration rule pipeline; event notification templates; event templates; pause orchestration
+
+This subject covers the Deception and Identity Protection (ITDR) pages ([Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated](kb:deception.overview), [Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated](kb:identity-protection.overview)). The Orchestrate menu has pages for Rules (workflows, notifications, containment), Enrich, Containment, API Tokens, Event Templates, Service Connectors and SIEM Integrations. [deception.orchestration-rules:orchestrate-menu]
+
+**Rule pipeline.** Each event generated in the admin portal runs through the orchestration rule pipeline and the corresponding actions are taken when it matches a rule's conditions; rule Priority sets the run order, priority 1 runs first, and rules can be reordered by drag and drop on the Rules page. [deception.orchestration-rules:rule-pipeline-priority] The product provides a few predefined internal rules to detect attacks; they are disabled by default, can be enabled and given actions, but their conditions cannot be changed and they cannot be deleted. [deception.orchestration-rules:internal-rules] The Rules page lists Priority, Name, Condition (written in the custom query language), Tasks and Type (whether the rule is internal). [deception.orchestration-rules:rule-columns]
+
+**Creating a rule.** A rule's actions fall into Workflow (act on events in the Investigate dashboard: mark safe, delete, tag), Notification (alert notifications via emails) and Response (actions on an attacker or device through integrated SOC tools); one rule can combine actions from these categories. [deception.orchestration-rules:rule-action-categories] Rule General options include Only ThreatParse Events (apply only to events that have a ThreatParse score), a query condition (a rule with no condition applies to all events) and a Time Zone used to evaluate date and time fields in the query. [deception.orchestration-rules:rule-general-options] With several rules, events are evaluated from the highest priority downward; when a rule matches, the administrator chooses whether to keep evaluating later rules or stop, using the rule's Don't process further rules option (optional). [deception.orchestration-rules:rule-evaluation-order]
+
+**Actions.** Workflow actions are Mark as safe, Delete and Add Tags (enabled with a tag name; for example an attacker.ip condition of 192.0.2.3 with tag Team A tags all events from that IP as Team A). [deception.orchestration-rules:workflow-actions] The About Orchestration Rules pages (Deception and ITDR) list alert notifications to specific users via emails, phone calls with voice messages, and text messages; the Deception Creating an Orchestration Rule page describes the Notification category and the Notify section as email. [deception.orchestration-rules:notification-channels] Rule email notifications are sent to selected users at a chosen frequency using default templates to the address configured for each user, with timestamps in the time zone configured for the recipient; a Fair Usage Policy limits notifications triggered per day, and a system message is generated the first time the limit is reached in a day. [deception.orchestration-rules:email-notification]
+
+**Testing, priority and pausing.** A rule can be tested against events pasted as JSON (for example from the exported event logs JSON file) or an automatically added sample event; the message All events passed appears if the rule conditions match the events. [deception.orchestration-rules:rule-test] In ITDR a rule's priority value determines the order orchestration rules are processed, is changed by dragging its Priority value, and is assigned only if the rule is enabled. [deception.orchestration-rules:rule-priority-enabled-only] What pausing orchestration does is stated two ways [divergence:deception.orchestration-rules:pause-state].
+
+**Event notification templates.** Event notification emails use the default subject {kill_chain_phase} activity on {decoy.appliance.name}; the subject can be modified using the built-in events once Enable Custom Templates is selected (Deception pages). [deception.orchestration-rules:event-template-subject] The email body template cannot be changed, but more event fields can be included through Email Custom Fields; if Email Custom Fields is blank, the default list of events is sent in the email body (Deception pages). [deception.orchestration-rules:event-template-body]
+
+What to check:
+1. For what a rule can do, which action category it uses, and whether an alert goes by email only or by phone and text as well.
+2. For whether a rule is applied to an event, the rule priority order and whether an earlier matching rule has Don't process further rules selected.
+3. For what pausing orchestration does, report both statements.
+
+Sources disagree (name both sides):
+- What pausing orchestration does: the About Orchestration Rules page ties Pause orchestration to the pipeline running, while the Managing Orchestration Rules page says no event is evaluated against any rule after pausing. [divergence:deception.orchestration-rules:pause-state]
+  - zscaler-help: About Orchestration Rules (Deception): Pause orchestration indicates the pipeline is running; Resume orchestration indicates it is stopped.
+  - zscaler-help: About Orchestration Rules (ITDR): the same wording; its Managing Orchestration Rules page has no pausing section.
+  - zscaler-help: Managing Orchestration Rules (Deception): pausing suspends the rules without changing their configuration, and no event is evaluated against any rule until orchestration is resumed.
+  Impact: Whether the Pause orchestration label shows the current state or the action it performs is not settled by the pages, so an answer about whether rules are currently being evaluated needs the tenant's Rules page.
+
+Area: deception.orchestration-rules, its subjects in references/_meta/spine/deception/deception.orchestration-rules.json
+
+Linked (open a file only if the answer needs it):
+- links-to references/_meta/text/deception/deception.overview.md (Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated)
+- links-to references/_meta/text/identity-protection/identity-protection.overview.md (Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated)
+
+Configured via and see also (open one only if the answer needs it):
+- see-also references/_meta/text/deception/deception.plans.md (Deception Standard and Advanced plans: decoy counts, Gen AI decoys, orchestration and API access)
+- see-also references/_meta/text/deception/deception.containment-integrations.md (Deception and ITDR containment integrations: supported solutions, per-solution setup, identity-based containment (ZIA, ZPA, Okta SSF) and blocked identities)

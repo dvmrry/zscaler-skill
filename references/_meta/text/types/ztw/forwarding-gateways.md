@@ -1,0 +1,22 @@
+# ztw/forwarding-gateways (ztw/forwarding-gateways)
+- Names: zscalerctl `ztw forwarding-gateways`; terraform `ztc_forwarding_gateway`; terraform_data_source `ztc_forwarding_gateway`
+- Live read (read-only): `zscalerctl ztw forwarding-gateways list`
+- description
+- dnsGatewayType
+- ecDnsGatewayOptionsPrimary
+- ecDnsGatewayOptionsSecondary
+- failClosed
+- failureBehavior
+- id
+- lastModifiedBy
+- lastModifiedTime
+- manualPrimary
+- manualSecondary
+- name
+- primaryIp
+- primaryType
+- secondaryIp
+- secondaryType
+- subcloudPrimary
+- subcloudSecondary
+- type

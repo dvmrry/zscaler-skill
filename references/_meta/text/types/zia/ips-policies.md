@@ -1,0 +1,43 @@
+# zia/ips-policies (zia/ips-policies)
+- Names: zscalerctl `zia ips-policies`; terraform `zia_firewall_ips_rule`; terraform_data_source `zia_firewall_ips_rule`
+- Live read (read-only): `zscalerctl zia ips-policies list`
+- accessControl
+- action
+- capturePCAP
+- defaultRule
+- departments
+- description
+- destAddresses
+- destCountries
+- destIpCategories
+- destIpGroups
+- destIpv6Groups
+- deviceGroups
+- devices
+- enableFullLogging
+- eunTemplateId
+- groups
+- id
+- isEunEnabled
+- labels
+- lastModifiedBy
+- lastModifiedTime
+- locationGroups
+- locations
+- name
+- nwServiceGroups
+- nwServices
+- order
+- predefined
+- rank
+- resCategories
+- sourceCountries
+- srcIpGroups
+- srcIps
+- srcIpv6Groups
+- state
+- threatCategories
+- timeWindows
+- users
+- zpaAppSegments
+- zpaAppSegments.externalId

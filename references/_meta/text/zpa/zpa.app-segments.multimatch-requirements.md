@@ -1,0 +1,45 @@
+# Multimatch prerequisites, restrictions and App Connector selection (zpa.app-segments.multimatch-requirements)
+Also called: multimatch prerequisites; multimatch not supported source ip anchoring; multimatch validation window; multimatch unsupported features; multimatch server group selection; multimatch client connector version
+
+This subject covers what must be true before Multimatch is enabled and how to find what blocks it.
+
+**Availability.** The feature is in limited availability: [Application segment Multimatch is in limited availability, and the help points to Zscaler Support to learn more.](kb:zpa.policy.multimatch:limited-availability). Multimatch needs App Connectors or Private Service Edges at version 24.298.1 or later and Zscaler Client Connector at Windows 4.7.0.88 or 4.6.0.282 or later, macOS 4.5.2.98, iOS 4.4.1, Android 3.10 or Linux 4.2 or later; iOS also needs the 'Use Tunnel SDK Version 4.3 or above' setting. [zpa.app-segments.multimatch-requirements:prereq-versions]
+
+**Restrictions.** Multimatch is not supported for applications that have Source IP Anchoring enabled, and with Multimatch enabled the Health Reporting of an application segment can only be On Access or None. [zpa.app-segments.multimatch-requirements:sipa-health-reporting] Multimatch must be disabled if the configuration contains applications using Double Encryption and Source IP Anchor. [zpa.app-segments.multimatch-requirements:double-encryption-sipa-disable] The pages list different features that block Multimatch [divergence:zpa.app-segments.multimatch-requirements:multimatch-blocking-features]. The full list is open [gap:zpa.app-segments.multimatch-requirements:multimatch-feature-matrix].
+
+**Validation.** The window lists impacted segments and conflicts: [When Multimatch is enabled, a Multimatch Validation window lists impacted application segments and conflicting features, with a warning for a conflict.](kb:zpa.appprotection.segment-opt-in:multimatch-validation). The remedies offered for a Multimatch Validation warning are to edit an application segment and disable unsupported features, review conflicting features in a local Microtenant, contact the default administrator when the default application segment is included, or cancel and disable Multimatch when a segment belongs to another local tenant. [zpa.app-segments.multimatch-requirements:validation-window] The Python SDK can ask the API which features block Multimatch for given domains: `get_multimatch_unsupported_references` posts the domain names to `/application/multimatchUnsupportedReferences` and returns objects with `unsupportedFeatures`. [zpa.app-segments.multimatch-requirements:unsupported-references-call]
+
+**App Connector selection.** With Multimatch off, App Connector selection is primarily based on the segment's server group configuration: [With Multimatch disabled, App Connector selection is primarily based on the application segment's server group configuration.](kb:zpa.server-groups.role:selection-follows-segment-server-group). With it on, the specific FQDN segment's server group is used and segments for one FQDN must share one: [When both a wildcard and a specific FQDN application segment have Multimatch enabled, the specific FQDN segment's server group is used for App Connector selection even if the traffic matches the wildcard rule.](kb:zpa.server-groups.multiple-on-segment:multimatch-specific-fqdn-server-group), [Multimatch application segments for the same FQDN with different ports must all use the same server group; with different server groups any of them can be chosen at random to proxy the traffic.](kb:zpa.server-groups.multiple-on-segment:multimatch-same-fqdn-same-server-group).
+
+How Multimatch changes which segments match: [Multimatch: one request matching several application segments](kb:zpa.app-segments.multimatch).
+
+What to check:
+1. Whether App Connectors, Private Service Edges and the Zscaler Client Connector builds in use meet the Multimatch minimums.
+2. Whether any segment for the domain uses Source IP Anchoring or Double Encryption, and whether Health Reporting is Continuous, before enabling Multimatch.
+3. Whether segments for one FQDN with different ports use different server groups, which makes connector selection unpredictable under Multimatch.
+4. Which features block Multimatch for a given domain, by asking the unsupported-references call rather than relying on a fixed list.
+
+Sources disagree (name both sides):
+- Two live pages list different features for which Multimatch is not supported: the Defined Application Segments page (the newer revision) and the AI-Powered Recommendations page, which embeds a copy of the segment form. [divergence:zpa.app-segments.multimatch-requirements:multimatch-blocking-features]
+  - zscaler-help: Multimatch is not supported for applications that have Source IP Anchoring enabled; no other feature is listed.
+  - zscaler-help: Multimatch is not supported for applications that have Browser Access, Privileged Remote Access, AppProtection or Source IP Anchoring enabled.
+  Impact: Whether Multimatch can be enabled for a Browser Access, Privileged Remote Access or AppProtection segment depends on which page is right; the claim sipa-health-reporting states only the Source IP Anchoring exclusion both pages share.
+
+Not known (open gaps):
+- The complete list of features that block Multimatch for a segment [gap:zpa.app-segments.multimatch-requirements:multimatch-feature-matrix]: settled by tenant-data or lab-test. Blocks: saying whether Multimatch can be enabled for a Browser Access, AppProtection, PRA or ZIA-inspection segment without a tenant check
+
+Area: zpa.app-segments, its subjects in references/_meta/spine/zpa/zpa.app-segments.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zpa/zpa.server-groups.multiple-on-segment.md (Several server groups on one application segment): When both a wildcard and a specific FQDN application segment have Multimatch enabled, the specific FQDN segment's server group is used for App Connector selection even if the traffic matches the wildcard rule. [zpa.server-groups.multiple-on-segment:multimatch-specific-fqdn-server-group]
+- decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]
+- decided-by references/_meta/text/zpa/zpa.app-segments.bypass.md (The application segment Bypass setting and how it ranks), from zpa.app-segments: The Bypass setting within an application segment always takes precedence over any newly added client forwarding policy rule. [zpa.app-segments.bypass:bypass-beats-cfp]
+- decided-by references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap), from zpa.app-segments: Granularity is judged on the domain or address: an exact host is more specific than a wildcard that contains it, and for IPs a /32 host is more specific than the /24 that contains it. [zpa.app-segments.matching:granularity-ranking]
+- interacts-with references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring): Multimatch is not supported for applications that have Source IP Anchoring enabled, and with Multimatch enabled the Health Reporting of an application segment can only be On Access or None. [zpa.app-segments.multimatch-requirements:sipa-health-reporting]
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types), from zpa.app-segments: When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria. [zpa.policy.evaluation-order:segment-then-rules]
+- links-to references/_meta/text/zpa/zpa.app-segments.multimatch.md (Multimatch: one request matching several application segments)
+- links-to references/_meta/text/zpa/zpa.appprotection.segment-opt-in.md (Enabling AppProtection on an application segment)
+- links-to references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)

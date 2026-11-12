@@ -1,0 +1,39 @@
+# Access policy for PRA: privileged approval, step-up and rule criteria (zpa.pra.access-policy)
+Also called: allow with privileged approval; pra step-up authentication; pra conditional access; pra posture; pra access policy; pra country codes; pra saml scim criteria
+
+PRA ties one access policy option to itself, Allow with Privileged Approval. The step-up option depends on an Authentication Service subscription, and PRA has its own console rules.
+
+**Access policy options.** In an access policy rule, the Allow with Privileged Approval option is available only to tenants that have PRA and is aimed at PRA-enabled application segments. [zpa.pra.access-policy:allow-with-privileged-approval] A Conditional Access rule can require a step-up authentication level, available only to tenants subscribed to Authentication Service. A user who is not at the defined level is prompted to reinforce authentication, and the level must be configured in the Zscaler Admin Console. [zpa.pra.access-policy:step-up-level] The July 2026 release announced step-up authentication for PRA: The July 20, 2026 release summary lists step-up authentication for Privileged Remote Access, which only allows access to applications after users complete additional authentication, and says conditional access is supported for step-up authentication in the Zscaler Admin Console. [zpa.pra.access-policy:step-up-pra-july20]
+
+**Consoles-policy rules.** A consoles-policy rule chooses users with SAML and SCIM attributes (or session and user attributes), joined by OR by default and switchable to AND, and chooses application segments and segment groups joined by OR. [zpa.pra.access-policy:consoles-rule-criteria]
+
+**Open.** Posture for clientless sessions is open [gap:zpa.pra.access-policy:posture-on-clientless-pra].
+
+The Web Browser client type and the posture and country restrictions are in [Access policy for Browser Access: client type and unsupported criteria](kb:zpa.browser-access.policy). Approval requests are in [PRA approvals: requesting, reviewing and expiry](kb:zpa.pra.approvals). Rule evaluation order is in [Evaluation order across ZPA policy types](kb:zpa.policy.evaluation-order).
+
+What to check:
+1. Whether the tenant has PRA and ZIdentity before relying on the privileged-approval or step-up options.
+2. Whether a posture or country criterion is being applied to a browser or PRA session, which the help restricts.
+3. Whether a step-up availability answer for PRA matches the release summary entry.
+
+Not known (open gaps):
+- Device posture for clientless PRA sessions [gap:zpa.pra.access-policy:posture-on-clientless-pra]: settled by lab-test
+
+Area: zpa.pra, its subjects in references/_meta/spine/zpa/zpa.pra.json
+
+Linked (open a file only if the answer needs it):
+- interacts-with references/_meta/text/zpa/zpa.pra.approvals.md (PRA approvals: requesting, reviewing and expiry): In an access policy rule, the Allow with Privileged Approval option is available only to tenants that have PRA and is aimed at PRA-enabled application segments. [zpa.pra.access-policy:allow-with-privileged-approval]
+- interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types): Private Access has separate policy types, including access, client forwarding, isolation, timeout, redirection, AppProtection and Browser Protection policy. [zpa.policy.evaluation-order:policy-types]
+- depends-on references/_meta/text/zidentity/zidentity.step-up.md (Step-up authentication: when Authentication Service asks for a stronger login, and why a prompt may not appear): A Conditional Access rule can require a step-up authentication level, available only to tenants subscribed to Authentication Service. A user who is not at the defined level is prompted to reinforce authentication, and the level must be configured in the Zscaler Admin Console. [zpa.pra.access-policy:step-up-level]
+- interacts-with references/_meta/text/zpa/zpa.browser-access.requirements.md (What Browser Access requires of the browser, server and session), from zpa.pra: SSH, RDP and VNC are not Browser Access traffic. Browser Access carries HTTP and HTTPS only, and Privileged Remote Access is the clientless path for RDP, SSH and VNC. [zpa.browser-access.requirements:non-http-use-pra]
+- decided-by references/_meta/text/zpa/zpa.policy.actions.md (Rule actions on ZPA policy types): Conditional Access applies step-up authentication, is available only with an Authentication Service subscription, and prompts the user to reinforce their authentication if they are not at the defined level. [zpa.policy.actions:conditional-access-step-up]
+- scoped-by references/_meta/text/zpa/zpa.pra.app-segments.md (PRA application segments: protocols, ports, connection security and constraints), from zpa.pra: Enabling Privileged Remote Access for an application means choosing a protocol (VNC, RealVNC, SSH or RDP) and a port; the defaults are 5900 for VNC and RealVNC, 3389 for RDP and 22 for SSH. [zpa.pra.app-segments:enable-and-defaults]
+- depends-on references/_meta/text/zpa/zpa.pra.components.md (PRA components: portals, consoles, approvals, credentials, policies and limits), from zpa.pra: A privileged portal must exist before a privileged console is created, because a console is assigned to existing portals, and the same console can appear in more than one portal. [zpa.pra.components:portal-before-console]
+- decided-by references/_meta/text/zpa/zpa.pra.consoles-policy.md (PRA consoles policy: file transfer, clipboard, recording and sharing), from zpa.pra: A consoles policy rule is assigned to selected privileged consoles and controls file uploads, file downloads, clipboard copy and paste, session recording, session sharing and joining live sessions. The rule's criteria choose application segments and segment groups, with SAML and SCIM or session and user attributes. [zpa.pra.consoles-policy:scope]
+- decided-by references/_meta/text/zpa/zpa.pra.credentials.md (PRA credentials, credential pools and the credentials policy), from zpa.pra: A privileged credentials policy rule assigns either one privileged credential or one credential pool to consoles. When a user opens a console with such a policy they reach it without logging in, and deleting the policy removes the assignment so the console prompts for a login again. [zpa.pra.credentials:credentials-policy-assigns]
+- decided-by references/_meta/text/zpa/zpa.pra.portals-policy.md (PRA portals policy: file, inspection and approval permissions in the PRA Portal), from zpa.pra: Portals policy rules allow deleting uploaded files, uploading inspected files, uploading inspected Internet & SaaS Sandbox files, accessing uninspected files in the PRA File Transfer System pages, and requesting and reviewing privileged approvals on the My Approvals and My Requests pages. Portals policies allow users to access the PRA File Transfer System and My Approvals pages in the PRA Portal they assign the rule to. [zpa.pra.portals-policy:scope]
+- logged-in references/_meta/text/zpa/zpa.pra.session-recording.md (PRA session recordings: status, transcoding, playback and sharing), from zpa.pra: Session recording is enabled through the Record Sessions setting of a consoles policy. A user in a recorded console sees a Recording notification at the top of the console window, and the recording ends when the user ends the session. [zpa.pra.session-recording:recording-enabled-by-policy]
+- links-to references/_meta/text/zpa/zpa.browser-access.policy.md (Access policy for Browser Access: client type and unsupported criteria)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)

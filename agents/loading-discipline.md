@@ -42,20 +42,21 @@ artifact that can answer the current question, then stop.
 
 1. **Route, then read.** For Zscaler knowledge, follow `SKILL.md` "Using the
    knowledge graph": pick areas from the spine (`references/_meta/spine/<product>.json`,
-   then `<product>/<area>.json`), then read them with
-   `node scripts/kb.mjs read <area | subject | type | field> ...` in one call. For
+   then `<product>/<area>.json`), then open the picked subjects' text files under
+   `references/_meta/text/` with your file tool. For
    anything else, use workflow metadata, the capability registry, or a short
    `rg` search to choose a source. Do not open product folders, runbooks, or
    vendor trees before a concrete question points there.
 2. **Prefer indexes before bodies.** The spine is the graph's index: an area
-   lists its subjects with their opening facts and sizes, and an area too large
-   to read whole reads as its hub and an index of its subjects. Load
+   lists its subjects with their opening facts and typed edges. Load
    `agents/**/grounding/index.md` or a source viewer index before child cards.
    Read a child only when the index names it as relevant.
-3. **Read, don't page in.** `read` prints a subject's claims, gaps and
-   divergences with citable IDs and follows one hop of links; old clarification
-   IDs (`zia-02`) read as their subjects. `resolve` gives the same knowledge as
-   JSON for scripts. Do not read or grep the graph's JSON files to answer.
+3. **Read, don't page in.** A subject's text file gives its claims, gaps and
+   divergences with citable IDs and ends with its links as file paths; search
+   `references/_meta/text/` for a pasted error, code or name. `read` prints the
+   same text (old clarification IDs such as `zia-02` read as their subjects),
+   and `resolve` gives the same knowledge as JSON for scripts. Do not read or
+   grep the graph's JSON files to answer.
 4. **Default search exclusions.** Broad searches should exclude local runtime
    copies and generated/stale workspaces: `--glob '!.claude/worktrees/**'`.
    Exclude raw vendor source under `vendor/**` unless the current workflow
@@ -65,16 +66,16 @@ artifact that can answer the current question, then stop.
    worklist) is reference-grade reconciliation data, not raw vendor source —
    search it like `references/**`, not like a vendor tree.
 5. **Treat `_data/` as scoped evidence, not reference background.** Open the
-   IaC files `read` locates (its "IaC repos" header and each company record's
-   IaC lines), search `_data/cases/`, or run the read-only `zscalerctl` command
-   a type names, only when the question is tenant-specific, case-specific, or
-   deployment-specific. Company records arrive through `read`; do not search
-   the overlay's record files. Operational knowledge
+   IaC files `read --company` locates (its "IaC repos" header and each company
+   record's IaC lines), search `_data/cases/`, or run the read-only `zscalerctl`
+   command a type names, only when the question is tenant-specific,
+   case-specific, or deployment-specific. Company records arrive through
+   `read --company`; do not search the overlay's record files. Operational knowledge
    follows the narrower v1 rule below.
-6. **One-pass answer budget.** For ad-hoc Q&A, aim for one `read` call with the
-   areas and subjects the question turns on, plus one follow-up read for a
-   subject it names. Add more only when the user asks for a comparison,
-   conflict, or cross-product behavior.
+6. **One-pass answer budget.** For ad-hoc Q&A, open the 3 to 6 subject files
+   the question turns on, plus a linked file only when the answer needs it, and
+   run `read --company` once. Read more only when the user asks for a
+   comparison, conflict, or cross-product behavior.
 7. **Record what mattered.** Procedural roles with artifacts should record the
    files actually used, not every file considered. Rejected broad searches do
    not belong in evidence ledgers.
