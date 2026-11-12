@@ -11,9 +11,7 @@
     "delay posture failure notifications",
     "posture failure notification",
     "zia firewall dns ips notifications",
-    "do not disturb button",
-    "modern notification template",
-    "legacy notification template"
+    "do not disturb button"
   ],
   "related": [
     {
@@ -29,7 +27,7 @@
     {
       "rel": "depends-on",
       "to": "zcc.notifications.framework",
-      "because": "zcc.notifications.templates:do-not-disturb"
+      "because": "zcc.notifications.templates:availability"
     },
     {
       "rel": "configured-via",
@@ -46,11 +44,11 @@
   ],
   "prose": [
     {
-      "text": "Templates let different groups of users get different notification settings. {{purpose}} {{availability}} {{android-profiles}} {{replaces-tab}}"
+      "text": "Templates let different groups of users get different notification settings. {{purpose}} {{availability}} The app profile page offers templates on Android as well {{divergence:android-templates}}. {{replaces-tab}} A briefly published revision described Modern and Legacy template types {{gap:modern-templates}}."
     },
     {
       "label": "Assignment.",
-      "text": "{{older-clients-legacy}} {{app-profile-binding}} Whether a template can still be marked as the default for new app profiles is open {{gap:default-template}}."
+      "text": "{{default-for-new-profiles}} {{older-clients-legacy}} {{app-profile-binding}}"
     },
     {
       "label": "Settings shared with the global tab.",
@@ -67,7 +65,7 @@
   ],
   "checks": [
     {
-      "do": "Which Client Connector version the device runs: 5.0 and later gets the template's Modern settings and earlier versions its Legacy settings, while the app profile page sends Windows 4.7 or earlier to the Legacy Notification Settings template whatever the profile names.",
+      "do": "Whether the device runs Client Connector 4.8 or later for Windows; older clients get the Legacy Notification Settings template whatever the profile names.",
       "uses": [
         "availability",
         "older-clients-legacy"
@@ -96,39 +94,50 @@
           "source": "zscaler-help",
           "path": "configuring-notification-templates-zscaler-client-connector.json",
           "quotes": [
-            "assign a template to specific groups of users in the app profile",
+            "and assign a template to specific groups of users in the app profile",
             "After you create a template, you can assign it to an app profile to apply the notification settings to a group of users."
           ]
         }
       ]
     },
     "availability": {
-      "statement": "Notification templates are available only for Zscaler Client Connector version 4.8 and later for Windows and you must have the Zscaler Notification Framework enabled. You can configure notification templates for various settings for user notifications in Zscaler Client Connector and assign a template to specific groups of users in the app profile.",
+      "statement": "Templates work only with Client Connector 4.8 and later for Windows, need the Zscaler Notification Framework, and are enabled by Zscaler Support.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-notification-templates-zscaler-client-connector.json",
           "quotes": [
-            "Modern: Provides options to control which individual notifications or groups of notifications display and for how long for each selected platform.",
             "This feature is available only for Zscaler Client Connector version 4.8 and later for Windows and you must have the Zscaler Notification Framework enabled.",
-            "Legacy: Provides options to control which notification types display (but not how the individual notifications display). End users can manually enable or disable some notifications. Available for Zscaler Client Connector versions earlier than 5.0.",
-            "Zscaler made notification templates generally available in May 2026.",
-            "You can configure notification templates for various settings for user notifications in Zscaler Client Connector and assign a template to specific groups of users in the app profile."
+            "Contact Zscaler Support to enable this feature."
           ]
         }
       ]
     },
     "replaces-tab": {
-      "statement": "Existing settings from the End User Notifications tab were migrated to a Legacy Notification Settings template, whose name cannot be changed.",
+      "statement": "Enabling templates removes the End User Notifications tab and copies its settings into a Legacy Notification Settings template, whose name cannot be changed.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-notification-templates-zscaler-client-connector.json",
           "quotes": [
-            "Existing global settings to enable default, app update, Internet & SaaS (ZIA), and Private Access (ZPA) reauthentication notifications as well as persistence settings from the End User Notifications tab were migrated to a Legacy Notification Settings template",
+            "When you enable this feature, the End User Notifications tab no longer displays and the existing settings from that tab are copied to a Legacy Notification Settings template.",
             "You cannot change the default Legacy Notification Settings template name."
+          ]
+        }
+      ]
+    },
+    "default-for-new-profiles": {
+      "statement": "A template other than the legacy one can be marked as the default for new app profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "select whether this notification template is the default template for new app profiles.",
+            "Default: If you are configuring a template that is not the Legacy Notification Settings template, select whether"
           ]
         }
       ]
@@ -144,21 +153,6 @@
             "If you assign an app profile with a notification template to users with Zscaler Client Connector version 4.7 or earlier, the Legacy Notification Settings template is used regardless of what is selected.",
             "This option is available only for Zscaler Client Connector version 4.8 and later for Windows. If you assign an app profile with a notification template"
           ]
-        }
-      ]
-    },
-    "android-profiles": {
-      "statement": "An Android app profile has a Notification Template option, available only for Client Connector 5.0 and later for Android; the same entry says users on 4.2 or earlier get the Legacy Notification Settings template whatever is selected.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "configuring-zscaler-client-connector-app-profiles.json",
-          "quotes": [
-            "Notification Template: Select one of your configured notification templates from the drop-down menu.",
-            "This option is available only for Zscaler Client Connector version 5.0 and later for Android. If you assign an app profile with a notification template to users with Zscaler Client Connector version 4.2 or earlier, the Legacy Notification Settings template is used regardless of what is selected."
-          ],
-          "after": "To add a new Android policy rule:"
         }
       ]
     },
@@ -203,9 +197,9 @@
             "Enable ZIA Notifications: Select this option to have users receive notifications from Internet & SaaS (ZIA)",
             "Enable Notifications for ZPA reauthentication: Select this option to have users prompted for authentication.",
             "Enter a value from 2 to 1440 to set the interval in minutes.",
-            "Custom Timer (In Seconds): Set the amount of time that the notification displays for the user. Enter a time between 5 an",
+            "Enter a time between 5 and 60 seconds.",
             "This setting displays critical notifications until the user dismisses them.",
-            "Existing global settings to enable default, app update, Internet & SaaS (ZIA), and Private Access (ZPA) reauthentication notifications as well as persistence settings from the End User Notifications tab were migrated to a Legacy Notification Settings template"
+            "the existing settings from that tab are copied to a Legacy Notification Settings template."
           ]
         },
         {
@@ -254,15 +248,14 @@
       ]
     },
     "do-not-disturb": {
-      "statement": "Do not Disturb adds a Do not Disturb button to Client Connector pop-ups. It is disabled by default, applies only to Windows and macOS, and needs the Zscaler Notification Framework. It is a Common Setting of the template; where Modern templates are not enabled on the tenant, it is set in the legacy settings.",
+      "statement": "Do not disturb, enabled by default, adds a Do not Disturb button to Client Connector pop-ups.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-notification-templates-zscaler-client-connector.json",
           "quotes": [
-            "Do not Disturb: Enable to include a Do not Disturb button on Zscaler Client Connector pop-up notifications. The default value is disabled. Applies only to Zscaler Client Connector for Windows and macOS and the Zscaler notification framework must be enabled.",
-            "If the Modern template feature isn't enabled on your tenant, the Common Settings section doesn't display. You can set the pop-up duration in the Custom Timer (In Seconds) field and enable the Do not disturb setting in the legacy settings."
+            "Do not disturb: When enabled, Zscaler Client Connector pop-up notifications include a Do not Disturb button. The default value is enabled"
           ]
         }
       ]
@@ -396,7 +389,7 @@
       "resolves_with": [
         "source-read"
       ],
-      "resolution": "The interval is a template setting (same-settings) and templates are assigned per app profile (purpose), on Legacy-tab settings; which clients a template reaches is in availability, older-clients-legacy and android-profiles. The application profile embeds the template as notificationTemplateContract (app-profile-binding)."
+      "resolution": "The interval is a template setting (same-settings) and templates are assigned per app profile (purpose), but only on Client Connector 4.8 and later for Windows (availability); on other clients the interval is the tenant-wide setting (zcc.notifications.global-settings:reauth-interval). The application profile embeds the template as notificationTemplateContract (app-profile-binding)."
     },
     "posture-failure-notification": {
       "kind": "semantic",
@@ -410,15 +403,44 @@
       ],
       "resolution": "Templates delay posture-failure pop-ups (posture-delay) and can show a remediation pop-up when a posture failure blocks a Private Access app (posture-remediation)."
     },
-    "default-template": {
+    "modern-templates": {
       "kind": "semantic",
-      "title": "Whether a template can be the default for new app profiles",
+      "title": "Modern and Legacy notification templates",
       "status": "open",
-      "detail": "The templates page used to have a Default option to make a template other than the Legacy Notification Settings template the default for new app profiles; the current page has no such option, but the Go SDK's template model still carries `isDefaultTemplate` (go-model-fields).",
+      "detail": "A revision of the templates page published on 2026-11-10 described two template types: Modern (per-platform control of individual notifications and their display time, for Client Connector 5.0 and later) and Legacy (for versions earlier than 5.0). It also said templates became generally available in May 2026. The page was reverted on 2026-11-11 to the Windows 4.8 and later text, so whether Modern templates have shipped, and on which platforms, is not stated by a current page.",
       "resolves_with": [
-        "tenant-data",
-        "lab-test"
+        "source-read",
+        "tenant-data"
       ]
+    }
+  },
+  "divergences": {
+    "android-templates": {
+      "summary": "Which platforms take a notification template: the templates page says only Client Connector 4.8 and later for Windows, while the app profile page offers a template on Android app profiles for 5.0 and later.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-notification-templates-zscaler-client-connector.json",
+            "quotes": [
+              "This feature is available only for Zscaler Client Connector version 4.8 and later for Windows and you must have the Zscaler Notification Framework enabled."
+            ]
+          },
+          "says": "Templates are available only for Client Connector 4.8 and later for Windows."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-zscaler-client-connector-app-profiles.json",
+            "after": "To add a new Android policy rule:",
+            "quotes": [
+              "This option is available only for Zscaler Client Connector version 5.0 and later for Android."
+            ]
+          },
+          "says": "An Android app profile offers a notification template for Client Connector 5.0 and later."
+        }
+      ],
+      "impact": "Whether a template applies to Android users cannot be settled from the templates page alone."
     }
   }
 }

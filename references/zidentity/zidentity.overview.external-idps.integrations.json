@@ -47,7 +47,7 @@
     },
     {
       "label": "Entra ID, apps and SCIM.",
-      "text": "{{entra-app-count}} {{entra-scim-oidc}} {{entra-scim-mappings}} {{entra-scim-settings}} Whether the Gallery app now carries SCIM is open {{gap:entra-gallery-scim}}."
+      "text": "{{entra-provisioning-modes}} {{entra-scim-oidc}} {{entra-scim-mappings}} {{entra-scim-settings}} Whether the Gallery app now carries SCIM is open {{gap:entra-gallery-scim}}."
     },
     {
       "label": "Entra ID, OIDC and SAML.",
@@ -88,9 +88,9 @@
       ]
     },
     {
-      "do": "For Entra ID, whether the tenant wants JIT (one app) or SCIM (two apps), and, before switching a custom-app SCIM configuration to OAuth2 Client Credentials, that doing so discards the current bearer token.",
+      "do": "For Entra ID, whether the tenant provisions by JIT or SCIM, and, before switching a custom-app SCIM configuration to OAuth2 Client Credentials, that doing so discards the current bearer token.",
       "uses": [
-        "entra-app-count",
+        "entra-provisioning-modes",
         "entra-scim-oidc"
       ]
     },
@@ -260,18 +260,27 @@
         }
       ]
     },
-    "entra-app-count": {
-      "statement": "The Entra ID guide says the provisioning mode (JIT or SCIM) determines the number of apps in Entra ID, one for JIT and two for SCIM; for OIDC apps via the Microsoft Entra App Gallery only JIT provisioning is supported, and SCIM with OIDC needs a custom Entra ID app for SCIM in addition to the Gallery app for authentication.",
+    "entra-provisioning-modes": {
+      "statement": "The Entra ID guide provisions users to Authentication Service by JIT or SCIM, depending on the authentication protocol. Its OIDC section starts from the Zscaler app in the Entra ID gallery, and its SCIM steps use OAuth2 Client Credentials and then open Provisioning on the application created for Authentication Service.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
           "quotes": [
-            "A preferred choice of provisioning mode (JIT or SCIM) as this determines the number of apps you need to configure in Entra ID — one app for JIT and two apps for SCIM.",
-            "Entra ID only supports JIT provisioning for OIDC apps via the Microsoft Entra App Gallery. If you prefer SCIM provisioning with OIDC, you need to create a custom Entra ID app for SCIM, in addition to using the Gallery App for authentication.",
-            "| JIT Provisioning | Yes | Supported by default | None |",
-            "| SCIM Provisioning | Yes | Not supported in the Gallery Application | Create a custom Entra ID app for SCIM provisioning in addition to using the Gallery App for authentication. |"
+            "Depending on the authentication protocol, you can provision users to Authentication Service from Entra ID using Just-in-Time (JIT) provisoning or System for Cross-domain Identity Management (SCIM) provisioning.",
+            "OIDC-Based Authentication via Microsoft Entra Gallery App Integration",
+            "Configure app integration using the Zscaler app in the Entra ID gallery."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "after": "New SCIM configuration",
+          "quotes": [
+            "Authentication Method: Select OAuth2 Client Credentials.",
+            "Locate and click the application that you created for Authentication Service.",
+            "In the left-side navigation, click Provisioning."
           ]
         }
       ]
@@ -672,8 +681,8 @@
     "entra-gallery-scim": {
       "kind": "semantic",
       "title": "Whether the Entra ID Gallery app carries SCIM through OAuth2 client credentials",
-      "status": "open",
-      "detail": "The Entra ID guide lists SCIM provisioning as not supported in the Gallery Application, yet its OIDC SCIM steps configure provisioning on the application created for Authentication Service, including migration from an existing custom app-based SCIM configuration with customizations replicated in the new application. Which app those steps apply to is unclear from the page.",
+      "status": "partial",
+      "detail": "The OIDC section of the Entra ID guide starts from the Gallery app and configures SCIM with OAuth2 Client Credentials on the application created for Authentication Service, including migration from an existing custom app-based SCIM configuration. Earlier revisions of the guide listed SCIM as not supported in the Gallery application and needing a second, custom app; the current one does not say so either way. Whether any tenant still needs the custom app, for example with SAML, is not stated.",
       "blocks": "telling a tenant whether SCIM needs the second custom Entra ID app",
       "resolves_with": [
         "lab-test",

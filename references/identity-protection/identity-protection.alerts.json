@@ -41,7 +41,7 @@
     },
     {
       "label": "Changing alerts.",
-      "text": "{{bulk-update}} {{create-incident}} The Update dialog and the alert drawer list different verdict values {{divergence:verdict-values-differ}}."
+      "text": "{{bulk-update}} {{create-incident}}"
     },
     {
       "label": "The alert drawer.",
@@ -54,9 +54,8 @@
   ],
   "checks": [
     {
-      "do": "Which verdict list applies: the Update dialog on the Alerts page lists Accepted through Recommendation Status Unspecified, and the alert drawer lists No verdict through True Positive.",
+      "do": "Which verdict values apply: the Update dialog offers Benign through True Positive, and the alert drawer adds No verdict.",
       "uses": [
-        "verdict-values-differ",
         "bulk-update",
         "verdict-values"
       ]
@@ -164,7 +163,7 @@
       ]
     },
     "list-columns": {
-      "statement": "The About Alerts page says that viewing the list of alerts shows details, and for each alert lists ID, Severity (Critical, High, Low, Medium or None), Severity Score, Title, Created, Sources (alerts triggered by Zscaler have the Zscaler logo), Tactic and Technique (MITRE ATT&CK).",
+      "statement": "The About Alerts page lists, for each alert in the alert list, ID, Severity (Critical, High, Low, Medium or None), Severity Score, Title, Created, Sources (alerts triggered by Zscaler have the Zscaler logo), Tactic and Technique (MITRE ATT&CK); clicking an alert row shows its details.",
       "tier": "A",
       "evidence": [
         {
@@ -179,7 +178,8 @@
             "Tactic: The MITRE ATT&CK tactic for which the alert is triggered.",
             "Technique: The MITRE ATT&CK technique for which the alert is triggered.",
             "View the list of alerts. For each alert, you can see:",
-            "Title: The title of the alert."
+            "Title: The title of the alert.",
+            "Click the alert row to view its details."
           ]
         }
       ]
@@ -290,39 +290,6 @@
     }
   },
   "divergences": {
-    "verdict-values-differ": {
-      "summary": "The Alerts page's Update dialog lists the verdict values Accepted through Recommendation Status Unspecified, while the alert drawer lists No verdict through True Positive.",
-      "positions": [
-        {
-          "says": "The Update dialog's Verdict is one of Benign, False Positive, Inconclusive, Malicious, Suspicious, or True Positive.",
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "identity-protection-about-alerts.json",
-            "quotes": [
-              "Verdict: Select the inference for the alert (Benign, False Positive, Inconclusive, Malicious, Suspicious, or True Positive)."
-            ]
-          }
-        },
-        {
-          "says": "The alert drawer's Verdict is one of No verdict, Benign, False Positive, Inconclusive, Malicious, Suspicious or True Positive.",
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "identity-protection-viewing-managing-alerts.json",
-            "quotes": [
-              "Verdict: The verdict of the alert which is used to calculate the alert risk score. Select one of the following verdicts:",
-              "No verdict: No inference has been made for the alert yet.",
-              "Benign: The alert does not indicate a security threat.",
-              "False Positive: The alert is triggered, but the detected threat is not what the alert is intended to detect.",
-              "Inconclusive: The available evidence is not sufficient to determine whether the alert indicates a legitimate or malicious threat.",
-              "Malicious: The alert is triggered for a malicious threat.",
-              "Suspicious: The alert is triggered for a potential security threat, but the available evidence is not sufficient to confirm it as malicious.",
-              "True Positive: The alert is triggered for the intended threat."
-            ]
-          }
-        }
-      ],
-      "impact": "An answer naming the values an admin can set as an alert's verdict depends on whether it is set from the Update dialog or from the alert drawer; neither page says the lists apply to different fields. The Incidents page's alert drawer example in [[soc-workbench.incidents]] (gap drawer-example-values) names the same Accepted, Executed and Partial values."
-    },
     "risk-score-basis": {
       "summary": "The alert drawer describes the Risk Score as the highest severity score among findings on the asset, while also saying the verdict is used to calculate the alert risk score and that the Score Calculation sums severity scores and the verdict.",
       "positions": [

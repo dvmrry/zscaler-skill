@@ -38,7 +38,7 @@
     },
     {
       "label": "Salesforce.",
-      "text": "{{salesforce-credentials}} {{salesforce-user}} {{salesforce-client-app}} {{salesforce-org-settings}} {{salesforce-key}} {{salesforce-authorize}} The tenants page limits trusted domains and users to email tenants {{divergence:trusted-profiles-scope}}, and the SSPM permissions page is in [[zia.sspm.permissions:salesforce-inevitable-write]]. {{salesforce-permissions}} {{salesforce-production-permissions}} The Modify All Data row for SSPM differs between the two pages {{divergence:salesforce-modify-all-data}}. What the production steps give and omit is open {{gap:salesforce-production-values}}."
+      "text": "{{salesforce-credentials}} {{salesforce-user}} {{salesforce-client-app}} {{salesforce-org-settings}} {{salesforce-key}} {{salesforce-authorize}} The SSPM permissions page is in [[zia.sspm.permissions:salesforce-inevitable-write]]. {{salesforce-permissions}} {{salesforce-production-permissions}} The Modify All Data row for SSPM differs between the two pages {{divergence:salesforce-modify-all-data}}. What the production steps give and omit is open {{gap:salesforce-production-values}}."
     },
     {
       "label": "Microsoft.",
@@ -62,13 +62,6 @@
       "uses": [
         "salesforce-permissions",
         "salesforce-modify-all-data"
-      ]
-    },
-    {
-      "do": "Whether a trusted-domain question for a Salesforce tenant rests on the divergence with the tenants page.",
-      "uses": [
-        "salesforce-authorize",
-        "trusted-profiles-scope"
       ]
     }
   ],
@@ -513,34 +506,6 @@
         }
       ],
       "impact": "Whether a Salesforce SSPM scan needs Modify All Data, or only remediation does, depends on which page governs; the pages do not say. The connector page also lists Modify All Data for DLP and Malware, with Apply Policy Actions in the sandbox table and Scanning in the production table. The graph's claim in zia.sspm.permissions:salesforce-inevitable-write follows the SSPM page."
-    },
-    "trusted-profiles-scope": {
-      "summary": "The tenants page says external trusted domains and users apply only to email SaaS application tenants, while the Salesforce (CRM) custom connector authorization offers External Trusted Domains and User Profiles.",
-      "positions": [
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "about-saas-application-tenants.json",
-            "quotes": [
-              "Displays the total number of added external trusted domains. Click to view a list of the domains. This only applies to email SaaS application tenants."
-            ]
-          },
-          "says": "The trusted domains count applies only to email SaaS application tenants."
-        },
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "zia-authorizing-custom-zscaler-connector-salesforce.json",
-            "quotes": [
-              "(Optional) Under (Optional) Configure External Trusted Domains & User Profiles:",
-              "You can add up to 1,000 domains."
-            ],
-            "after": "- Sandbox Tenant"
-          },
-          "says": "The Salesforce authorization step offers an optional trusted domains and user profiles section with up to 1,000 domains."
-        }
-      ],
-      "impact": "Whether trusted domains and users apply to a Salesforce tenant is stated both ways; the graph's claim zia.casb.tenants:trusted-profiles-email-only follows the tenants page. The relation of the 1,000-entry figure to the 32-profile limit is not stated."
     },
     "microsoft-mip-client-secret": {
       "summary": "The Microsoft connector page says MIP requires the private key method and the client secret method is not available, while its own table marks MIP Yes in both method columns and its MIP account steps enter a Client Secret.",

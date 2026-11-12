@@ -93,7 +93,7 @@
     },
     {
       "label": "Choosing engines.",
-      "text": "{{engine-selection}} {{no-engines-filter-mode}} {{match-only}} {{match-only-example}} Some SDK docstrings describe `matchOnly` differently: [[zia.dlp.rule-wire-shape:match-only-docstring]]."
+      "text": "{{engine-selection}} {{no-engines-filter-mode}} {{match-only}} {{match-only-example}} The page names the sender two ways {{divergence:match-only-example-sender}}. Some SDK docstrings describe `matchOnly` differently: [[zia.dlp.rule-wire-shape:match-only-docstring]]."
     },
     {
       "label": "Rules without content inspection.",
@@ -712,7 +712,8 @@
             "Rule 2 allows your organization’s human resources team to send out social security numbers.",
             "Rule 3 blocks the rest of your organization from sending out credit card numbers and social security numbers.",
             "For example, you have selected Match Only for Rule 1 and Rule 2.",
-            "The document does not match Rule 1, despite belonging to a finance team member (the user is in Human Resources). This is because Rule 1 only triggers if a document only contains credit card numbers and no additional content that triggers other engines from different rules.",
+            "The document does not match Rule 1, despite belonging to a finance team member",
+            "This is because Rule 1 only triggers if a document only contains credit card numbers and no additional content that triggers other engines from different rules.",
             "This results in the DLP policy blocking the transaction, and the finance team member is unsuccessful in sending out the social security numbers. - Because Rule 1 and Rule 2 did not match, Rule 3 is matched and blocks for credit card numbers and social security numbers.",
             "Rule 1 matches (and overrides Rule 3) because it takes precedence due to the rule order. The document matches Rule 1, because it contains credit card numbers and the user belongs to the Finance group. Without Match Only, Rule 1 triggers even if the document contains additional sensitive data.",
             "This results in the DLP policy allowing the transaction, and the finance team member succeeds in sending out the credit card numbers and social security numbers."
@@ -1028,6 +1029,33 @@
         }
       ],
       "impact": "Do not quote 127 or 1,024 as the Web DLP rule cap without saying which source it comes from; the two figures may describe different things (a 127 API cap against a generic per-type limit) and the sources do not reconcile them."
+    },
+    "match-only-example-sender": {
+      "summary": "The Match Only example page names the sender's team two ways: a finance team member, and, in a parenthesis, a user in Human Resources.",
+      "positions": [
+        {
+          "says": "The sender is a finance team member who is not in Human Resources.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-dlp-policy-configuration-example-match-only.json",
+            "quotes": [
+              "A member of the finance team sends out a document that includes both credit card numbers and social security numbers.",
+              "The document does not match Rule 2, because the document’s owner is not a human resources team member."
+            ]
+          }
+        },
+        {
+          "says": "The parenthesis on the Rule 1 bullet says the user is in Human Resources.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-dlp-policy-configuration-example-match-only.json",
+            "quotes": [
+              "despite belonging to a finance team member (the user is in Human Resources)"
+            ]
+          }
+        }
+      ],
+      "impact": "The example works only with a finance sender; the parenthesis reads as a vendor error, so the example should not be cited for the behaviour of an HR sender."
     }
   }
 }
