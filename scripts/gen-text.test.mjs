@@ -110,14 +110,33 @@ test("read --company lists linked subjects' records past its budget, reads one b
   const ov = usableOverlay(g, loadOverlay(g, OVERLAY));
   const whole = readText(g, ["ai-security.ai-guard"], ov, { company: true });
   const listed = readText(g, ["ai-security.ai-guard"], ov, { company: true, linkedRecords: 0 });
-  assert.match(whole, /^Company records about \S+:\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: .+\n {2}Stored in: /m);
+  assert.match(whole, /^Company records about \S+ \(linked subject\):\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: .+\n {2}Stored in: /m);
+  assert.match(whole, /^Company records: \d+ printed whole\.$/m, "the read says up front what it holds");
+  assert.match(listed, /^Company records: \d+ printed whole; 1 more listed at the end, 1 one line each\.$/m);
   assert.match(listed, /^Company records about linked subjects, one line each \(read the ones the answer needs whole, all in one call: `node scripts\/kb\.mjs read --company <record id> \.\.\.`\):\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: Synthetic fixture: how our SIEM stores ZIA web log fields$/m);
   assert.doesNotMatch(listed, /Stored in:/);
   assert.deepEqual(records(listed), records(whole), "a listed record is still named");
   assert.match(read("--overlay", OVERLAY, "--company", "company.zia.splunk-web-mapping"), /^Company record company\.zia\.splunk-web-mapping:\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: .+\n {2}Stored in: Splunk index zscaler_web \(synthetic\)\n {2}- zia\/web-log#urlfilterrulelabel is zs_url_rule$/m);
 
-  assert.match(read("--overlay", OVERLAY, "--company", "company.zia.nope"), /^# company\.zia\.nope: no active company record has this ID$/m);
-  assert.match(read("--overlay", OVERLAY, "--company", "company.zia.splunk-web-mapping,"), /^Company record company\.zia\.splunk-web-mapping:$/m, "a trailing comma is dropped");
+  assert.match(read("--overlay", OVERLAY, "--company", "company.zia.nope"), /^# company\.zia\.nope: no company record has this ID$/m);
+  // An ID reads however it was copied: with a comma, two joined by one, in brackets or backticks, or as its file.
+  for (const [arg, ids] of [
+    ["company.zia.splunk-web-mapping,", ["company.zia.splunk-web-mapping"]],
+    ["company.zia.splunk-web-mapping,company.zia.url-filtering-iac", ["company.zia.splunk-web-mapping", "company.zia.url-filtering-iac"]],
+    ["[company.zia.splunk-web-mapping]", ["company.zia.splunk-web-mapping"]],
+    ["`company.zia.splunk-web-mapping`", ["company.zia.splunk-web-mapping"]],
+    ["knowledge/zia/company.zia.splunk-web-mapping.json", ["company.zia.splunk-web-mapping"]],
+  ]) {
+    const heads = read("--overlay", OVERLAY, "--company", arg).split("\n");
+    for (const id of ids) assert.ok(heads.includes(`Company record ${id}:`), `${arg} reads ${id}`);
+  }
+  // A record named with its subject prints once, and its ID says so.
+  const both = read("--overlay", OVERLAY, "--company", "zia.url-filtering", "company.zia.url-filtering-iac");
+  assert.equal(both.match(/^- \[company\.zia\.url-filtering-iac\]/gm).length, 1);
+  assert.match(both, /^# company\.zia\.url-filtering-iac: printed above$/m);
+  // A named subject's own records print first, before the rest of its area, and outside the linked budget.
+  assert.match(read("--overlay", OVERLAY, "--company", "zia.url-filtering.rule-order"), /^Company records: .+\n\nCompany records about zia\.url-filtering\.rule-order:\n/m);
+  assert.match(readText(g, ["zia.url-filtering"], ov, { company: true, linkedRecords: 0 }), /^- \[company\.zia\.url-filtering-iac\][^\n]*\n(?: {2}.*\n)* {2}- IaC checks we added: /m, "the area's own records print whole with no budget");
 
   // A record by ID that is not active says what it is instead.
   const states = fs.mkdtempSync(path.join(os.tmpdir(), "kb-overlay-"));
@@ -128,10 +147,30 @@ test("read --company lists linked subjects' records past its budget, reads one b
     put("company.zia.old-mapping", { status: "retired" });
     put("company.zia.public-now", { status: "promoted", promoted_to: "zia.url-filtering.rule-order:first-match" });
     put("company.zia.broken", { kind: "no-such-kind" });
-    const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", states, "--company", "company.zia.old-mapping", "company.zia.public-now", "company.zia.broken"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
-    assert.match(out, /^# company\.zia\.old-mapping: no active company record has this ID \(it is retired\)$/m);
+    const claim = (id, about, statement) => fs.writeFileSync(path.join(states, `knowledge/zia/${id}.json`), JSON.stringify({
+      schema_version: 1, id, kind: "claim", relation: "extends", about: [about], title: `Synthetic ${id}`, status: "active", statement, confidence: "medium", validated: "2026-01-01",
+    }));
+    // A record printed whole cites others in its text; the read lists the ones it named nowhere.
+    claim("company.zia.citer", "zia.url-filtering", "Synthetic fixture. See company.zia.cited-elsewhere and company.zia.old-mapping; company.zia.url-filtering-iac covers the rest.");
+    claim("company.zia.cited-elsewhere", "zdx.score", "Synthetic fixture, about a subject no read of URL Filtering reaches.");
+    // An IaC file that is not JSON fails its pointer, not the overlay.
+    fs.writeFileSync(path.join(states, "iac/broken.json"), "{ not json");
+    const iacRecord = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
+    fs.writeFileSync(path.join(states, "knowledge/zia/company.zia.bad-json.json"), JSON.stringify({ ...iacRecord, id: "company.zia.bad-json", pointers: [{ repo: "iac", file: "broken.json", pointer: "/x", label: "x" }] }));
+    const quiet = (...a) => execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", states, "--company", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    const out = quiet("company.zia.old-mapping", "company.zia.public-now", "company.zia.broken", "company.zia.bad-json");
+    assert.match(out, /^# company\.zia\.old-mapping: this company record is retired, not active$/m);
     assert.match(out, /^# company\.zia\.public-now: this company record was promoted to the public claim zia\.url-filtering\.rule-order:first-match$/m);
     assert.match(out, /^# company\.zia\.broken: this company record was skipped as invalid \(the overlay check says why\)$/m);
+    assert.match(out, /^ {2}- IaC x: iac:broken\.json#\/x \(unresolved: IaC file is not valid JSON: iac:broken\.json \(.+\)\)$/m);
+    const area = quiet("zia.url-filtering");
+    const cited = area.split("\n\n").find((b) => b.startsWith("Company records cited by the records above"));
+    assert.ok(cited, area);
+    assert.match(cited, /^- \[company\.zia\.cited-elsewhere\] claim, extends zdx\.score: Synthetic company\.zia\.cited-elsewhere \(cited by company\.zia\.citer\)$/m);
+    assert.match(cited, /^- company\.zia\.old-mapping: this company record is retired, not active \(cited by company\.zia\.citer\)$/m);
+    assert.doesNotMatch(cited, /url-filtering-iac/, "a record the read printed is not listed again");
+    assert.match(area, /^Company records: \d+ printed whole; 1 cited by them, listed at the end\.$/m);
+    assert.doesNotMatch(quiet("company.zia.citer"), /Company records cited/, "a second call lists no more");
   } finally {
     fs.rmSync(states, { recursive: true, force: true });
   }
@@ -148,6 +187,23 @@ test("read --company lists linked subjects' records past its budget, reads one b
       big: [{ description: `${"long words, ".repeat(60)}end`, enabled: false }],
       lines: "\n".repeat(1000),
       key: { ["k".repeat(400)]: 12345 },
+      ids: Array.from({ length: 15 }, (_, i) => `id-${String(i).padStart(16, "0")}`),
+      server: { app_connector_groups: [{ id: Array.from({ length: 20 }, (_, i) => `group-${String(i).padStart(12, "0")}`) }], name: "x" },
+      flags: {
+        ...Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`flag_${i}`, false])),
+        ...Object.fromEntries(Array.from({ length: 22 }, (_, i) => [`filler_${i}`, `v${i}`])),
+        list: domains.slice(0, 30),
+      },
+      // An exported URL Filtering rule: keys alphabetical, many empty or false, the deciding lists late.
+      urlrule: {
+        action: "BLOCK", block_override: false, cbi_profile: {}, ciparule: false, departments: [], description: "d".repeat(62),
+        device_trust_levels: ["A", "B", "C", "D"].map((x) => `TRUST_LEVEL_${x}`), devices: [], dlp_engines: [], end_user_notification_url: "",
+        enforce_time_validity: false, groups: [{ id: [8061234, 8061235] }], labels: [], location_groups: [], locations: [{ id: [9000001, 9000002, 9000003, 9000004] }],
+        name: "Block NRD for contractors", order: 14, override_groups: [], override_users: [], protocols: ["HTTP", "HTTPS", "FTP", "RTSP", "SSL", "TUNNEL", "DOHTTPS", "WEBSOCKET"].map((x) => `${x}_RULE`),
+        rank: 7, request_methods: ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "CONNECT", "TRACE"], size_quota: 0, source_countries: [],
+        source_ip_groups: [{ id: [5550101, 5550102, 5550103] }], state: "ENABLED", time_quota: 0, time_windows: [], url_categories: ["NEWLY_REG_DOMAINS", "GAMBLING", "ADULT_THEMES", "SPYWARE"],
+        user_agent_types: [], user_risk_score_levels: [], users: [], validity_end_time: 0, workload_groups: [],
+      },
       // As a tfvars export writes a rule: its keys in order, metadata first, the lists a record is about later.
       rule: { action: "BLOCK", api_protection_enabled: false, block_override: false, description: "d".repeat(100), domain_names: domains, order: 3, source_groups: [1, 2, 3] },
       emoji: { list: domains, note: "\u{1F600}".repeat(20) },
@@ -157,7 +213,7 @@ test("read --company lists linked subjects' records past its budget, reads one b
     fs.writeFileSync(path.join(dir, "iac/rules.json"), JSON.stringify({ rules, notes }));
     const record = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
     record.id = "company.zia.url-filtering-export";
-    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/rule", "notes/emoji", "notes/deep", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
+    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/ids", "notes/server", "notes/flags", "notes/urlrule", "notes/rule", "notes/emoji", "notes/deep", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
     fs.writeFileSync(path.join(dir, "knowledge/zia/company.zia.url-filtering-export.json"), JSON.stringify(record));
     const out = read("--overlay", dir, "--company", "zia/url-filtering-rules");
     const value = (label) => out.match(new RegExp(`^ {2}- IaC ${label}: iac:rules\\.json#/${label} = (.+)$`, "m"))?.[1];
@@ -172,13 +228,22 @@ test("read --company lists linked subjects' records past its budget, reads one b
     assert.equal(value("notes/big"), `an array of 1 item ${long(notes.big)}; the first is an object of 2 keys: description (a string of 723 characters), enabled false`, "an item too long to print is described");
     const lines = value("notes/lines").match(/^a string of 1000 characters \(the source has the whole value\): (.+)$/);
     assert.ok(lines && lines[1].length <= 300, "a string is cut at its length as JSON writes it");
-    assert.match(value("notes/key"), /^an object of 1 key \(410 characters of JSON; the source has the whole value\), its first key: "k+…"$/, "a key too long to name is cut");
+    assert.equal(value("notes/key"), JSON.stringify(notes.key), "a shape that saves little prints the value");
+    assert.equal(value("notes/ids"), JSON.stringify(notes.ids), "so does a list a little over the room");
+    assert.equal(value("notes/server"), `an object of 2 keys ${long(notes.server)}: app_connector_groups[0].id [20 items], name "x"`, "a wrapped list is named by its path, not as one item");
+    assert.match(value("notes/flags"), /filler_21 "v21", list \[30 items\]; false or 0: flag_0, flag_1, flag_2, flag_3, flag_4, flag_5$/, "past the room, false members give way to their names first");
+    const urlrule = value("notes/urlrule");
+    assert.ok(urlrule.length <= 600, `${urlrule.length} characters`);
+    for (const part of ['action "BLOCK"', `locations[0] {"id":[9000001,9000002,9000003,9000004]}`, 'source_ip_groups [{"id":[5550101,5550102,5550103]}]', "url_categories [4 items]", "order 14", "15 keys are empty or null"]) {
+      assert.ok(urlrule.includes(part), `${part} in: ${urlrule}`);
+    }
+    assert.ok(urlrule.includes("6 keys are false or 0"), "false members are set values, counted apart from empty ones");
+    assert.doesNotMatch(urlrule, /\[0 items\]|cbi_profile/, "empty members are only counted");
     assert.equal(value("notes/emoji"), `an object of 2 keys ${long(notes.emoji)}: list [42 items], note (a string of 20 characters)`, "a string's length counts characters, not UTF-16 units");
     assert.equal(value("notes/deep"), `an array of 1 item ${long(notes.deep)}; the first is an array of 1 item; the first is an array of 1 item`, "nesting cannot grow a shape");
-    assert.equal(value("notes/rule"), `an object of 7 keys ${long(notes.rule)}: action "BLOCK", api_protection_enabled false, block_override false, description (a string of 100 characters), domain_names [42 items], order 3, source_groups [3 items]`, "an object names every key, its short values and its lists' lengths");
-    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters of JSON; the source has the whole value\), its keys \(the first \d+\): field_00, field_01, field_02, .+$/, "too many keys for their values: as many keys as fit");
+    assert.equal(value("notes/rule"), `an object of 7 keys ${long(notes.rule)}: action "BLOCK", api_protection_enabled false, block_override false, description (a string of 100 characters), domain_names [42 items], order 3, source_groups [1,2,3]`, "an object names every key, its short values, whole, and its lists' lengths");
+    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters of JSON; the source has the whole value\): values not shown: field_00, field_01, .+; \d+ more not named$/, "too many keys for their values: the keys that fit, the rest counted");
     assert.doesNotMatch(value("notes/wide"), /value-/);
-    assert.doesNotMatch(out, /\(cut: /);
     assert.match(out, /^ {2}- IaC checks we added: iac:coverage\.json#\/resources\/zia_url_filtering_rules\/checks = \["assert-clean after import for the imported addresses only"\]/m, "a short value prints whole");
     const bundle = JSON.parse(execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--overlay", dir, "zia/url-filtering-rules"], { encoding: "utf8" }));
     const facet = [bundle, ...(bundle.types || [])].flatMap((b) => b.company || []).find((f) => f.id === "company.zia.url-filtering-export");
@@ -189,11 +254,11 @@ test("read --company lists linked subjects' records past its budget, reads one b
 });
 
 test("read --company prints the most strongly linked subjects' records up to its budget and names every other one", () => {
-  // Four records on each subject linked from zia.ssl-inspection: far past the budget.
+  // Six records on each subject linked from zia.ssl-inspection: far past the budget and the list's room.
   const area = "zia.ssl-inspection";
   const inArea = [...g.nodes.values()].filter((n) => n.kind === "subject" && (n.id === area || n.id.startsWith(`${area}.`))).map((n) => n.id);
   const linked = neighbours(g, inArea, new Set(inArea)).map(([id]) => id).filter((id) => g.nodes.get(id).kind === "subject");
-  assert.ok(linked.length > 10, `${linked.length} linked subjects`);
+  assert.ok(linked.length > 20, `${linked.length} linked subjects, enough records to pass the list's room`);
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kb-overlay-"));
   const bin = fs.mkdtempSync(path.join(os.tmpdir(), "kb-git-"));
   try {
@@ -204,14 +269,15 @@ test("read --company prints the most strongly linked subjects' records up to its
     fs.writeFileSync(path.join(dir, "iac/other.json"), JSON.stringify({ a: 1, b: 2, c: 3 }));
     const ids = [];
     linked.forEach((subject, i) => {
-      for (let k = 0; k < 4; k++) {
+      for (let k = 0; k < 6; k++) {
         const id = `company.zia.linked-${i}-${k}`;
         ids.push(id);
         const last = i === linked.length - 1;
         const record = {
           schema_version: 1, id, kind: "claim", relation: "extends", about: [subject], title: `Synthetic linked record ${i}-${k}`, status: "active",
-          // The most strongly linked subject's first record alone is past the budget.
-          statement: "Synthetic fixture. ".repeat(i === 0 && k === 0 ? 1200 : 30), confidence: "medium", validated: "2026-01-01",
+          // The most strongly linked subject's first record alone is past the budget, and so is each of the least
+          // linked subject's, whatever budget is left when they come.
+          statement: "Synthetic fixture. ".repeat((i === 0 && k === 0) || last ? 1200 : 30), confidence: "medium", validated: "2026-01-01",
           // Every record points at IaC, so the ones printed whole carry dates. The least linked subject's are only
           // listed, so their file is never dated.
           pointers: last ? [{ repo: "iac", file: "last.json", pointer: "/value", label: "value" }]
@@ -227,7 +293,8 @@ test("read --company prints the most strongly linked subjects' records up to its
     const env = { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` };
     const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", dir, "--company", area], { encoding: "utf8", env });
     const blocks = out.split("\n\n").filter((b) => b.startsWith("Company records about ") && !b.startsWith("Company records about linked subjects,"));
-    assert.equal(blocks[0].split(":")[0], `Company records about ${linked[0]}`, "the most strongly linked subject's records come first");
+    assert.equal(blocks[0].split(":")[0], `Company records about ${linked[0]} (linked subject)`, "the most strongly linked subject's records come first");
+    assert.match(out, /^Company records: \d+ printed whole; \d+ more listed at the end, \d+ one line each and \d+ by ID only\.$/m);
     assert.ok(blocks[0].includes("[company.zia.linked-0-1]") && !blocks[0].includes("[company.zia.linked-0-0]"), "a record past the budget lists only itself");
     const whole = blocks.reduce((n, b) => n + b.length + 2, 0) / 4;
     assert.ok(whole <= 4000 && blocks.length > 1, `${blocks.length} subjects' records whole, about ${whole} tokens`);
@@ -259,6 +326,7 @@ test("read --company dates each IaC file once, however many subjects reach its r
     const env = { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` };
     const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", OVERLAY, "--company", "zia.url-filtering"], { encoding: "utf8", env });
     assert.ok(records(out).includes("- [company.zia.url-filtering-iac]"));
+    assert.match(out, /^ {2}- IaC .+ \(committed \d{4}-\d{2}-\d{2}\)$/m, "IaC files are dated");
     const calls = fs.readFileSync(log, "utf8").trim().split("\n");
     assert.deepEqual(calls, [...new Set(calls)], "no git call repeats");
   } finally {

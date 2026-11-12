@@ -4,7 +4,7 @@
 Company knowledge lives in the overlay ([`data-contract/knowledge.md`](data-contract/knowledge.md)), never here.
 Agents open the spine with their file tools, then the text files of the subjects and log types they picked under
 `references/_meta/text/`, and run `node scripts/kb.mjs read --company <ids>` once for company records, plus one
-call for the records it lists that the answer needs (`SKILL.md` "Using the knowledge graph"); `kb.mjs read` prints
+call for records it names but does not print (`SKILL.md` "Using the knowledge graph"); `kb.mjs read` prints
 the same text in one call, and `kb.mjs resolve` is the JSON bundle interface for scripts. The record contracts are
 the schemas under `references/_meta/schema/`.
 

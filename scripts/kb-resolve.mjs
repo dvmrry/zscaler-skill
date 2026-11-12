@@ -169,7 +169,16 @@ function resolveOverlayPointer(ov, p) {
   }
   if (p.pointer === undefined) return { error: `${p.repo} is a json repo: the pointer needs a JSON pointer` };
   if (p.address !== undefined) return { error: `${p.repo} is a json repo: address is for terraform repos` };
-  const value = resolvePointer(memo(ov, `json ${file}`, () => readJson(file)), p.pointer);
+  // A file that is not JSON fails its pointers, not the overlay: one bad record never fails a read.
+  const parsed = memo(ov, `json ${file}`, () => {
+    try {
+      return { json: readJson(file) };
+    } catch (e) {
+      return { error: e.message };
+    }
+  });
+  if (parsed.error) return { error: `IaC file is not valid JSON: ${p.repo}:${p.file} (${parsed.error})` };
+  const value = resolvePointer(parsed.json, p.pointer);
   if (value === undefined) return { error: `IaC pointer does not resolve: ${p.repo}:${p.file}#${p.pointer}` };
   return { value };
 }
@@ -991,9 +1000,10 @@ function readPolicyReason(g, key) {
  * Company records about the given IDs, as reading text: what each says, where it holds (scope), how sure and how
  * recent it is, and its field map or IaC locations. A map keeps only the fields asked about when any are.
  */
-function readCompany(ov, ids, shown = new Set()) {
+function readCompany(ov, ids, shown = new Set(), printed = null) {
   return companyFacets(ov, ids, shown).map((f) => {
     shown.add(f.id);
+    printed?.push(f);
     return recordText(f, ids);
   }).join("\n");
 }
@@ -1047,7 +1057,44 @@ function listRecords(g, listed) {
   const rest = new Map();
   for (const [id, data] of listed.slice(lines.length)) rest.set(id, [...(rest.get(id) || []), data.id]);
   const more = [...rest].map(([id, ids]) => `- ${ids.length} more about ${id} (${titleOf(g, id)}), by ID: ${ids.join(" ")}`);
-  return [head, ...lines, ...more].join("\n");
+  return { text: [head, ...lines, ...more].join("\n"), lines: lines.length };
+}
+
+// A company record's ID wherever it appears: in an argument however it was copied (`[id]`, `id,id`, a record file's
+// path), or cited in another record's text.
+const RECORD_ID = /(?<![a-z0-9.-])company(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+/g;
+
+/** What a record's ID stands for when it has no active record, for a line that names it (`<id>: ...`). */
+function recordStatus(ov, id) {
+  const data = ov.records.find((r) => r.data?.id === id)?.data;
+  if (data?.status === "promoted") return `this company record was promoted to the public claim ${data.promoted_to}`;
+  if (ov.skipped?.has(id)) return "this company record was skipped as invalid (the overlay check says why)";
+  return data ? `this company record is ${data.status}, not active` : "no company record has this ID";
+}
+
+/**
+ * The records the ones printed whole cite in their text and the read named nowhere, one line each, so the reader
+ * can read them in the same second call instead of only through the citing text; an ID with no active record says
+ * what it is.
+ */
+function citedRecords(ov, printed, shown) {
+  const cited = new Map();
+  for (const f of printed) {
+    const text = [f.title, f.statement, f.do_not_infer, ...Object.values(f.scope || {}), ...(f.evidence || []).map((e) => e.note)].filter(Boolean).join("\n");
+    for (const id of new Set(text.match(RECORD_ID) || [])) {
+      if (id === f.id || shown.has(id)) continue;
+      cited.set(id, [...(cited.get(id) || []), f.id]);
+    }
+  }
+  if (!cited.size) return null;
+  const lines = [...cited].map(([id, by]) => {
+    const where = `(cited by ${by.length === 1 ? by[0] : `${by.length} records above`})`;
+    const data = ov.records.find((r) => r.data?.id === id && r.data.status === "active")?.data;
+    if (!data) return `- ${id}: ${recordStatus(ov, id)} ${where}`;
+    shown.add(id);
+    return `${recordLine(data)} ${where}`;
+  });
+  return { text: ["Company records cited by the records above, one line each (read whole the ones the answer needs, in the same second call):", ...lines].join("\n"), count: lines.filter((l) => l.startsWith("- [")).length };
 }
 
 // The most characters of an IaC value a read prints as JSON. A pointer can resolve to a whole exported object,
@@ -1060,26 +1107,60 @@ const DATE_CHARS = 23;
 // A member of a long object prints its value in the object's shape when the value is this short as JSON.
 const SHORT_VALUE_CHARS = 40;
 
+// An object's shape names keys, and an exported rule has dozens: it gets more room than a value printed whole.
+const SHAPE_OBJECT_CHARS = 450;
+
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+const are = (n) => `${plural(n, "key")} ${n === 1 ? "is" : "are"}`;
 
 /**
  * An IaC value as JSON, or when long its shape. Exported objects list their keys alphabetically, so the first few
  * hundred characters are mostly metadata; a prefix hides the part a record is about and reads as the whole of it. The
- * shape names what the source holds, so the reader knows what to open.
+ * shape names what the source holds, so the reader knows what to open. A shape that would save under a quarter of
+ * the value hides more than it saves, so the value prints whole.
  */
 function iacValue(value) {
   const s = JSON.stringify(value);
-  return s.length <= IAC_VALUE_CHARS ? s : shapeOf(value, IAC_VALUE_CHARS, true);
+  if (s.length <= IAC_VALUE_CHARS) return s;
+  const shape = shapeOf(value, IAC_VALUE_CHARS, true);
+  return shape.length <= 0.75 * s.length ? shape : s;
 }
 
 // How many arrays deep a shape describes first items; a deeper one gives only its length, so nesting cannot grow it.
 const SHAPE_DEPTH = 2;
 
+const keyName = (k) => (/^[\w$@-]+$/.test(k) ? k : JSON.stringify(k));
+const isEmpty = (v) => v === null || v === "" || (Array.isArray(v) ? !v.length : typeof v === "object" && !Object.keys(v).length);
+
 /**
- * A long value in about `room` characters: an object names its keys, with each short value and each list's length
- * (only the keys and lengths, as many as fit, when those do not fit); an array gives its length and the whole items
- * that fit, else the first item's shape; a string gives its length and opening. A string's length is in characters,
- * an object's or array's in characters of JSON. The `top` value says how long it is and that the source has it whole.
+ * A member of a long object as its path and what it holds: the value when short; else through a one-item list or
+ * one-key object, up to three deep, since a Terraform block wraps its list so (`app_connector_groups[0].id [12
+ * items]`, not `app_connector_groups [1 item]`); else its size.
+ */
+function memberOf(k, v) {
+  let path = keyName(k);
+  for (let i = 0; i < 3 && JSON.stringify(v).length > SHORT_VALUE_CHARS; i++) {
+    if (Array.isArray(v) && v.length === 1) {
+      path += "[0]";
+      v = v[0];
+    } else if (v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 1) {
+      const [only] = Object.keys(v);
+      path += `.${keyName(only)}`;
+      v = v[only];
+    } else break;
+  }
+  const j = JSON.stringify(v);
+  if (j.length <= SHORT_VALUE_CHARS) return `${path} ${j}`;
+  if (Array.isArray(v)) return `${path} [${plural(v.length, "item")}]`;
+  if (v && typeof v === "object") return `${path} {${plural(Object.keys(v).length, "key")}}`;
+  return `${path} (a string of ${plural([...v].length, "character")})`;
+}
+
+/**
+ * A long value in about `room` characters (an object's, SHAPE_OBJECT_CHARS at the top): an object names its members
+ * in key order with each value or size (objectShape); an array gives its length and the whole items that fit, else the
+ * first item's shape; a string gives its length and opening. A string's length is in characters, an object's or
+ * array's in characters of JSON. The `top` value says how long it is and that the source has it whole.
  */
 function shapeOf(value, room, top = false, depth = 0) {
   const source = "the source has the whole value";
@@ -1099,26 +1180,63 @@ function shapeOf(value, room, top = false, depth = 0) {
     return `${head}, ${kept.length < value.length ? `the first ${kept.length}` : "all of them"}: ${kept.join(", ")}`;
   }
   if (!value || typeof value !== "object") return JSON.stringify(value);
+  return `an object of ${plural(Object.keys(value).length, "key")}${about}: ${objectShape(value, top ? SHAPE_OBJECT_CHARS : room)}`;
+}
+
+/**
+ * An object's members in one fill: empty ones (null, "", [], {}) only counted; the rest in key order with their
+ * values or sizes. Past the room, members that are false or 0 give way first, to their names and then a count (they
+ * are set values, not empty); then the longest values, to their names; only then names, counted. A key is never
+ * printed bare where it would read as having no value.
+ */
+function objectShape(value, room) {
   const keys = Object.keys(value);
-  const head = `an object of ${plural(keys.length, "key")}${about}`;
-  const name = (k) => (/^[\w.$@-]+$/.test(k) ? k : JSON.stringify(k));
-  const sized = (v) => (Array.isArray(v) ? ` [${plural(v.length, "item")}]` : v && typeof v === "object" ? ` {${plural(Object.keys(v).length, "key")}}` : "");
-  const full = keys.map((k) => {
-    const v = value[k];
-    const j = JSON.stringify(v);
-    return `${name(k)}${sized(v) || (j.length <= SHORT_VALUE_CHARS ? ` ${j}` : ` (a string of ${plural([...v].length, "character")})`)}`;
-  }).join(", ");
-  if (full.length <= room) return `${head}: ${full}`;
-  const brief = [];
-  let size = 0;
-  for (const k of keys) {
-    const b = `${name(k)}${sized(value[k])}`;
-    if (size + b.length + 2 > room) break;
-    brief.push(b);
-    size += b.length + 2;
+  const empty = keys.filter((k) => isEmpty(value[k])).length;
+  const falsy = keys.filter((k) => value[k] === false || value[k] === 0);
+  const rest = keys.filter((k) => !isEmpty(value[k]) && value[k] !== false && value[k] !== 0).map((k) => ({ k, text: memberOf(k, value[k]) }));
+  const state = { inline: true, falsyNames: true, hidden: new Set(), unnamed: 0 };
+  const render = () => {
+    const shown = (state.inline ? keys.filter((k) => !isEmpty(value[k])).map((k) => rest.find((r) => r.k === k) || { k, text: `${keyName(k)} ${JSON.stringify(value[k])}` }) : rest)
+      .filter((r) => !state.hidden.has(r.k));
+    const hidden = rest.filter((r) => state.hidden.has(r.k)).map((r) => keyName(r.k));
+    const named = hidden.slice(0, hidden.length - state.unnamed);
+    return [
+      shown.map((r) => r.text).join(", "),
+      named.length ? `values not shown: ${named.join(", ")}` : "",
+      !state.inline && falsy.length ? (state.falsyNames ? `false or 0: ${falsy.map(keyName).join(", ")}` : `${are(falsy.length)} false or 0`) : "",
+      state.unnamed ? `${state.unnamed} more not named` : "",
+      empty ? `${are(empty)} empty or null` : "",
+    ].filter(Boolean).join("; ");
+  };
+  // Each step gives way once and says whether it could.
+  const steps = [
+    () => {
+      if (!falsy.length || !state.inline) return false;
+      state.inline = false;
+      return true;
+    },
+    () => {
+      if (!falsy.length || !state.falsyNames) return false;
+      state.falsyNames = false;
+      return true;
+    },
+    () => {
+      const next = rest.filter((r) => !state.hidden.has(r.k)).sort((a, b) => b.text.length - a.text.length)[0];
+      if (!next) return false;
+      state.hidden.add(next.k);
+      return true;
+    },
+    () => {
+      if (state.unnamed >= state.hidden.size) return false;
+      state.unnamed++;
+      return true;
+    },
+  ];
+  let text = render();
+  for (const step of steps) {
+    while (text.length > room && step()) text = render();
   }
-  if (!brief.length) return `${head}, its first key: ${cutString(keys[0], room)}`;
-  return `${head}, its keys${brief.length < keys.length ? ` (the first ${brief.length})` : ""}: ${brief.join(", ")}`;
+  return text;
 }
 
 /** A string's opening as JSON in about `room` characters, counted as JSON writes them, whole characters, marked `…`. */
@@ -1209,16 +1327,20 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   const missing = (ov?.iacRepos || []).filter((r) => !r.available);
   if (missing.length) out.push(`IaC repos not checked out: ${missing.map((r) => `${r.id} (${r.path})`).join("; ")}`);
   if (ov?.config.live) out.push(`Live tier: ${ov.config.live.tool} is declared; each config type ${company ? `(${META}/text/types/<type id>.md)` : "below"} names its read-only command`);
+  const top = out.length; // where the count of company records goes, once the read knows it
   const seen = new Set();
-  const shown = new Set(); // company records already printed in this read
+  const shown = new Set(); // company records already printed or listed in this read
+  const printed = []; // the records printed whole for what was named, whose text may cite others
+  const tally = { byId: 0, listed: 0, inLines: 0, cited: 0 };
   let records = 0;
   const named = []; // the arguments that name a subject, type or field, for a reader told there are no records
+  const later = []; // company: the rest of each named subject's area, read after every named subject
   const emit = (id) => {
     seen.add(id);
     const n = g.nodes.get(id);
     const text = company ? "" : n.kind === "type" ? readType(g, id) : readSubject(g, id);
     if (!company) out.push(text);
-    const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
+    const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown, printed) : "";
     if (about) {
       out.push(company ? `Company records about ${id}:\n${about}` : `Company records:\n${about}`);
       records++;
@@ -1230,18 +1352,21 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
-    // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole. A
-    // trailing comma is dropped, for IDs copied from a comma-separated list.
-    if (ov && !g.nodes.has(arg) && arg.startsWith("company.")) {
-      arg = arg.replace(/,+$/, "");
-      const data = ov.records.find((r) => r.data?.id === arg)?.data;
-      if (data?.status === "active") {
-        if (!shown.has(arg)) out.push(`Company record ${arg}:\n${recordText(facetOf(ov, data), new Set())}`);
-        shown.add(arg);
-        records++;
-      } else if (data?.status === "promoted") out.push(`# ${arg}: this company record was promoted to the public claim ${data.promoted_to}`);
-      else if (ov.skipped?.has(arg)) out.push(`# ${arg}: this company record was skipped as invalid (the overlay check says why)`);
-      else out.push(`# ${arg}: no active company record has this ID${data ? ` (it is ${data.status})` : ""}`);
+    // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole: each ID
+    // in the argument, however it was copied (`[id]`, `id,id`, the record's file path).
+    const ids = ov && !g.nodes.has(arg) ? given.replace(/\.json\b/g, "").match(RECORD_ID) : null;
+    if (ids) {
+      for (const id of ids) {
+        const data = ov.records.find((r) => r.data?.id === id && r.data.status === "active")?.data;
+        if (!data) out.push(`# ${id}: ${recordStatus(ov, id)}`);
+        else if (shown.has(id)) out.push(`# ${id}: printed above`);
+        else {
+          out.push(`Company record ${id}:\n${recordText(facetOf(ov, data), new Set())}`);
+          shown.add(id);
+          tally.byId++;
+          records++;
+        }
+      }
       continue;
     }
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
@@ -1256,7 +1381,9 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);
     if (g.nodes.get(arg)?.subject) arg = g.nodes.get(arg).subject;
-    if (company && g.nodes.get(arg)?.kind === "subject") arg = areaOf(arg);
+    // A named subject reads with its area; it prints first, and the rest of its area after every named subject.
+    const subject = company && g.nodes.get(arg)?.kind === "subject" ? arg : null;
+    if (subject) arg = areaOf(arg);
     // A whole product is hundreds of thousands of tokens; its spine says which areas a question needs.
     if (!g.nodes.has(arg) && !/[./]/.test(arg) && subjectsOf(g).some((n) => n.id.startsWith(`${arg}.`))) {
       out.push(`# ${arg}: a whole product is too large to read; pick its areas from references/_meta/spine/${arg}.json`);
@@ -1270,31 +1397,40 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     }
     // A subject reads with everything under it, so an area's ID (also its hub subject) reads the whole area, up to
     // AREA_TOKENS: past that it reads as its hub and the index of its subjects, so one ID cannot pull in 70k tokens.
-    const ids = node?.kind === "type" ? [arg]
+    const under = node?.kind === "type" ? [arg]
       : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
-    if (!ids.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
+    if (!under.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
     else named.push(given);
-    const cost = new Map(ids.map((id) => [id, g.nodes.get(id).kind === "subject" ? Math.round(readSubject(g, id).length / 4) : 0]));
+    if (subject) {
+      for (const id of under) {
+        if (id === subject || id.startsWith(`${subject}.`)) {
+          if (!seen.has(id)) emit(id);
+        } else later.push(id);
+      }
+      continue;
+    }
+    const cost = new Map(under.map((id) => [id, g.nodes.get(id).kind === "subject" ? Math.round(readSubject(g, id).length / 4) : 0]));
     const total = [...cost.values()].reduce((a, b) => a + b, 0);
-    if (ids.length > 1 && total > areaTokens) {
+    if (under.length > 1 && total > areaTokens) {
       if (g.nodes.get(arg)?.kind === "subject" && !seen.has(arg)) emit(arg);
-      const rest = ids.filter((id) => id !== arg);
+      const rest = under.filter((id) => id !== arg);
       out.push([`## ${arg}: ${rest.length} more subjects, about ${total} tokens in all, too many to read at once; read the ones the question needs by ID`,
         ...rest.map((id) => `- ${id} (${titleOf(g, id)}, about ${cost.get(id)} tokens)`)].join("\n"));
       continue;
     }
-    for (const id of ids) if (!seen.has(id)) emit(id);
+    for (const id of under) if (!seen.has(id)) emit(id);
   }
   for (const [type, paths] of fields) {
     // A type already read whole holds the fields named with it.
     if (seen.has(type)) continue;
     if (!company) out.push(readType(g, type, paths));
-    const about = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
+    const about = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown, printed) : "";
     if (about) {
       out.push(company ? `Company records about ${paths.map((p) => `${type}#${p}`).join(", ")}:\n${about}` : `Company records:\n${about}`);
       records++;
     }
   }
+  for (const id of later) if (!seen.has(id)) emit(id);
   for (let hop = 0; hop < hops; hop++) {
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const ranked = neighbours(g, [...seen], seen);
@@ -1315,7 +1451,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
         const found = aboutRecords(ov, ids, shown);
         if (!found.length) continue;
         records++;
-        const head = `Company records about ${id}:`;
+        const head = `Company records about ${id} (linked subject):`;
         const whole = [];
         for (const data of found) {
           shown.add(data.id);
@@ -1327,9 +1463,18 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
             whole.push(data);
           } else listed.push([id, data]);
         }
-        if (whole.length) out.push(`${head}\n${whole.map((data) => recordText(facetOf(ov, data), ids)).join("\n")}`);
+        if (whole.length) {
+          const facets = whole.map((data) => facetOf(ov, data));
+          printed.push(...facets);
+          out.push(`${head}\n${facets.map((f) => recordText(f, ids)).join("\n")}`);
+        }
       }
-      if (listed.length) out.push(listRecords(g, listed));
+      if (listed.length) {
+        const list = listRecords(g, listed);
+        out.push(list.text);
+        tally.listed += listed.length;
+        tally.inLines += list.lines;
+      }
       continue;
     }
     out.push(`## Linked subjects (one hop from what was read)`);
@@ -1347,6 +1492,19 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
       listed.push(`- ${e.rel} ${id} (${titleOf(g, id)}), from ${e.from}${because ? `: ${because} [${e.because}]` : ""}`);
     }
     if (listed.length) out.push(fit("Linked, not read here (each with the claim that links it; read one by ID for the rest):", listed, 12000, "linked subjects"));
+  }
+  if (company && ov) {
+    const cited = citedRecords(ov, printed, shown);
+    if (cited) {
+      out.push(cited.text);
+      tally.cited = cited.count;
+    }
+    // A long read is saved to a file and paged, and its lists come last: say up front what it holds.
+    const whole = printed.length + tally.byId;
+    const byId = tally.listed - tally.inLines;
+    if (whole || tally.listed || tally.cited) {
+      out.splice(top, 0, `Company records: ${whole} printed whole${tally.listed ? `; ${tally.listed} more listed at the end, ${tally.inLines} one line each${byId ? ` and ${byId} by ID only` : ""}` : ""}${tally.cited ? `; ${tally.cited} cited by them, listed at the end` : ""}.`);
+    }
   }
   if (company && ov && named.length && !records) out.push(`No company records are about ${named.join(", ")}, its area, what it binds or what it links to.`);
   return `${out.join("\n\n")}\n`;

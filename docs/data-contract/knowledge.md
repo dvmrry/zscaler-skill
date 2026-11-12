@@ -58,6 +58,12 @@ Every record has `schema_version`, `id`, `kind`, `relation`, `about` (one or mor
 Optional on any record: `statement`, `scope` (`environment`, `cloud`, `version`, `condition`), `confidence`
 (`high`, `medium`, `low`), `do_not_infer`, `validated` (`YYYY-MM-DD`), `evidence`.
 
+Point an IaC pointer at the part of the value the record is about (`.../domain_names`, not the whole rule): a read
+prints a value of up to about 300 characters of JSON whole and a longer one as its shape (see "At answer time"), so a
+narrow pointer shows that part, or its shape, rather than the rule's metadata. A record can cite another by its ID
+in its `statement`, `do_not_infer`, `scope` or an evidence note; a read that prints the citing record lists the cited
+one.
+
 `evidence` is a list of `{kind, ref?, note?}` with `kind` one of `case`, `log-sample`, `vendor-call`,
 `vendor-ticket`, `vendor-email`, `public-doc`. A `case` or vendor `ref` is a path relative to the runtime-data
 mount root (for example `cases/2026-07-20-ba-session-drop/journal.md`); a `public-doc` ref is an `https` URL.
@@ -96,15 +102,17 @@ fails a resolve. The contract check below is the strict gate.
 ## At answer time
 
 `node scripts/kb.mjs read` follows each subject, type or field it reads with every active record whose `about`
-touches it or the types it binds, and `read --company` prints only those records, for the named subjects' areas and the
-subjects they link to (agents read the public text from `references/_meta/text/` and run it once per answer). It
-prints the linked subjects' records whole, the most strongly linked first, while each fits a budget, lists the rest
-one line each, and past a second limit names them by ID under the linked subject they come from; a record's ID
-reads that record. An IaC value longer than about 300 characters of JSON prints its shape and length instead: an
-object its keys, with short values and each list's length (only the keys and lengths that fit, when those do not);
-an array its length and the whole items that fit, else its first item's shape; a string its length and opening.
-So point a record at the part of the IaC it is about (`.../domain_names`, not the whole rule): a short part prints
-whole, and a long one prints that part's shape rather than the rule's metadata. `resolve <id | text>` merges the same
+touches it or the types it binds, and `read --company` prints only those records (agents read the public text from
+`references/_meta/text/` and run it once per answer). It starts with a count of what it holds. It prints whole the
+records about the named subjects, then the rest of their areas', then the linked subjects' (headed `(linked
+subject)`), the most strongly linked first, each while it fits a budget; it lists the rest one line each, and past a
+second limit names them by ID under the linked subject they come from. It lists the same way each record the printed
+ones cite and the read named nowhere, or says what that ID is. A record's ID, however it was copied, reads that
+record. An IaC value over about 300 characters of JSON prints its shape and length when that is a quarter shorter:
+an object its members in key order, short values whole and the rest by size (a one-item wrapper by its path, such as
+`app_connector_groups[0].id [12 items]`), empty members only counted, and past its room the members that are false
+or 0 giving way first, then the longest values, then names; an array its length and the whole items that fit, else
+its first item's shape; a string its length and opening. `resolve <id | text>` merges the same
 records into its bundle as `layer: company` facets, with IaC values whole, and ranks text queries on the records'
 words too. When an answer uses one:
 
