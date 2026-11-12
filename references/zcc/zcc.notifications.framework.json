@@ -37,7 +37,7 @@
     },
     {
       "label": "Which versions.",
-      "text": "{{versions}}"
+      "text": "The minimum Client Connector version differs between two vendor articles {{divergence:minimum-version}}."
     },
     {
       "label": "How pop-ups behave.",
@@ -61,9 +61,9 @@
       ]
     },
     {
-      "do": "The device's Client Connector version against the version each framework-only notification needs (Persistence from 4.7 for Windows, Do not Disturb from 4.9, all of them from 5.0 for macOS) before relying on it.",
+      "do": "The device's Client Connector version against both stated minimums before relying on timer or persistence settings.",
       "uses": [
-        "versions"
+        "minimum-version"
       ]
     },
     {
@@ -75,16 +75,21 @@
   ],
   "claims": {
     "overrides-os": {
-      "statement": "On Windows and macOS the framework overrides the OS-based notification system, and it carries additional notifications that the OS-based system doesn't include and can't disable. On macOS 5.0 and earlier, Service Status and Private Access reauthentication notifications come only from the OS, so OS-based notifications must stay enabled for them even with the framework on.",
+      "statement": "When enabled, the framework replaces the Windows and macOS notification systems, carrying the same informational messages. Only administrators can enable or disable it, and users cannot disable its notifications in Windows settings.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "using-zscaler-notification-framework.json",
           "quotes": [
-            "The Zscaler Notification Framework provides a streamlined, more flexible end user notification experience for Zscaler Client Connector for Windows and macOS.",
-            "It also supports additional notifications that aren't included in and can't be disabled in the default OS-based notification system. The Zscaler Notification Framework overrides the OS-based notification system.",
-            "For Zscaler Client Connector for macOS versions 5.0 and earlier, Service Status and Private Access Reauthentication notifications are supported only by the OS, so even if the framework is enabled, you must also enable OS-based notifications to display these notifications."
+            "when enabled, overrides the Windows-based and macOS-based notification systems. Only administrators can enable and disable the Zscaler Notification Framework in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-notifications.json",
+          "quotes": [
+            "While both notification systems provide the same informational messages, users cannot disable notifications from the Zscaler Notification Framework in Windows settings."
           ]
         }
       ]
@@ -127,31 +132,6 @@
           "expect": {
             "description": "Indicates whether Use Zscaler Notification Framework is enabled."
           }
-        }
-      ]
-    },
-    "versions": {
-      "statement": "The framework page gives no single minimum version. It lists the version from which each framework-only notification is supported, 4.7 to 4.9 for Windows and 5.0 for macOS, and says macOS 5.0 and later uses the framework whatever the app profile sets. The end user notifications page says enabling the framework in app profiles needs Client Connector 4.2 or later on Windows and macOS.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "using-zscaler-notification-framework.json",
-          "quotes": [
-            "The following notifications are supported only by the Zscaler Notification Framework:",
-            "| Web Data Loss Prevention (DLP) | 4.7 for Windows 5.0 for macOS |",
-            "| Persistence | 4.7 for Windows 5.0 for macOS |",
-            "| Internet & SaaS Firewall | 4.8 for Windows 5.0 for macOS |",
-            "| Do not Disturb | 4.9 for Windows 5.0 for macOS |",
-            "Zscaler Client Connector version 5.0 and later for macOS uses the Zscaler Notification Framework regardless of this setting."
-          ]
-        },
-        {
-          "source": "zscaler-help",
-          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
-          "quotes": [
-            "You must have Zscaler Client Connector version 4.2 and later for Windows and Zscaler Client Connector version 4.2 and later for macOS to enable the Zscaler Notification Framework in App Profiles."
-          ]
         }
       ]
     },
@@ -247,14 +227,14 @@
       ]
     },
     "dlp-requires": {
-      "statement": "The framework is required for Web and Endpoint DLP notifications.",
+      "statement": "The framework is required for DLP notifications.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "using-zscaler-notification-framework.json",
           "quotes": [
-            "only by the Zscaler Notification Framework: | Notification | Supported as of Zscaler Client Connector Version | Notes | |---|---|---| | Web Data Loss Prevention (DLP) | 4.7 for Windows 5.0 for macOS | To learn more, see Support for Enabling Client Connector Notifications in Web DLP Rules. | | Endpoint DLP"
+            "This feature is required for Data Loss Prevention (DLP) notifications."
           ]
         }
       ]
@@ -279,6 +259,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "minimum-version": {
+      "summary": "The minimum Client Connector version for the framework.",
+      "positions": [
+        {
+          "says": "The framework is available from 3.8 on Windows and 4.1 on macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "using-zscaler-notification-framework.json",
+            "quotes": [
+              "This feature is only available for Zscaler Client Connector version 3.8 and later for Windows and for Zscaler Client Connector version 4.1 and later for macOS."
+            ]
+          }
+        },
+        {
+          "says": "Enabling the framework in app profiles needs 4.2 on both Windows and macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+            "quotes": [
+              "You must have Zscaler Client Connector version 4.2 and later for Windows and Zscaler Client Connector version 4.2 and later for macOS to enable the Zscaler Notification Framework in App Profiles."
+            ]
+          }
+        }
+      ],
+      "impact": "For Windows 3.8 to 4.1 and macOS 4.1 clients, one article says the framework runs and the other says it cannot be enabled, so whether the timer and persistence settings apply to those clients is unsettled."
     }
   },
   "gaps": {

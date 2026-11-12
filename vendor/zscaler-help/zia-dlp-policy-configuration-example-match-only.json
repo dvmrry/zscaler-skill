@@ -5,11 +5,11 @@
   "source": {
     "url": "https://help.zscaler.com/zia/dlp-policy-configuration-example-match-only",
     "node": "1401736",
-    "revision": "3249126",
-    "updated": "2026-10-31",
+    "revision": "3255102",
+    "updated": "2026-11-11",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-04",
+  "captured_at": "2026-11-12",
   "blocks": [
     {
       "text": "Using rules with the Match Only option selected or unselected affects how the Data Loss Prevention (DLP) policy evaluates its rules when inspecting transactions. A rule with Match Only selected exclusively triggers when transactions match the rule’s specified DLP engines and no other engines from different rules. This allows you to prevent users from leaking sensitive data when sending out non-sensitive data."
@@ -39,22 +39,25 @@
       "text": "For example, you have selected Match Only for Rule 1 and Rule 2."
     },
     {
-      "item": "The document does not match Rule 1, despite belonging to a finance team member. This is because Rule 1 only triggers if a document only contains credit card numbers and no additional content that triggers other engines from different rules.",
+      "item": "The document does not match Rule 1, despite belonging to a finance team member (the user is in Human Resources). This is because Rule 1 only triggers if a document only contains credit card numbers and no additional content that triggers other engines from different rules.",
       "depth": 0
     },
     {
-      "item": "The document does not match Rule 2, because the document’s owner is not a human resources team member.",
+      "item": "The document does not match Rule 2, because the document’s owner is not a human resources team member. This results in the DLP policy blocking the transaction, and the finance team member is unsuccessful in sending out the social security numbers.",
       "depth": 0
     },
     {
-      "item": "The document matches Rule 3, because the document contains both credit card numbers and social security numbers. This results in the DLP policy blocking the transaction, and the finance team member is unsuccessful in sending out the social security numbers.",
+      "item": "Because Rule 1 and Rule 2 did not match, Rule 3 is matched and blocks for credit card numbers and social security numbers. The user group does not matter in this case.",
       "depth": 0
     },
     {
       "text": "If you did not select Match Only for both rules, the DLP policy will take a different action instead."
     },
     {
-      "text": "For example, you have not selected Match Only for Rule 1 and Rule 2. The document matches Rule 1, despite containing social security numbers. This is because Rule 1 triggers if a document contains credit card numbers and any additional content. This results in the DLP policy allowing the transaction, and the finance team member succeeds in sending out the social security numbers."
+      "text": "For example, if you have not selected Match Only for Rule 1 and Rule 2, Rule 1 matches (and overrides Rule 3) because it takes precedence due to the rule order. The document matches Rule 1, because it contains credit card numbers and the user belongs to the Finance group. Without Match Only, Rule 1 triggers even if the document contains additional sensitive data. This results in the DLP policy allowing the transaction, and the finance team member succeeds in sending out the credit card numbers and social security numbers."
+    },
+    {
+      "text": "Without Match Only enabled, the engine can trigger on the first partial match, which can result in overlapping rule scenarios. When combined with Rule Order, Match Only ensures exclusivity and that appropriately scoped users and content are allowed or blocked as intended."
     }
   ]
 }
