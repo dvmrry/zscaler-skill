@@ -183,14 +183,34 @@ empties the record when the next run is recorded, so record any run in flight fi
   gate on that pull request:
   - re-anchor it on the branch, or turn the claim into a gap when the source
     no longer says it. `node scripts/kb-reanchor.mjs --base main --write`
-    does the re-anchoring for capture quotes. It is given `KB_MODEL_ENDPOINT`
-    and `KB_MODEL`, any OpenAI-compatible endpoint, plus `KB_MODEL_API_KEY` if
-    that endpoint needs one. For each broken quote it shows the model the old
-    passage and the same part of the new page. It takes only new quotes that
-    occur exactly once in the page, restates a claim only on a restate
-    decision, and regenerates the spines, the reading text and `verified.json`. It leaves what
-    the page no longer supports for a person. Read its `--report` before
-    committing;
+    does the re-anchoring for capture quotes, in claims and in divergence
+    positions. It is given `KB_MODEL_ENDPOINT` and `KB_MODEL`, any
+    OpenAI-compatible endpoint, plus `KB_MODEL_API_KEY` if that endpoint needs
+    one. For each broken quote it tells the model why it broke. A missing quote
+    comes with the old passage and the same part of the new page. A quote the
+    page now repeats, for another OS or model, comes with every place it
+    occurs, so the model can give an `after` anchor that picks the right
+    section. It checks the decisions together, one evidence entry at a time:
+    - the entry, as the decisions would leave it, must anchor by the gate's own
+      rule, with at most one new anchor, and every quote that anchors now must
+      still anchor;
+    - each quote whose place a decision set is placed against its old
+      surroundings, the sentence or item just before it and the one just
+      after, as they were. A repair between them, where they are on the page
+      once, is safe. One outside them is rejected, so a page that gained a
+      second OS's or model's copy of a section does not move a claim onto the
+      wrong copy. One the text cannot settle is applied and marked **check** in
+      the report: the page repeats that part, its surroundings changed, it sat
+      at the page's start or end, or the vendor moved it. Only the headings and
+      the statement's meaning can tell which copy such a quote is about.
+
+    A page the vendor rewrote can be rejected where the repair was right; that
+    is left for a person. The run's last line counts the quotes to check as
+    `review`. It asks the model once more about the
+    decisions the checks rejected. It restates a claim only when every restate
+    decision of the reply that wrote the statement was accepted. It regenerates
+    the spines, the reading text and `verified.json`, and leaves what the page no longer supports
+    for a person. Read its `--report` before committing;
   - read every in-change entry against its claim;
   - run the claim audit on the claims you touched.
 
@@ -207,6 +227,15 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
   exact released tag, so claims cite a version that shipped. Nothing here runs
   the vendored modules or providers; a bump of any of them is reviewed with
   `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
+- Renovate keeps `.node-version`, the Node that CI and version managers
+  install, at the newest release of its LTS line, so Node security fixes arrive
+  as ordinary update PRs on the Monday schedule. A new major waits for
+  Dependency Dashboard approval.
+  The supported floor is separate: `MIN_NODE_VERSION` in `scripts/doctor.mjs`,
+  equal to `engines` in `package.json`. The `node-floor` job in
+  `check-hygiene.yml` runs the fast gate on it, so a script that needs a newer
+  Node fails there. Raising the floor is a deliberate change to both and to the
+  install docs.
 - On a Renovate bump PR, `bump-regenerate.yml` regenerates the layers built
   from vendored sources on the bump's branch and commits them:
   - the API surfaces;
