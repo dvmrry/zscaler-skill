@@ -150,28 +150,33 @@ test("read --company lists linked subjects' records past its budget, reads one b
       key: { ["k".repeat(400)]: 12345 },
       // As a tfvars export writes a rule: its keys in order, metadata first, the lists a record is about later.
       rule: { action: "BLOCK", api_protection_enabled: false, block_override: false, description: "d".repeat(100), domain_names: domains, order: 3, source_groups: [1, 2, 3] },
+      emoji: { list: domains, note: "\u{1F600}".repeat(20) },
+      deep: JSON.parse(`${"[".repeat(10)}"${"x".repeat(1000)}"${"]".repeat(10)}`),
       wide: Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`field_${String(i).padStart(2, "0")}`, `value-${i}`])),
     };
     fs.writeFileSync(path.join(dir, "iac/rules.json"), JSON.stringify({ rules, notes }));
     const record = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
     record.id = "company.zia.url-filtering-export";
-    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/rule", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
+    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/rule", "notes/emoji", "notes/deep", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
     fs.writeFileSync(path.join(dir, "knowledge/zia/company.zia.url-filtering-export.json"), JSON.stringify(record));
     const out = read("--overlay", dir, "--company", "zia/url-filtering-rules");
     const value = (label) => out.match(new RegExp(`^ {2}- IaC ${label}: iac:rules\\.json#/${label} = (.+)$`, "m"))?.[1];
-    const long = (json) => `(${JSON.stringify(json).length} characters; the source has the whole value)`;
+    const long = (json) => `(${JSON.stringify(json).length} characters of JSON; the source has the whole value)`;
     const r = value("rules").match(/^an array of 40 items (\(.+?\)), the first (\d+): (.+)$/);
     assert.ok(r, out);
     assert.equal(r[1], long(rules));
     assert.ok(r[3].length <= 300, `${r[3].length} characters of items`);
     assert.deepEqual(JSON.parse(`[${r[3]}]`), rules.slice(0, Number(r[2])), "only whole rules, each with every field");
     assert.ok(Number(r[2]) > 3);
-    assert.match(value("notes/first"), /^a string \(\d+ characters; the source has the whole value\): "Allow, x+…"$/, "a string gives its opening");
-    assert.match(value("notes/big"), /^an array of 1 item \(\d+ characters; the source has the whole value\); the first is an object of 2 keys: description \(a string of 723 characters\), enabled false$/, "an item too long to print is described");
-    assert.ok(value("notes/lines").replace(/^a string \(.+?\): /, "").length <= 300, "a string is cut at its length as JSON writes it");
-    assert.match(value("notes/key"), /^an object of 1 key \(410 characters; the source has the whole value\), its first key: "k+…"$/, "a key too long to name is cut");
+    assert.match(value("notes/first"), /^a string of 607 characters \(the source has the whole value\): "Allow, x+…"$/, "a string gives its length in characters and its opening");
+    assert.equal(value("notes/big"), `an array of 1 item ${long(notes.big)}; the first is an object of 2 keys: description (a string of 723 characters), enabled false`, "an item too long to print is described");
+    const lines = value("notes/lines").match(/^a string of 1000 characters \(the source has the whole value\): (.+)$/);
+    assert.ok(lines && lines[1].length <= 300, "a string is cut at its length as JSON writes it");
+    assert.match(value("notes/key"), /^an object of 1 key \(410 characters of JSON; the source has the whole value\), its first key: "k+…"$/, "a key too long to name is cut");
+    assert.equal(value("notes/emoji"), `an object of 2 keys ${long(notes.emoji)}: list [42 items], note (a string of 20 characters)`, "a string's length counts characters, not UTF-16 units");
+    assert.equal(value("notes/deep"), `an array of 1 item ${long(notes.deep)}; the first is an array of 1 item; the first is an array of 1 item`, "nesting cannot grow a shape");
     assert.equal(value("notes/rule"), `an object of 7 keys ${long(notes.rule)}: action "BLOCK", api_protection_enabled false, block_override false, description (a string of 100 characters), domain_names [42 items], order 3, source_groups [3 items]`, "an object names every key, its short values and its lists' lengths");
-    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters; the source has the whole value\), its keys \(the first \d+\): field_00, field_01, field_02, .+$/, "too many keys for their values: as many keys as fit");
+    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters of JSON; the source has the whole value\), its keys \(the first \d+\): field_00, field_01, field_02, .+$/, "too many keys for their values: as many keys as fit");
     assert.doesNotMatch(value("notes/wide"), /value-/);
     assert.doesNotMatch(out, /\(cut: /);
     assert.match(out, /^ {2}- IaC checks we added: iac:coverage\.json#\/resources\/zia_url_filtering_rules\/checks = \["assert-clean after import for the imported addresses only"\]/m, "a short value prints whole");
@@ -196,6 +201,7 @@ test("read --company prints the most strongly linked subjects' records up to its
     fs.mkdirSync(path.join(dir, "iac"));
     fs.writeFileSync(path.join(dir, "overlay.json"), JSON.stringify({ schema_version: 1, iac: [{ id: "iac", path: "iac", kind: "json" }] }));
     fs.writeFileSync(path.join(dir, "iac/last.json"), JSON.stringify({ value: 1 }));
+    fs.writeFileSync(path.join(dir, "iac/other.json"), JSON.stringify({ a: 1, b: 2, c: 3 }));
     const ids = [];
     linked.forEach((subject, i) => {
       for (let k = 0; k < 4; k++) {
@@ -206,15 +212,18 @@ test("read --company prints the most strongly linked subjects' records up to its
           schema_version: 1, id, kind: "claim", relation: "extends", about: [subject], title: `Synthetic linked record ${i}-${k}`, status: "active",
           // The most strongly linked subject's first record alone is past the budget.
           statement: "Synthetic fixture. ".repeat(i === 0 && k === 0 ? 1200 : 30), confidence: "medium", validated: "2026-01-01",
-          // The least linked subject's records point at IaC: they are only listed, so their file is never dated.
-          ...(last ? { pointers: [{ repo: "iac", file: "last.json", pointer: "/value", label: "value" }] } : {}),
+          // Every record points at IaC, so the ones printed whole carry dates. The least linked subject's are only
+          // listed, so their file is never dated.
+          pointers: last ? [{ repo: "iac", file: "last.json", pointer: "/value", label: "value" }]
+            : ["a", "b", "c"].map((k) => ({ repo: "iac", file: "other.json", pointer: `/${k}`, label: k })),
         };
         fs.writeFileSync(path.join(dir, `knowledge/zia/${id}.json`), JSON.stringify(record));
       }
     });
     const log = path.join(bin, "calls");
     const git = execFileSync("sh", ["-c", "command -v git"], { encoding: "utf8" }).trim();
-    fs.writeFileSync(path.join(bin, "git"), `#!/bin/sh\necho "$*" >> '${log}'\nexec '${git}' "$@"\n`, { mode: 0o755 });
+    // Every log answers with a date, so each IaC line printed whole is dated, as in a checked-out repo.
+    fs.writeFileSync(path.join(bin, "git"), `#!/bin/sh\necho "$*" >> '${log}'\ncase " $* " in *" log "*) echo 2026-01-01 ;; *) exec '${git}' "$@" ;; esac\n`, { mode: 0o755 });
     const env = { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` };
     const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", dir, "--company", area], { encoding: "utf8", env });
     const blocks = out.split("\n\n").filter((b) => b.startsWith("Company records about ") && !b.startsWith("Company records about linked subjects,"));
@@ -222,6 +231,7 @@ test("read --company prints the most strongly linked subjects' records up to its
     assert.ok(blocks[0].includes("[company.zia.linked-0-1]") && !blocks[0].includes("[company.zia.linked-0-0]"), "a record past the budget lists only itself");
     const whole = blocks.reduce((n, b) => n + b.length + 2, 0) / 4;
     assert.ok(whole <= 4000 && blocks.length > 1, `${blocks.length} subjects' records whole, about ${whole} tokens`);
+    assert.match(blocks[0], /^ {2}- IaC a: iac:other\.json#\/a = 1 \(committed 2026-01-01\)$/m, "records printed whole are dated, within the budget");
     const list = out.split("\n\n").find((b) => b.startsWith("Company records about linked subjects, one line each"));
     assert.match(list, /^Company records about linked subjects, one line each \(read the ones the answer needs whole, all in one call: `node scripts\/kb\.mjs read --company <record id> \.\.\.`\):$/m);
     assert.match(list, /^- \[company\.zia\.linked-0-0\] claim, extends /m, "the long record is listed");

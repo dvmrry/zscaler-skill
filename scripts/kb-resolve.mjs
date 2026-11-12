@@ -1069,17 +1069,22 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
  */
 function iacValue(value) {
   const s = JSON.stringify(value);
-  return s.length <= IAC_VALUE_CHARS ? s : shapeOf(value, IAC_VALUE_CHARS, `${s.length} characters; the source has the whole value`);
+  return s.length <= IAC_VALUE_CHARS ? s : shapeOf(value, IAC_VALUE_CHARS, true);
 }
+
+// How many arrays deep a shape describes first items; a deeper one gives only its length, so nesting cannot grow it.
+const SHAPE_DEPTH = 2;
 
 /**
  * A long value in about `room` characters: an object names its keys, with each short value and each list's length
  * (only the keys and lengths, as many as fit, when those do not fit); an array gives its length and the whole items
- * that fit, else the first item's shape; a string gives its length and opening. `note` says how long the whole is.
+ * that fit, else the first item's shape; a string gives its length and opening. A string's length is in characters,
+ * an object's or array's in characters of JSON. The `top` value says how long it is and that the source has it whole.
  */
-function shapeOf(value, room, note) {
-  const about = note ? ` (${note})` : "";
-  if (typeof value === "string") return `a string${about}: ${cutString(value, room)}`;
+function shapeOf(value, room, top = false, depth = 0) {
+  const source = "the source has the whole value";
+  const about = top ? ` (${JSON.stringify(value).length} characters of JSON; ${source})` : "";
+  if (typeof value === "string") return `a string of ${plural([...value].length, "character")}${top ? ` (${source})` : ""}: ${cutString(value, room)}`;
   if (Array.isArray(value)) {
     const kept = [];
     let size = 0;
@@ -1090,7 +1095,7 @@ function shapeOf(value, room, note) {
       size += j.length + 2;
     }
     const head = `an array of ${plural(value.length, "item")}${about}`;
-    if (!kept.length) return `${head}; the first is ${shapeOf(value[0], room)}`;
+    if (!kept.length) return depth >= SHAPE_DEPTH ? head : `${head}; the first is ${shapeOf(value[0], Math.max(room - head.length - 15, 40), false, depth + 1)}`;
     return `${head}, ${kept.length < value.length ? `the first ${kept.length}` : "all of them"}: ${kept.join(", ")}`;
   }
   if (!value || typeof value !== "object") return JSON.stringify(value);
@@ -1101,7 +1106,7 @@ function shapeOf(value, room, note) {
   const full = keys.map((k) => {
     const v = value[k];
     const j = JSON.stringify(v);
-    return `${name(k)}${sized(v) || (j.length <= SHORT_VALUE_CHARS ? ` ${j}` : ` (a string of ${v.length} characters)`)}`;
+    return `${name(k)}${sized(v) || (j.length <= SHORT_VALUE_CHARS ? ` ${j}` : ` (a string of ${plural([...v].length, "character")})`)}`;
   }).join(", ");
   if (full.length <= room) return `${head}: ${full}`;
   const brief = [];

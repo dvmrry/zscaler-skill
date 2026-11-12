@@ -100,10 +100,11 @@ touches it or the types it binds, and `read --company` prints only those records
 subjects they link to (agents read the public text from `references/_meta/text/` and run it once per answer). It
 prints the linked subjects' records whole, the most strongly linked first, while each fits a budget, lists the rest
 one line each, and past a second limit names them by ID under the linked subject they come from; a record's ID
-reads that record. An IaC value longer than about 300 characters prints its shape and length instead: an object
-its keys, with short values and each list's length; an array its length and the whole items that fit; a string its
-opening. So point a record at the part of the IaC it is about (`.../domain_names`, not the whole rule), and its
-value prints whole. `resolve <id | text>` merges the same
+reads that record. An IaC value longer than about 300 characters of JSON prints its shape and length instead: an
+object its keys, with short values and each list's length (only the keys and lengths that fit, when those do not);
+an array its length and the whole items that fit, else its first item's shape; a string its length and opening.
+So point a record at the part of the IaC it is about (`.../domain_names`, not the whole rule): a short part prints
+whole, and a long one prints that part's shape rather than the rule's metadata. `resolve <id | text>` merges the same
 records into its bundle as `layer: company` facets, with IaC values whole, and ranks text queries on the records'
 words too. When an answer uses one:
 
