@@ -18,6 +18,17 @@ import {
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 export const BUNDLE_VERSION = 1;
 
+// What one loaded overlay has already worked out: a record's facet, an IaC file's JSON and its last commit date. A
+// read reaches one record from every subject it is about, so without this it resolved the record, and ran `git log`
+// for each of its pointers, once per subject.
+const MEMO = new WeakMap();
+function memo(ov, key, make) {
+  if (!MEMO.has(ov)) MEMO.set(ov, new Map());
+  const m = MEMO.get(ov);
+  if (!m.has(key)) m.set(key, make());
+  return m.get(key);
+}
+
 // ---------------------------------------------------------------- overlay
 
 /**
@@ -158,7 +169,7 @@ function resolveOverlayPointer(ov, p) {
   }
   if (p.pointer === undefined) return { error: `${p.repo} is a json repo: the pointer needs a JSON pointer` };
   if (p.address !== undefined) return { error: `${p.repo} is a json repo: address is for terraform repos` };
-  const value = resolvePointer(readJson(file), p.pointer);
+  const value = resolvePointer(memo(ov, `json ${file}`, () => readJson(file)), p.pointer);
   if (value === undefined) return { error: `IaC pointer does not resolve: ${p.repo}:${p.file}#${p.pointer}` };
   return { value };
 }
@@ -229,12 +240,24 @@ function typeView(g, typeId, onlyFields, ov) {
   return { id: t.id, kind: t.kind, ...(t.title ? { title: t.title } : {}), ...(t.names ? { names: t.names } : {}), ...(t.iac ? { iac: t.iac } : {}), ...(live ? { live } : {}), fields };
 }
 
-function companyFacets(ov, ids) {
+/**
+ * The facets of the active company records about any of `ids`, by ID. `skip` (the records a read has printed) is left
+ * out before a facet is built.
+ */
+function companyFacets(ov, ids, skip = null) {
   if (!ov) return [];
   const out = [];
   for (const { data } of ov.records) {
-    if (data.status !== "active") continue;
+    if (data.status !== "active" || skip?.has(data.id)) continue;
     if (!(data.about || []).some((a) => ids.has(a))) continue;
+    out.push(facetOf(ov, data));
+  }
+  return out.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/** A record as a facet, its IaC pointers resolved, built once per loaded overlay. */
+function facetOf(ov, data) {
+  return memo(ov, data, () => {
     const facet = {
       layer: "company", id: data.id, kind: data.kind, relation: data.relation, about: data.about, title: data.title,
       ...(data.statement ? { statement: data.statement } : {}),
@@ -252,7 +275,8 @@ function companyFacets(ov, ids) {
       facet.iac = data.pointers.map((p) => {
         const r = resolveOverlayPointer(ov, p);
         const repo = (ov.config.iac || []).find((x) => x.id === p.repo);
-        const committed = !r.error && repo ? committedDate(path.resolve(ov.root, repo.path), p.file) : null;
+        const root = repo && path.resolve(ov.root, repo.path);
+        const committed = !r.error && repo ? memo(ov, `git ${root}\0${p.file}`, () => committedDate(root, p.file)) : null;
         const where = p.pointer !== undefined ? { source: `${p.repo}:${p.file}#${p.pointer}` } : { location: `${p.repo}:${p.file}${p.address ? ` ${p.address}` : ""}` };
         if (r.error) return { label: p.label, ...where, error: r.error };
         return r.location
@@ -260,9 +284,8 @@ function companyFacets(ov, ids) {
           : { label: p.label, ...where, value: r.value ?? null, ...(committed ? { committed } : {}) };
       });
     }
-    out.push(facet);
-  }
-  return out.sort((a, b) => a.id.localeCompare(b.id));
+    return facet;
+  });
 }
 
 function tiers(ov) {
@@ -957,29 +980,55 @@ function readPolicyReason(g, key) {
  * recent it is, and its field map or IaC locations. A map keeps only the fields asked about when any are.
  */
 function readCompany(ov, ids, shown = new Set()) {
-  return companyFacets(ov, ids).filter((f) => !shown.has(f.id) && shown.add(f.id)).map((f) => {
-    const head = `- [${f.id}] ${f.kind}, ${f.relation} ${f.about.join(", ")}: ${f.title}${f.statement ? `. ${f.statement}` : ""}`;
-    const scope = f.scope ? Object.entries(f.scope).map(([k, v]) => `${k} ${v}`).join("; ") : "";
-    const sure = [f.confidence && `confidence ${f.confidence}`, f.validated && `validated ${f.validated}`, f.refresh && `refreshed every ${f.refresh}`].filter(Boolean).join(", ");
-    const entries = Object.entries(f.map || {});
-    const asked = entries.filter(([k]) => ids.has(k));
-    const map = (asked.length ? asked : entries).map(([k, v]) => `  - ${k} is ${v}`);
-    const dropped = (f.dropped_fields || []).filter((d) => !asked.length || ids.has(d));
-    const evidence = (f.evidence || []).map((e) => `  - Evidence: ${e.kind}${e.ref ? ` ${e.ref}` : ""}${e.note ? ` (${e.note})` : ""}`);
-    const iac = (f.iac || []).map((p) => `  - IaC ${p.label ? `${p.label}: ` : ""}${p.location || p.source}${p.value !== undefined ? ` = ${JSON.stringify(p.value)}` : ""}${p.committed ? ` (committed ${p.committed})` : ""}${p.error ? ` (unresolved: ${p.error})` : ""}`);
-    return [
-      head,
-      ...(scope ? [`  Scope: ${scope}`] : []),
-      ...(sure ? [`  ${sure[0].toUpperCase()}${sure.slice(1)}`] : []),
-      ...(f.system ? [`  Stored in: ${f.system}`] : []),
-      ...map,
-      ...(dropped.length ? [`  Not stored: ${dropped.join(", ")}`] : []),
-      ...(f.do_not_infer ? [`  Do not infer: ${f.do_not_infer}`] : []),
-      ...evidence,
-      ...iac,
-    ].join("\n");
+  return companyFacets(ov, ids, shown).map((f) => {
+    shown.add(f.id);
+    return recordText(f, ids);
   }).join("\n");
 }
+
+/** One record in full. A map keeps only the fields in `ids` when any are. */
+function recordText(f, ids) {
+  const scope = f.scope ? Object.entries(f.scope).map(([k, v]) => `${k} ${v}`).join("; ") : "";
+  const sure = [f.confidence && `confidence ${f.confidence}`, f.validated && `validated ${f.validated}`, f.refresh && `refreshed every ${f.refresh}`].filter(Boolean).join(", ");
+  const entries = Object.entries(f.map || {});
+  const asked = entries.filter(([k]) => ids.has(k));
+  const map = (asked.length ? asked : entries).map(([k, v]) => `  - ${k} is ${v}`);
+  const dropped = (f.dropped_fields || []).filter((d) => !asked.length || ids.has(d));
+  const evidence = (f.evidence || []).map((e) => `  - Evidence: ${e.kind}${e.ref ? ` ${e.ref}` : ""}${e.note ? ` (${e.note})` : ""}`);
+  const iac = (f.iac || []).map((p) => `  - IaC ${p.label ? `${p.label}: ` : ""}${p.location || p.source}${p.value !== undefined ? ` = ${iacValue(p.value)}` : ""}${p.committed ? ` (committed ${p.committed})` : ""}${p.error ? ` (unresolved: ${p.error})` : ""}`);
+  return [
+    `${recordLine(f)}${f.statement ? `. ${f.statement}` : ""}`,
+    ...(scope ? [`  Scope: ${scope}`] : []),
+    ...(sure ? [`  ${sure[0].toUpperCase()}${sure.slice(1)}`] : []),
+    ...(f.system ? [`  Stored in: ${f.system}`] : []),
+    ...map,
+    ...(dropped.length ? [`  Not stored: ${dropped.join(", ")}`] : []),
+    ...(f.do_not_infer ? [`  Do not infer: ${f.do_not_infer}`] : []),
+    ...evidence,
+    ...iac,
+  ].join("\n");
+}
+
+/** A record's ID, kind, what it is about and its title: its first line, and all of it in a list. */
+function recordLine(f) {
+  return `- [${f.id}] ${f.kind}, ${f.relation} ${f.about.join(", ")}: ${f.title}`;
+}
+
+// The most characters of an IaC value a read prints. A pointer can resolve to a whole exported object, kilobytes of
+// JSON, and a read prints every record's pointers.
+const IAC_VALUE_CHARS = 300;
+
+/** An IaC value as JSON, cut after the last whole item that fits, saying so; the line names its source. */
+function iacValue(value) {
+  const s = JSON.stringify(value);
+  if (s.length <= IAC_VALUE_CHARS) return s;
+  const head = s.slice(0, IAC_VALUE_CHARS);
+  const cut = head.lastIndexOf(",");
+  return `${cut > 0 ? head.slice(0, cut) : head} … (cut: ${s.length} characters in all; the source has the whole value)`;
+}
+
+// The most tokens of linked subjects' company records `read --company` prints whole; it lists the rest one line each.
+const LINKED_RECORD_TOKENS = 4000;
 
 // The most tokens one area ID reads whole; a larger area reads as its hub and the index of its subjects.
 const AREA_TOKENS = 20000;
@@ -1036,13 +1085,14 @@ function edgesOf(g, id) {
  * read next, the ones most of the reading set points to first, until `budget` tokens; every other neighbour prints as
  * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
  * about it. `company` keeps only those records, for a reader that has the public text already (scripts/gen-text.mjs
- * writes it as files): a subject named stands for its whole area, as the areas agents used to read did, and the
- * records about every subject one hop from those follow. A type or field stands for itself.
+ * writes it as files): a subject named stands for its whole area, as the areas agents used to read did. The records
+ * about the subjects one hop from those follow, the most strongly linked first, until `linkedRecords` tokens; the rest
+ * print one line each, and a record's ID reads it whole. A type or field stands for itself.
  *
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
  */
-export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS, company = false } = {}) {
+export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS, company = false, linkedRecords = LINKED_RECORD_TOKENS } = {}) {
   if (company) areaTokens = Infinity;
   const out = [];
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
@@ -1058,7 +1108,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   const emit = (id) => {
     seen.add(id);
     const n = g.nodes.get(id);
-    const text = n.kind === "type" ? readType(g, id) : readSubject(g, id);
+    const text = company ? "" : n.kind === "type" ? readType(g, id) : readSubject(g, id);
     if (!company) out.push(text);
     const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
     if (about) {
@@ -1072,6 +1122,14 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
+    // A company record's ID, as a list line gives it, reads that record whole.
+    const record = !g.nodes.has(arg) && ov?.records.find((r) => r.data?.status === "active" && r.data.id === arg);
+    if (record) {
+      if (!shown.has(arg)) out.push(`Company record ${arg}:\n${recordText(facetOf(ov, record.data), new Set())}`);
+      shown.add(arg);
+      records++;
+      continue;
+    }
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
       if (!company) out.push(readStatusCode(g, arg));
       else named.push(given);
@@ -1127,10 +1185,28 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
-    // Records alone are short: every linked subject's, with no budget and no heading (types are not followed, as in
-    // a full read, where a type never fits the budget).
+    // The linked subjects' records, the most strongly linked subject's first: whole until `linkedRecords` tokens, then
+    // one line each, since every link out of an area brings its records, and a large area links to up to 61 subjects. Types are
+    // not followed, as in a full read, where a type never fits the budget.
     if (company) {
-      for (const [id] of ranked) if (g.nodes.get(id).kind === "subject") emit(id);
+      if (!ov) break;
+      let spent = 0;
+      const listed = [];
+      for (const [id] of ranked) {
+        if (g.nodes.get(id).kind !== "subject") continue;
+        seen.add(id);
+        const ids = aboutIds(g, id);
+        const facets = companyFacets(ov, ids, shown);
+        if (!facets.length) continue;
+        for (const f of facets) shown.add(f.id);
+        records++;
+        const text = facets.map((f) => recordText(f, ids)).join("\n");
+        if (spent + text.length / 4 <= linkedRecords) {
+          spent += text.length / 4;
+          out.push(`Company records about ${id}:\n${text}`);
+        } else listed.push(...facets.map(recordLine));
+      }
+      if (listed.length) out.push(fit("Company records about linked subjects, one line each (read one whole with `node scripts/kb.mjs read --company <record id>`):", listed, 8000, "records"));
       continue;
     }
     out.push(`## Linked subjects (one hop from what was read)`);

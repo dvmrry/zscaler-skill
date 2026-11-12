@@ -87,8 +87,9 @@ for a person to approve every shell command; the public graph needs none, and th
 4. **Company records.** Once per answer, after reading, run `node scripts/kb.mjs read --company <the subject and
    type IDs you read>` (their file paths work too): the company records about them and their areas, the types they
    bind and the subjects they link to, including records that narrow or contradict a public claim, with scope, confidence,
-   validated date, field map and IaC locations. When it says no overlay is configured, skip it for the rest of the
-   conversation.
+   validated date, field map and IaC locations. Past a budget, the linked subjects' records print one line each: when
+   one bears on the answer, read it whole with `node scripts/kb.mjs read --company <record id>`. When it says no
+   overlay is configured, skip it for the rest of the conversation.
 5. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
    files the records locate, with your file tools, and search them for the objects the question names (the app,
    rule, location or category). Give the file's `committed` date.

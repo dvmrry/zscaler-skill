@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import { sync, textFiles } from "./gen-text.mjs";
 import { buildGraph, loadPublic } from "./kb-lib.mjs";
-import { bindsOf, spines, textFile } from "./kb-resolve.mjs";
+import { bindsOf, loadOverlay, readText, spines, textFile, usableOverlay } from "./kb-resolve.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const OVERLAY = path.join(ROOT, "scripts/fixtures/kb-overlay");
@@ -103,6 +103,54 @@ test("read --company prints only the company records, the hop's too, and takes f
   assert.match(unknown, /no subject, type, field or area has this ID/);
   assert.doesNotMatch(unknown, /No company records/, "an ID that names nothing is not reported as having no records");
   assert.equal(read("--no-overlay", "--company", id), "No company overlay is configured: there are no company records to read.\n");
+});
+
+test("read --company lists linked subjects' records past its budget, reads one by ID, and cuts long IaC values", () => {
+  // ai-security.ai-guard reaches the SIEM mapping only through a linked subject.
+  const ov = usableOverlay(g, loadOverlay(g, OVERLAY));
+  const whole = readText(g, ["ai-security.ai-guard"], ov, { company: true });
+  const listed = readText(g, ["ai-security.ai-guard"], ov, { company: true, linkedRecords: 0 });
+  assert.match(whole, /^Company records about \S+:\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: .+\n {2}Stored in: /m);
+  assert.match(listed, /^Company records about linked subjects, one line each \(read one whole with `node scripts\/kb\.mjs read --company <record id>`\):\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: Synthetic fixture: how our SIEM stores ZIA web log fields$/m);
+  assert.doesNotMatch(listed, /Stored in:/);
+  assert.deepEqual(records(listed), records(whole), "a listed record is still named");
+  assert.match(read("--overlay", OVERLAY, "--company", "company.zia.splunk-web-mapping"), /^Company record company\.zia\.splunk-web-mapping:\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: .+\n {2}Stored in: Splunk index zscaler_web \(synthetic\)\n {2}- zia\/web-log#urlfilterrulelabel is zs_url_rule$/m);
+
+  // A pointer that resolves to a whole export prints its start, cut after a whole item, and says how long it is.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kb-overlay-"));
+  try {
+    fs.cpSync(OVERLAY, dir, { recursive: true });
+    const rules = Array.from({ length: 40 }, (_, i) => ({ name: `rule-${i}`, action: "BLOCK", order: i }));
+    fs.writeFileSync(path.join(dir, "iac/rules.json"), JSON.stringify({ rules }));
+    const record = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
+    record.id = "company.zia.url-filtering-export";
+    record.pointers = [{ repo: "iac", file: "rules.json", pointer: "/rules", label: "our rules" }];
+    fs.writeFileSync(path.join(dir, "knowledge/zia/company.zia.url-filtering-export.json"), JSON.stringify(record));
+    const out = read("--overlay", dir, "--company", "zia/url-filtering-rules");
+    const m = out.match(/^ {2}- IaC our rules: iac:rules\.json#\/rules = (\[\{"name":"rule-0".*?) … \(cut: (\d+) characters in all; the source has the whole value\)$/m);
+    assert.ok(m, out);
+    assert.ok(m[1].length <= 300, `${m[1].length} characters printed`);
+    assert.equal(Number(m[2]), JSON.stringify(rules).length);
+    assert.match(out, /^ {2}- IaC checks we added: iac:coverage\.json#\/resources\/zia_url_filtering_rules\/checks = \["assert-clean after import for the imported addresses only"\]/m, "a short value prints whole");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("read --company dates each IaC file once, however many subjects reach its record", () => {
+  const bin = fs.mkdtempSync(path.join(os.tmpdir(), "kb-git-"));
+  try {
+    const log = path.join(bin, "calls");
+    const git = execFileSync("sh", ["-c", "command -v git"], { encoding: "utf8" }).trim();
+    fs.writeFileSync(path.join(bin, "git"), `#!/bin/sh\necho "$*" >> '${log}'\nexec '${git}' "$@"\n`, { mode: 0o755 });
+    const env = { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` };
+    const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", OVERLAY, "--company", "zia.url-filtering"], { encoding: "utf8", env });
+    assert.ok(records(out).includes("- [company.zia.url-filtering-iac]"));
+    const calls = fs.readFileSync(log, "utf8").trim().split("\n");
+    assert.deepEqual(calls, [...new Set(calls)], "no git call repeats");
+  } finally {
+    fs.rmSync(bin, { recursive: true, force: true });
+  }
 });
 
 test("sync writes, then --check finds missing, changed and no-longer-generated files", () => {
