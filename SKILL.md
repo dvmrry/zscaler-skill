@@ -95,8 +95,9 @@ for a person to approve every shell command; the public graph needs none, and th
    with only those IDs, `node scripts/kb.mjs read --company <record id> ...`. When it says no overlay is configured,
    skip it for the rest of the conversation.
 5. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
-   files the records locate, with your file tools, and search them for the objects the question names (the app,
-   rule, location or category). Give the file's `committed` date.
+   files the records locate, with your file and search tools, and search them for the objects the question names
+   (the app, rule, location or category), or the keys a value's shape names. Do not parse them with a shell command
+   (`jq`, `python`): each one needs an approval. Give the file's `committed` date.
 
 Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
 with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a

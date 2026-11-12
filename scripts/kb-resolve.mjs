@@ -1159,7 +1159,7 @@ const isEmpty = (v) => v === null || v === "" || (Array.isArray(v) ? !v.length :
  * A member of a long object as its path and what it holds: the value when short; else through a one-item list or
  * one-key object, up to three deep, since a Terraform block wraps its list so (`app_connector_groups[0 of 1].id [12
  * items]`, not `app_connector_groups [1 item]`; "of 1", so the index is not read as the first of several); else its
- * size.
+ * size. `sized` says the text gives a size, which only says what to open, not a value.
  */
 function memberOf(k, v) {
   let path = keyName(k);
@@ -1174,10 +1174,10 @@ function memberOf(k, v) {
     } else break;
   }
   const j = JSON.stringify(v);
-  if (j.length <= SHORT_VALUE_CHARS) return `${path} ${j}`;
-  if (Array.isArray(v)) return `${path} [${plural(v.length, "item")}]`;
-  if (v && typeof v === "object") return `${path} {${plural(Object.keys(v).length, "key")}}`;
-  return `${path} (a string of ${plural([...v].length, "character")})`;
+  if (j.length <= SHORT_VALUE_CHARS) return { text: `${path} ${j}`, sized: false };
+  if (Array.isArray(v)) return { text: `${path} [${plural(v.length, "item")}]`, sized: true };
+  if (v && typeof v === "object") return { text: `${path} {${plural(Object.keys(v).length, "key")}}`, sized: true };
+  return { text: `${path} (a string of ${plural([...v].length, "character")})`, sized: true };
 }
 
 /**
@@ -1209,51 +1209,66 @@ function shapeOf(value, room, top = false, depth = 0) {
 
 /**
  * An object's members in one fill: empty ones (null, "", [], {}) only counted; the rest in key order with their
- * values or sizes. Past the room, members that are false or 0 give way first, to their names and then a count (they
- * are set values, not empty); then the longest values, to their names; only then names, counted. A key is never
- * printed bare where it would read as having no value. When even the names do not fit, they still win over values:
- * what the source holds says what to open, and a few values of many do not answer for the rest.
+ * values or sizes. Past the room, each step gives way in turn, losing as little as it can:
+ * 1. members that are false or 0 move to one list of names ("false or 0: a, b"), which keeps what they say;
+ * 2. the longest values move to "values not shown", by name; a size stays, since it says what to open;
+ * 3. those names, from the last, become a count;
+ * 4. sized members, from the last, join that count;
+ * 5. only then the false or 0 names become a count. They are set values, not empty, and one that is missing can
+ *    read as its opposite (`enabled false`).
+ * A key is never printed bare where it would read as having no value. When even the names do not fit, they still
+ * win over values: what the source holds says what to open, and a few values of many do not answer for the rest.
  */
 function objectShape(value, room) {
   const keys = Object.keys(value);
   const empty = keys.filter((k) => isEmpty(value[k])).length;
-  const falsy = keys.filter((k) => value[k] === false || value[k] === 0);
-  const rest = keys.filter((k) => !isEmpty(value[k]) && value[k] !== false && value[k] !== 0).map((k) => ({ k, text: memberOf(k, value[k]) }));
-  const state = { inline: true, falsyNames: true, hidden: new Set(), unnamed: 0 };
+  const members = keys.filter((k) => !isEmpty(value[k])).map((k) => {
+    const v = value[k];
+    const falsy = v === false || v === 0;
+    return { k, falsy, ...(falsy ? { text: `${keyName(k)} ${JSON.stringify(v)}`, sized: false } : memberOf(k, v)) };
+  });
+  const falsy = members.filter((m) => m.falsy);
+  const state = { falsyInline: true, falsyNamed: true, hidden: [], unnamed: 0, dropped: new Set() };
   const render = () => {
-    const shown = (state.inline ? keys.filter((k) => !isEmpty(value[k])).map((k) => rest.find((r) => r.k === k) || { k, text: `${keyName(k)} ${JSON.stringify(value[k])}` }) : rest)
-      .filter((r) => !state.hidden.has(r.k));
-    const hidden = rest.filter((r) => state.hidden.has(r.k)).map((r) => keyName(r.k));
+    const shown = members.filter((m) => (m.falsy ? state.falsyInline : !state.hidden.includes(m) && !state.dropped.has(m)));
+    const hidden = members.filter((m) => state.hidden.includes(m)).map((m) => keyName(m.k));
     const named = hidden.slice(0, hidden.length - state.unnamed);
+    const unnamed = state.unnamed + state.dropped.size;
     return [
-      shown.map((r) => r.text).join(", "),
+      shown.map((m) => m.text).join(", "),
       named.length ? `values not shown: ${named.join(", ")}` : "",
-      !state.inline && falsy.length ? (state.falsyNames ? `false or 0: ${falsy.map(keyName).join(", ")}` : `${are(falsy.length)} false or 0`) : "",
-      state.unnamed ? `${state.unnamed} more not named` : "",
+      !state.falsyInline && falsy.length ? (state.falsyNamed ? `false or 0: ${falsy.map((m) => keyName(m.k)).join(", ")}` : `${are(falsy.length)} false or 0`) : "",
+      unnamed ? `${unnamed} more not named` : "",
       empty ? `${are(empty)} empty or null` : "",
     ].filter(Boolean).join("; ");
   };
   // Each step gives way once and says whether it could.
   const steps = [
     () => {
-      if (!falsy.length || !state.inline) return false;
-      state.inline = false;
+      if (!falsy.length || !state.falsyInline) return false;
+      state.falsyInline = false;
       return true;
     },
     () => {
-      if (!falsy.length || !state.falsyNames) return false;
-      state.falsyNames = false;
-      return true;
-    },
-    () => {
-      const next = rest.filter((r) => !state.hidden.has(r.k)).sort((a, b) => b.text.length - a.text.length)[0];
+      const next = members.filter((m) => !m.falsy && !m.sized && !state.hidden.includes(m)).sort((a, b) => b.text.length - a.text.length)[0];
       if (!next) return false;
-      state.hidden.add(next.k);
+      state.hidden.push(next);
       return true;
     },
     () => {
-      if (state.unnamed >= state.hidden.size) return false;
+      if (state.unnamed >= state.hidden.length) return false;
       state.unnamed++;
+      return true;
+    },
+    () => {
+      const last = members.filter((m) => m.sized && !state.dropped.has(m)).at(-1);
+      if (!last) return false;
+      state.dropped.add(last);
+      return true;
+    },
+    () => {
+      if (!falsy.length || !state.falsyNamed) return false;
+      state.falsyNamed = false;
       return true;
     },
   ];

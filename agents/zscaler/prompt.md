@@ -109,7 +109,8 @@ records it names but does not print, step 4).
    second call with only those IDs, `node scripts/kb.mjs read --company <record id> ...`. When it says no overlay is
    configured, skip it for the rest of the conversation.
 5. **Tenant configuration (overlay only).** When the answer depends on our setup, open the IaC files the records
-   locate with your file tools and search them for the objects the question names.
+   locate with your file and search tools and search them for the objects the question names, or the keys a value's
+   shape names. Do not parse them with a shell command (`jq`, `python`): each one needs an approval.
 
 Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
 with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a

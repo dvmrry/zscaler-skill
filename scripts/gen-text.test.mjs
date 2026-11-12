@@ -202,6 +202,7 @@ test("read --company lists linked subjects' records past its budget, reads one b
         ...Object.fromEntries(Array.from({ length: 22 }, (_, i) => [`filler_${i}`, `v${i}`])),
         list: domains.slice(0, 30),
       },
+      lists: { ...Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`list_${String(i).padStart(2, "0")}`, Array.from({ length: 20 }, (_, j) => j)])), zz_enabled: false },
       // An exported URL Filtering rule: keys alphabetical, many empty or false, the deciding lists late.
       urlrule: {
         action: "BLOCK", block_override: false, cbi_profile: {}, ciparule: false, departments: [], description: "d".repeat(62),
@@ -221,7 +222,7 @@ test("read --company lists linked subjects' records past its budget, reads one b
     fs.writeFileSync(path.join(dir, "iac/rules.json"), JSON.stringify({ rules, notes }));
     const record = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
     record.id = "company.zia.url-filtering-export";
-    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/ids", "notes/server", "notes/flags", "notes/urlrule", "notes/rule", "notes/emoji", "notes/deep", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
+    record.pointers = ["rules", "notes/first", "notes/big", "notes/lines", "notes/key", "notes/ids", "notes/server", "notes/flags", "notes/lists", "notes/urlrule", "notes/rule", "notes/emoji", "notes/deep", "notes/wide"].map((p) => ({ repo: "iac", file: "rules.json", pointer: `/${p}`, label: p }));
     fs.writeFileSync(path.join(dir, "knowledge/zia/company.zia.url-filtering-export.json"), JSON.stringify(record));
     const out = read("--overlay", dir, "--company", "zia/url-filtering-rules");
     const value = (label) => out.match(new RegExp(`^ {2}- IaC ${label}: iac:rules\\.json#/${label} = (.+)$`, "m"))?.[1];
@@ -242,10 +243,11 @@ test("read --company lists linked subjects' records past its budget, reads one b
     assert.match(value("notes/flags"), /filler_21 "v21", list \[30 items\]; false or 0: flag_0, flag_1, flag_2, flag_3, flag_4, flag_5$/, "past the room, false members give way to their names first");
     const urlrule = value("notes/urlrule");
     assert.ok(urlrule.length <= 600, `${urlrule.length} characters`);
-    for (const part of ['action "BLOCK"', `locations[0 of 1] {"id":[9000001,9000002,9000003,9000004]}`, 'source_ip_groups [{"id":[5550101,5550102,5550103]}]', "url_categories [4 items]", "order 14", "15 keys are empty or null"]) {
+    for (const part of ['action "BLOCK"', "url_categories [4 items]", "order 14", "values not shown: locations, source_ip_groups", "15 keys are empty or null"]) {
       assert.ok(urlrule.includes(part), `${part} in: ${urlrule}`);
     }
-    assert.ok(urlrule.includes("6 keys are false or 0"), "false members are set values, counted apart from empty ones");
+    assert.ok(urlrule.includes("false or 0: block_override, ciparule, enforce_time_validity, size_quota, time_quota, validity_end_time"), "false members are set values: they keep their names while values give way");
+    assert.match(value("notes/lists"), /^an object of 61 keys \(\d+ characters of JSON; the source has the whole value\): list_00 \[20 items\], list_01 \[20 items\], .+; false or 0: zz_enabled; \d+ more not named$/, "sizes give way before a false member's name");
     assert.doesNotMatch(urlrule, /\[0 items\]|cbi_profile/, "empty members are only counted");
     assert.equal(value("notes/emoji"), `an object of 2 keys ${long(notes.emoji)}: list [42 items], note (a string of 20 characters)`, "a string's length counts characters, not UTF-16 units");
     assert.equal(value("notes/deep"), `an array of 1 item ${long(notes.deep)}; the first is an array of 1 item; the first is an array of 1 item`, "nesting cannot grow a shape");
