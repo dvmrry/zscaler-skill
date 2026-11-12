@@ -242,50 +242,62 @@ function typeView(g, typeId, onlyFields, ov) {
 
 /**
  * The facets of the active company records about any of `ids`, by ID. `skip` (the records a read has printed) is left
- * out before a facet is built.
+ * out before a facet is built. `dated: false` leaves out each IaC file's last commit date, which costs a `git log`.
  */
-function companyFacets(ov, ids, skip = null) {
-  if (!ov) return [];
-  const out = [];
-  for (const { data } of ov.records) {
-    if (data.status !== "active" || skip?.has(data.id)) continue;
-    if (!(data.about || []).some((a) => ids.has(a))) continue;
-    out.push(facetOf(ov, data));
-  }
-  return out.sort((a, b) => a.id.localeCompare(b.id));
+function companyFacets(ov, ids, skip = null, { dated = true } = {}) {
+  return ov ? aboutRecords(ov, ids, skip).map((data) => facetOf(ov, data, { dated })) : [];
 }
 
-/** A record as a facet, its IaC pointers resolved, built once per loaded overlay. */
-function facetOf(ov, data) {
-  return memo(ov, data, () => {
-    const facet = {
-      layer: "company", id: data.id, kind: data.kind, relation: data.relation, about: data.about, title: data.title,
-      ...(data.statement ? { statement: data.statement } : {}),
-      ...(data.do_not_infer ? { do_not_infer: data.do_not_infer } : {}),
-      ...(data.scope ? { scope: data.scope } : {}),
-      ...(data.validated ? { validated: data.validated } : {}),
-      ...(data.confidence ? { confidence: data.confidence } : {}),
-      ...(data.map ? { map: data.map } : {}),
-      ...(data.dropped_fields ? { dropped_fields: data.dropped_fields } : {}),
-      ...(data.system ? { system: data.system } : {}),
-      ...(data.refresh ? { refresh: data.refresh } : {}),
-      ...(data.evidence ? { evidence: data.evidence } : {}),
-    };
-    if (data.pointers) {
-      facet.iac = data.pointers.map((p) => {
-        const r = resolveOverlayPointer(ov, p);
-        const repo = (ov.config.iac || []).find((x) => x.id === p.repo);
-        const root = repo && path.resolve(ov.root, repo.path);
-        const committed = !r.error && repo ? memo(ov, `git ${root}\0${p.file}`, () => committedDate(root, p.file)) : null;
-        const where = p.pointer !== undefined ? { source: `${p.repo}:${p.file}#${p.pointer}` } : { location: `${p.repo}:${p.file}${p.address ? ` ${p.address}` : ""}` };
-        if (r.error) return { label: p.label, ...where, error: r.error };
-        return r.location
-          ? { label: p.label, location: r.location, ...(committed ? { committed } : {}) }
-          : { label: p.label, ...where, value: r.value ?? null, ...(committed ? { committed } : {}) };
-      });
-    }
-    return facet;
-  });
+/** The active records about any of `ids`, except those in `skip`, by ID. */
+function aboutRecords(ov, ids, skip = null) {
+  return ov.records
+    .map((r) => r.data)
+    .filter((data) => data?.status === "active" && !skip?.has(data.id) && (data.about || []).some((a) => ids.has(a)))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/**
+ * A record as a facet, its IaC pointers resolved, each with its file's last commit date unless `dated` is false.
+ * Each is built once per loaded overlay.
+ */
+function facetOf(ov, data, { dated = true } = {}) {
+  const facet = memo(ov, data, () => undatedFacet(ov, data));
+  if (!dated || !facet.iac) return facet;
+  return memo(ov, facet, () => ({
+    ...facet,
+    iac: facet.iac.map((p, i) => {
+      if (p.error) return p;
+      const { repo, file } = data.pointers[i];
+      const root = path.resolve(ov.root, ov.config.iac.find((x) => x.id === repo).path);
+      const committed = memo(ov, `git ${root}\0${file}`, () => committedDate(root, file));
+      return committed ? { ...p, committed } : p;
+    }),
+  }));
+}
+
+function undatedFacet(ov, data) {
+  const facet = {
+    layer: "company", id: data.id, kind: data.kind, relation: data.relation, about: data.about, title: data.title,
+    ...(data.statement ? { statement: data.statement } : {}),
+    ...(data.do_not_infer ? { do_not_infer: data.do_not_infer } : {}),
+    ...(data.scope ? { scope: data.scope } : {}),
+    ...(data.validated ? { validated: data.validated } : {}),
+    ...(data.confidence ? { confidence: data.confidence } : {}),
+    ...(data.map ? { map: data.map } : {}),
+    ...(data.dropped_fields ? { dropped_fields: data.dropped_fields } : {}),
+    ...(data.system ? { system: data.system } : {}),
+    ...(data.refresh ? { refresh: data.refresh } : {}),
+    ...(data.evidence ? { evidence: data.evidence } : {}),
+  };
+  if (data.pointers) {
+    facet.iac = data.pointers.map((p) => {
+      const r = resolveOverlayPointer(ov, p);
+      const where = p.pointer !== undefined ? { source: `${p.repo}:${p.file}#${p.pointer}` } : { location: `${p.repo}:${p.file}${p.address ? ` ${p.address}` : ""}` };
+      if (r.error) return { label: p.label, ...where, error: r.error };
+      return r.location ? { label: p.label, location: r.location } : { label: p.label, ...where, value: r.value ?? null };
+    });
+  }
+  return facet;
 }
 
 function tiers(ov) {
@@ -1014,17 +1026,65 @@ function recordLine(f) {
   return `- [${f.id}] ${f.kind}, ${f.relation} ${f.about.join(", ")}: ${f.title}`;
 }
 
+// The most characters of linked records' list lines a read prints; past it, the rest are named by ID only.
+const LIST_CHARS = 8000;
+
+/** Records one line each, as many as fit in LIST_CHARS, then every other one by ID, so each can still be read. */
+function listRecords(records) {
+  const head = "Company records about linked subjects, one line each (read the ones the answer needs whole, all in one call: `node scripts/kb.mjs read --company <record id> ...`):";
+  const lines = [];
+  let size = head.length;
+  for (const data of records) {
+    const line = recordLine(data);
+    if (size + line.length + 1 > LIST_CHARS) break;
+    lines.push(line);
+    size += line.length + 1;
+  }
+  const rest = records.slice(lines.length).map((data) => data.id);
+  return [head, ...lines, ...(rest.length ? [`- and ${rest.length} more, by ID: ${rest.join(", ")}`] : [])].join("\n");
+}
+
 // The most characters of an IaC value a read prints. A pointer can resolve to a whole exported object, kilobytes of
 // JSON, and a read prints every record's pointers.
 const IAC_VALUE_CHARS = 300;
 
-/** An IaC value as JSON, cut after the last whole item that fits, saying so; the line names its source. */
+/** An IaC value as JSON, its long parts cut and marked `…`, saying so; the line names its source. */
 function iacValue(value) {
   const s = JSON.stringify(value);
   if (s.length <= IAC_VALUE_CHARS) return s;
-  const head = s.slice(0, IAC_VALUE_CHARS);
-  const cut = head.lastIndexOf(",");
-  return `${cut > 0 ? head.slice(0, cut) : head} … (cut: ${s.length} characters in all; the source has the whole value)`;
+  return `${jsonPrefix(value, IAC_VALUE_CHARS)} (cut: ${s.length} characters in all; the source has the whole value)`;
+}
+
+/**
+ * About `room` characters of a value as JSON, never part of an item: an array or object keeps the whole items that
+ * fit and marks the rest `…`, cutting into its first item only when none fits whole; a string keeps whole characters.
+ */
+function jsonPrefix(value, room) {
+  const s = JSON.stringify(value);
+  if (s.length <= room) return s;
+  if (value && typeof value === "object") {
+    const array = Array.isArray(value);
+    const items = array ? value.map((v) => ["", v]) : Object.entries(value).map(([k, v]) => [`${JSON.stringify(k)}:`, v]);
+    const kept = [];
+    let size = 5; // the brackets and ", …"
+    for (const [key, v] of items) {
+      const whole = key + JSON.stringify(v);
+      if (size + whole.length + 1 <= room) {
+        kept.push(whole);
+        size += whole.length + 1;
+        continue;
+      }
+      if (!kept.length) kept.push(key + jsonPrefix(v, Math.max(room - size - key.length, 20)));
+      break;
+    }
+    return `${array ? "[" : "{"}${kept.join(",")}${items.length > kept.length ? ", …" : ""}${array ? "]" : "}"}`;
+  }
+  let kept = "";
+  for (const ch of String(value)) {
+    if (kept.length + ch.length > Math.max(room - 3, 10)) break;
+    kept += ch;
+  }
+  return `${JSON.stringify(kept).slice(0, -1)}…"`;
 }
 
 // The most tokens of linked subjects' company records `read --company` prints whole; it lists the rest one line each.
@@ -1122,12 +1182,15 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
-    // A company record's ID, as a list line gives it, reads that record whole.
-    const record = !g.nodes.has(arg) && ov?.records.find((r) => r.data?.status === "active" && r.data.id === arg);
-    if (record) {
-      if (!shown.has(arg)) out.push(`Company record ${arg}:\n${recordText(facetOf(ov, record.data), new Set())}`);
-      shown.add(arg);
-      records++;
+    // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole.
+    if (ov && !g.nodes.has(arg) && arg.startsWith("company.")) {
+      const data = ov.records.find((r) => r.data?.id === arg)?.data;
+      if (data?.status === "active") {
+        if (!shown.has(arg)) out.push(`Company record ${arg}:\n${recordText(facetOf(ov, data), new Set())}`);
+        shown.add(arg);
+        records++;
+      } else if (data?.status === "promoted") out.push(`# ${arg}: this company record was promoted to the public claim ${data.promoted_to}`);
+      else out.push(`# ${arg}: no active company record has this ID${data ? ` (it is ${data.status})` : ""}`);
       continue;
     }
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
@@ -1186,8 +1249,9 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     const ranked = neighbours(g, [...seen], seen);
     if (!ranked.length) break;
     // The linked subjects' records, the most strongly linked subject's first: whole until `linkedRecords` tokens, then
-    // one line each, since every link out of an area brings its records, and a large area links to up to 61 subjects. Types are
-    // not followed, as in a full read, where a type never fits the budget.
+    // one line each, since every link out of an area brings its records, and a large area links to up to 61
+    // subjects. A record is sized without its IaC dates (a few characters each), so one only listed costs no
+    // `git log`. Types are not followed, as in a full read, where a type never fits the budget.
     if (company) {
       if (!ov) break;
       let spent = 0;
@@ -1196,17 +1260,17 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
         if (g.nodes.get(id).kind !== "subject") continue;
         seen.add(id);
         const ids = aboutIds(g, id);
-        const facets = companyFacets(ov, ids, shown);
-        if (!facets.length) continue;
-        for (const f of facets) shown.add(f.id);
+        const found = aboutRecords(ov, ids, shown);
+        if (!found.length) continue;
+        for (const data of found) shown.add(data.id);
         records++;
-        const text = facets.map((f) => recordText(f, ids)).join("\n");
-        if (spent + text.length / 4 <= linkedRecords) {
-          spent += text.length / 4;
-          out.push(`Company records about ${id}:\n${text}`);
-        } else listed.push(...facets.map(recordLine));
+        const cost = found.map((data) => recordText(facetOf(ov, data, { dated: false }), ids)).join("\n").length / 4;
+        if (spent + cost <= linkedRecords) {
+          spent += cost;
+          out.push(`Company records about ${id}:\n${found.map((data) => recordText(facetOf(ov, data), ids)).join("\n")}`);
+        } else listed.push(...found);
       }
-      if (listed.length) out.push(fit("Company records about linked subjects, one line each (read one whole with `node scripts/kb.mjs read --company <record id>`):", listed, 8000, "records"));
+      if (listed.length) out.push(listRecords(listed));
       continue;
     }
     out.push(`## Linked subjects (one hop from what was read)`);
@@ -1385,7 +1449,10 @@ export function usableOverlay(g, ov) {
     console.error(e.pointer ? `overlay pointer unresolved (record kept): ${e.file}: ${e.message}` : `overlay record skipped: ${e.file}: ${e.message}`);
     if (!e.pointer) bad.add(e.file);
   }
-  return { ...ov, records: ov.records.filter((r) => !bad.has(r.file)) };
+  const usable = { ...ov, records: ov.records.filter((r) => !bad.has(r.file)) };
+  // What validation resolved (each IaC file's JSON) stays worked out: the copy is the same overlay.
+  if (MEMO.has(ov)) MEMO.set(usable, MEMO.get(ov));
+  return usable;
 }
 
 /**
@@ -1436,8 +1503,8 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
   if (cmd === "read") {
     const ids = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--overlay");
     const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--company", "--no-overlay", "--overlay"].includes(a));
-    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links | --company] [--overlay <dir> | --no-overlay]`);
-    if (!ids.length) usage("read needs one or more area, subject or type IDs");
+    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field | company record> ... [--no-links | --company] [--overlay <dir> | --no-overlay]`);
+    if (!ids.length) usage("read needs one or more area, subject, type or company record IDs");
     // --company: only the company records, for a reader that read the public text from references/_meta/text/.
     const company = args.includes("--company");
     // Say when there is no overlay, so a reader does not go looking for company records or IaC, and when a configured

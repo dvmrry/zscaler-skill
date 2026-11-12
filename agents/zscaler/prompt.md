@@ -66,7 +66,8 @@ SDK/TF/API surface checks, or citation repair.
 
 Every product answer starts in the knowledge graph, read with your file and search tools: the spine, then the text
 files of the subjects you pick. Many runtimes stop for a person to approve each shell command; the public graph
-needs none, and the one command an answer takes is `read --company`, for company records.
+needs none, and the one command an answer takes is `read --company`, for company records (and one more only to read
+whole the records it lists by line, step 4).
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared`). "Connector" alone names four
@@ -101,9 +102,10 @@ needs none, and the one command an answer takes is `read --company`, for company
    type IDs you read>` (their file paths work too). It prints the company records about them and their areas, about
    the log and object types they bind and about the subjects they link to: how we do things, records that narrow or contradict a
    public claim, and for configuration the scope, confidence, validated date, field map, and the IaC files or values
-   they point to. Past a budget, the linked subjects' records print one line each: when one bears on the answer, read
-   it whole with `node scripts/kb.mjs read --company <record id>`. When it says no overlay is configured, skip it for
-   the rest of the conversation.
+   they point to. Past a budget, the linked subjects' records print one line each. When any of those bear on the
+   answer, make the one exception to once: read them whole in a single second call with all their IDs,
+   `node scripts/kb.mjs read --company <record id> ...`. When it says no overlay is configured, skip it for the rest
+   of the conversation.
 5. **Tenant configuration (overlay only).** When the answer depends on our setup, open the IaC files the records
    locate with your file tools and search them for the objects the question names.
 

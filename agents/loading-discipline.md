@@ -74,7 +74,8 @@ artifact that can answer the current question, then stop.
    follows the narrower v1 rule below.
 6. **One-pass answer budget.** For ad-hoc Q&A, open the 3 to 6 subject files
    the question turns on, plus a linked file only when the answer needs it, and
-   run `read --company` once. Read more only when the user asks for a
+   run `read --company` once (a second call only for the records it lists by
+   line that the answer needs, all in that call). Read more only when the user asks for a
    comparison, conflict, or cross-product behavior.
 7. **Record what mattered.** Procedural roles with artifacts should record the
    files actually used, not every file considered. Rejected broad searches do
