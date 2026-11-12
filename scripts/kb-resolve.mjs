@@ -1000,22 +1000,30 @@ function readPolicyReason(g, key) {
  * Company records about the given IDs, as reading text: what each says, where it holds (scope), how sure and how
  * recent it is, and its field map or IaC locations. A map keeps only the fields asked about when any are.
  */
-function readCompany(ov, ids, shown = new Set(), printed = null) {
+function readCompany(ov, ids, shown = new Set(), printed = null, named = null) {
   return companyFacets(ov, ids, shown).map((f) => {
     shown.add(f.id);
     printed?.push(f);
-    return recordText(f, ids);
+    return recordText(f, ids, named);
   }).join("\n");
 }
 
-/** One record in full. A map keeps only the fields in `ids` when any are. */
-function recordText(f, ids) {
+/**
+ * One record in full. A map keeps only the fields in `ids` (what a subject binds, say) or `named` (the fields the
+ * call names, which a map always keeps) when any are, and says how many it leaves out, since the record may be
+ * printed only here.
+ */
+function recordText(f, ids, named = null) {
   const scope = f.scope ? Object.entries(f.scope).map(([k, v]) => `${k} ${v}`).join("; ") : "";
   const sure = [f.confidence && `confidence ${f.confidence}`, f.validated && `validated ${f.validated}`, f.refresh && `refreshed every ${f.refresh}`].filter(Boolean).join(", ");
   const entries = Object.entries(f.map || {});
-  const asked = entries.filter(([k]) => ids.has(k));
+  const wanted = (k) => ids.has(k) || Boolean(named?.has(k));
+  const asked = entries.filter(([k]) => wanted(k));
   const map = (asked.length ? asked : entries).map(([k, v]) => `  - ${k} is ${v}`);
-  const dropped = (f.dropped_fields || []).filter((d) => !asked.length || ids.has(d));
+  if (asked.length && asked.length < entries.length) map.push(`  - ${plural(entries.length - asked.length, "more field")} mapped (read the record by ID for all of them)`);
+  const dropped = (f.dropped_fields || []).filter((d) => !asked.length || wanted(d));
+  const droppedLeft = (f.dropped_fields || []).length - dropped.length;
+  const notStored = [dropped.join(", "), droppedLeft ? `${dropped.length ? "and " : ""}${plural(droppedLeft, "more field")} (the record by ID lists them)` : ""].filter(Boolean).join(" ");
   const evidence = (f.evidence || []).map((e) => `  - Evidence: ${e.kind}${e.ref ? ` ${e.ref}` : ""}${e.note ? ` (${e.note})` : ""}`);
   const iac = (f.iac || []).map((p) => `  - IaC ${p.label ? `${p.label}: ` : ""}${p.location || p.source}${p.value !== undefined ? ` = ${iacValue(p.value)}` : ""}${p.committed ? ` (committed ${p.committed})` : ""}${p.error ? ` (unresolved: ${p.error})` : ""}`);
   return [
@@ -1024,7 +1032,7 @@ function recordText(f, ids) {
     ...(sure ? [`  ${sure[0].toUpperCase()}${sure.slice(1)}`] : []),
     ...(f.system ? [`  Stored in: ${f.system}`] : []),
     ...map,
-    ...(dropped.length ? [`  Not stored: ${dropped.join(", ")}`] : []),
+    ...(notStored ? [`  Not stored: ${notStored}`] : []),
     ...(f.do_not_infer ? [`  Do not infer: ${f.do_not_infer}`] : []),
     ...evidence,
     ...iac,
@@ -1237,8 +1245,8 @@ function objectShape(value, room) {
     return [
       shown.map((m) => m.text).join(", "),
       named.length ? `values not shown: ${named.join(", ")}` : "",
+      unnamed ? `${plural(unnamed, "other key")} not named` : "",
       !state.falsyInline && falsy.length ? (state.falsyNamed ? `false or 0: ${falsy.map((m) => keyName(m.k)).join(", ")}` : `${are(falsy.length)} false or 0`) : "",
-      unnamed ? `${unnamed} more not named` : "",
       empty ? `${are(empty)} empty or null` : "",
     ].filter(Boolean).join("; ");
   };
@@ -1360,6 +1368,14 @@ function edgesOf(g, id) {
  */
 export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS, company = false, linkedRecords = LINKED_RECORD_TOKENS } = {}) {
   if (company) areaTokens = Infinity;
+  args = [...new Set(args)];
+  // The fields the call names, and every field of a type it names: a record's map keeps them wherever it prints.
+  const namedFields = new Set();
+  for (const given of args) {
+    const n = g.nodes.get(fromTextFile(g, given.replace(/^(gap|divergence):/, "")));
+    if (n?.kind === "field") namedFields.add(n.id);
+    if (n?.kind === "type") for (const f of Object.keys(n.data.fields)) namedFields.add(`${n.id}#${f}`);
+  }
   const out = [];
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
@@ -1371,6 +1387,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
   const seen = new Set();
   const shown = new Set(); // company records already printed or listed in this read
   const printed = []; // the records printed whole for what was named, whose text may cite others
+  const byId = []; // the records printed whole by ID; in a call that also names a subject, their citations count too
   const tally = { byId: 0, listed: 0, inLines: 0, cited: 0 };
   let records = 0;
   const named = []; // the arguments that name a subject, type or field, for a reader told there are no records
@@ -1380,7 +1397,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     const n = g.nodes.get(id);
     const text = company ? "" : n.kind === "type" ? readType(g, id) : readSubject(g, id);
     if (!company) out.push(text);
-    const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown, printed) : "";
+    const about = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown, printed, namedFields) : "";
     if (about) {
       out.push(company ? `Company records about ${id}:\n${about}` : `Company records:\n${about}`);
       records++;
@@ -1394,14 +1411,18 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
     // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole: each ID
     // in the argument, however it was copied (`[id]`, `id,id`, the record's file path).
-    const ids = ov && !g.nodes.has(arg) ? recordIdsIn(ov, given) : [];
+    // A path's directories can look like IDs: when any match names a record, only those count.
+    const found = ov && !g.nodes.has(arg) ? recordIdsIn(ov, given, { known: true }) : [];
+    const ids = found.length ? found : ov && !g.nodes.has(arg) ? recordIdsIn(ov, given) : [];
     if (ids.length) {
       for (const id of ids) {
         const data = ov.records.find((r) => r.data?.id === id && r.data.status === "active")?.data;
         if (!data) out.push(`# ${id}: ${recordStatus(ov, id)}`);
         else if (shown.has(id)) out.push(`# ${id}: printed above`);
         else {
-          out.push(`Company record ${id}:\n${recordText(facetOf(ov, data), new Set())}`);
+          const f = facetOf(ov, data);
+          out.push(`Company record ${id}:\n${recordText(f, new Set())}`);
+          byId.push(f);
           shown.add(id);
           tally.byId++;
           records++;
@@ -1464,7 +1485,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     // A type already read whole holds the fields named with it.
     if (seen.has(type)) continue;
     if (!company) out.push(readType(g, type, paths));
-    const about = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown, printed) : "";
+    const about = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown, printed, namedFields) : "";
     if (about) {
       out.push(company ? `Company records about ${paths.map((p) => `${type}#${p}`).join(", ")}:\n${about}` : `Company records:\n${about}`);
       records++;
@@ -1506,7 +1527,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
         if (whole.length) {
           const facets = whole.map((data) => facetOf(ov, data));
           printed.push(...facets);
-          out.push(`${head}\n${facets.map((f) => recordText(f, ids)).join("\n")}`);
+          out.push(`${head}\n${facets.map((f) => recordText(f, ids, namedFields)).join("\n")}`);
         }
       }
       if (listed.length) {
@@ -1534,17 +1555,20 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     if (listed.length) out.push(fit("Linked, not read here (each with the claim that links it; read one by ID for the rest):", listed, 12000, "linked subjects"));
   }
   if (company && ov) {
-    const cited = citedRecords(ov, printed, shown);
+    const cited = citedRecords(ov, named.length ? [...printed, ...byId] : printed, shown);
     if (cited) {
       out.push(cited.text);
       tally.cited = cited.count;
     }
     // A long read is saved to a file and paged, and its lists come last: say up front what it holds.
     const whole = printed.length + tally.byId;
-    const byId = tally.listed - tally.inLines;
-    if (whole || tally.listed || tally.cited) {
-      out.splice(top, 0, `Company records: ${whole} printed whole${tally.listed ? `; ${tally.listed} more listed at the end, ${tally.inLines} one line each${byId ? ` and ${byId} by ID only` : ""}` : ""}${tally.cited ? `; ${tally.cited} cited by them, listed at the end` : ""}.`);
-    }
+    const onlyById = tally.listed - tally.inLines;
+    const parts = [
+      whole ? `${whole} printed whole` : "",
+      tally.listed ? `${tally.listed}${whole ? " more" : ""} listed at the end, ${tally.inLines} one line each${onlyById ? ` and ${onlyById} by ID only` : ""}` : "",
+      tally.cited ? `${tally.cited} cited by them, listed at the end` : "",
+    ].filter(Boolean);
+    if (parts.length) out.splice(top, 0, `Company records: ${parts.join("; ")}.`);
   }
   if (company && ov && named.length && !records) out.push(`No company records are about ${named.join(", ")}, its area, what it binds or what it links to.`);
   return `${out.join("\n\n")}\n`;
@@ -1707,7 +1731,7 @@ export function usableOverlay(g, ov) {
     if (!e.pointer) bad.add(e.file);
   }
   // The skipped records' IDs, so a read by ID says why there is none.
-  const skipped = new Set(ov.records.filter((r) => bad.has(r.file) && typeof r.data?.id === "string").map((r) => r.data.id));
+  const skipped = new Set(ov.records.filter((r) => bad.has(r.file)).map((r) => (typeof r.data?.id === "string" ? r.data.id : path.basename(r.file, ".json"))));
   const usable = { ...ov, records: ov.records.filter((r) => !bad.has(r.file)), skipped };
   // What validation resolved (each IaC file's JSON) stays worked out: the copy is the same overlay.
   if (MEMO.has(ov)) MEMO.set(usable, MEMO.get(ov));

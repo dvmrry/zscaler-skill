@@ -112,7 +112,7 @@ test("read --company lists linked subjects' records past its budget, reads one b
   const listed = readText(g, ["ai-security.ai-guard"], ov, { company: true, linkedRecords: 0 });
   assert.match(whole, /^Company records about \S+ \(linked subject\):\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: .+\n {2}Stored in: /m);
   assert.match(whole, /^Company records: \d+ printed whole\.$/m, "the read says up front what it holds");
-  assert.match(listed, /^Company records: \d+ printed whole; 1 more listed at the end, 1 one line each\.$/m);
+  assert.match(listed, /^Company records: 1 listed at the end, 1 one line each\.$/m, "with none printed whole, the count says only what is listed");
   assert.match(listed, /^Company records about linked subjects, one line each \(read the ones the answer needs whole, all in one call: `node scripts\/kb\.mjs read --company <record id> \.\.\.`\):\n- \[company\.zia\.splunk-web-mapping\] mapping, maps zia\/web-log: Synthetic fixture: how our SIEM stores ZIA web log fields$/m);
   assert.doesNotMatch(listed, /Stored in:/);
   assert.deepEqual(records(listed), records(whole), "a listed record is still named");
@@ -130,6 +130,17 @@ test("read --company lists linked subjects' records past its budget, reads one b
     const heads = read("--overlay", OVERLAY, "--company", arg).split("\n");
     for (const id of ids) assert.ok(heads.includes(`Company record ${id}:`), `${arg} reads ${id}`);
   }
+  // A mapping printed under a subject keeps the fields that subject binds, and the fields the call names, and says
+  // how many more it maps.
+  const mapped = read("--overlay", OVERLAY, "--company", "zia.logs.web-rule-attribution", "zia/web-log#action");
+  assert.match(mapped, /^ {2}- zia\/web-log#action is zs_action$/m, "a field the call names is kept");
+  assert.match(read("--overlay", OVERLAY, "--company", "zia.logs.web-rule-attribution"), /^ {2}- zia\/web-log#urlcat is zs_category\n {2}- 1 more field mapped \(read the record by ID for all of them\)$/m, "a narrowed map says what it leaves out");
+  // Duplicate arguments read once.
+  const twice = read("--overlay", OVERLAY, "--company", "company.zia.splunk-web-mapping", "company.zia.splunk-web-mapping");
+  assert.equal(twice.match(/^Company record company\.zia\.splunk-web-mapping:$/gm).length, 1);
+  assert.doesNotMatch(twice, /printed above/);
+  // A path's directories that look like IDs do not count when the path names a record.
+  assert.doesNotMatch(read("--overlay", OVERLAY, "--company", "/x/company.data/knowledge/zia/company.zia.splunk-web-mapping.json"), /company\.data/);
   // A record named with its subject prints once, and its ID says so.
   const both = read("--overlay", OVERLAY, "--company", "zia.url-filtering", "company.zia.url-filtering-iac");
   assert.equal(both.match(/^- \[company\.zia\.url-filtering-iac\]/gm).length, 1);
@@ -161,6 +172,10 @@ test("read --company lists linked subjects' records past its budget, reads one b
     const iacRecord = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
     fs.writeFileSync(path.join(states, "knowledge/zia/company.zia.bad-json.json"), JSON.stringify({ ...iacRecord, id: "company.zia.bad-json", pointers: [{ repo: "iac", file: "broken.json", pointer: "/x", label: "x" }] }));
     const quiet = (...a) => execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", states, "--company", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    fs.writeFileSync(path.join(states, "knowledge/zia/company.zia.badfile.json"), "{ not json");
+    for (const arg of ["company.zia.badfile", "knowledge/zia/company.zia.badfile.json"]) {
+      assert.match(quiet(arg), /^# company\.zia\.badfile: this company record was skipped as invalid \(the overlay check says why\)$/m, `${arg}: a record file that is not JSON is skipped, not unknown`);
+    }
     const out = quiet("company.zia.old-mapping", "company.zia.public-now", "company.zia.broken", "company.zia.bad-json");
     assert.match(out, /^# company\.zia\.old-mapping: this company record is retired, not active$/m);
     assert.match(out, /^# company\.zia\.public-now: this company record was promoted to the public claim zia\.url-filtering\.rule-order:first-match$/m);
@@ -179,6 +194,7 @@ test("read --company lists linked subjects' records past its budget, reads one b
     assert.doesNotMatch(cited, /company\.com|company\.example/, "an email's or a URL's host is not a record");
     assert.match(area, /^Company records: \d+ printed whole; 3 cited by them, listed at the end\.$/m);
     assert.doesNotMatch(quiet("company.zia.citer"), /Company records cited/, "a second call lists no more");
+    assert.match(quiet("company.zia.citer", "zia.url-filtering.rule-order"), /^- \[company\.zia\.cited-elsewhere\] /m, "a first call lists what a record it reads by ID cites, whatever the order");
   } finally {
     fs.rmSync(states, { recursive: true, force: true });
   }
@@ -247,12 +263,12 @@ test("read --company lists linked subjects' records past its budget, reads one b
       assert.ok(urlrule.includes(part), `${part} in: ${urlrule}`);
     }
     assert.ok(urlrule.includes("false or 0: block_override, ciparule, enforce_time_validity, size_quota, time_quota, validity_end_time"), "false members are set values: they keep their names while values give way");
-    assert.match(value("notes/lists"), /^an object of 61 keys \(\d+ characters of JSON; the source has the whole value\): list_00 \[20 items\], list_01 \[20 items\], .+; false or 0: zz_enabled; \d+ more not named$/, "sizes give way before a false member's name");
+    assert.match(value("notes/lists"), /^an object of 61 keys \(\d+ characters of JSON; the source has the whole value\): list_00 \[20 items\], list_01 \[20 items\], .+; \d+ other keys not named; false or 0: zz_enabled$/, "sizes give way before a false member's name, and the count is not read as more false keys");
     assert.doesNotMatch(urlrule, /\[0 items\]|cbi_profile/, "empty members are only counted");
     assert.equal(value("notes/emoji"), `an object of 2 keys ${long(notes.emoji)}: list [42 items], note (a string of 20 characters)`, "a string's length counts characters, not UTF-16 units");
     assert.equal(value("notes/deep"), `an array of 1 item ${long(notes.deep)}; the first is an array of 1 item; the first is an array of 1 item`, "nesting cannot grow a shape");
     assert.equal(value("notes/rule"), `an object of 7 keys ${long(notes.rule)}: action "BLOCK", api_protection_enabled false, block_override false, description (a string of 100 characters), domain_names [42 items], order 3, source_groups [1,2,3]`, "an object names every key, its short values, whole, and its lists' lengths");
-    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters of JSON; the source has the whole value\): values not shown: field_00, field_01, .+; \d+ more not named$/, "too many keys for their values: the keys that fit, the rest counted");
+    assert.match(value("notes/wide"), /^an object of 60 keys \(\d+ characters of JSON; the source has the whole value\): values not shown: field_00, field_01, .+; \d+ other keys not named$/, "too many keys for their values: the keys that fit, the rest counted");
     assert.doesNotMatch(value("notes/wide"), /value-/);
     assert.match(out, /^ {2}- IaC checks we added: iac:coverage\.json#\/resources\/zia_url_filtering_rules\/checks = \["assert-clean after import for the imported addresses only"\]/m, "a short value prints whole");
     const bundle = JSON.parse(execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--overlay", dir, "zia/url-filtering-rules"], { encoding: "utf8" }));

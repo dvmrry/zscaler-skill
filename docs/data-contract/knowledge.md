@@ -109,15 +109,16 @@ records about the named subjects, then the rest of their areas', then the linked
 `(linked subject)`), the most strongly linked first, each while it fits a budget; it lists the rest one line each,
 and past a second limit names them by ID under the linked subject they come from. It lists the same way, one line
 each and past the limit by ID, each record the printed ones cite and the read named nowhere; a cited record no
-longer active says what it is. A record's ID, however it was copied, reads that record. An IaC value over about 300
-characters of JSON prints its shape and length when that is a quarter shorter: an object its members in key order,
-short values whole and the rest by size (a one-item wrapper by its path, such as
-`app_connector_groups[0 of 1].id [12 items]`), empty members only counted, and past its room the members that are
-false or 0 moving to one list of names, the longest values giving way to their names, then names and sizes to a
-count, and those false or 0 names last; an array its length and the whole items that fit, else its first item's
-shape; a string its length and opening. `resolve <id | text>` merges the same records into its bundle as
-`layer: company` facets, with IaC values whole, and ranks text queries on the records' words too. When an answer
-uses one:
+longer active says what it is. A record's ID, however it was copied, reads that record. A mapping printed for a
+subject keeps the fields that subject binds and every field the call names, and says how many more it maps; its
+record ID reads the whole map. An IaC value over about 300 characters of JSON prints its shape and length when that
+is a quarter shorter: an object its members in key order, short values whole and the rest by size (a one-item
+wrapper by its path, such as `app_connector_groups[0 of 1].id [12 items]`), empty members only counted, and past its
+room the members that are false or 0 moving to one list of names, the longest values giving way to their names, then
+names and sizes to a count, and those false or 0 names last; an array its length and the whole items that fit, else
+its first item's shape; a string its length and opening. `resolve <id | text>` merges the same records into its
+bundle as `layer: company` facets, with IaC values whole, and ranks text queries on the records' words too. When an
+answer uses one:
 
 1. Attribute it as company knowledge, never as vendor-documented behavior.
 2. Say its scope, confidence and `validated` date; emit `do_not_infer` verbatim.

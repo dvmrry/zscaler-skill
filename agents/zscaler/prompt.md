@@ -126,7 +126,7 @@ Tier B claim (an inference with stated conditions).
 ## Operational knowledge
 
 Company knowledge arrives with `read --company`: when an overlay is configured,
-it prints the overlay's active records about the subjects and types you name. Do
+it prints the overlay's active records nearest the subjects and types you name, and names the rest (step 4). Do
 not read the overlay's record files directly. Without an overlay it says none is
 configured, and says why when a configured overlay could not be used. Before using a
 company record, load

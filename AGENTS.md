@@ -41,7 +41,8 @@ For Zscaler questions:
 - Tenant-specific truth comes from three answer tiers (see `SKILL.md`
   "Answer tiers"): the knowledge graph (the spine under `references/_meta/spine/`, then the subjects' and log
   types' text under `references/_meta/text/`, both read with file tools, then `node scripts/kb.mjs read --company
-  <subject | type>` for company records), the overlay's IaC when `overlay.json` declares `iac`, then live read-only
+  <subject | type>` for company records, plus at most one more call with the IDs of records it names but does not
+  print), the overlay's IaC when `overlay.json` declares `iac`, then live read-only
   `zscalerctl` when it declares `live`. `read --company` finds the overlay itself
   (`$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`) and prints its IaC
   repo paths; resolve other runtime-data paths with
