@@ -115,28 +115,23 @@ function missingSubmoduleStatusPaths(indexOutput, statusOutput) {
   return gitlinkPaths(indexOutput).filter((submodulePath) => !reported.has(submodulePath));
 }
 
-function submodulePreflight(root = repoRoot) {
-  const statusResult = spawnSync("git", ["submodule", "status", "--recursive"], {
-    cwd: root,
-    encoding: "utf8",
-  });
-  if (statusResult.status !== 0) {
-    return {
-      code: statusResult.status ?? 1,
-      detail: (statusResult.stderr || statusResult.stdout || "git submodule status failed").trim(),
-    };
-  }
+// A git command's failure as a preflight result, or null. An error counts even when git exited 0: output past
+// maxBuffer leaves the listing cut short, which would hide the submodules at its end.
+function gitFailure(result, command) {
+  if (!result.error && result.status === 0) return null;
+  return { code: result.status || 1, detail: (result.error?.message || result.stderr || `${command} failed`).trim() };
+}
 
-  const indexResult = spawnSync("git", ["ls-files", "--stage", "-z"], {
-    cwd: root,
-    encoding: "utf8",
-  });
-  if (indexResult.status !== 0) {
-    return {
-      code: indexResult.status ?? 1,
-      detail: (indexResult.stderr || indexResult.stdout || "git ls-files failed").trim(),
-    };
-  }
+function submodulePreflight(root = repoRoot) {
+  // The index lists every tracked file, which can run past Node's 1 MiB default buffer.
+  const git = (args) => spawnSync("git", args, { cwd: root, encoding: "utf8", maxBuffer: 256 << 20 });
+  const statusResult = git(["submodule", "status", "--recursive"]);
+  const statusFailure = gitFailure(statusResult, "git submodule status");
+  if (statusFailure) return statusFailure;
+
+  const indexResult = git(["ls-files", "--stage", "-z"]);
+  const indexFailure = gitFailure(indexResult, "git ls-files");
+  if (indexFailure) return indexFailure;
 
   const uninitialized = uninitializedSubmodulePaths(statusResult.stdout);
   const missing = missingSubmoduleStatusPaths(indexResult.stdout, statusResult.stdout);
@@ -234,6 +229,7 @@ if (import.meta.main) {
 export {
   FULL_CHECKS,
   exitCodeForResults,
+  gitFailure,
   gitlinkPaths,
   missingSubmoduleStatusPaths,
   resultStatus,

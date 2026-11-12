@@ -104,7 +104,7 @@ export function parseArgs(argv, { defaultRoot = ROOT } = {}) {
 
 function exec(command, args, cwd) {
   return new Promise((resolve) => {
-    execFile(command, args, { cwd, encoding: "utf8", timeout: 30_000, maxBuffer: 2 * 1024 * 1024 }, (error, stdout, stderr) => {
+    execFile(command, args, { cwd, encoding: "utf8", timeout: 30_000, maxBuffer: 256 << 20 }, (error, stdout, stderr) => {
       resolve({ status: error ? (Number.isInteger(error.code) ? error.code : 1) : 0, stdout: stdout || "", stderr: stderr || "" });
     });
   });

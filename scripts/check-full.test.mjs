@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   FULL_CHECKS,
   exitCodeForResults,
+  gitFailure,
   gitlinkPaths,
   missingSubmoduleStatusPaths,
   resultStatus,
+  submodulePreflight,
   submoduleStatusPaths,
   uninitializedSubmodulePaths,
 } from "./check-full.mjs";
@@ -53,6 +57,27 @@ test("submodule preflight detects indexed gitlinks omitted from status", () => {
   assert.deepEqual(gitlinkPaths(index), ["vendor/ready", "vendor/gone"]);
   assert.deepEqual(submoduleStatusPaths(status), ["vendor/ready", "vendor/nested"]);
   assert.deepEqual(missingSubmoduleStatusPaths(index, status), ["vendor/gone"]);
+});
+
+test("a git listing cut short fails the preflight with the error, not the listing", () => {
+  const cut = { status: 0, error: new Error("spawnSync git ENOBUFS"), stdout: "100644 abc 0\tREADME.md\0".repeat(1000), stderr: "" };
+  assert.deepEqual(gitFailure(cut, "git ls-files"), { code: 1, detail: "spawnSync git ENOBUFS" });
+  assert.deepEqual(gitFailure({ status: null, stdout: "", stderr: "" }, "git ls-files"), { code: 1, detail: "git ls-files failed" });
+  assert.equal(gitFailure({ status: 0, stdout: "", stderr: "" }, "git ls-files"), null);
+});
+
+test("submodule preflight reads an index listing past a megabyte", () => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "check-full-index-"));
+  try {
+    execFileSync("git", ["init", "-q", repo]);
+    const blob = execFileSync("git", ["-C", repo, "hash-object", "-w", "--stdin"], { input: "" }).toString().trim();
+    const entries = Array.from({ length: 15000 }, (_, i) => `100644 ${blob}\treferences/_meta/text/product/subject-${i}.md`);
+    execFileSync("git", ["-C", repo, "update-index", "--add", "--index-info"], { input: `${entries.join("\n")}\n` });
+    assert.ok(execFileSync("git", ["-C", repo, "ls-files", "--stage", "-z"], { maxBuffer: 256 << 20 }).length > 1 << 20);
+    assert.deepEqual(submodulePreflight(repo), { code: 0, detail: "all indexed submodules are initialized" });
+  } finally {
+    fs.rmSync(repo, { recursive: true, force: true });
+  }
 });
 
 test("advisory failures warn without failing the aggregate gate", () => {
