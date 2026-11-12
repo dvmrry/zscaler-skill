@@ -151,8 +151,11 @@ test("read --company lists linked subjects' records past its budget, reads one b
       schema_version: 1, id, kind: "claim", relation: "extends", about: [about], title: `Synthetic ${id}`, status: "active", statement, confidence: "medium", validated: "2026-01-01",
     }));
     // A record printed whole cites others in its text; the read lists the ones it named nowhere.
-    claim("company.zia.citer", "zia.url-filtering", "Synthetic fixture. See company.zia.cited-elsewhere and company.zia.old-mapping; company.zia.url-filtering-iac covers the rest.");
+    claim("company.zia.citer", "zia.url-filtering", "Synthetic fixture. See company.zia.cited-elsewhere and company.zia.old-mapping, and knowledge/zia/company.zia.by-path.json; company.zia.url-filtering-iac covers the rest. Ask admin@company.com or https://company.example.com/.");
     claim("company.zia.cited-elsewhere", "zdx.score", "Synthetic fixture, about a subject no read of URL Filtering reaches.");
+    claim("company.zia.by-path", "zdx.score", "Synthetic fixture, cited by its file.");
+    // An ID may end in a json segment or hold one: only a file's .json suffix goes.
+    claim("company.zia.json-mapping", "zdx.score", "Synthetic fixture.");
     // An IaC file that is not JSON fails its pointer, not the overlay.
     fs.writeFileSync(path.join(states, "iac/broken.json"), "{ not json");
     const iacRecord = JSON.parse(fs.readFileSync(path.join(OVERLAY, "knowledge/zia/company.zia.url-filtering-iac.json"), "utf8"));
@@ -163,13 +166,18 @@ test("read --company lists linked subjects' records past its budget, reads one b
     assert.match(out, /^# company\.zia\.public-now: this company record was promoted to the public claim zia\.url-filtering\.rule-order:first-match$/m);
     assert.match(out, /^# company\.zia\.broken: this company record was skipped as invalid \(the overlay check says why\)$/m);
     assert.match(out, /^ {2}- IaC x: iac:broken\.json#\/x \(unresolved: IaC file is not valid JSON: iac:broken\.json \(.+\)\)$/m);
+    for (const arg of ["company.zia.json-mapping", "knowledge/zia/company.zia.json-mapping.json"]) {
+      assert.match(quiet(arg), /^Company record company\.zia\.json-mapping:$/m, arg);
+    }
     const area = quiet("zia.url-filtering");
     const cited = area.split("\n\n").find((b) => b.startsWith("Company records cited by the records above"));
     assert.ok(cited, area);
     assert.match(cited, /^- \[company\.zia\.cited-elsewhere\] claim, extends zdx\.score: Synthetic company\.zia\.cited-elsewhere \(cited by company\.zia\.citer\)$/m);
     assert.match(cited, /^- company\.zia\.old-mapping: this company record is retired, not active \(cited by company\.zia\.citer\)$/m);
+    assert.match(cited, /^- \[company\.zia\.by-path\] claim, extends zdx\.score: .+ \(cited by company\.zia\.citer\)$/m, "a record cited by its file is that record");
     assert.doesNotMatch(cited, /url-filtering-iac/, "a record the read printed is not listed again");
-    assert.match(area, /^Company records: \d+ printed whole; 1 cited by them, listed at the end\.$/m);
+    assert.doesNotMatch(cited, /company\.com|company\.example/, "an email's or a URL's host is not a record");
+    assert.match(area, /^Company records: \d+ printed whole; 3 cited by them, listed at the end\.$/m);
     assert.doesNotMatch(quiet("company.zia.citer"), /Company records cited/, "a second call lists no more");
   } finally {
     fs.rmSync(states, { recursive: true, force: true });
@@ -230,11 +238,11 @@ test("read --company lists linked subjects' records past its budget, reads one b
     assert.ok(lines && lines[1].length <= 300, "a string is cut at its length as JSON writes it");
     assert.equal(value("notes/key"), JSON.stringify(notes.key), "a shape that saves little prints the value");
     assert.equal(value("notes/ids"), JSON.stringify(notes.ids), "so does a list a little over the room");
-    assert.equal(value("notes/server"), `an object of 2 keys ${long(notes.server)}: app_connector_groups[0].id [20 items], name "x"`, "a wrapped list is named by its path, not as one item");
+    assert.equal(value("notes/server"), `an object of 2 keys ${long(notes.server)}: app_connector_groups[0 of 1].id [20 items], name "x"`, "a wrapped list is named by its path, not as one item");
     assert.match(value("notes/flags"), /filler_21 "v21", list \[30 items\]; false or 0: flag_0, flag_1, flag_2, flag_3, flag_4, flag_5$/, "past the room, false members give way to their names first");
     const urlrule = value("notes/urlrule");
     assert.ok(urlrule.length <= 600, `${urlrule.length} characters`);
-    for (const part of ['action "BLOCK"', `locations[0] {"id":[9000001,9000002,9000003,9000004]}`, 'source_ip_groups [{"id":[5550101,5550102,5550103]}]', "url_categories [4 items]", "order 14", "15 keys are empty or null"]) {
+    for (const part of ['action "BLOCK"', `locations[0 of 1] {"id":[9000001,9000002,9000003,9000004]}`, 'source_ip_groups [{"id":[5550101,5550102,5550103]}]', "url_categories [4 items]", "order 14", "15 keys are empty or null"]) {
       assert.ok(urlrule.includes(part), `${part} in: ${urlrule}`);
     }
     assert.ok(urlrule.includes("6 keys are false or 0"), "false members are set values, counted apart from empty ones");
@@ -314,6 +322,32 @@ test("read --company prints the most strongly linked subjects' records up to its
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
     fs.rmSync(bin, { recursive: true, force: true });
+  }
+});
+
+test("read --company lists the records the printed ones cite, one line each while they fit, then by ID", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kb-overlay-"));
+  try {
+    fs.mkdirSync(path.join(dir, "knowledge/zia"), { recursive: true });
+    fs.mkdirSync(path.join(dir, "iac"));
+    fs.writeFileSync(path.join(dir, "overlay.json"), JSON.stringify({ schema_version: 1, iac: [{ id: "iac", path: "iac", kind: "json" }] }));
+    const claim = (id, about, statement) => fs.writeFileSync(path.join(dir, `knowledge/zia/${id}.json`), JSON.stringify({
+      schema_version: 1, id, kind: "claim", relation: "extends", about: [about], title: `Synthetic ${id}, ${"with a long title ".repeat(5)}`, status: "active", statement, confidence: "medium", validated: "2026-01-01",
+    }));
+    // One record printed whole cites 120 that the read reaches no other way.
+    const ids = Array.from({ length: 120 }, (_, i) => `company.zia.cited-${i}`);
+    for (const id of ids) claim(id, "zdx.score", "Synthetic fixture.");
+    claim("company.zia.citer", "zia.url-filtering", `Synthetic fixture citing ${ids.join(", ")}.`);
+    const out = read("--overlay", dir, "--company", "zia.url-filtering");
+    const cited = out.split("\n\n").find((b) => b.startsWith("Company records cited by the records above"));
+    const more = cited.match(/^- (\d+) more cited, by ID: (.+)$/m);
+    assert.ok(more, "past the list's room, cited records are named by ID");
+    const lines = [...cited.matchAll(/^- \[(company\.zia\.cited-\d+)\] /gm)].map((m) => m[1]);
+    assert.ok(cited.length - more[0].length <= 8000, `${cited.length - more[0].length} characters of lines`);
+    assert.deepEqual([...lines, ...more[2].split(" ")], ids, "every cited record is named once, in order");
+    assert.match(out, /^Company records: 1 printed whole; 120 cited by them, listed at the end\.$/m);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });
 

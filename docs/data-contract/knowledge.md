@@ -61,8 +61,9 @@ Optional on any record: `statement`, `scope` (`environment`, `cloud`, `version`,
 Point an IaC pointer at the part of the value the record is about (`.../domain_names`, not the whole rule): a read
 prints a value of up to about 300 characters of JSON whole and a longer one as its shape (see "At answer time"), so a
 narrow pointer shows that part, or its shape, rather than the rule's metadata. A record can cite another by its ID
-in its `statement`, `do_not_infer`, `scope` or an evidence note; a read that prints the citing record lists the cited
-one.
+(or its file's path) in its `statement`, `do_not_infer`, `scope` or an evidence note; `read --company` of subjects,
+types or fields lists the cited one when it prints the citing record, and a read of records by ID (the second call)
+lists no more.
 
 `evidence` is a list of `{kind, ref?, note?}` with `kind` one of `case`, `log-sample`, `vendor-call`,
 `vendor-ticket`, `vendor-email`, `public-doc`. A `case` or vendor `ref` is a path relative to the runtime-data
@@ -106,11 +107,11 @@ touches it or the types it binds, and `read --company` prints only those records
 `references/_meta/text/` and run it once per answer). It starts with a count of what it holds. It prints whole the
 records about the named subjects, then the rest of their areas', then the linked subjects' (headed `(linked
 subject)`), the most strongly linked first, each while it fits a budget; it lists the rest one line each, and past a
-second limit names them by ID under the linked subject they come from. It lists the same way each record the printed
-ones cite and the read named nowhere, or says what that ID is. A record's ID, however it was copied, reads that
-record. An IaC value over about 300 characters of JSON prints its shape and length when that is a quarter shorter:
+second limit names them by ID under the linked subject they come from. It lists the same way, one line each and past
+the limit by ID, each record the printed ones cite and the read named nowhere; a cited record no longer active says
+what it is. A record's ID, however it was copied, reads that record. An IaC value over about 300 characters of JSON prints its shape and length when that is a quarter shorter:
 an object its members in key order, short values whole and the rest by size (a one-item wrapper by its path, such as
-`app_connector_groups[0].id [12 items]`), empty members only counted, and past its room the members that are false
+`app_connector_groups[0 of 1].id [12 items]`), empty members only counted, and past its room the members that are false
 or 0 giving way first, then the longest values, then names; an array its length and the whole items that fit, else
 its first item's shape; a string its length and opening. `resolve <id | text>` merges the same
 records into its bundle as `layer: company` facets, with IaC values whole, and ranks text queries on the records'

@@ -1064,6 +1064,21 @@ function listRecords(g, listed) {
 // path), or cited in another record's text.
 const RECORD_ID = /(?<![a-z0-9.-])company(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+/g;
 
+/**
+ * The record IDs in `text`, each once, in order. A match that names no record, but does without a `.json` suffix, is
+ * that record's file (`knowledge/zia/company.zia.x.json`); an ID may itself end in a `json` segment, so the suffix
+ * goes only then. With `known`, a match that names no record at all (an email's or a URL's host) is left out.
+ */
+function recordIdsIn(ov, text, { known = false } = {}) {
+  const exists = (id) => ov.records.some((r) => r.data?.id === id) || Boolean(ov.skipped?.has(id));
+  const ids = [];
+  for (const m of text.match(RECORD_ID) || []) {
+    const id = !exists(m) && m.endsWith(".json") && exists(m.slice(0, -5)) ? m.slice(0, -5) : m;
+    if ((!known || exists(id)) && !ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
+
 /** What a record's ID stands for when it has no active record, for a line that names it (`<id>: ...`). */
 function recordStatus(ov, id) {
   const data = ov.records.find((r) => r.data?.id === id)?.data;
@@ -1073,28 +1088,36 @@ function recordStatus(ov, id) {
 }
 
 /**
- * The records the ones printed whole cite in their text and the read named nowhere, one line each, so the reader
- * can read them in the same second call instead of only through the citing text; an ID with no active record says
- * what it is.
+ * The records the ones printed whole cite in their text and the read named nowhere, one line each while they fit in
+ * LIST_CHARS and by ID past it, so the reader can read them in the same second call instead of only through the
+ * citing text; a record no longer active says what it is. A cited ID that names no record is left out.
  */
 function citedRecords(ov, printed, shown) {
   const cited = new Map();
   for (const f of printed) {
     const text = [f.title, f.statement, f.do_not_infer, ...Object.values(f.scope || {}), ...(f.evidence || []).map((e) => e.note)].filter(Boolean).join("\n");
-    for (const id of new Set(text.match(RECORD_ID) || [])) {
+    for (const id of recordIdsIn(ov, text, { known: true })) {
       if (id === f.id || shown.has(id)) continue;
       cited.set(id, [...(cited.get(id) || []), f.id]);
     }
   }
   if (!cited.size) return null;
-  const lines = [...cited].map(([id, by]) => {
-    const where = `(cited by ${by.length === 1 ? by[0] : `${by.length} records above`})`;
+  const head = "Company records cited by the records above, one line each (read whole the ones the answer needs, in the same second call):";
+  const lines = [];
+  const rest = [];
+  let size = head.length;
+  for (const [id, by] of cited) {
     const data = ov.records.find((r) => r.data?.id === id && r.data.status === "active")?.data;
-    if (!data) return `- ${id}: ${recordStatus(ov, id)} ${where}`;
-    shown.add(id);
-    return `${recordLine(data)} ${where}`;
-  });
-  return { text: ["Company records cited by the records above, one line each (read whole the ones the answer needs, in the same second call):", ...lines].join("\n"), count: lines.filter((l) => l.startsWith("- [")).length };
+    if (data) shown.add(id);
+    const where = `(cited by ${by.length === 1 ? by[0] : `${by.length} records above`})`;
+    const line = data ? `${recordLine(data)} ${where}` : `- ${id}: ${recordStatus(ov, id)} ${where}`;
+    if (!rest.length && size + line.length + 1 <= LIST_CHARS) {
+      lines.push(line);
+      size += line.length + 1;
+    } else rest.push(id);
+  }
+  const more = rest.length ? [`- ${rest.length} more cited, by ID: ${rest.join(" ")}`] : [];
+  return { text: [head, ...lines, ...more].join("\n"), count: cited.size };
 }
 
 // The most characters of an IaC value a read prints as JSON. A pointer can resolve to a whole exported object,
@@ -1134,14 +1157,15 @@ const isEmpty = (v) => v === null || v === "" || (Array.isArray(v) ? !v.length :
 
 /**
  * A member of a long object as its path and what it holds: the value when short; else through a one-item list or
- * one-key object, up to three deep, since a Terraform block wraps its list so (`app_connector_groups[0].id [12
- * items]`, not `app_connector_groups [1 item]`); else its size.
+ * one-key object, up to three deep, since a Terraform block wraps its list so (`app_connector_groups[0 of 1].id [12
+ * items]`, not `app_connector_groups [1 item]`; "of 1", so the index is not read as the first of several); else its
+ * size.
  */
 function memberOf(k, v) {
   let path = keyName(k);
   for (let i = 0; i < 3 && JSON.stringify(v).length > SHORT_VALUE_CHARS; i++) {
     if (Array.isArray(v) && v.length === 1) {
-      path += "[0]";
+      path += "[0 of 1]";
       v = v[0];
     } else if (v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 1) {
       const [only] = Object.keys(v);
@@ -1187,7 +1211,8 @@ function shapeOf(value, room, top = false, depth = 0) {
  * An object's members in one fill: empty ones (null, "", [], {}) only counted; the rest in key order with their
  * values or sizes. Past the room, members that are false or 0 give way first, to their names and then a count (they
  * are set values, not empty); then the longest values, to their names; only then names, counted. A key is never
- * printed bare where it would read as having no value.
+ * printed bare where it would read as having no value. When even the names do not fit, they still win over values:
+ * what the source holds says what to open, and a few values of many do not answer for the rest.
  */
 function objectShape(value, room) {
   const keys = Object.keys(value);
@@ -1354,8 +1379,8 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTok
     let arg = fromTextFile(g, given.replace(/^(gap|divergence):/, ""));
     // A company record's ID (every one starts `company.`), as a list line gives it, reads that record whole: each ID
     // in the argument, however it was copied (`[id]`, `id,id`, the record's file path).
-    const ids = ov && !g.nodes.has(arg) ? given.replace(/\.json\b/g, "").match(RECORD_ID) : null;
-    if (ids) {
+    const ids = ov && !g.nodes.has(arg) ? recordIdsIn(ov, given) : [];
+    if (ids.length) {
       for (const id of ids) {
         const data = ov.records.find((r) => r.data?.id === id && r.data.status === "active")?.data;
         if (!data) out.push(`# ${id}: ${recordStatus(ov, id)}`);
