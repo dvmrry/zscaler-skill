@@ -42,3 +42,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.delete-paths.md (What the ZPA Terraform provider does when deleting objects with dependents)
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)

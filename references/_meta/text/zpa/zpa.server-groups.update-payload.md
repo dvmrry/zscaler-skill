@@ -34,4 +34,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/server-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)

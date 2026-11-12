@@ -33,6 +33,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.delete-paths.md (What the ZPA Terraform provider does when deleting objects with dependents)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/server-groups.md (config type)
+- configured-via references/_meta/text/types/zpa/app-connector-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it)
 - see-also references/_meta/text/zpa/zpa.server-groups.chain-check.md (Checking the segment to server group to connector chain)
 - see-also references/_meta/text/zia/zia.traffic-forwarding.extranet.md (Extranet Application Support: extranets, traffic selectors, extranet locations and traffic flow)

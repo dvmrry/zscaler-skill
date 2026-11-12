@@ -43,3 +43,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments): For Private Access destinations, Apply to All App Segments covers all existing and future segments; otherwise any number of application segments and segment groups can be chosen, and with none chosen the rule applies to no segments. [cloud-connector.forwarding.criteria:zpa-destinations]
 - logged-in references/_meta/text/types/ztw/session-log.md (Cloud & Branch Connector Session log (NSS feed)), from cloud-connector.forwarding: A session record can name two rules: the redirect (traffic forwarding) rule applied to the transaction, and the Cloud or Branch Connector self-rule applied to it. [cloud-connector.logs.session-records:rule-fields]
 - links-to references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)

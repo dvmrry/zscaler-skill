@@ -58,3 +58,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.delete-detach.md (How the ZIA Terraform provider detaches references before deleting objects)
 - links-to references/_meta/text/zia/zia.terraform.error-handling.md (When the ZIA Terraform provider reports success after an error, or crashes)
 - links-to references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-categories.md (config type)

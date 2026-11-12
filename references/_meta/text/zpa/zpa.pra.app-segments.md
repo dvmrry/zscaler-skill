@@ -50,3 +50,4 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.api.app-segments-wire.md (Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds)
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)

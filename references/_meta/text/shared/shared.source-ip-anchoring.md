@@ -77,3 +77,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.limits.md (What a Virtual Service Edge does not support)
 - links-to references/_meta/text/zpa/zpa.app-segments.matching.md (Which application segment a destination maps to when several overlap)
 - links-to references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)
+- configured-via references/_meta/text/types/zia/zpa-gateways.md (config type)

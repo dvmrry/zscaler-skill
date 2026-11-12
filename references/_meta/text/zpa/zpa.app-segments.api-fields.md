@@ -55,6 +55,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.policy.evaluation-order.md (Evaluation order across ZPA policy types), from zpa.app-segments: When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria. [zpa.policy.evaluation-order:segment-then-rules]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.app-segments.sdk-behavior.md (What the Python and Go SDKs send for application segments)
 - see-also references/_meta/text/zpa/zpa.terraform.data-source-fidelity.md (What ZPA Terraform data sources return, drop, or get wrong)
 - see-also references/_meta/text/zpa/zpa.microtenants.share-and-move.md (Sharing and moving between Microtenants)

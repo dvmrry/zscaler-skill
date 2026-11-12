@@ -49,5 +49,6 @@ Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
 - configured-via references/_meta/text/types/zia/casb-malware-rules.md (config type)
 - configured-via references/_meta/text/types/zia/casb-tenants.md (config type)
+- configured-via references/_meta/text/types/zia/casb-email-labels.md (config type)
 - see-also references/_meta/text/portfolio/portfolio.casb.md (CASB: ZIA inline controls plus out-of-band SaaS security, not one product)
 - see-also references/_meta/text/zia/zia.dlp.mip-labels.md (Microsoft Information Protection (MIP) accounts and label retrieval)

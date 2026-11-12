@@ -33,4 +33,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/ztw/public-cloud-accounts.md (config type)
+- configured-via references/_meta/text/types/ztw/public-cloud-info.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.workload-discovery.account-groups.md (AWS account groups: which Cloud Connector groups receive an account's tags)

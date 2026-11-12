@@ -36,3 +36,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/rule-labels.md (config type)
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)

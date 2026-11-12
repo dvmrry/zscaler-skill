@@ -36,4 +36,6 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.api.app-connectors-wire.md (ZPA App Connector, group, schedule and version profile calls: what is sent and where the sources differ)
+- configured-via references/_meta/text/types/zpa/app-connectors.md (config type)
+- configured-via references/_meta/text/types/zpa/app-connector-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.app-connectors.runbook.md (How the Private Access App Connector support troubleshooting runbook is organized and which pages cover each topic)

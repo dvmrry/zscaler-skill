@@ -34,3 +34,6 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zia/zia.logs.web-rule-attribution.md (Which rule decided a web transaction, from the logs), from zia.url-filtering: URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty. [zia.logs.web-rule-attribution:separate-layer-labels]
 - decided-by references/_meta/text/zia/zia.url-categories.membership.md (Which URL category a URL belongs to), from zia.url-filtering: Category membership is resolved before rules are walked: a rule matches a URL through the category the URL resolved to, not through every category with a matching entry. [zia.url-categories.membership:resolved-before-rules]
 - decided-by references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match), from zia.url-filtering: Evaluation of the policy rules stops at the first match. [zia.url-filtering.rule-order:first-match]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)

@@ -28,4 +28,5 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.url-filtering.list-pagination.md (Listing URL Filtering rules and URL categories without truncation): The order used to park a rule comes from a list read through the Go SDK's GetAll, which can return a truncated list; up to v4.8.13 on every URL Filtering update, from v4.8.14 only on an update that changes `rank`. With more rules than one page holds, the "highest existing order" can be a position inside the policy rather than its end. [zia.terraform.rule-order:parking-spot-from-truncated-list]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)
 - see-also references/_meta/text/shared/shared.sdk-go.cache.md (The Go SDK's response cache and request deduplication)

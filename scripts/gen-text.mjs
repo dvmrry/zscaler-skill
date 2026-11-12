@@ -23,7 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildGraph, loadPublic, META } from "./kb-lib.mjs";
-import { areaOf, FOLLOW, fit, neighbours, readSubject, readText, readType, spines, textFile, titleOf } from "./kb-resolve.mjs";
+import { areaOf, bindsOf, FOLLOW, fit, neighbours, readSubject, readText, readType, spines, textFile, titleOf } from "./kb-resolve.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = `${META}/text`;
@@ -31,8 +31,9 @@ const fileOf = (g, id) => (g.nodes.get(id).kind === "type" ? textFile.type(id) :
 
 /**
  * A subject's links as `read` ranks them, one line each: the edge, the file, and the claim that establishes it. Then
- * the edges `read` does not follow, by title: what configures the subject (a config type, a Terraform resource) and
- * its see-also subjects, so a question about changing it reaches the config type's fields.
+ * the edges `read` does not follow, by title: what configures the subject (a config type, a Terraform resource, and
+ * the config types it or its claims bind) and its see-also subjects, so a question about changing it reaches the
+ * config type's fields.
  */
 function links(g, id) {
   const ranked = neighbours(g, [id]);
@@ -43,9 +44,12 @@ function links(g, id) {
   });
   const shown = new Set(ranked.map(([to]) => to));
   const order = { "configured-via": 0, "see-also": 1 };
+  // A config type the subject binds is what it is configured through, though no edge says so.
+  const bound = [...new Set(bindsOf(g, id).map((b) => b.split("#")[0]))]
+    .filter((t) => g.nodes.get(t)?.data?.kind === "config")
+    .map((to) => ({ rel: "configured-via", to }));
   // Sorted first, so a target that is both says configured-via.
-  const listed = (g.nodes.get(id).data.related || [])
-    .filter((e) => !FOLLOW[e.rel])
+  const listed = [...(g.nodes.get(id).data.related || []).filter((e) => !FOLLOW[e.rel]), ...bound]
     .sort((a, b) => order[a.rel] - order[b.rel])
     .filter((e) => !shown.has(e.to) && shown.add(e.to))
     // Most config types have no title but their ID, which the path already gives.

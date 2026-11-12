@@ -33,5 +33,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads), from cloud-connector.workload-discovery: The feature needs a subscription to a Workload SKU and a Cloud & Branch Connector account; after subscribing, Zscaler Support must enable the Workload Discovery Service Endpoint before Workload Groups can be used. [zia.workload-groups:discovery-prerequisite]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/public-cloud-info.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.workload-discovery.md (AWS workload discovery for Cloud Connector: what it is and how the pieces fit)
 - see-also references/_meta/text/cloud-connector/cloud-connector.workload-discovery.aws-accounts.md (Onboarding an AWS account for discovery: role, external ID and trust)

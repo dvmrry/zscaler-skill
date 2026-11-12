@@ -42,5 +42,6 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.private-service-edges.terraform.md (The zpa_service_edge_group resource for Private Service Edge groups)
+- configured-via references/_meta/text/types/zpa/service-edges.md (config type)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)

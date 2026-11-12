@@ -29,3 +29,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.connector-groups.md (App Connector groups)
 - links-to references/_meta/text/zpa/zpa.private-service-edges.enrollment.md (Enrolling a Private Service Edge)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/app-connector-groups.md (config type)

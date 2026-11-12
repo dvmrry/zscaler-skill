@@ -22,3 +22,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.z-tunnel.md (Z-Tunnel)
 - links-to references/_meta/text/zpa/zpa.machine-groups.policy-use.md (Using a machine group in a ZPA policy rule)
 - links-to references/_meta/text/zpa/zpa.machine-tunnels.requirements.md (What a ZPA machine tunnel needs before it can connect)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/client-types.md (config type)
+- configured-via references/_meta/text/types/zpa/machine-groups.md (config type)

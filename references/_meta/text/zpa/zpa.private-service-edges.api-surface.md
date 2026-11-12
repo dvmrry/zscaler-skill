@@ -43,6 +43,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/service-edges.md (config type)
+- configured-via references/_meta/text/types/zpa/service-edge-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.terraform.md (The zpa_service_edge_group resource for Private Service Edge groups)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.private-cloud-controller.md (Private Cloud Controllers and Private Clouds as the Business Continuity layer)

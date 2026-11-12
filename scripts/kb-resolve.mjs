@@ -574,7 +574,7 @@ function itemsOf(g, subjectId, kind) {
 }
 
 /** The types and fields a subject and its claims bind (`<type>` or `<type>#<field>`). */
-function bindsOf(g, subjectId) {
+export function bindsOf(g, subjectId) {
   return [...(g.nodes.get(subjectId).data.binds || []), ...itemsOf(g, subjectId, "claim").flatMap((n) => n.data.binds || [])];
 }
 

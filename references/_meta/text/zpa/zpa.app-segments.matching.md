@@ -49,4 +49,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.logs.user-activity.md (What a ZPA User Activity log record says and does not say)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.app-segments.definition.md (What an application segment can contain: entries, wildcards and ports)

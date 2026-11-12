@@ -31,3 +31,8 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/cloud-connector/cloud-connector.forwarding.log-and-control.md (Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud): A default Log and Control Forwarding rule with a default gateway action is created automatically, and it cannot be duplicated or deleted. [cloud-connector.forwarding.log-and-control:default-rule]
 - interacts-with references/_meta/text/cloud-connector/cloud-connector.forwarding.predefined-rules.md (Predefined Cloud Connector traffic forwarding rules): A default forwarding rule with a default gateway is predefined for Internet & SaaS: each tenant comes with a default rule that forwards internet-bound traffic to Internet & SaaS using automatically selected gateways. [cloud-connector.forwarding.predefined-rules:default-zia]
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/forwarding-rules.md (config type)
+- configured-via references/_meta/text/types/ztw/traffic-dns-rules.md (config type)
+- configured-via references/_meta/text/types/ztw/traffic-log-rules.md (config type)

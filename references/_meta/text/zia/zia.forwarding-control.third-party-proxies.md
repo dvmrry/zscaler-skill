@@ -51,5 +51,6 @@ Linked (open a file only if the answer needs it):
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/proxies.md (config type)
 - configured-via references/_meta/text/types/zia/proxy-gateways.md (config type)
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)
 - see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)
 - see-also references/_meta/text/ai-security/ai-security.ai-guard.zia-integration.md (Sending ZIA users' AI traffic to AI Guard by proxy chaining: prerequisites, proxy, QUIC rule and forwarding)

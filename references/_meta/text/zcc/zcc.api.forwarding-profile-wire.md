@@ -96,5 +96,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.sdk-python.wire-keys.md (How the Python SDK names ZCC keys on the wire: the model serializer and the parameter mapper)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.forwarding-profiles.network-types.md (The four network types Client Connector detects: On-Trusted, VPN-Trusted, Split VPN-Trusted, Off-Trusted)
 - see-also references/_meta/text/zcc/zcc.sdk-go.legacy-routing.md (ZCC SDK calls in legacy-client mode routed to the ZIA client)

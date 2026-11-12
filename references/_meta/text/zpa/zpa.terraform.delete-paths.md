@@ -38,3 +38,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it): So a server-group destroy can finish successfully in Terraform while policy rules, application segments or connector groups still reference the deleted group, with the only trace in the provider's debug log. [zpa.terraform.delete-paths:server-group-delete-can-succeed-with-references]
 - depends-on references/_meta/text/zpa/zpa.terraform.provider-config.md (ZPA Terraform provider configuration: no-credential mode, authentication framework, clouds and rate limits), from zpa.terraform: The provider chooses the legacy ZPA client when use_legacy_client is true, from the provider attribute or, when that is unset, from ZSCALER_USE_LEGACY_CLIENT being the string true. [zpa.terraform.provider-config:legacy-client-switch]
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/server-groups.md (config type)
+- configured-via references/_meta/text/types/zpa/segment-groups.md (config type)

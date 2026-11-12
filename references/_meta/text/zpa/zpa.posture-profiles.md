@@ -20,3 +20,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.posture-profiles.evaluation.md (When and how often posture is evaluated)
 - links-to references/_meta/text/zpa/zpa.posture-profiles.object-model.md (The ZPA posture profile object and where it comes from)
 - links-to references/_meta/text/zpa/zpa.posture-profiles.policy-operand.md (The POSTURE operand in ZPA policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/posture-profiles.md (config type)

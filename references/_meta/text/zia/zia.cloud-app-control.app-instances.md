@@ -33,4 +33,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dlp.rules.md (Web DLP policy rules: order, criteria and actions)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/cloud-app-instances.md (config type)
 - see-also references/_meta/text/zia/zia.cloud-app-control.md (ZIA Cloud App Control)

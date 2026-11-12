@@ -34,4 +34,5 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zpa/zpa.pra.portals-policy.md (PRA portals policy: file, inspection and approval permissions in the PRA Portal), from zpa.pra: Portals policy rules allow deleting uploaded files, uploading inspected files, uploading inspected Internet & SaaS Sandbox files, accessing uninspected files in the PRA File Transfer System pages, and requesting and reviewing privileged approvals on the My Approvals and My Requests pages. Portals policies allow users to access the PRA File Transfer System and My Approvals pages in the PRA Portal they assign the rule to. [zpa.pra.portals-policy:scope]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)
 - see-also references/_meta/text/zia/zia.ssh-control.md (SSH traffic in ZIA: what is and is not inspected)

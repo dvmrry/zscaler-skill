@@ -43,3 +43,4 @@ Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/dlp-icap-servers.md (config type)
 - configured-via references/_meta/text/types/zia/dlp-incident-receiver-servers.md (config type)
 - configured-via references/_meta/text/types/zia/dlp-notification-templates.md (config type)
+- configured-via references/_meta/text/types/zia/dlp-web-rules.md (config type)

@@ -40,3 +40,4 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.terraform.data-source-fidelity.md (What ZPA Terraform data sources return, drop, or get wrong)
+- configured-via references/_meta/text/types/zpa/segment-groups.md (config type)

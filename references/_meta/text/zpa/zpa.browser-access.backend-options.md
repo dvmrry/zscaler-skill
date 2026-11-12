@@ -33,4 +33,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.browser-access.hostnames.md (External versus internal hostname for a Browser Access application)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/browser-access.md (config type)
 - see-also references/_meta/text/zpa/zpa.browser-access.requirements.md (What Browser Access requires of the browser, server and session)

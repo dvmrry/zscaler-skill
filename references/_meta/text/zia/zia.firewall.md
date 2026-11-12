@@ -82,3 +82,4 @@ Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/nat-control-rules.md (config type)
 - configured-via references/_meta/text/types/zia/ips-policies.md (config type)
 - configured-via references/_meta/text/zia/zia.terraform.firewall-resources.md (Terraform firewall, DNS and IPS resources: EUN fields, DNS categories, custom signatures)
+- configured-via references/_meta/text/types/zia/firewall-dns-rules.md (config type)

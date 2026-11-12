@@ -34,3 +34,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/casb-tombstone-templates.md (config type)
+- configured-via references/_meta/text/types/zia/casb-dlp-rules.md (config type)
+- configured-via references/_meta/text/types/zia/casb-malware-rules.md (config type)

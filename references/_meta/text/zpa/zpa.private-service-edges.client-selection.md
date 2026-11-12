@@ -49,5 +49,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.trusted-networks.service-edge-groups.md (Trusted networks on ZPA Private Service Edge groups): A Private Service Edge group can be mapped to the organization's trusted networks; the mapping prioritizes Private Service Edges matching a trusted network when users connect from it. [zpa.private-service-edges.client-selection:trusted-network-priority]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/service-edge-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)

@@ -31,3 +31,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.machine-tunnels.provisioning-keys.md (Machine provisioning keys for ZPA machine tunnels): After a machine group is created, a machine provisioning key must be assigned to it. [zpa.machine-groups.definition:key-needed-after-create]
 - links-to references/_meta/text/zpa/zpa.machine-groups.api-surface.md (Machine groups through the ZPA API, SDKs and Terraform)
 - links-to references/_meta/text/zpa/zpa.machine-groups.policy-use.md (Using a machine group in a ZPA policy rule)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/machine-groups.md (config type)

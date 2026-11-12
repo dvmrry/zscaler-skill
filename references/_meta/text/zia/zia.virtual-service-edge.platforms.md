@@ -52,5 +52,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.virtual-service-edge.sizing.md (How much a Virtual Service Edge VM can do)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/vzen-nodes.md (config type)
 - see-also references/_meta/text/zia/zia.virtual-service-edge.reference-modules.md (Reference Terraform modules for Virtual Service Edges on AWS and Azure)
 - see-also references/_meta/text/zia/zia.virtual-service-edge.md (ZIA Virtual Service Edge)

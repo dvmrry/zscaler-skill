@@ -46,3 +46,7 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/zpa/zpa.machine-groups.md (ZPA machine groups), from zpa.machine-tunnels: Using a machine tunnel takes four things: machine groups and machine provisioning keys configured in the Admin Console, the keys added to Zscaler Client Connector app profile rules for Windows or macOS, and the Private Access machine tunnel enabled for all. [zpa.machine-tunnels.requirements:components]
 - interacts-with references/_meta/text/zpa/zpa.machine-tunnels.client-type-policy.md (The Machine Tunnel client type in ZPA policy), from zpa.machine-tunnels: An access rule that selects only the Client Connector client type does not select Machine Tunnel, so a machine tunnel session is covered only by a rule that selects Machine Tunnel; a session no rule covers meets the default Block Access outcome. [zpa.machine-tunnels.client-type-policy:machine-tunnel-needs-own-rule]
 - interacts-with references/_meta/text/zpa/zpa.machine-tunnels.posture.md (Device posture on the ZPA machine tunnel), from zpa.machine-tunnels: An access policy can use posture profile criteria with the Machine Tunnel client type when the device runs Zscaler Client Connector 3.9 or later. [zpa.machine-tunnels.posture:policy-client-version]
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/client-types.md (config type)
+- configured-via references/_meta/text/types/zpa/machine-groups.md (config type)

@@ -47,4 +47,8 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/workload-groups.md (config type)
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)
+- configured-via references/_meta/text/types/zia/dlp-web-rules.md (config type)
 - see-also references/_meta/text/zia/zia.workload-groups.md (ZIA Workload Groups: scoping rules to cloud workloads)

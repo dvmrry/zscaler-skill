@@ -30,3 +30,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.api.forwarding-profile-wire.md (ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.mixed-deployments.md (Mixed forwarding deployments and where they break)
 - links-to references/_meta/text/zia/zia.traffic-forwarding.zcc.md (Client Connector as a forwarding method: benefits, limits and Z-Tunnel modes)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)

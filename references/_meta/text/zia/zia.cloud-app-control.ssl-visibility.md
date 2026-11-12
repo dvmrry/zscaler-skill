@@ -29,4 +29,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/advanced-settings.md (config type)
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
 - see-also references/_meta/text/zia/zia.cloud-app-control.ai-ml-rules.md (AI & ML Applications rules: granular actions, prompt capture, tenant profiles)

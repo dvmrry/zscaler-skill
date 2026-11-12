@@ -28,3 +28,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.browser-access.tooling.md (Writing Browser Access segments: Python SDK, MCP server, Go SDK and Terraform)
 - links-to references/_meta/text/zpa/zpa.terraform.app-segment-lifecycle.md (What the ZPA Terraform provider sends, keeps and cleans up for application segments and their associations)
 - links-to references/_meta/text/zpa/zpa.user-portal.md (Private Access user portals and portal links: what they are, how users reach them, certificates and DNS, links, download links and the acceptable use policy)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/browser-access.md (config type)

@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.z-tunnel.deployment.md (Rolling out Z-Tunnel 2.0 and migrating from 1.0)
 - links-to references/_meta/text/zcc/zcc.z-tunnel.transport.md (Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up)
 - links-to references/_meta/text/zia/zia.saas-apps.quic-conferencing.md (QUIC and HTTP/3 behind ZIA: where it escapes and how to block it)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)

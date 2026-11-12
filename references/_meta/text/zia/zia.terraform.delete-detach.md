@@ -38,3 +38,8 @@ Area: zia.terraform, its subjects in references/_meta/spine/zia/zia.terraform.js
 Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.terraform.activation.md (When the ZIA Terraform provider activates configuration)
 - links-to references/_meta/text/zia/zia.terraform.rule-order.md (How the ZIA Terraform provider applies rule order)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/firewall-dns-rules.md (config type)
+- configured-via references/_meta/text/types/zia/network-service-groups.md (config type)

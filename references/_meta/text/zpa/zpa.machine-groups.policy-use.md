@@ -39,4 +39,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/machine-groups.md (config type)
+- configured-via references/_meta/text/types/zpa/client-types.md (config type)
 - see-also references/_meta/text/zpa/zpa.machine-groups.definition.md (What a ZPA machine group is and how machines join it)

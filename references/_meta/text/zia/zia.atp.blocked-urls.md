@@ -51,5 +51,6 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/malicious-urls.md (config type)
+- configured-via references/_meta/text/types/zia/advanced-threat-settings.md (config type)
 - see-also references/_meta/text/zia/zia.atp.md (ZIA Advanced Threat Protection)
 - see-also references/_meta/text/zia/zia.sdk-go.write-encoding.md (How the Go SDK encodes ZIA writes (omitted zero values, empty responses))

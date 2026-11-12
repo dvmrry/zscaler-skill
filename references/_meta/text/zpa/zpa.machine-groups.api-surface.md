@@ -44,5 +44,6 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.api.machine-groups-wire.md (Machine group list scoping and vpnConnectedUsers wire details)
+- configured-via references/_meta/text/types/zpa/machine-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.machine-groups.definition.md (What a ZPA machine group is and how machines join it)
 - see-also references/_meta/text/zpa/zpa.machine-groups.policy-use.md (Using a machine group in a ZPA policy rule)

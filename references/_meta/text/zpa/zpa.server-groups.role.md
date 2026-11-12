@@ -31,5 +31,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.server-groups.connector-binding.md (How a server group binds App Connector groups)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/server-groups.md (config type)
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.server-groups.discovery-mode.md (Dynamic discovery versus explicit servers on a server group)
 - see-also references/_meta/text/zpa/zpa.server-groups.multiple-on-segment.md (Several server groups on one application segment)

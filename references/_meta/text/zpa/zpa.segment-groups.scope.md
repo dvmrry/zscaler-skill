@@ -32,4 +32,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.microtenants.share-and-move.md (Sharing and moving between Microtenants)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/segment-groups.md (config type)
 - see-also references/_meta/text/zpa/zpa.segment-groups.membership.md (Which application segments belong to a segment group)

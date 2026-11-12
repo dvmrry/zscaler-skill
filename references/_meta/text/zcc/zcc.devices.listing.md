@@ -23,4 +23,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.api.devices-wire.md (ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/devices.md (config type)
 - see-also references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)

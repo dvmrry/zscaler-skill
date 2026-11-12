@@ -42,4 +42,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.posture-profiles.api-surface.md (The posture profile API, SDK and Terraform data source)
+- configured-via references/_meta/text/types/zpa/posture-profiles.md (config type)
 - see-also references/_meta/text/zpa/zpa.posture-profiles.policy-operand.md (The POSTURE operand in ZPA policy rules)

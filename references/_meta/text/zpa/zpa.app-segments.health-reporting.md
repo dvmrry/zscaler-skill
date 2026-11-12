@@ -29,6 +29,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-segments.settings.md (Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.app-segments.md (ZPA application segments)
 - see-also references/_meta/text/zpa/zpa.app-connectors.health.md (App Connector health, status values and telemetry)
 - see-also references/_meta/text/zpa/zpa.app-connectors.selection.md (How a session is assigned to an App Connector)

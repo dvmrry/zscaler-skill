@@ -47,5 +47,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.app-connectors.gcp-reference-modules.md (Reference Terraform modules for App Connectors on GCP)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/app-connectors.md (config type)
 - see-also references/_meta/text/zpa/zpa.app-connectors.md (ZPA App Connectors)
 - see-also references/_meta/text/zpa/zpa.app-connectors.enrollment.md (App Connector enrollment, certificates and re-enrollment)

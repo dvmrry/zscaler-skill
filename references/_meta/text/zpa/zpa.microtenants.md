@@ -29,3 +29,4 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.api.microtenants-wire.md (What the SDKs send and receive for ZPA Microtenants)
+- configured-via references/_meta/text/types/zpa/microtenants.md (config type)

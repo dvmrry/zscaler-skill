@@ -33,4 +33,5 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zpa/zpa.scim.policy-criteria.md (SCIM groups and attributes as ZPA policy criteria): A Microtenant's criteria can be authentication domains, External IAM IdPs (supported only for IdPs created in Authentication Service), or SAML and SCIM attributes (in limited availability, where existing users must reauthenticate or reconnect to use them). [zpa.microtenants.user-mapping:criteria-types]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/microtenants.md (config type)
 - see-also references/_meta/text/zpa/zpa.microtenants.lifecycle.md (Microtenant lifecycle: create, disable, delete)

@@ -38,4 +38,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.destination-groups.md (IP destination groups)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ip-destination-groups.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.source-ip-groups.md (Cloud Connector source IP groups: what they are and what is unknown about them)

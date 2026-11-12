@@ -48,3 +48,4 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.appprotection.api-surface.md (AppProtection through the API and the Python SDK: versions, Active Directory controls, attach and detach)
+- configured-via references/_meta/text/types/zpa/inspection-app-segments.md (config type)

@@ -42,6 +42,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.browser-access.certificates.md (Certificates for Browser Access applications: wildcards, managed and custom)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/user-portals.md (config type)
+- configured-via references/_meta/text/types/zpa/user-portal-links.md (config type)
+- configured-via references/_meta/text/types/zpa/user-portal-aups.md (config type)
 - see-also references/_meta/text/zpa/zpa.browser-access.md (Browser Access: clientless ZPA access to web applications)
 - see-also references/_meta/text/zpa/zpa.policy.timeout-rules.md (ZPA timeout policy rules)
 - see-also references/_meta/text/zpa/zpa.saml-attributes.md (ZPA SAML attributes)

@@ -51,4 +51,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.private-service-edges.what-it-is.md (What a ZPA Private Service Edge is)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/service-edges.md (config type)
 - see-also references/_meta/text/zpa/zpa.private-service-edges.md (ZPA Private Service Edges)

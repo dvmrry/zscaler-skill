@@ -19,4 +19,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.public-service-edges.public-flag.md (What is_public means on a Service Edge group)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/service-edges.md (config type)
+- configured-via references/_meta/text/types/zpa/service-edge-groups.md (config type)
 - see-also references/_meta/text/zia/zia.private-service-edge.md (ZIA Private Service Edge)

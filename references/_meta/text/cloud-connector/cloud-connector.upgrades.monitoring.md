@@ -22,4 +22,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.insights.connector-status.md (Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ec-groups.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.upgrades.md (Cloud & Branch Connector software upgrades: weekly window, stagger and release channels)

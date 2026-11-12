@@ -42,5 +42,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.server-groups.role.md (What a server group is and what selects it)
 - see-also references/_meta/text/zpa/zpa.server-groups.chain-check.md (Checking the segment to server group to connector chain)

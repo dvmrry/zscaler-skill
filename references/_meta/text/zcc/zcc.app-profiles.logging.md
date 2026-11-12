@@ -23,5 +23,6 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zcc/zcc.api.web-policy-wire.md (What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate)
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
 - see-also references/_meta/text/zcc/zcc.web-privacy.md (ZCC user privacy (web privacy): what the app collects and exposes)

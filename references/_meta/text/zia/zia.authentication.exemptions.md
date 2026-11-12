@@ -47,5 +47,6 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/auth-exempted-urls.md (config type)
+- configured-via references/_meta/text/types/zia/advanced-settings.md (config type)
 - see-also references/_meta/text/zia/zia.authentication.md (ZIA authentication: how a request gets a user identity)
 - see-also references/_meta/text/zia/zia.authentication.methods.md (SAML and Kerberos: what each needs to work)

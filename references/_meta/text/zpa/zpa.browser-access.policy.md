@@ -26,3 +26,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes), from zpa.browser-access: SSH, RDP and VNC are not Browser Access traffic. Browser Access carries HTTP and HTTPS only, and Privileged Remote Access is the clientless path for RDP, SSH and VNC. [zpa.browser-access.requirements:non-http-use-pra]
 - interacts-with references/_meta/text/zpa/zpa.pra.access-policy.md (Access policy for PRA: privileged approval, step-up and rule criteria): The Country Codes criteria type is not supported in Browser Access or Privileged Remote Access applications. [zpa.browser-access.policy:country-codes-unsupported]
 - links-to references/_meta/text/zpa/zpa.browser-access.requirements.md (What Browser Access requires of the browser, server and session)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/client-types.md (config type)

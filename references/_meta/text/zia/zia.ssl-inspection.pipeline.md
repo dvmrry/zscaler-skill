@@ -46,4 +46,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.url-filtering.criteria.md (How URL Filtering rule criteria combine)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/ssl-inspection-rules.md (config type)
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)
 - see-also references/_meta/text/zia/zia.url-filtering.rule-order.md (URL Filtering rule order and first match)

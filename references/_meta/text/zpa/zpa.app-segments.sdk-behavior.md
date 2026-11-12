@@ -63,3 +63,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.b2b-federation.federate-applications.md (Federating application segments to a partner)
 - links-to references/_meta/text/zpa/zpa.sdk-go.service-defects.md (ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input)
 - links-to references/_meta/text/zpa/zpa.terraform.app-segment-lifecycle.md (What the ZPA Terraform provider sends, keeps and cleans up for application segments and their associations)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
+- configured-via references/_meta/text/types/zpa/browser-access.md (config type)

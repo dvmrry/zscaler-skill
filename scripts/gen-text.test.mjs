@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import { sync, textFiles } from "./gen-text.mjs";
 import { buildGraph, loadPublic } from "./kb-lib.mjs";
-import { spines, textFile } from "./kb-resolve.mjs";
+import { bindsOf, spines, textFile } from "./kb-resolve.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const OVERLAY = path.join(ROOT, "scripts/fixtures/kb-overlay");
@@ -63,7 +63,11 @@ test("a subject's file lists every edge read does not follow, by title, so a cha
       const to = g.nodes.get(e.to).kind === "type" ? textFile.type(e.to) : textFile.subject(e.to);
       assert.ok(paths.includes(to), `${n.id} does not list its ${e.rel} ${e.to}`);
     }
+    for (const t of bindsOf(g, n.id).map((b) => b.split("#")[0])) {
+      if (g.nodes.get(t)?.data?.kind === "config") assert.ok(paths.includes(textFile.type(t)), `${n.id} does not list the config type it binds, ${t}`);
+    }
   }
+  assert.match(files[textFile.subject("zpa.app-segments")], /^- configured-via references\/_meta\/text\/types\/zpa\/application-segments\.md \(config type\)$/m);
   const listed = files[textFile.subject("zia.url-filtering")].split("\n\nConfigured via and see also (open one only if the answer needs it):\n")[1];
   assert.match(listed, /^- configured-via references\/_meta\/text\/types\/zia\/url-filtering-rules\.md \(config type\)$/m);
   assert.match(listed, /^- configured-via references\/_meta\/text\/zia\/zia\.terraform\.url-filtering-rules\.md \(.+\)$/m);

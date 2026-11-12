@@ -34,5 +34,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.terraform.field-fidelity.md (ZCC Terraform provider fields that are not sent, not read back, or collapsed)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/trusted-networks.md (config type)
+- configured-via references/_meta/text/types/zcc/trusted-networks.md (config type)
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)
 - see-also references/_meta/text/zpa/zpa.trusted-networks.object.md (The ZPA trusted network object and how to fetch it)
 - see-also references/_meta/text/zcc/zcc.sdk-go.legacy-routing.md (ZCC SDK calls in legacy-client mode routed to the ZIA client)

@@ -38,4 +38,5 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zcc/zcc.devices.lifecycle.md (Enrolled device states and what moves a device between them): Permanently Delete Removed Devices After deletes a device from the admin console after it has been Removed or Unregistered for 60, 90, 120, 150 or 180 days, measured from the device's Last Deregistration Timestamp. [zcc.devices.cleanup:permanent-delete]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/devices.md (config type)
 - see-also references/_meta/text/zcc/zcc.devices.md (ZCC enrolled devices)

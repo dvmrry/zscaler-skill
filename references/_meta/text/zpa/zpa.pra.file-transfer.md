@@ -38,4 +38,5 @@ Linked (open a file only if the answer needs it):
 - logged-in references/_meta/text/zpa/zpa.pra.session-recording.md (PRA session recordings: status, transcoding, playback and sharing), from zpa.pra: Session recording is enabled through the Record Sessions setting of a consoles policy. A user in a recorded console sees a Recording notification at the top of the console window, and the recording ends when the user ends the session. [zpa.pra.session-recording:recording-enabled-by-policy]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes)

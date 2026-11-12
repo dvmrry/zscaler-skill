@@ -43,4 +43,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.sdk-python.md (Python SDK for ZIdentity (client.zid): where its models and keys depart from the API)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zidentity/resource-servers.md (config type)
 - see-also references/_meta/text/zidentity/zidentity.api.md (The ZIdentity (Authentication Service) admin API from a client's side: route, coverage and wire notes)

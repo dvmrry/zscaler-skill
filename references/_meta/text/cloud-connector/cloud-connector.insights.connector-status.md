@@ -54,5 +54,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/cloud-connector/cloud-connector.upgrades.monitoring.md (Watching Cloud Connector upgrades: VM record fields, upgrade metrics and upgrade events)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ec-groups.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.insights.md (Monitoring Cloud Connectors: which surface answers which question)
 - see-also references/_meta/text/cloud-connector/cloud-connector.nss-va.log-control-path.md (Log and Control Forwarding and NSS: the two legs that carry connector logs)

@@ -41,4 +41,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/tenancy-restriction-profiles.md (config type)
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)
 - see-also references/_meta/text/zia/zia.tenant-profiles.microsoft.md (Microsoft Login Services tenant profiles: v1, v2, personal accounts)

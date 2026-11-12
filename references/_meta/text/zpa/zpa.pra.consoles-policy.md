@@ -50,3 +50,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.pra.file-transfer.md (PRA file transfer: in-console transfer, the PRA File Transfer System and the Sandbox integration)
 - links-to references/_meta/text/zpa/zpa.pra.live-sessions.md (PRA live session sharing: participants, invitations, control and ejection)
 - links-to references/_meta/text/zpa/zpa.terraform.resource-fidelity.md (ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)

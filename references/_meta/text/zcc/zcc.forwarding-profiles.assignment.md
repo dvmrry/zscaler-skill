@@ -47,4 +47,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.forwarding-profiles.private-access-actions.md (Forwarding profile actions for Private Access (ZPA): Tunnel or None per network type)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
+- configured-via references/_meta/text/types/zcc/forwarding-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.api.forwarding-profile-wire.md (ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ)

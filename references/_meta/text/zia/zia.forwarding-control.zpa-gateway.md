@@ -36,4 +36,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/zpa-gateways.md (config type)
+- configured-via references/_meta/text/types/zia/forwarding-rules.md (config type)
 - see-also references/_meta/text/zia/zia.forwarding-control.md (ZIA Forwarding Control and Source IP Anchoring)

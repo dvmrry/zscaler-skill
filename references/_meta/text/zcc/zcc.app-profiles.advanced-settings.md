@@ -46,4 +46,5 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zcc/zcc.install.precedence.md (Install parameters versus console settings: which wins, and what survives an update): On Windows, enableAntiTampering (MSI `ENABLEANTITAMPERING`) prevents end users from stopping, modifying or deleting Zscaler products and services; the app profile's Override Anti Tampering Install Parameter option can override it. [zcc.install.precedence:anti-tampering]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))

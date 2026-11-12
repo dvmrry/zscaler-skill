@@ -32,3 +32,6 @@ Linked (open a file only if the answer needs it):
 - scoped-by references/_meta/text/zcc/zcc.forwarding-profiles.private-access-actions.md (Forwarding profile actions for Private Access (ZPA): Tunnel or None per network type): The Bypass setting is applied at the domain level; Private Access first evaluates the forwarding profile, and when the profile specifies that the user must use Private Access, it checks the application's Bypass setting. [zpa.app-segments.bypass:bypass-domain-level]
 - decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]
 - links-to references/_meta/text/zpa/zpa.app-segments.sdk-behavior.md (What the Python and Go SDKs send for application segments)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)

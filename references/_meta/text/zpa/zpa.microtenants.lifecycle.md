@@ -45,4 +45,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.terraform.resource-constraints.md (Constraints the ZPA Terraform docs and provider code place on individual resources)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/microtenants.md (config type)
 - see-also references/_meta/text/zpa/zpa.microtenants.share-and-move.md (Sharing and moving between Microtenants)

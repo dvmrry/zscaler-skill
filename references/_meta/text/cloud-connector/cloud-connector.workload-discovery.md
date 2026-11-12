@@ -51,3 +51,4 @@ Linked (open a file only if the answer needs it):
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/ztw/public-cloud-accounts.md (config type)
 - configured-via references/_meta/text/types/ztw/account-groups.md (config type)
+- configured-via references/_meta/text/types/ztw/public-cloud-info.md (config type)

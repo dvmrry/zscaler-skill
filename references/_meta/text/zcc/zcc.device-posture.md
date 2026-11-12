@@ -39,4 +39,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zcc/zcc.api.v2-wire.md (The ZCC v2 API: RESTful paths, offset paging and the list envelope)
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
 - see-also references/_meta/text/zpa/zpa.posture-profiles.md (ZPA posture profiles)

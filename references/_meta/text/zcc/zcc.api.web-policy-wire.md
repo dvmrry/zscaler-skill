@@ -142,6 +142,7 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.terraform.coverage.md (What the ZCC Terraform provider covers, and what it leaves to the console)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.api.md (The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes)
 - see-also references/_meta/text/zcc/zcc.api.v2-wire.md (The ZCC v2 API: RESTful paths, offset paging and the list envelope)
 - see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))

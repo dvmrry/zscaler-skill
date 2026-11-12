@@ -43,3 +43,7 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zcc/zcc.trusted-networks.detection.md (How Client Connector decides it is on a trusted network), from zpa.trusted-networks: Zscaler Client Connector identifies a trusted network by criteria defined for it on the Trusted Networks page, and a forwarding profile can select several predefined trusted networks. [zpa.trusted-networks.zcc-relationship:zcc-defines-criteria]
 - interacts-with references/_meta/text/zpa/zpa.trusted-networks.zcc-relationship.md (Trusted networks in ZPA and in Client Connector): The trusted networks offered when building a ZPA access policy rule are the ones configured in the Client Connector Portal; the AppProtection policy page names the Admin Console instead. [zpa.trusted-networks.zcc-relationship:policy-menu-source]
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/trusted-networks.md (config type)
+- configured-via references/_meta/text/types/zpa/client-types.md (config type)

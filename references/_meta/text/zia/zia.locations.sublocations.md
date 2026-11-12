@@ -56,4 +56,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/sublocations.md (config type)
+- configured-via references/_meta/text/types/zia/locations.md (config type)
 - see-also references/_meta/text/zia/zia.locations.md (ZIA locations, sublocations and location groups)

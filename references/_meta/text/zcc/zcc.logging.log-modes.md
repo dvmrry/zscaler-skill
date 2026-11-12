@@ -33,5 +33,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.app-profiles.propagation.md (When an app profile change reaches a device)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.logging.md (Client Connector logs: verbosity, user access and collection)
 - see-also references/_meta/text/zcc/zcc.logging.user-access.md (What users can do with Client Connector logs: logging controls and readable exports)

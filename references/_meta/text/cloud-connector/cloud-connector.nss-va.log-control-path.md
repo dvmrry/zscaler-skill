@@ -28,5 +28,6 @@ Linked (open a file only if the answer needs it):
 - depends-on references/_meta/text/cloud-connector/cloud-connector.nss-va.servers.md (NSS servers for Cloud & Branch Connector: certificate, buffering and sizing), from cloud-connector.nss-va: For Cloud & Branch Connector, NSS uses a VM to stream traffic logs in real time from the Zscaler Nanolog to a SIEM, and an NSS server is the representation of that VM in the Admin Console. [cloud-connector.nss-va:what-nss-is]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/traffic-log-rules.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.nss-va.md (NSS for Cloud & Branch Connector: how connector logs reach a SIEM)
 - see-also references/_meta/text/cloud-connector/cloud-connector.insights.connector-status.md (Cloud Connector status: what Active, Inactive and Disabled mean, and the per-VM API record)

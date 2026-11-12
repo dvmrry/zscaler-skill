@@ -57,4 +57,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zidentity/zidentity.users.security-settings.md (A user's security settings in Authentication Service: initial password option, skipping second-factor authentication and MFA authenticators)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zidentity/users.md (config type)
 - see-also references/_meta/text/zidentity/zidentity.migration.end-users.md (How end users are migrated to Authentication Service: eligibility, prerequisites, the wizard's audits, test users and rollback)

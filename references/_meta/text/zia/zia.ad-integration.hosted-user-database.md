@@ -38,6 +38,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.authentication.settings.md (The organization-wide authentication settings object)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/users.md (config type)
+- configured-via references/_meta/text/types/zia/groups.md (config type)
+- configured-via references/_meta/text/types/zia/departments.md (config type)
 - see-also references/_meta/text/zia/zia.ad-integration.md (How users, groups and departments get into ZIA)
 - see-also references/_meta/text/zia/zia.ad-integration.provisioning-methods.md (ZIA provisioning methods and which authentication each allows)
 - see-also references/_meta/text/zia/zia.ad-integration.authentication-bridge.md (Deploying the Zscaler Authentication Bridge (ZAB): requirements, certificates, commands and renewal)

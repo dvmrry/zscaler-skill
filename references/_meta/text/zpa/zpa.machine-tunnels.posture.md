@@ -26,4 +26,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.posture-profiles.md (ZPA posture profiles)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/posture-profiles.md (config type)
+- configured-via references/_meta/text/types/zpa/client-types.md (config type)
 - see-also references/_meta/text/zpa/zpa.machine-tunnels.requirements.md (What a ZPA machine tunnel needs before it can connect)

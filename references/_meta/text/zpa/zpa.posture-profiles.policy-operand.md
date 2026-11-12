@@ -49,6 +49,7 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+- configured-via references/_meta/text/types/zpa/posture-profiles.md (config type)
 - see-also references/_meta/text/zpa/zpa.policy.criteria.md (Criteria available on ZPA access policy rules)
 - see-also references/_meta/text/zpa/zpa.trusted-networks.policy-operand.md (The TRUSTED_NETWORK operand in ZPA policy rules)
 - see-also references/_meta/text/zpa/zpa.machine-tunnels.posture.md (Device posture on the ZPA machine tunnel)

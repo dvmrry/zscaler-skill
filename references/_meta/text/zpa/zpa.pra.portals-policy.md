@@ -40,5 +40,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.pra.file-transfer.md (PRA file transfer: in-console transfer, the PRA File Transfer System and the Sandbox integration)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.pra.md (Privileged Remote Access: what it is and where each question goes)
 - see-also references/_meta/text/zpa/zpa.pra.portals.md (PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login)

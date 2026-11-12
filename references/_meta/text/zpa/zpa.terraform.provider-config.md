@@ -35,3 +35,6 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zpa/zpa.microtenants.api-scoping.md (How an API call selects a Microtenant): ZPA_MICROTENANT_ID sets the microtenant for resources in a run; the provider documents it as the recommended way to configure microtenant_id, which requires the microtenant license and feature flag on the tenant. [zpa.terraform.provider-config:microtenant-env-var]
 - links-to references/_meta/text/shared/shared.terraform.credential-handling.md (How the Zscaler Terraform providers store, log, and send secrets)
 - links-to references/_meta/text/zia/zia.terraform.provider-modes.md (ZIA Terraform provider authentication, client modes and rate limiting)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/service-edge-groups.md (config type)

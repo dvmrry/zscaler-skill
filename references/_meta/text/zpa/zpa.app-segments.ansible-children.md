@@ -34,5 +34,8 @@ Linked (open a file only if the answer needs it):
 - decided-by references/_meta/text/zpa/zpa.policy.multimatch.md (Segment matching and policy search with and without Multimatch), from zpa.app-segments: Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch. [zpa.policy.multimatch:match-order]
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/browser-access.md (config type)
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)
+- configured-via references/_meta/text/types/zpa/inspection-app-segments.md (config type)
 - see-also references/_meta/text/zpa/zpa.app-segments.sdk-behavior.md (What the Python and Go SDKs send for application segments)
 - see-also references/_meta/text/zpa/zpa.terraform.app-segment-lifecycle.md (What the ZPA Terraform provider sends, keeps and cleans up for application segments and their associations)

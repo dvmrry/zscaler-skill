@@ -57,3 +57,9 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.segment-groups.api-surface.md (The segment group API, model fields and Terraform resource)
 - links-to references/_meta/text/zpa/zpa.terraform.delete-paths.md (What the ZPA Terraform provider does when deleting objects with dependents)
 - links-to references/_meta/text/zpa/zpa.terraform.policy-rule-writes.md (What the ZPA Terraform provider sends and loses when writing policy rules)
+
+Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/application-segments.md (config type)
+- configured-via references/_meta/text/types/zpa/browser-access.md (config type)
+- configured-via references/_meta/text/types/zpa/inspection-app-segments.md (config type)
+- configured-via references/_meta/text/types/zpa/pra-app-segments.md (config type)

@@ -40,3 +40,4 @@ Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/url-categories.md (config type)
 - configured-via references/_meta/text/zia/zia.api.url-categories-wire.md (URL category API behavior beyond the field list: delete, lookup and the keyword quota figure)
 - configured-via references/_meta/text/zia/zia.terraform.url-categories.md (Terraform custom and predefined URL category resources)
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)

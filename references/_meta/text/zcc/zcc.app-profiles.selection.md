@@ -37,5 +37,6 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zcc/zcc.app-profiles.propagation.md (When an app profile change reaches a device)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zcc/application-profiles.md (config type)
 - see-also references/_meta/text/zcc/zcc.app-profiles.md (ZCC app profiles (web policies))
 - see-also references/_meta/text/zcc/zcc.forwarding-profiles.assignment.md (Which forwarding profile a device uses, and when a change reaches it)

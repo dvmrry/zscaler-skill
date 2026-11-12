@@ -26,4 +26,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.url-filtering.advanced-settings.md (Advanced URL Filtering settings that change outcomes)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/url-filtering-rules.md (config type)
 - see-also references/_meta/text/zia/zia.url-filtering.list-pagination.md (Listing URL Filtering rules and URL categories without truncation)

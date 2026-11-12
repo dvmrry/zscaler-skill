@@ -48,3 +48,4 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/types/zia/tenancy-restriction-profiles.md (config type)
+- configured-via references/_meta/text/types/zia/cloud-app-control.md (config type)

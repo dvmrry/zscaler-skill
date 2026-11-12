@@ -19,4 +19,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zpa/zpa.trusted-networks.zcc-relationship.md (Trusted networks in ZPA and in Client Connector)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zpa/trusted-networks.md (config type)
 - see-also references/_meta/text/zpa/zpa.machine-tunnels.md (ZPA machine tunnels)

@@ -25,4 +25,5 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.dns-control.ip-pools.md (IP pools for Source IP Anchoring and Extranet)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/ztw/ip-groups.md (config type)
 - see-also references/_meta/text/cloud-connector/cloud-connector.shared-objects.md (Objects ZIA and Cloud & Branch Connector share: IP groups and network services)

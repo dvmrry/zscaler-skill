@@ -51,3 +51,5 @@ Linked (open a file only if the answer needs it):
 
 Configured via and see also (open one only if the answer needs it):
 - configured-via references/_meta/text/zpa/zpa.api.provisioning-keys-wire.md (Provisioning key API: association types and update responses)
+- configured-via references/_meta/text/types/zpa/app-connectors.md (config type)
+- configured-via references/_meta/text/types/zpa/app-connector-groups.md (config type)

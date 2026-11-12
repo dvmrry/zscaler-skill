@@ -48,6 +48,8 @@ Linked (open a file only if the answer needs it):
 - links-to references/_meta/text/zia/zia.firewall.network-applications.md (Network applications and network application groups: DPI identification, undetermined-app outcomes, rule placement)
 
 Configured via and see also (open one only if the answer needs it):
+- configured-via references/_meta/text/types/zia/firewall-filtering-rules.md (config type)
+- configured-via references/_meta/text/types/zia/ips-policies.md (config type)
 - see-also references/_meta/text/zia/zia.firewall.md (ZIA Firewall Control)
 - see-also references/_meta/text/zia/zia.firewall.best-practices.md (Recommended Firewall Filtering, DNS Control and IPS Control rules)
 - see-also references/_meta/text/zia/zia.firewall.ips.md (IPS Control)
