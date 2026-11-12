@@ -5,7 +5,7 @@ The Log Receivers page lists, copies, edits and deletes receivers.
 
 **List.** The Log Receivers page shows for each receiver its name, domain name or IP address, TCP port, TLS Encryption status and log type, and the receiver's details add the description, the App Connector groups and the log stream content. [zpa.log-receivers.admin-console:page-columns]
 
-**Operations.** A receiver can be copied to create a new configuration, edited and deleted from the page. [zpa.log-receivers.admin-console:copy-edit-delete] If a log receiver is configured using Zscaler Deception, the copy, edit and delete options are unavailable. [zpa.log-receivers.admin-console:deception-readonly]
+**Operations.** A receiver's configuration can be copied, and the receiver can be edited and deleted from the page. [zpa.log-receivers.admin-console:copy-edit-delete] If a log receiver is configured using Zscaler Deception, the copy, edit and delete options are unavailable. [zpa.log-receivers.admin-console:deception-readonly]
 
 What to check:
 1. Whether the receiver was created by Zscaler Deception when copy, edit and delete are missing.

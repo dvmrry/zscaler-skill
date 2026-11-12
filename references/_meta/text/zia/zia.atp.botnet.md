@@ -3,7 +3,7 @@ Also called: command and control; c2 detection; cobalt strike; mythic; brute rat
 
 Botnet Protection has four toggles, each covering a different detection.
 
-**Known C2 servers.** Command & Control Servers allows or blocks connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel and PoshC2. Known C2 botnet activity and the triggered policy actions can be viewed on the SaaS Security Insights Logs page (Data Explorer > Internet & SaaS > SaaS Security Insights). [zia.atp.botnet:known-c2-servers] The inspection uses rate-based control to detect and block connections for default profiles of popular security testing tools. [zia.atp.botnet:rate-based-profiles]
+**Known C2 servers.** Command & Control Servers allows or blocks connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel and PoshC2. Known C2 botnet activity and the triggered policy actions can be viewed on the Web Insights Logs page (Data Explorer > Web Insights > Logs). [zia.atp.botnet:known-c2-servers] The inspection uses rate-based control to detect and block connections for default profiles of popular security testing tools. [zia.atp.botnet:rate-based-profiles]
 
 **C2 traffic to unknown servers.** Command & Control Traffic allows or blocks botnets sending or receiving commands to unknown servers, by examining the content of requests and responses to those servers. [zia.atp.botnet:c2-traffic] Because Command & Control Traffic detection reads request and response content, it does not see inside HTTPS that is not decrypted. [zia.atp.botnet:c2-traffic-needs-decryption]
 
