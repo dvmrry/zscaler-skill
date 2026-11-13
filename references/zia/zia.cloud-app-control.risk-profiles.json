@@ -41,7 +41,7 @@
     },
     {
       "label": "Cloud application tags.",
-      "text": "{{tags-what}} {{tags-limit}} {{tags-page}} {{tags-attached-on-applications-page}} Whether predefined tags exist is open {{gap:tag-association}}. The page is in [[zia.cloud-app-control.custom-applications]]."
+      "text": "{{tags-what}} {{tags-limit}} {{tags-page}} {{tags-attached-on-applications-page}} {{tags-api}} Whether predefined tags exist is open {{gap:tag-association}}. The page is in [[zia.cloud-app-control.custom-applications]]."
     },
     {
       "text": "A rule that selects a profile applies to every matching app, so one rule can account for many blocks: [[zia.cloud-app-control.rule-criteria]]. {{attribute-sources-3p}} Where the other attribute values come from is open {{gap:attribute-sources}}. The Application Information page itself is in [[portfolio.saas-security-report]]."
@@ -285,6 +285,54 @@
           ]
         }
       ]
+    },
+    "tags-api": {
+      "statement": "Through the API, GET /customTags lists the custom tags available to assign to cloud applications, each by ID and name, and PUT /cloudApplications/bulkUpdate assigns custom tags to the applications whose IDs it names. The /customTags path has only that GET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customTags/get",
+          "expect": {
+            "description": "Gets the list of custom tags available to assign to cloud applications"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customTags/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "id": {
+              "description": "Unique identifier of the custom tag",
+              "format": "int32",
+              "type": "integer"
+            },
+            "name": {
+              "description": "The name of the custom tag",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customTags",
+          "expect_absent": [
+            "post",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties/customTags",
+          "expect": {
+            "description": "The list of custom tags that must be assigned to the cloud applications"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -296,7 +344,7 @@
         "source-read"
       ],
       "blocks": "saying whether a tag comes predefined",
-      "detail": "Partly answered by tags-attached-on-applications-page: the SaaS Applications page tags applications and its edit drawers include Tags. Still open: whether predefined tags exist. The About Cloud Applications page says tagging uses predefined and custom labels without saying whether those are tags Zscaler provides, and the Add drawer shows only a Tag Name."
+      "detail": "Partly answered by tags-attached-on-applications-page: the SaaS Applications page tags applications and its edit drawers include Tags. Still open: whether predefined tags exist. The About Cloud Applications page says tagging uses predefined and custom labels without saying whether those are tags Zscaler provides, and the Add drawer shows only a Tag Name. The API has calls only for custom tags (GET /customTags and the bulk update's customTags)."
     },
     "attribute-sources": {
       "kind": "data",

@@ -7,7 +7,9 @@
     "custom cloud application",
     "custom applications category",
     "application status sanctioned unsanctioned",
-    "predefined cloud application"
+    "predefined cloud application",
+    "cloud applications API",
+    "bulk update of application status and tags"
   ],
   "related": [
     {
@@ -25,6 +27,10 @@
     {
       "rel": "see-also",
       "to": "zia.cloud-app-control.app-instances"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-errors-and-limits"
     }
   ],
   "prose": [
@@ -48,6 +54,10 @@
       "text": "{{custom-app-caveats}}"
     },
     {
+      "label": "API.",
+      "text": "{{api-calls}} {{policy-list-calls}} {{bulk-update-body}} What a bulk update does with existing tags, and what ANY does, is open {{gap:bulk-update-semantics}}. The bulk update's rate limit is in [[shared.legacy-api.zia-errors-and-limits]]. {{sdk-calls}} The Go SDK names the page parameter differently {{divergence:lite-page-parameter-case}}, and the Python SDK sends tags in a different shape {{divergence:bulk-update-tag-shape}}. {{no-create-or-url-call}}"
+    },
+    {
       "text": "The Custom Applications rule is in [[zia.cloud-app-control.rule-types]]. Tags and risk profiles are in [[zia.cloud-app-control.risk-profiles]]. Instances of an application are in [[zia.cloud-app-control.app-instances]]."
     }
   ],
@@ -68,6 +78,13 @@
       "do": "Whether the custom application is at the 64-application or 128-URL limit before adding one.",
       "uses": [
         "custom-app-limits"
+      ]
+    },
+    {
+      "do": "Whether a requested change can go through the API: status and custom tags can, by a rate-limited bulk update that names application IDs (whether it replaces or adds tags is open); adding a custom application or changing its URLs cannot.",
+      "uses": [
+        "bulk-update-body",
+        "no-create-or-url-call"
       ]
     }
   ],
@@ -198,6 +215,249 @@
           ]
         }
       ]
+    },
+    "api-calls": {
+      "statement": "Three calls under Shadow IT Report in the ZIA API reference read and update cloud applications and their tags: GET /cloudApplications/lite lists predefined and custom cloud applications, each by ID and name, a page at a time (pageNumber starts at 0, and limit, the page size, defaults to 1000); PUT /cloudApplications/bulkUpdate updates the status and tags of the applications whose IDs it names; and GET /customTags lists the custom tags available to assign, each by ID and name. A 2023 release added all three.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1lite/get",
+          "expect": {
+            "description": "Gets the list of predefined and custom cloud applications",
+            "tags": [
+              "Shadow IT Report"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1lite/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "id": {
+              "description": "Unique identifier of the cloud application",
+              "format": "int32",
+              "type": "integer"
+            },
+            "name": {
+              "description": "The name of the cloud application",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1lite/get/parameters/[name=pageNumber]",
+          "expect": {
+            "description": "Specifies the page number. The numbering starts at 0."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1lite/get/parameters/[name=limit]",
+          "expect": {
+            "description": "Specifies the maximum number of cloud applications that must be retrieved in a page",
+            "schema": {
+              "default": 1000,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put",
+          "expect": {
+            "description": "Updates application status and tag information for predefined or custom cloud applications based on the IDs specified",
+            "tags": [
+              "Shadow IT Report"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customTags/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "id": {
+              "description": "Unique identifier of the custom tag",
+              "format": "int32",
+              "type": "integer"
+            },
+            "name": {
+              "description": "The name of the custom tag",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customTags/get",
+          "expect": {
+            "description": "Gets the list of custom tags available to assign to cloud applications",
+            "tags": [
+              "Shadow IT Report"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-release-upgrade-summary-2023.json",
+          "quotes": [
+            "The cloud service API includes the following new endpoints to retrieve the list of predefined and custom cloud applications, update information for the cloud applications, and retrieve the list of custom tags available to assign to the cloud applications.",
+            "PUT /cloudApplications/bulkUpdate",
+            "GET /cloudApplications/lite",
+            "GET /customTags"
+          ]
+        }
+      ]
+    },
+    "policy-list-calls": {
+      "statement": "Two calls under Cloud Applications in the ZIA API reference list the predefined and user-defined cloud applications that policies use: GET /cloudApplications/policy for DLP, Cloud App Control, Advanced Settings, Bandwidth Classes and File Type Control rules, and GET /cloudApplications/sslPolicy for SSL Inspection rules. Each returns the applications' details when groupResults is false and a count per application category when it is true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1policy/get",
+          "expect": {
+            "description": "<p>Retrieves a list of Predefined and User Defined Cloud Applications associated with the DLP rules, Cloud App Control rules, Advanced Settings, Bandwidth Classes, and File Type Control rules.</p> <p>Retrieves AppInfo when groupResults is set to false and  retrieves the application count grouped by application category when groupResults is set to true.</p>",
+            "tags": [
+              "Cloud Applications"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1sslPolicy/get",
+          "expect": {
+            "description": "<p> Retrieves a list of Predefined and User Defined Cloud Applications associated with the SSL Inspection rules.</p> <p>Retrieves AppInfo when groupResults is set to false and retrieves the application count grouped by application category when groupResults is set to true.</p>",
+            "tags": [
+              "Cloud Applications"
+            ]
+          }
+        }
+      ]
+    },
+    "bulk-update-body": {
+      "statement": "A bulk update's body names the applications by ID (applicationIds), a status (sanctionedState, whose values are UN_SANCTIONED, SANCTIONED and ANY) and the custom tags to assign (customTags, each an ID and a name).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties/applicationIds",
+          "expect": {
+            "description": "The list of cloud application IDs for which the status (sanctioned or unsanctioned) and tags have to be updated"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties/sanctionedState",
+          "expect": {
+            "description": "The cloud application status that indicates whether it is sanctioned or unsanctioned",
+            "enum": [
+              "UN_SANCTIONED",
+              "SANCTIONED",
+              "ANY"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties/customTags",
+          "expect": {
+            "description": "The list of custom tags that must be assigned to the cloud applications"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties/customTags/items/properties",
+          "expect": {
+            "id": {
+              "description": "Unique identifier of the custom tag",
+              "format": "int32",
+              "type": "integer"
+            },
+            "name": {
+              "description": "The name of the custom tag",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "sdk-calls": {
+      "statement": "Both SDKs make these calls from their shadow IT report module: the Go package shadowitreport (GetAllCloudAppsLite, Update and GetAllCustomTags) and the Python module shadow_it_report (list_apps, bulk_update and list_custom_tags). Python's bulk_update requires a status (sanctioned, unsanctioned or any, sent as SANCTIONED, UN_SANCTIONED or ANY) and always sends it, so an update of tags alone from Python also writes a status; it takes the custom tags as a list of tag IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/shadowitreport/shadowit_report.go",
+          "quotes": [
+            "func GetAllCloudAppsLite(ctx context.Context, service *zscaler.Service, pageNumber, limit *int) ([]CloudApplicationsAndCustomTags, error) {",
+            "endpoint := cloudApplicationsEndpoint",
+            "// Update sends a PUT request to perform bulk updates for cloud applications",
+            "resp, err := service.Client.UpdateWithPut(ctx, appBulkUpdateEndpoint, *rules)",
+            "func GetAllCustomTags(ctx context.Context, service *zscaler.Service) ([]CloudApplicationsAndCustomTags, error) {",
+            "err := service.Client.Read(ctx, customTagsEndpoint, &customTags)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/shadow_it_report.py",
+          "quotes": [
+            "def list_apps(self, query_params: Optional[dict] = None) -> APIResult[List[CloudapplicationsAndTags]]:",
+            "def list_custom_tags(self) -> APIResult[List[CloudapplicationsAndTags]]:",
+            "def bulk_update(self, sanction_state: str, **kwargs) -> APIResult[dict]:",
+            "\"sanctioned\": \"SANCTIONED\",",
+            "\"unsanctioned\": \"UN_SANCTIONED\",",
+            "\"any\": \"ANY\",",
+            "custom_tag_ids (list): A list of custom tag IDs to apply to the cloud applications.",
+            "payload = {\"sanctionedState\": api_sanction_state}"
+          ]
+        }
+      ]
+    },
+    "no-create-or-url-call": {
+      "statement": "The API cannot add a custom cloud application or set its URLs: its cloud application calls list applications, bulk-update status and tags, or manage cloud app instances, and a bulk update's body has no application name or URL member. Adding a custom application and editing its URLs are done on the SaaS Applications page.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "name",
+            "urls",
+            "url"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cloudApplications~1lite",
+          "expect_absent": [
+            "post",
+            "put"
+          ]
+        }
+      ],
+      "conditions": "Rests on absence. In the captured OneAPI spec the only paths naming cloud applications are /cloudApplications/lite, /cloudApplications/policy and /cloudApplications/sslPolicy (GET), /cloudApplications/bulkUpdate (PUT) and /cloudApplicationInstances; the legacy API reference lists the same /cloudApplications paths. Neither SDK's ZIA client calls any other cloud application path at its pinned version (`grep -rhoE '/cloudApplication[A-Za-z/{}]*' zscaler/zia` finds only lite, bulkUpdate, policy, sslPolicy and the instance paths). The Go package endpoint_dlp/endpoint_custom_apps creates Endpoint DLP custom applications (/endPointApplications/customApp), a different object. A newer API version may add a create call.",
+      "derived_from": [
+        "columns-and-editing",
+        "saas-applications-page"
+      ]
     }
   },
   "gaps": {
@@ -205,7 +465,7 @@
       "kind": "semantic",
       "title": "What the Unclassified and Under Review application statuses mean",
       "status": "open",
-      "detail": "The status filter on the SaaS Applications page offers All, Sanctioned, Unsanctioned, Unclassified and Under Review. The page defines only Sanctioned and Unsanctioned, and the edit drawers offer only those two.",
+      "detail": "The status filter on the SaaS Applications page offers All, Sanctioned, Unsanctioned, Unclassified and Under Review. The page defines only Sanctioned and Unsanctioned, and the edit drawers offer only those two. The API's sanctionedState values are UN_SANCTIONED, SANCTIONED and ANY; none is named Unclassified or Under Review.",
       "resolves_with": [
         "source-read",
         "tenant-data"
@@ -220,6 +480,74 @@
         "source-read",
         "lab-test"
       ]
+    },
+    "bulk-update-semantics": {
+      "kind": "semantic",
+      "title": "What a bulk update does with existing tags, and what sanctionedState ANY does on a write",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "planning a tag or status change through the API",
+      "detail": "The API reference describes customTags as the tags that must be assigned, without saying whether they replace an application's tags or are added to them. It lists ANY among the sanctionedState values without saying what setting it does."
+    }
+  },
+  "divergences": {
+    "lite-page-parameter-case": {
+      "summary": "Name of the page-number query parameter on GET /cloudApplications/lite",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1cloudApplications~1lite/get/parameters/[name=pageNumber]",
+            "expect": {
+              "in": "query"
+            }
+          },
+          "says": "The API reference names the parameter pageNumber."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/shadowitreport/shadowit_report.go",
+            "quotes": [
+              "queryParams.Add(\"PageNumber\", strconv.Itoa(*pageNumber))"
+            ]
+          },
+          "says": "The Go SDK's GetAllCloudAppsLite sends it as PageNumber."
+        }
+      ],
+      "impact": "If the API matches parameter names exactly, a page number passed to the Go call is not applied. No source says whether the match ignores case."
+    },
+    "bulk-update-tag-shape": {
+      "summary": "Shape of each custom tag in a bulk update's customTags",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1cloudApplications~1bulkUpdate/put/requestBody/content/application~1json/schema/properties/customTags/items/properties/id",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "says": "The API reference types each tag's id as an integer, beside a name."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/shadow_it_report.py",
+            "quotes": [
+              "return [{\"id\": str(id)} for id in id_list]"
+            ]
+          },
+          "says": "The Python SDK's bulk_update sends each tag as an id string with no name."
+        }
+      ],
+      "impact": "A request built from the Python SDK differs from the reference's shape. No source says whether the API accepts a string ID or a tag without its name."
     }
   }
 }
