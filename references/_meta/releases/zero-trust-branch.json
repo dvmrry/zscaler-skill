@@ -13,9 +13,9 @@
   "ztb-release-upgrade-summary-2026.json": {
    "title": "Release Upgrade Summary (2026)",
    "url": "https://help.zscaler.com/zero-trust-branch/release-upgrade-summary-2026",
-   "captured_at": "2026-11-12",
-   "releases": 12,
-   "entries": 13
+   "captured_at": "2026-11-13",
+   "releases": 11,
+   "entries": 12
   }
  },
  "releases": [
@@ -24,72 +24,14 @@
    "page": "ztb-release-upgrade-summary-2026.json",
    "entries": [
     {
-     "status": "Feature in Limited Availability",
+     "status": "Feature Available",
      "title": "Zero Trust Branch 8.0.8-P5d",
      "body": [
       "# Resolved Issues",
       "The following appliance issues were resolved as part of the Zero Trust Branch 8.0.8-P5d release:",
-      "- Fixed an issue where IPSec tunnels were deleted after a complete WAN outage where the network poller had previously crashed or restarted. There is configuration retention of the last-known good IPSec state so that the internal state of the appliance's IPSec tunnel is restored when a poller restarts. The fix includes changes to the appliance.",
+      "- Fixed an issue where IPSec tunnels were deleted after a complete WAN outage where the network poller had previously crashed or restarted. Configuration retention of the last-known good IPSec state restores the internal state of the appliance's IPSec tunnel when a poller restarts. The fix includes changes to the appliance.",
       "- Fixed an issue where abrupt power disconnection and restoration corrupted or truncated the iptable backup files, discarding necessary rules. Rule reconciliation was added to better handle iptable rule issues caused by corruption or truncation. This fix includes changes to the appliance.",
-      "- Fixed an issue where if the poller restarted and a WAN link flapped, the IPSec route pointed to a stale route. This caused traffic headed to Zscaler through the IPSec tunnel to fail. The handling was improved, so that stale IPSec routes are not created under these conditions. The fix includes changes to the appliance."
-     ]
-    }
-   ]
-  },
-  {
-   "date": "2026-11-06",
-   "page": "ztb-release-upgrade-summary-2026.json",
-   "entries": [
-    {
-     "status": "Feature in Limited Availability",
-     "title": "Zero Trust Branch 8.1.2-P2",
-     "body": [
-      "Zero Trust Branch 8.1.2 includes all features introduced in 8.1.1. If you are upgrading from a version prior to 8.1.1, review the Zero Trust Branch 8.1.1 Release Notes before upgrading to assess potential impacts to your environment, especially the automatic advertisement for IP-based application segments to the LAN-side Layer 3 appliances.",
-      "# New Features and Enhancements",
-      "The following enhancements were added as part of the Zero Trust Branch 8.1.2-P2 release:",
-      "## Optimized Load Balancing between Private Access Cloud and App Connectors",
-      "Added more entropy information from Zero Trust Branch appliances, enabling Private Access (ZPA) cloud to smoothly distribute traffic over multiple App Connectors. Previously, private application traffic originating from multiple Zero Trust Branch appliances converged on a single App Connector.",
-      "## Usability and RASS Enhancements",
-      "The following usability and Remote Access Service Segmentation (RASS) enhancements were added as part of the Zero Trust Branch 8.1.2-P2 release:",
-      "### ZCLI Commands to Enable/Disable WANMon Fast Convergence",
-      "Added the following set of Zscaler Command Line Interface (ZCLI) commands to enable/disable fast convergence for WAN Link Monitoring (WANMon):",
-      "- config wanmon fast-convergence enable",
-      "- config wanmon fast-convergence disable",
-      "- show wanmon status",
-      "When the change needs to be applied immediately, use the optional --restart flag as follows:",
-      "- config wanmon fast-convergence enable --restart",
-      "- config wanmon fast-convergence disable --restart",
-      "### Traffic Log Export from Management VRF",
-      "Added the ability to export the appliance traffic logs from management Virtual Routing and Forwarding (VRF), whereas previously traffic logs were exported only from WAN interfaces.",
-      "### Log Throttling Setting Renamed",
-      "Previously labeled “Disable Log Throttling” in the Add Policy drawer on the Security Policy page, this setting has been renamed to “Log Throttling.” Choose Enabled to turn on log throttling.",
-      "See Image.",
-      "# Resolved Issues",
-      "## Zero Trust Branch SD-WAN",
-      "The following SD-WAN issues were resolved as part of the Zero Trust Branch 8.1.2-P2 release:",
-      "- Fixed an issue where users encountered provisioning template errors when activating Datagram Transport Layer Security (DTLS) tunnels if the template name was greater than 128 characters. The back end allows DTLS tunnels to be activated with longer location names. The fix includes changes to the back end.",
-      "- Fixed an issue where incoming AppC traffic received by an on-standby WAN did not reach the app on the active appliance's LAN, due to missing routes or improper PBR rules. Routes and PBR rules properly route LAN to WAN and WAN to LAN private application access. The fix includes changes to the appliance.",
-      "- Fixed an issue where IPSec tunnels were deleted after a complete WAN outage where the network poller had previously crashed or restarted. There is configuration retention of the last-known good IPSec state so that the internal state of the appliance's IPSec tunnel is restored when a poller restarts. The fix includes changes to the appliance.",
-      "- Fixed an issue where the UDP response was truncated and the Transmission Complete (TC) bit was set, when DNS responses contained many DNS service records (SRV records). This created unresolved DNS queries. The DNS proxy falls back to TCP if the response is truncated and the TC bit is set, and it no longer caches such information locally, forcing retransmission or fallback. The fix includes changes to the appliance.",
-      "- Fixed an issue where PBR cleanup removed active DTLS route tables due to a failed IPSec reconciliation arising from a misconfigured forwarding policy. Cleanup prevents the last-known good DTLS PBR configuration for the appliance from being removed during failures due to partial reconciliation. The fix includes changes to the appliance.",
-      "## Zero Trust Branch Platform",
-      "The following Zero Trust Branch platform issues were resolved as part of the Zero Trust Branch 8.1.2-P2 release:",
-      "- Fixed an issue where users could not delete a VRF instance when it was associated with an untagged VLAN interface, due to an incorrect configuration template. The appliance handles the configuration template for untagged interfaces associated with VRF instances. The fix includes changes to the appliance.",
-      "- Fixed an issue where VRF-assigned interfaces ignored user-provided IP addresses when interfaces were configured with different IP addresses than the subnet start IP address. The appliance uses the user-provided IP address as the interface IP address. The fix includes changes to the appliance.",
-      "- Fixed an issue during RMA where the replacement appliance sometimes did not retain the NAT configuration of the replaced appliance. The back end retains the NAT configuration after RMA. The fix includes changes to the back end.",
-      "- Fixed an issue where the RMA process deleted all associated PBR rules and policies when an appliance was decommissioned, incorrectly disabling the policies when they were subsequently reassigned to the replacement appliance. The back end preserves PBR and security rules after RMA. The fix includes changes to the back end.",
-      "- Fixed an issue where, after RMA, new appliances did not populate the necessary configuration, resulting in DTLS tunnels not forming due to DTLS configuration, certificate, and provisioning failures. RMA logic retains DTLS resource mapping from the previous appliance. The fix includes changes to the back end.",
-      "- Fixed an issue where if the poller restarted and a WAN link flapped, the IPSec route pointed to a stale route. This caused traffic headed to Zscaler through the IPSec tunnel to fail. The handling was improved, so that stale IPSec routes are not created under these conditions. The fix includes changes to the appliance.",
-      "## Usability and RASS",
-      "The following usability and RASS issues were resolved as part of the Zero Trust Branch 8.1.2-P2 release:",
-      "- Fixed an issue where the serial number drop-down menu for site deployment showed no more than 10 serial numbers. The drop-down menu shows as many serial numbers as are applicable. The fix includes changes to the UI.",
-      "- Fixed an issue where WANMon scores did not trigger main route table route changes in version 8.1.2-P1. The main route table is correctly updated for WANMon-triggered route updates. The fix includes changes to the appliance.",
-      "- Fixed an issue where retained IP addresses on standby appliances' VLAN interfaces caused OSPF state flapping if the appliance was newly activated. The interface configuration in the routing system updates appropriately to reflect the interface IP address based on the current appliance role. The fix includes changes to the appliance.",
-      "- Fixed an issue where primary WAN deployments with VLAN tags looked for the WAN IP address on the parent interface instead of the VLAN subinterface, leading to a lack of site IP address visibility, limited debugging capability, and limited telemetry during activation and startup. Appliances correctly detect the subinterface WAN IP address. The fix includes changes to the appliance.",
-      "- Fixed an issue where appliances generated continuous duplicate alarms when a PBR rule was configured with an invalid or unreachable nexthop appliance under a balanced (i.e., ECMP) policy. Alarm throttling has been added for misconfiguration-driven alarms. The fix includes changes to the appliance.",
-      "- Fixed an issue where a Zero Trust Branch AppC container uses a loopback IP address (127.0.0.1) as the source IP address for DNS queries. Loopback (lo) was added back to the local-interface-ip object. The fix includes changes to the appliance.",
-      "- Fixed an issue where appliance traffic went to a previously programmed server location after switching from a server location to a workload location. Appliances receive the new IPSec configuration from the back end. The fix includes changes to the back end.",
-      "- Fixed an issue where appliances went into a Pending activation state after rebooting due to long hostnames. Appliances reboot without the issue. The fix includes changes to the appliance."
+      "- Fixed an issue where, if the poller restarted and a WAN link flapped, the IPSec route pointed to a stale route. This caused Zscaler-bound traffic via the IPSec tunnel to fail. The handling was improved, so that stale IPSec routes are not created under these conditions. The fix includes changes to the appliance."
      ]
     }
    ]
