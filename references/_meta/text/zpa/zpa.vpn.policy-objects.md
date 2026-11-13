@@ -5,7 +5,7 @@ IP address objects are reusable components that organize network resources and, 
 
 **IP address objects.** The Configuring page says an IP address object groups and manages static IP addresses and subnets under a single name. It takes IP addresses, at most 64 IP addresses or IP subnets, which can be imported with Import LAN/Client Subnets, and a Name. [zpa.vpn.policy-objects:ip-object-fields] Whether an IP address object can hold FQDNs differs between the two pages [divergence:zpa.vpn.policy-objects:ip-object-fqdn].
 
-**IdP attribute objects.** An IdP attribute object can be built on a single attribute or multiple attributes from the same IdP, or a combination of attributes spanning different IdPs, and takes a Name and a Description. Creating an object for identity rules lets those rules be applied across multiple policies. [zpa.vpn.policy-objects:idp-object-fields]
+**IdP attribute objects.** An IdP attribute object takes a Name and an optional Description. Creating an object for identity rules lets those rules be applied across multiple policies. [zpa.vpn.policy-objects:idp-object-fields]
 
 The rules that use these objects are in [VPN access policy rules: source, destination, default block, rule order and limits](kb:zpa.vpn.access-policy) and the hub is [ZPA VPN (for Legacy Apps): what it is, its components and where each question goes](kb:zpa.vpn).
 

@@ -175,7 +175,7 @@
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "Edit Rule Order: All parent rules are evaluated. If multiple rules match, the rule with the most restrictive action and highest rule order is applied. Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match."
+            "search for rule labels. - Rule Order: All parent rules are evaluated. If multiple rules match, the rule with the most restrictive action and highest rule order is applied. Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match."
           ]
         }
       ]
@@ -210,7 +210,7 @@
       ]
     },
     "exception-rules": {
-      "statement": "Exception rules are child rules that exclude specific users or groups that must perform tasks as part of a necessary workflow. A parent outbound email rule can have up to 32 exception rules, each inherits the parent's rule name, which cannot be changed, and takes its own Exception Rule Name. A disabled exception rule keeps its place in the rule order and the service skips it.",
+      "statement": "Exception rules are child rules that exclude specific users or groups that must perform tasks as part of a necessary workflow. A parent outbound email rule can have up to 32 exception rules, each inherits the parent's rule label, which cannot be changed, and takes its own Rule Name. A disabled exception rule keeps its place in the rule order and the service skips it.",
       "tier": "A",
       "evidence": [
         {
@@ -219,7 +219,7 @@
           "quotes": [
             "You can also create exception rules, which are child rules that allow you to exclude specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate outbound email policy.",
             "You can add up to 32 exception rules to any outbound email policy parent rule.",
-            "Rule Name: This field is inherited from the parent rule and cannot be changed.",
+            "Rule Label: The Rule Label setting is inherited from the parent rule and cannot be changed for an exception rule.",
             "Exception Rule Name: Enter a name for the exception rule.",
             "Rule Status: An enabled exception rule is actively enforced. A disabled exception rule is not actively enforced but does not lose its place in the rule order; the service skips it and moves to the next exception rule."
           ]
@@ -236,8 +236,9 @@
           "quotes": [
             "Select where to send the email to the Zscaler smart host via Simple Mail Transfer Protocol (SMTP) for DLP inspection:",
             "SMTP Smarthost",
-            "Select the Email Tenants from the drop-down menu."
-          ]
+            "In the Email Tenants drop-down menu, select up to 8 email tenants from the drop-down menu."
+          ],
+          "after": "6. Define your policy rules. 1. From the navigation menu, go to Data Security > Email DLP > Outbound Email Controls. 2. Click Add Rule."
         },
         {
           "source": "zscaler-help",
@@ -316,14 +317,14 @@
       ]
     },
     "content-locations": {
-      "statement": "A rule specifies where the service looks for sensitive data: Email Attachments, Email Body or Email Subject.",
+      "statement": "A rule specifies where the service looks for sensitive data: Email Attachments, Email Body, Email Headers, or Email Subject.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "Content Locations: Specify the where the Zscaler service should look for sensitive data (i.e., Email Attachments, Email Body, or Email Subject)."
+            "Content Locations: Specify the where the Zscaler service should look for sensitive data (i.e., Email Attachments, Email Body, Email Headers, or Email Subject)."
           ],
           "after": "- 6. Define your policy rules."
         },
@@ -368,17 +369,17 @@
       ]
     },
     "recipient-criteria": {
-      "statement": "A rule can select up to 8 email recipient domain profiles and up to 8 email recipient profiles. Recipient Scope and Threshold selects which recipient fields are subject to the external recipient limits and the minimum number of external recipients required to trigger the policy, and appears only when the Evaluation Mode is Outlook Add-in.",
+      "statement": "A rule can select up to 8 email recipient domain profiles or up to 8 email recipient profiles, but not both. Recipient Scope and Threshold selects which recipient fields are subject to the Recipients Threshold Value and the minimum number of recipients required to trigger the policy, and appears only when the Evaluation Mode is Outlook Add-in.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "Email Recipient Domain Profile: Select up to 8 domain profiles to which this rule applies.",
-            "Email Recipient Profile: Select up to 8 recipient profiles to which this rule applies.",
-            "Recipient Scope and Threshold: Select which recipient fields are subject to the limits set using the external recipient drop-down and specify the minimum number of external recipients required to trigger the policy.",
-            "This condition only appears when you set the Evaluation Mode to Outlook Add-in."
+            "Email Recipient Domain Profiles: Select up to 8 domain profiles to which this rule applies.",
+            "Email Recipient Profiles: Select up to 8 recipient profiles to which this rule applies.",
+            "Recipient Scope: Select the message fields (i.e., BCC, CC, TO) that are limited by the number you specify in the Recipients Threshold Value field. - Recipients Threshold Value: Specify the minimum number of recipients for each of the message fields selected in the Recipient Scope drop-down menu that trigger the rule.",
+            "Recipient Scope and Threshold: This option is available only when you select Outlook Add-in as the Evaluation Mode."
           ],
           "after": "- 6. Define your policy rules."
         }
@@ -392,7 +393,7 @@
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals."
+            "In the When section, in the Time drop-down menu, select Always to apply this rule to all time intervals, or select up to two time intervals."
           ],
           "after": "- 6. Define your policy rules."
         }
@@ -459,14 +460,14 @@
       ]
     },
     "quarantine-release-zwa": {
-      "statement": "For Microsoft Exchange only, optional quarantine release with Zscaler Workflow Automation sends potentially sensitive emails to be quarantined on Microsoft Exchange. After quarantine, incidents are created in Workflow Automation where administrators review them and release or delete the quarantined emails.",
+      "statement": "For Microsoft Exchange only, optional quarantine release with Workflow Automation sends potentially sensitive emails to be quarantined on Microsoft Exchange. After quarantine, incidents are created in Workflow Automation where administrators review them and release or delete the quarantined emails.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "(Optional/Microsoft Exchange only) Configure quarantine release with Zscaler Workflow Automation to send potentially sensitive emails to be quarantined on Microsoft Exchange.",
+            "(Optional/Microsoft Exchange only) Configure quarantine release with Workflow Automation to send potentially sensitive emails to be quarantined on Microsoft Exchange.",
             "Post-quarantine, incidents are created in Workflow Automation where administrators can review the incidents and release or delete the quarantined emails."
           ]
         }
@@ -480,8 +481,8 @@
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.",
-            "Cloud-to-Cloud Forwarding: Select the applicable tenant and Cloud-to-Cloud Forwarding configuration from the drop-down menus. You must configure Cloud-to-Cloud Forwarding to complete this step."
+            "Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the Zscaler Incident Receiver drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.",
+            "Cloud-to-Cloud Forwarding: Select the applicable Tenant and Cloud-to-Cloud Forwarding Configuration from the drop-down menus. You must configure Cloud-to-Cloud Forwarding to complete this step."
           ],
           "after": "- 6. Define your policy rules."
         },
@@ -502,7 +503,7 @@
           "source": "zscaler-help",
           "path": "zia-configuring-outbound-email-policy-rules.json",
           "quotes": [
-            "If you do not select an auditor and notification template, a notification is not sent for this rule.",
+            "If you do not select an auditor and notification template, the Zscaler service doesn't send a notification for this rule.",
             "Auditor Type: Select whether the auditor is from a Hosted database or External to your organization.",
             "Auditor Email Address: If the auditor is external, enter the auditor’s email address."
           ],
