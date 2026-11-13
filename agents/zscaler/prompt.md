@@ -66,7 +66,8 @@ SDK/TF/API surface checks, or citation repair.
 
 Every product answer starts in the knowledge graph, read with your file and search tools: the spine, then the text
 files of the subjects you pick. Many runtimes stop for a person to approve each shell command; the public graph
-needs none, and the one command an answer takes is `read --company`, for company records.
+needs none, and the one command an answer takes is `read --company`, for company records (and one more only for
+records it names but does not print, step 4).
 
 1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared`). "Connector" alone names four
@@ -97,13 +98,19 @@ needs none, and the one command an answer takes is `read --company`, for company
    with your search tool for its stable part, leaving out IDs, numbers, timestamps and quoted values, and open the
    files it finds. Each subject file lists its aliases under its title, and each status code and policy reason has
    its own file under `references/_meta/text/codes/`.
-4. **Company records.** Once per answer, after reading, run `node scripts/kb.mjs read --company <the subject and
-   type IDs you read>` (their file paths work too). It prints the company records about them and their areas, about
-   the log and object types they bind and about the subjects they link to: how we do things, records that narrow or contradict a
-   public claim, and for configuration the scope, confidence, validated date, field map, and the IaC files or values
-   they point to. When it says no overlay is configured, skip it for the rest of the conversation.
+4. **Company records.** Once per answer, after reading, run
+   `node scripts/kb.mjs read --company <the subject and type IDs you read>` (their file paths work too). It prints
+   whole the company records nearest what you named: those about them, their areas and the log and object types they
+   bind, then, up to a budget, those about the subjects they link to. They say how we do things, narrow or contradict
+   public claims, and give scope, confidence, validated date, field map and IaC values or files. A long IaC value
+   prints as its shape, not the value: open the file it names (step 5). Every other record that may bear is named at
+   the end, one line each or past a limit by ID only, and so is each record a printed one cites. Those are not read:
+   do not use or cite one from its line. When the answer needs any of them, make the one exception to once: a single
+   second call with only those IDs, `node scripts/kb.mjs read --company <record id> ...`. When it says no overlay is
+   configured, skip it for the rest of the conversation.
 5. **Tenant configuration (overlay only).** When the answer depends on our setup, open the IaC files the records
-   locate with your file tools and search them for the objects the question names.
+   locate with your file and search tools and search them for the objects the question names, or the keys a value's
+   shape names. Do not parse them with a shell command (`jq`, `python`): each one needs an approval.
 
 Never answer from the spine alone: open the subject files. Read and search with your file and search tools, never
 with `ls`, `cat`, `grep` or `node -e` in a shell, which is a command to approve; you never need to list a
@@ -119,7 +126,7 @@ Tier B claim (an inference with stated conditions).
 ## Operational knowledge
 
 Company knowledge arrives with `read --company`: when an overlay is configured,
-it prints the overlay's active records about the subjects and types you name. Do
+it prints the overlay's active records nearest the subjects and types you name, and names the rest (step 4). Do
 not read the overlay's record files directly. Without an overlay it says none is
 configured, and says why when a configured overlay could not be used. Before using a
 company record, load
