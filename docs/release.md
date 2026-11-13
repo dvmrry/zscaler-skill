@@ -13,12 +13,27 @@ merge publishes them as they were reviewed. zscalerctl releases the same way.
 `node scripts/check-release-state.mjs` fails when these disagree, or when the repository already has a newer
 semantic-version tag.
 
+## Which changes release
+
+A pull request that changes anything the skill's users get releases a version, in that same pull request. That
+covers the knowledge graph and its generated layers under `references/`, the agent workflows and adapters, `SKILL.md`,
+`AGENTS.md`, the README and user docs, the scripts agents and overlay authors run, and the vendored sources. Only
+a pull request that changes nothing shipped carries `no-release`: CI and repository config, tests, gates, the
+refresh, capture, eval and release tooling, generators, and the maintainer docs.
+
+`scripts/release-scope.mjs` holds the list of what does not ship. Every other path ships, so a new file releases
+until it is added to that list. The `release-notes` check fails a `no-release` pull request that changes a shipped
+file, and lists the files.
+
+The refresh and dependency bots (the knowledge-graph refresh, Renovate, Dependabot) are the one exception. They
+open their pull requests with `no-release` and cannot write notes, so their changes ship in the next release.
+
 ## Which number changes
 
 The project is pre-1.0. A change that breaks a contract bumps the minor version. Contracts are the record schemas
 under `references/_meta/schema/`, the overlay layout, `kb.mjs` commands and their output, and public IDs that a
-company record can name. So does a release that adds a body of knowledge or a workflow. Fixes and refreshes bump
-the patch version.
+company record can name. A change that adds a body of knowledge or a workflow also bumps the minor version.
+Everything else that ships bumps the patch version: new or corrected claims, fixes, adapter wording and docs.
 
 ## Releasing
 

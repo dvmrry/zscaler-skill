@@ -3,6 +3,8 @@ name: release-notes
 # Every pull request either adds the next version's notes, docs/releases/vX.Y.Z.md, or carries the no-release
 # label. scripts/release-version.sh decides which; the release workflow runs the same script on the merge, so
 # what merges is what review saw. See docs/release.md.
+# A change that ships files to the skill's users (scripts/release-scope.mjs) must release; only the refresh and
+# dependency bots may label such a change no-release.
 
 on:
   pull_request:
@@ -31,6 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
+          AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
         run: |
           set -euo pipefail
           # Read the labels now, not from the event: a bot opens its pull request and labels it a moment later, so
@@ -44,5 +47,15 @@ jobs:
           if [[ "$version" != "none" && "$NO_RELEASE" == "true" ]]; then
             echo "::error::this change adds the notes for $version but carries the no-release label"
             exit 1
+          fi
+          # no-release is only for a change that ships nothing (scripts/release-scope.mjs). The refresh and
+          # dependency bots are the exception: their changes ship in the next release.
+          if [[ "$NO_RELEASE" == "true" && "$AUTHOR_TYPE" != "Bot" ]]; then
+            shipped="$(node scripts/release-scope.mjs HEAD^1 HEAD)"
+            if [[ -n "$shipped" ]]; then
+              echo "::error::this change ships files to the skill's users, so it releases a version: add docs/releases/vX.Y.Z.md and bump VERSION, pyproject.toml and uv.lock, and drop the no-release label"
+              printf '%s\n' "$shipped"
+              exit 1
+            fi
           fi
           echo "release decision: $version"
