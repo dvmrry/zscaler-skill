@@ -12,6 +12,8 @@ Former IDs: zia-54
 
 **Duplicating a rule.** The Go SDK's `CreateDuplicate` cannot send a request, so it is not a way to clone a rule: [ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input](kb:zia.sdk-go.service-defects). The Python SDK has a working-shaped duplicate call: `add_duplicate_rule` posts to /webApplicationRules/{rule_type}/duplicate/{rule_id} with the new name as the `name` query parameter and the rule fields as the body. [zia.cloud-app-control.api-surface:python-duplicate-exists] MCP server issue #76 asked for `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` because the build the reporter tested exposed `zia_list_cloud_app_control_actions` but no tool to read configured Cloud App Control rules; it was closed as completed on 2026-06-03 with a reply from a member of the repository's organization, signed Zscaler DevRel, that both tools already shipped in v0.11.0. [zia.cloud-app-control.api-surface:mcp-read-rules-tools-request]
 
+Listing cloud applications and custom tags, and bulk-updating applications' status and tags, are in [SaaS Applications page: application status, tags and custom cloud applications](kb:zia.cloud-app-control.custom-applications).
+
 What to check:
 1. Whether an app's flags explain unexpected behavior under a rule, used only as a lead, since their meaning is not documented.
 2. Whether to clone a rule with the Python duplicate call, or to read the rule and create a new one with the scope changed.
@@ -48,6 +50,7 @@ Linked (open a file only if the answer needs it):
 - interacts-with references/_meta/text/zia/zia.ssl-inspection.pipeline.md (Where SSL inspection sits in ZIA web policy evaluation (the two passes)), from zia.cloud-app-control: For traffic that is not decrypted, including destinations covered by the one-click options, Cloud App Control can use only the domain-level information from the first pass (CONNECT host or SNI), so it has less to identify the application with than for decrypted traffic. [zia.cloud-app-control.ssl-visibility:domain-level-only-when-not-decrypted]
 - interacts-with references/_meta/text/zia/zia.url-filtering.md (ZIA URL Filtering), from zia.cloud-app-control: By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire. [zia.cloud-app-control.precedence:cac-allow-skips-url-filtering]
 - links-to references/_meta/text/zia/zia.cloud-app-control.actions.md (Cloud App Control actions and action discovery)
+- links-to references/_meta/text/zia/zia.cloud-app-control.custom-applications.md (SaaS Applications page: application status, tags and custom cloud applications)
 - links-to references/_meta/text/zia/zia.sdk-go.service-defects.md (ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input)
 
 Configured via and see also (open one only if the answer needs it):
