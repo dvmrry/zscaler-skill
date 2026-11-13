@@ -194,9 +194,10 @@ private source.
 ## Configure the overlay
 
 Tenant-specific answers come from three tiers (see `SKILL.md` "Answer tiers"):
-the knowledge graph (the spine under `references/_meta/spine/`, then
-`node scripts/kb.mjs read <area | subject | type#field>`: public subjects plus
-the company overlay's records), the overlay's IaC when its `overlay.json`
+the knowledge graph (the spine under `references/_meta/spine/`, then the
+subjects' and types' text under `references/_meta/text/`, both read with file
+tools, then `node scripts/kb.mjs read --company <subject | type>` for the
+company overlay's records), the overlay's IaC when its `overlay.json`
 declares `iac`, and live read-only
 [`zscalerctl`](https://github.com/dvmrry/zscalerctl) when it declares `live`.
 The overlay lives at `$ZSCALER_KB_OVERLAY` or `<mount>/overlay/` (see

@@ -32,9 +32,10 @@ needed.
 
 When a question needs tenant facts, use this order:
 
-1. **Knowledge** — the spine under `references/_meta/spine/`, then
-   `node scripts/kb.mjs read <area | subject | type#field>` (public subjects plus
-   the company overlay's records, with the IaC repos the overlay lists).
+1. **Knowledge** — the spine under `references/_meta/spine/`, then the
+   subjects' and types' text under `references/_meta/text/` (file reads), then
+   `node scripts/kb.mjs read --company <subject | type>` (the company overlay's
+   records, with the IaC repos the overlay lists).
 2. **IaC** — the overlay's IaC files, when `overlay.json` declares `iac`. The
    normal fast path; it reflects the last backfill.
 3. **Explicit fresh command output** — user-provided `zscalerctl --format json`
