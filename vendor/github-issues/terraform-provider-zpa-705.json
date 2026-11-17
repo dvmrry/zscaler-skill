@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "`zpa_scim_groups` data source fails: `json: cannot unmarshal string into Go struct field ScimGroup.list.id of type int64`",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zpa/issues/705",
+    "repo": "zscaler/terraform-provider-zpa",
+    "number": 705,
+    "state": "closed",
+    "created_at": "2026-11-16",
+    "updated_at": "2026-11-17",
+    "labels": [
+      "type/bug",
+      "⚙️ In development"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-11-17",
+    "updated": "2026-11-17",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-11-17",
+  "blocks": [
+    {
+      "heading": "`zpa_scim_groups` data source fails: `json: cannot unmarshal string into Go struct field ScimGroup.list.id of type int64`",
+      "level": 1
+    },
+    {
+      "heading": "Summary",
+      "level": 3
+    },
+    {
+      "text": "Since sometime between Nov 9 and Nov 16, 2026, every `zpa_scim_groups` data source lookup in our configuration fails during plan with:"
+    },
+    {
+      "code": "Error: json: cannot unmarshal string into Go struct field ScimGroup.list.id of type int64\n\n  with data.zpa_scim_groups.policy_groups[\"<group-name>\"],\n  on data-sources.tf line 27, in data \"zpa_scim_groups\" \"policy_groups\":\n  27: data \"zpa_scim_groups\" \"policy_groups\" {"
+    },
+    {
+      "text": "One error is raised per group looked up. Our configuration and provider version did not change between the last passing plan (Nov 9) and the first failing plan (Nov 16), which suggests the ZPA SCIM group API now returns `id` as a JSON string instead of a number."
+    },
+    {
+      "heading": "Versions",
+      "level": 3
+    },
+    {
+      "item": "Terraform: 1.9.8",
+      "depth": 0
+    },
+    {
+      "item": "zscaler/zpa provider: 4.4.17",
+      "depth": 0
+    },
+    {
+      "item": "zscaler-sdk-go: as bundled with the provider above",
+      "depth": 0
+    },
+    {
+      "item": "Run environment: Terraform Cloud (remote execution)",
+      "depth": 0
+    },
+    {
+      "heading": "Configuration",
+      "level": 3
+    },
+    {
+      "code": "data \"zpa_scim_groups\" \"policy_groups\" {\n  for_each = local.all_scim_group_names\n  name     = each.value\n  idp_name = \"<idp-name>\"\n}"
+    },
+    {
+      "heading": "Expected behavior",
+      "level": 3
+    },
+    {
+      "text": "The data source resolves each SCIM group by name, as it did through Nov 9."
+    },
+    {
+      "heading": "Actual behavior",
+      "level": 3
+    },
+    {
+      "text": "The provider fails to decode the API response because `ScimGroup.ID` is declared as `int64`:"
+    },
+    {
+      "text": "https://github.com/zscaler/zscaler-sdk-go/blob/master/zscaler/zpa/services/scimgroup/zpa_scim_group.go#L21"
+    },
+    {
+      "code": "ID int64 `json:\"id,omitempty\"`"
+    },
+    {
+      "text": "The field has been `int64` since v3.0.0 and was not changed by any recent SDK or provider release, so the change appears to be server-side. I found no open issue or branch in this repo or in `zscaler-sdk-go` that addresses it."
+    },
+    {
+      "heading": "Suggested fix",
+      "level": 3
+    },
+    {
+      "text": "Accept `id` as either a JSON string or a number in the SDK's `ScimGroup` struct (for example, a custom type with a tolerant `UnmarshalJSON`, or `json.Number`), then bump the SDK in the provider. Other `int64` fields on the same struct (`creationTime`, `modifiedTime`, `idpId`) may be affected by the same API change and are worth checking."
+    },
+    {
+      "heading": "Impact",
+      "level": 3
+    },
+    {
+      "text": "This blocks every plan in workspaces that use `zpa_scim_groups`, including plans unrelated to ZPA."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-11-17)",
+      "level": 2
+    },
+    {
+      "text": "Upgrade to v4.4.18"
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}
