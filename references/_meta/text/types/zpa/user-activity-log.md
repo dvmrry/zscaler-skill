@@ -36,7 +36,7 @@ Also called: zpn_trans_log; user activity log; zpa access log; lss user activity
 - PRAApprovalID integer: The privileged approval ID (LSS formats: %[OPT]d %[OPT]x %[OPT]f %[OPT]o)
 - PRAConsolesPolicyID number: The consoles policy ID (LSS formats: %[OPT]d %[OPT]x %[OPT]f %[OPT]o)
 - PRAConnectionID string: The Privileged Remote Access (PRA) connection ID (LSS formats: %[OPT]s %[OPT]j %[OPT]J %[OPT]o)
-- PRAConsoleType string: The privileged console type. The expected values for this field are: RDP SSH VNC (LSS formats: %[OPT]s %[OPT]j %[OPT]J %[OPT]o)
+- PRAConsoleType string: The privileged console type. The expected values for this field are: RDP SSH VNC RealVNC (LSS formats: %[OPT]s %[OPT]j %[OPT]J %[OPT]o)
 - PRACredentialLoginType string: The login type of the privileged credential. The expected values for this field are: Username/Password SSH Key Password (LSS formats: %[OPT]s %[OPT]j %[OPT]J %[OPT]o)
 - PRACredentialPolicyID integer: The privileged credential policy ID (LSS formats: %[OPT]d %[OPT]x %[OPT]f %[OPT]o)
 - PRACredentialUserName string: The name of the user that is logged in to the target privileged console (LSS formats: %[OPT]s %[OPT]j %[OPT]J %[OPT]o)

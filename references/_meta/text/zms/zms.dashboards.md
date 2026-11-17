@@ -9,13 +9,13 @@ The Flow dashboard shows at most 10 top metrics per category and its time range 
 
 **Overview dashboard.** The Overview dashboard reports host agent status as Connected, Disconnected or Error, Kubernetes agent status as Connected or Disconnected, and licensed versus connected agents; its resource and resource-group protection panels (Protected or Unprotected) can be downloaded as CSV. [zms.dashboards:overview-status-panels] The Overview dashboard shows how many ML resource group recommendations and ML tag recommendations have been found and lets the admin review them. [zms.dashboards:overview-ml-counts]
 
-**Application Map.** By default the Application Map displays the first resource group in alphabetical order; the Resource Group filter can be reset to show all, and further filters cover timeframe and AppZone for resource groups or VPCs/VNETs. [zms.dashboards:appmap-defaults] Clicking a resource group on the Application Map shows its managed and unmanaged flows and, if applicable, offers to review policy recommendations based on those flows. [zms.dashboards:appmap-click]
+**Application Map.** The Application Map filters by Time Range (up to 14 days in the past), AppZone, Group By (resource groups or VPCs and VNETs) and Resource Group, which selects a single resource group and can be reset to load all of them. [zms.dashboards:appmap-defaults] Clicking a resource group on the Application Map shows its managed and unmanaged flows and, if applicable, offers to review policy recommendations based on those flows. [zms.dashboards:appmap-click]
 
 **Related.** Log pages behind these views are in [What the Microsegmentation Data Explorer log pages list: flow logs, aggregations, connection status, telemetry and events](kb:zms.analytics), and the recommendations reached from the map in [How Microsegmentation flow-based policy recommendations are generated, organized and accepted](kb:zms.policy-recommendations).
 
 What to check:
 1. Whether the period asked about falls inside the 1 Hour to 14 Days range of the Flow and Agent dashboards.
-2. Which resource group the Application Map is showing before reading it as the whole environment.
+2. Whether the Application Map's Resource Group filter is set to a single resource group before reading the map as the whole environment.
 
 Area: zms.dashboards, its subjects in references/_meta/spine/zms/zms.dashboards.json
 

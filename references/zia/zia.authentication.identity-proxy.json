@@ -128,17 +128,18 @@
       ]
     },
     "managed-device-detection": {
-      "statement": "A device counts as managed if its traffic is proxied through Zscaler and matches device attributes. With Authentication Service those are the Is Device Managed attributes it sends, and the option is greyed out if they are not configured there. Without it they are the Device Trust Attribute and Device Trust Attribute Value of the default IdP, and the option is greyed out if the IdP does not specify them.",
+      "statement": "Which Managed Device Detection option appears depends on the version of Authentication Service the organization uses. A device counts as managed if its traffic is proxied through Zscaler and matches device attributes. With Authentication Service for Admins and Users those are the Is Device Managed attributes it sends. With Authentication Service for Admins only they are the Device Trust Attribute and Device Trust Attribute Value of the default IdP, and the option is greyed out if the IdP does not specify them; only the default IdP's device trust attribute is used, and configuring it on an IdP that is not the default does not work.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
           "quotes": [
-            "(With Authentication Service) Is Device Managed Attribute True: Enable to identify the user devices as managed devices if their traffic is proxied via Zscaler and matches the configured Is Device Managed attributes sent by the Authentication Service.",
-            "This option is grayed out if the Is Device Managed attributes are not configured in the Authentication Service.",
-            "(Without Authentication Service) Device Trust Attribute Matches the Configured Value: Enable to identify the user devices as managed devices if their traffic is proxied via Zscaler and matches the configured device trust attributes in your default IdP.",
-            "Ensure that your default IdP configuration specifies the Device Trust Attribute and Device Trust Attribute Value fields to allow the Internet & SaaS service to identify your managed devices; otherwise, this option is grayed out."
+            "Managed Device Detection: One of the following options appears based on what version of Authentication Service your organization uses:",
+            "(With Authentication Service for Admins and Users) Is Device Managed Attribute True: Enable to identify user devices as managed devices if their traffic is proxied via Zscaler and matches the configured Is Device Managed attributes sent by Authentication Service.",
+            "(With Authentication Service for Admins only) Device Trust Attribute Matches the Configured Value: Enable to identify user devices as managed devices if their traffic is proxied via Zscaler and matches the configured device trust attributes in your default IdP.",
+            "Ensure that your default IdP configuration specifies the Device Trust Attribute and Device Trust Attribute Value fields to allow the Internet & SaaS service to identify your managed devices; otherwise, this option is grayed out.",
+            "The Zscaler service only uses the device trust attribute from the default IdP. If you attempt to configure the device trust attribute with an IdP not selected as the default, the configuration does not work."
           ]
         }
       ]
@@ -417,7 +418,7 @@
       "kind": "semantic",
       "title": "What the device identity attribute is",
       "status": "open",
-      "detail": "The unmanaged-device flow decides on the device identity attribute from the customer's IdP. The pages describe only two managed-device options, the Is Device Managed attributes (with Authentication Service) and the Device Trust Attribute and its value (without it); they do not say what the device identity attribute is beyond those.",
+      "detail": "The unmanaged-device flow decides on the device identity attribute from the customer's IdP. The pages describe only two managed-device options, the Is Device Managed attributes (with Authentication Service for Admins and Users) and the Device Trust Attribute and its value (with Authentication Service for Admins only); they do not say what the device identity attribute is beyond those.",
       "resolves_with": [
         "source-read",
         "lab-test"

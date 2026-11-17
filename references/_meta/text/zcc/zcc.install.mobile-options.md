@@ -6,7 +6,7 @@ Besides the shared enrollment keys, the iOS and Android parameter tables carry k
 ## iOS
 
 - **Per-app VPN.** For per-app VPN deployments on iOS, newBindFlow enables a multithreaded binding of Client Connector's microservices to its virtual interface (on by default), and PAVConnectionSynced delays the per-app VPN connection until Client Connector is connected (off by default). [zcc.install.mobile-options:ios-per-app-vpn]
-- **Tunnel and notification switches.** Other iOS keys, all off by default: SkipInterfaceInstallation shows the VPN icon only while the user is logged in to Client Connector (Tunnel SDK 3.7 or later); DropNonRoutingTraffic drops traffic without routes; MatchDomainsNoSearch stops Private Access match domains being appended as search domains; disableCaptivePortalNotification suppresses notifications when a captive portal is detected. [zcc.install.mobile-options:ios-switches]
+- **Tunnel and notification switches.** Other iOS keys: SkipInterfaceInstallation shows the VPN icon only while the user is logged in to Client Connector (Tunnel SDK 3.7 or later), DropNonRoutingTraffic drops traffic without routes, and disableCaptivePortalNotification suppresses notifications when a captive portal is detected, all off by default; MatchDomainsNoSearch stops Private Access match domains being appended as search domains, and on Client Connector 5.0 and later for iOS defaults to 1 (Enabled). [zcc.install.mobile-options:ios-switches]
 - **DNS.** On iOS, SystemDNSEnabled makes Client Connector resolve DNS queries that are not forwarded to the Zscaler cloud with the system DNS, falling back to Google DNS if that fails; 1 enables it and 2, the default, disables it. [zcc.install.mobile-options:ios-system-dns]
 
 ## Android and Android on ChromeOS

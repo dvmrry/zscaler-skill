@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Entitlement Orchestration for Private Access",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/entitlement-orchestration-private-access",
+    "node": "1547334",
+    "revision": "3255445",
+    "updated": "2026-11-12",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-13",
+  "blocks": [
+    {
+      "text": "Entitlement Orchestration enables customer-managed workflows to provide Just-in-Time (JIT) access to private applications. The feature dynamically updates Private Access (ZPA) local user group memberships through APIs. You can configure Private Access policies in advance to reference these local user groups, incorporating device posture and other criteria."
+    },
+    {
+      "text": "When a workflow adds a user to a mapped group, Private Access evaluates the updated membership and grants access. When the workflow removes the user, Private Access automatically revokes access without requiring manual policy modifications."
+    },
+    {
+      "text": "This approach is ideal for managing on-demand access through temporary request processes rather than permanent entitlements. Use cases include:"
+    },
+    {
+      "item": "Contractor and Third-Party Onboarding: Drive provisioning and deprovisioning automatically through ticketing or HR onboarding workflows.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Emergency Break-Glass Access: Quickly grant elevated permissions and revoke them immediately after resolving the emergency.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Project-Based Access: Enable access exclusively for the duration of a user's assignment to a specific activity or task.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Application Access Workflows: Automatically trigger group-addition and group-removal actions via APIs when an administrator approves or denies an application request.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Time-of-Day (Scheduled) Access: Restrict application access to specified business hours and automatically terminate sessions when those hours end. Use this feature to limit access to high-value or sensitive systems during operational periods, satisfy strict compliance mandates, and reduce off-hours exposure.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "heading": "How Entitlement Orchestration Works",
+      "level": 1
+    },
+    {
+      "text": "Entitlement Orchestration uses a combination of Private Access application segments, Authentication Service local user groups, and Private Access access policies. Configure application segments, user groups, and access policies in advance. User membership in a Authentication Service local user group is then used to dynamically grant or revoke access."
+    },
+    {
+      "text": "The access flow is as follows:"
+    },
+    {
+      "item": "A user requests access to a private application through your organization's internal workflow or tool.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The customer-managed entitlement workflow calls APIs to add the user to the local user group mapped to that application or application segment.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Private Access evaluates the user's updated group membership against the preconfigured access policy.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If the user meets all policy criteria (such as group membership and device posture conditions), Private Access grants access to the private application.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "When access expires or is revoked, the customer-managed workflow calls APIs to remove the user from the local user group.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Private Access reevaluates the group membership and terminates access to the application.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "The application segment and access policy remain unchanged throughout the entitlement lifecycle."
+    },
+    {
+      "heading": "Configuring Entitlement Orchestration",
+      "level": 1
+    },
+    {
+      "text": "To configure Entitlement Orchestration, complete the following steps:"
+    },
+    {
+      "item": "Step 1: Create Application Segments",
+      "depth": 0
+    },
+    {
+      "item": "Identify the private applications that require JIT access, and create the necessary Private Access application segments using your organization's naming conventions (e.g., JIT-Finance-Prod, JIT-DevOps-K8s, and JIT-Finance-SAP).",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Configuring Defined Application Segments⁠.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Create Local User Groups",
+      "depth": 0
+    },
+    {
+      "item": "Create an Authentication Service local user group for each application segment that requires JIT access. Ensure that the local user group name matches the application segment name exactly (e.g., JIT-Finance-Prod, JIT-DevOps-K8s, and JIT-Finance-SAP).",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see About User Groups.",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: Create Access Policies",
+      "depth": 0
+    },
+    {
+      "item": "Create a Private Access access policy for each application segment, and select the corresponding Authentication Service local user group as a policy criterion (e.g., Policy-JIT-Finance-Prod, Policy-JIT-DevOps-K8s, and Policy-JIT-Finance-SAP). You can optionally add posture, location, or risk score conditions to the policy.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Configuring Access Policies⁠.",
+      "depth": 0
+    },
+    {
+      "heading": "Controlling User Access",
+      "level": 1
+    },
+    {
+      "text": "After you configure the application segments, Authentication Service local user groups, and Private Access access policies, your organization's entitlement workflow controls user access by adding or removing users from the corresponding local user groups."
+    },
+    {
+      "heading": "Granting Access",
+      "level": 2
+    },
+    {
+      "text": "When the access request is approved:"
+    },
+    {
+      "item": "The workflow calls the following API endpoint to add the user to the mapped Authentication Service local user group (such as JIT-Finance-Prod): <ADD_USER_TO_GROUP_API_ENDPOINT>",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Private Access automatically evaluates the user's updated group membership along with any additional policy criteria.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If the user meets all policy requirements, Private Access grants access to the private application.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Revoking Access",
+      "level": 2
+    },
+    {
+      "text": "When access is revoked:"
+    },
+    {
+      "item": "The workflow calls the following API endpoint to remove the user from the Authentication Service local user group: <REMOVE_USER_FROM_GROUP_API_ENDPOINT>",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Private Access automatically reevaluates the access policy.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Because the user no longer meets the group-based requirement, Private Access revokes the user's access to the private application.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The application segment and access policy do not need to be modified when the user's entitlement changes."
+    }
+  ]
+}

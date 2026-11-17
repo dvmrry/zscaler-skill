@@ -9,7 +9,7 @@ The host of a live privileged session invites other users from within the sessio
 
 **Open.** How the invite flow ties to the consoles policy sharing modes, and several access and recording questions, are open [gap:zpa.pra.live-sessions:consoles-policy-tie].
 
-The consoles policy that sets Share Sessions Mode and Join Sessions Mode is in [PRA consoles policy: file transfer, clipboard, recording and sharing](kb:zpa.pra.consoles-policy); the PRA Portal itself is in [PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login](kb:zpa.pra.portals).
+The consoles policy that sets Share Sessions and Join Sessions is in [PRA consoles policy: file transfer, clipboard, recording and sharing](kb:zpa.pra.consoles-policy); the PRA Portal itself is in [PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login](kb:zpa.pra.portals).
 
 What to check:
 1. Whether the policy rule gives the user a sharing mode before looking at the invitation, since the Accessing page does not link the invite flow to it.
@@ -17,12 +17,12 @@ What to check:
 3. Whether an ejected participant was reinvited.
 
 Not known (open gaps):
-- How the invite flow relates to Share Sessions Mode and Join Sessions Mode [gap:zpa.pra.live-sessions:consoles-policy-tie]: settled by lab-test or source-read
+- How the invite flow relates to Share Sessions and Join Sessions [gap:zpa.pra.live-sessions:consoles-policy-tie]: settled by lab-test or source-read
 
 Area: zpa.pra, its subjects in references/_meta/spine/zpa/zpa.pra.json
 
 Linked (open a file only if the answer needs it):
-- decided-by references/_meta/text/zpa/zpa.pra.consoles-policy.md (PRA consoles policy: file transfer, clipboard, recording and sharing): Share Sessions Mode set to Control lets other users be invited to a session and be given mouse and keyboard control, and set to Monitor lets permitted users such as administrators join live sessions. [zpa.pra.consoles-policy:share-modes]
+- decided-by references/_meta/text/zpa/zpa.pra.consoles-policy.md (PRA consoles policy: file transfer, clipboard, recording and sharing): Share Sessions set to Control Sessions lets other users be invited to a session and be given mouse and keyboard control, and set to Monitor Sessions lets permitted users such as administrators join live sessions. [zpa.pra.consoles-policy:share-modes]
 - interacts-with references/_meta/text/zpa/zpa.browser-access.requirements.md (What Browser Access requires of the browser, server and session), from zpa.pra: SSH, RDP and VNC are not Browser Access traffic. Browser Access carries HTTP and HTTPS only, and Privileged Remote Access is the clientless path for RDP, SSH and VNC. [zpa.browser-access.requirements:non-http-use-pra]
 - decided-by references/_meta/text/zpa/zpa.pra.access-policy.md (Access policy for PRA: privileged approval, step-up and rule criteria), from zpa.pra: In an access policy rule, the Allow with Privileged Approval option is available only to tenants that have PRA and is aimed at PRA-enabled application segments. [zpa.pra.access-policy:allow-with-privileged-approval]
 - scoped-by references/_meta/text/zpa/zpa.pra.app-segments.md (PRA application segments: protocols, ports, connection security and constraints), from zpa.pra: Enabling Privileged Remote Access for an application means choosing a protocol (VNC, RealVNC, SSH or RDP) and a port; the defaults are 5900 for VNC and RealVNC, 3389 for RDP and 22 for SSH. [zpa.pra.app-segments:enable-and-defaults]

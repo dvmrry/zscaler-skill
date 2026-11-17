@@ -45,7 +45,7 @@
     },
     {
       "label": "Azure DevOps.",
-      "text": "{{ado-auth}} {{ado-params}} {{ado-entity}} {{ado-work-item}} {{ado-defaults}} {{ado-summary-required}} {{ado-three-mappings}} {{ado-webhook-scope}} {{ado-webhook}} {{preview}}"
+      "text": "{{ado-auth}} {{ado-params}} {{ado-entity}} {{ado-work-item}} {{ado-defaults}} {{ado-three-mappings}} {{ado-webhook-scope}} {{ado-webhook}} {{preview}} Whether the Summary field must be mapped before the outegration can be saved is open {{gap:ado-summary-required}}."
     },
     {
       "label": "Freshservice.",
@@ -234,7 +234,7 @@
       ]
     },
     "ado-auth": {
-      "statement": "Azure DevOps outegration authentication uses a multitenant Entra ID app registration with redirect URI https://app.avalor.io/oauth and the permissions Azure DevOps vso.project_manage and vso.work_write plus Microsoft Graph offline_access and User.Read.",
+      "statement": "Azure DevOps outegration authentication uses a multitenant Entra ID app registration with redirect URI https://app.avalor.io/oauth and the permissions Azure DevOps user_impersonation, vso.project_manage and vso.work_write plus Microsoft Graph offline_access and User.Read.",
       "tier": "A",
       "evidence": [
         {
@@ -243,6 +243,7 @@
           "quotes": [
             "Select Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant).",
             "enter https://app.avalor.io/oauth as the application's redirect URI.",
+            "Azure DevOps: user_impersonation",
             "Azure DevOps: vso.project_manage",
             "Azure DevOps: vso.work_write",
             "Microsoft Graph: offline_access",
@@ -274,7 +275,7 @@
           "path": "uvm-configuring-azure-devops-outegration.json",
           "quotes": [
             "Work Item Type: Select the work item. The schema associated with the selected work item is retrieved from your Azure DevOps project and made available for mapping in the Mapping step.",
-            "- Required",
+            "The following details are specified for fields, when available: - Required",
             "- Input Type",
             "- Available Options"
           ]
@@ -290,19 +291,6 @@
           "path": "uvm-configuring-azure-devops-outegration.json",
           "quotes": [
             "The initial Azure DevOps outegration mapping includes preconfigured default mappings for each part, based on common use cases and industry best practices. These defaults can be modified and customized as needed."
-          ]
-        }
-      ]
-    },
-    "ado-summary-required": {
-      "statement": "In the Azure DevOps mapping the Summary field is required and must be mapped before the outegration can be saved, and it expects a TEXT input type.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "uvm-configuring-azure-devops-outegration.json",
-          "quotes": [
-            "The schema specifies that the field is required and thus must be mapped before the outegration can be saved, and that the field expects a TEXT input type."
           ]
         }
       ]
@@ -423,7 +411,7 @@
           "path": "uvm-configuring-azure-devops-outegration.json",
           "quotes": [
             "There are three mapping components:",
-            "(Optional) Sync from Azure DevOps to ticket: Map Azure DevOps fields (left) to SecOps ticket fields (right) for syncing Azure DevOps updates to tickets. This step also requires setting up an Azure DevOps webhook."
+            "(Optional) Sync from Azure DevOps to ticket: Map Azure DevOps fields (left) to Agentic SecOps Platform ticket fields (right) for syncing Azure DevOps updates to tickets. This step also requires setting up an Azure DevOps webhook."
           ]
         }
       ]
@@ -578,14 +566,14 @@
       ]
     },
     "preview": {
-      "statement": "The Azure DevOps Mapping Preview window shows a sample of the tickets in the account, organized by ticket ID.",
+      "statement": "In the Azure DevOps mapping step, Preview lets you select, filter or search tickets and preview their mapping to the corresponding Azure DevOps ticket.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "uvm-configuring-azure-devops-outegration.json",
           "quotes": [
-            "On the left of the Mapping Preview window, there is a sample of the tickets in your account, organized by ticket ID."
+            "(Optional) Click Preview to review the Azure DevOps mapping. You can select, filter, or search tickets and preview the mapping to their corresponding Azure DevOps ticket."
           ]
         }
       ]
@@ -610,6 +598,16 @@
       "resolves_with": [
         "support-ticket",
         "tenant-data"
+      ]
+    },
+    "ado-summary-required": {
+      "kind": "semantic",
+      "title": "Whether the Azure DevOps Summary field is required and must be mapped before the outegration can be saved",
+      "status": "open",
+      "detail": "The capture before the 2026-11 refresh said the Summary field's schema marks it required, so it must be mapped before the outegration can be saved, and that it expects a TEXT input. The refreshed Azure DevOps page lists Ticket Title to Summary only as a common mapping example and says required fields are defined by the Azure DevOps schema; it no longer says Summary is required or what input type it expects.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
       ]
     }
   }

@@ -2,7 +2,7 @@
 Also called: zcc language; zcc localization; notification language; aup multiple languages; use system language
 Former IDs: zcc-30
 
-Client Connector can switch its user interface language to match the system language. [zcc.notifications.localization:system-language] French is supported from 4.5 on Windows, 4.3 on macOS and 5.0 on Android and Android on ChromeOS, and German from 5.0 on Windows and on Android and Android on ChromeOS; the vendor lists Chinese (Taiwan), Japanese and Spanish on all three, and German on macOS, as not currently supported. [zcc.notifications.localization:languages]
+Client Connector can switch its user interface language to match the system language. [zcc.notifications.localization:system-language] French is supported from 4.5 on Windows, 4.3 on macOS and 5.0 on Android and Android on ChromeOS, German from 5.0 on Windows and on Android and Android on ChromeOS, and Japanese from 5.0.0.344 on Android and Android on ChromeOS; the vendor lists Chinese (Taiwan) and Spanish on all three, German on macOS, and Japanese on Windows and macOS, as not currently supported. [zcc.notifications.localization:languages]
 
 **Choosing the language.** On Windows 4.8 and later, an app profile sets the default display language for the app and the Notifications window text: Use System Language (the default) or English. Users can change it in the More window; the user-facing article says this applies if the organization has enabled the option, and that the app UI and pop-up notifications change to the language selected. [zcc.notifications.localization:display-language-setting]
 
