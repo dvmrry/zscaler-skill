@@ -29,7 +29,7 @@ Sources disagree (name both sides):
   - zscaler-help: The preloaded signing certificates can be used to enroll Zscaler Client Connector and App Connectors.
   - zscaler-help: The Connector certificate can be used for enrollment certificates issued to Zscaler Client Connectors.
   Impact: Whether the preloaded Connector certificate enrolls App Connectors is not settled by the page; the existing claims zpa.app-connectors.connector-groups:ansible-resolves-cert and zpa.api.certificates-wire:system-provisioned-names side with App Connectors.
-- The Generating page recommends five separate certificates (plus one for AppProtection), while the CSR page recommends a certificate for Client Connector and another for App Connectors. [divergence:zpa.certificates.enrollment:recommended-count]
+- The Generating page recommends a separate certificate for each of Zscaler Client Connector, App Connectors, Private Service Edges, Private Cloud Controllers, Network Connectors and AppProtection, while the CSR page recommends a certificate for Client Connector and another for App Connectors. [divergence:zpa.certificates.enrollment:recommended-count]
   - zscaler-help: Create a certificate for Client Connector and one each for App Connectors, Private Service Edges, Network Connectors, Private Cloud Controllers, and AppProtection.
   - zscaler-help: Create a CA certificate for Client Connector and another for App Connectors.
   Impact: The pages do not say whether the CSR page's two-certificate wording is limited to that workflow or whether Private Service Edges, Network Connectors and Private Cloud Controllers need their own certificates there.

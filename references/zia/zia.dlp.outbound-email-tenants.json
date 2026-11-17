@@ -126,7 +126,7 @@
       ]
     },
     "security-options": {
-      "statement": "The tenant name must be unique. Under Email Tenant Security Options, Outbound Email Security is selected automatically and is not configurable. The Workflow Automation option is available for Exchange only (Exchange Online), lets admins review and manage quarantined emails from Workflow Automation, and makes the Authorize the SaaS Application and Assign Role sections available.",
+      "statement": "The tenant name must be unique. Under Email Tenant Security Options, Outbound Email Security is selected automatically and is not configurable for a Secure Email Gateway or Gmail tenant; for an Exchange tenant an Email Security Mode is selected, Outbound Email Security (the Exchange server routes outbound email sent to external domains to the smart host via SMTP) or Outlook Email Add-in (real-time feedback on policy violations in Outlook). The Workflow Automation option is available for Exchange only (Exchange Online), lets admins review and manage quarantined emails from Workflow Automation, and makes the Authorize the SaaS Application and Assign Role sections available.",
       "tier": "A",
       "evidence": [
         {
@@ -134,12 +134,28 @@
           "path": "zia-adding-email-tenants.json",
           "quotes": [
             "Under Name Email Tenant, enter a unique Tenant Name.",
-            "Under Email Tenant Security Options, the setting for Outbound Email Security is automatically selected and is not configurable.",
-            "Under Email Tenant Security Options, the Workflow Automation option is available for Exchange only.",
-            "This setting allows you to review and manage quarantined emails from Workflow Automation and is available only for Exchange Online.",
-            "When you select this option, the Authorize the SaaS Application and Assign Role sections become available."
+            "Under Email Tenant Security Options, the setting for Outbound Email Security is automatically selected and is not configurable."
           ],
           "after": "- Configure Secure Email Gateway"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Under Email Tenant Security Options, the setting for Outbound Email Security is automatically selected and is not configurable.",
+            "Under Email Tenant Security Options, the Workflow Automation option is available for Exchange only."
+          ],
+          "after": "- Configure Gmail"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-email-tenants.json",
+          "quotes": [
+            "Under Email Tenant Security Options, select an Email Security Mode: - Outbound Email Security - Select this option to have the Exchange server route outbound emails sent to external domains to the Zscaler smart host via SMTP.",
+            "This setting allows you to review and manage quarantined emails from Workflow Automation and is available only for Exchange Online.",
+            "When you select this option, the Authorize the SaaS Application and Assign Role sections become available.",
+            "Outlook Email Add-in - Select this option if you want users to receive real-time feedback on policy violations in Outlook before sending messages to external domains."
+          ]
         }
       ]
     },
@@ -261,18 +277,19 @@
       ]
     },
     "exchange-zwa-authorization": {
-      "statement": "For an Exchange tenant with Workflow Automation, after the SaaS application is authorized the Tenant ID is populated in the Admin Console, and an Exchange admin role must be assigned (Exchange Administrator) to the Zscaler SaaS Connector ID in the Azure portal to grant assignments and access.",
+      "statement": "For an Exchange tenant in the Outbound Email Security mode with Workflow Automation, after the SaaS application is authorized the Tenant ID is populated in the Admin Console, and an Exchange admin role must be assigned (Exchange Administrator) to the Zscaler SaaS Connector ID in the Azure portal to grant assignments and access.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zia-adding-email-tenants.json",
           "quotes": [
-            "After successfully authorizing the SaaS Application, the Tenant ID should now be populated in the Zscaler Admin Console.",
+            "After successfully authorizing the SaaS Application, the Tenant ID should be populated in the Zscaler Admin Console.",
             "You must assign an Exchange admin role to be able to grant assignments and access.",
             "On the All Roles page, use the search bar to search for Exchange Administrator.",
             "In the Azure portal, on the Select a member page, paste the Zscaler SaaS Connector ID into the search box."
-          ]
+          ],
+          "after": "Select this option to have the Exchange server route outbound emails sent to external domains to the Zscaler smart host via SMTP."
         }
       ]
     },

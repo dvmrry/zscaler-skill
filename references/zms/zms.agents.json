@@ -11,29 +11,69 @@
     "zep anti-tamper"
   ],
   "related": [
-    {"rel": "see-also", "to": "zms.overview"},
-    {"rel": "see-also", "to": "zms.agent-groups"},
-    {"rel": "see-also", "to": "zms.provisioning-keys"},
-    {"rel": "see-also", "to": "zms.dashboards"},
-    {"rel": "see-also", "to": "zms.analytics"}
+    {
+      "rel": "see-also",
+      "to": "zms.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.agent-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.analytics"
+    }
   ],
   "prose": [
-    {"text": "{{install-tooling}}"},
-    {"label": "Agent list.", "text": "{{agents-columns}}"},
-    {"label": "Agent manager.", "text": "{{manager-prereq-cert}} {{manager-installs-agent}} {{install-failure-mtls}} {{uninstall-commands}}"},
-    {"label": "Editing and deleting.", "text": "{{edit-fields}} {{delete-unregisters}} {{deleted-resources-14d}}"},
-    {"label": "Anti-tamper protection.", "text": "{{anti-tamper-scope}} {{anti-tamper-min-version}} {{anti-tamper-platforms}} {{anti-tamper-zep}} {{anti-tamper-enable-levels}}"},
-    {"label": "Open questions.", "text": "How ZEP's installation with Client Connector fits the host rule is open {{gap:anti-tamper-zcc}}, as is anti-tamper on compatible OS releases outside its list {{gap:anti-tamper-windows}}. {{os-compat-windows-linux}}"},
-    {"label": "Related.", "text": "Agent groups are in [[zms.agent-groups]] and provisioning keys in [[zms.provisioning-keys]]."}
+    {
+      "text": "{{install-tooling}}"
+    },
+    {
+      "label": "Agent list.",
+      "text": "{{agents-columns}}"
+    },
+    {
+      "label": "Agent manager.",
+      "text": "{{manager-prereq-cert}} {{manager-installs-agent}} {{install-failure-mtls}} {{uninstall-commands}}"
+    },
+    {
+      "label": "Editing and deleting.",
+      "text": "{{edit-fields}} {{delete-unregisters}} {{deleted-resources-14d}}"
+    },
+    {
+      "label": "Anti-tamper protection.",
+      "text": "{{anti-tamper-scope}} {{anti-tamper-min-version}} {{anti-tamper-platforms}} {{anti-tamper-zep}} {{anti-tamper-enable-levels}}"
+    },
+    {
+      "label": "Open questions.",
+      "text": "How ZEP's installation with Client Connector fits the host rule is open {{gap:anti-tamper-zcc}}, as is anti-tamper on compatible OS releases outside its list {{gap:anti-tamper-windows}}. {{os-compat-windows-linux}}"
+    },
+    {
+      "label": "Related.",
+      "text": "Agent groups are in [[zms.agent-groups]] and provisioning keys in [[zms.provisioning-keys]]."
+    }
   ],
   "checks": [
     {
       "do": "Whether the agent is at least version 1.12.2 and on a listed platform before expecting anti-tamper protection.",
-      "uses": ["anti-tamper-min-version", "anti-tamper-platforms"]
+      "uses": [
+        "anti-tamper-min-version",
+        "anti-tamper-platforms"
+      ]
     },
     {
       "do": "Whether outbound port 443 from the host is permitted and not subject to DPI when the service fails to start or register.",
-      "uses": ["install-failure-mtls"]
+      "uses": [
+        "install-failure-mtls"
+      ]
     }
   ],
   "claims": {
@@ -245,10 +285,9 @@
           ]
         }
       ]
-    }
-  ,
+    },
     "os-compat-windows-linux": {
-      "statement": "The OS compatibility page lists Windows Server 2012 R2, 2016, 2019, 2022 and 2025, RHEL 7.9 (minimum kernel 3.10.0-1160.160.1.el7.x86_64), SLES 15 and 16, and Amazon Linux AL2 and AL 2023 as compatible with Microsegmentation.",
+      "statement": "The OS compatibility page lists Windows Server 2012 R2, 2016, 2019, 2022 and 2025, RHEL 7.9 (minimum kernel 3.10.0-1160.160.1.el7.x86_64), SLES 12 SP5 (minimum kernel 4.12.14-122.296.1, agent and agent manager 1.18.1 or later), SLES 15 and 16 (agent and agent manager 1.11.1 or later), and Amazon Linux AL2 and AL 2023 as compatible with Microsegmentation.",
       "tier": "A",
       "evidence": [
         {
@@ -257,8 +296,10 @@
           "quotes": [
             "Server 2012 R2 Server 2016 Server 2019 Server 2022 Server 2025",
             "RHEL 7.9 (A minimum kernel version of 3.10.0-1160.160.1.el7.x86_64 is required.) RHEL 8 RHEL 9 RHEL 10",
-            "SLES 15 SLES 16",
-            "AL2 AL 2023"
+            "SLES 12 SP5 (A minimum kernel version of 4.12.14-122.296.1 is required.) SLES 15 SLES 16",
+            "AL2 AL 2023",
+            "SLES 12 Agent version 1.18.1 Agent manager version 1.18.1 SLES 15 and 16 Agent version 1.11.1 Agent manager version 1.11.1",
+            "Additionally, a minimum required agent version is listed for the OS, if applicable."
           ]
         }
       ]
@@ -270,14 +311,18 @@
       "title": "How ZEP shipping with Zscaler Client Connector fits the rule against both on one host",
       "status": "open",
       "detail": "The anti-tamper article says ZEP \"installs as a part of the Zscaler Client Connector installation\", while the Microsegmentation overview says agents and Zscaler Client Connector should not be installed on the same host. The captures do not say how the two statements fit.",
-      "resolves_with": ["source-read"]
+      "resolves_with": [
+        "source-read"
+      ]
     },
     "anti-tamper-windows": {
       "kind": "semantic",
       "title": "Whether compatible OS releases outside the anti-tamper list lack anti-tamper",
       "status": "open",
-      "detail": "The anti-tamper article lists Windows Server 2022/2025, Ubuntu/Debian kernel 5.7 and later and RHEL-like kernel 4.18.0-372 and later (zms.agents:anti-tamper-platforms), while the OS compatibility page (zms.agents:os-compat-windows-linux) lists Windows Server 2012 R2 to 2025, RHEL 7.9 on kernel 3.10, SLES 15 and 16 and Amazon Linux; no capture says whether agents on those releases lack anti-tamper.",
-      "resolves_with": ["source-read"]
+      "detail": "The anti-tamper article lists Windows Server 2022/2025, Ubuntu/Debian kernel 5.7 and later and RHEL-like kernel 4.18.0-372 and later (zms.agents:anti-tamper-platforms), while the OS compatibility page (zms.agents:os-compat-windows-linux) lists Windows Server 2012 R2 to 2025, RHEL 7.9 on kernel 3.10, SLES 12 SP5, 15 and 16 and Amazon Linux; no capture says whether agents on those releases lack anti-tamper.",
+      "resolves_with": [
+        "source-read"
+      ]
     }
   }
 }

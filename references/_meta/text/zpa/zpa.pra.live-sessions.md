@@ -9,7 +9,7 @@ The host of a live privileged session invites other users from within the sessio
 
 **Open.** How the invite flow ties to the consoles policy sharing modes, and several access and recording questions, are open [gap:zpa.pra.live-sessions:consoles-policy-tie].
 
-The consoles policy that sets Share Sessions Mode and Join Sessions Mode is in [PRA consoles policy: file transfer, clipboard, recording and sharing](kb:zpa.pra.consoles-policy); the PRA Portal itself is in [PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login](kb:zpa.pra.portals).
+The consoles policy that sets Share Sessions and Join Sessions is in [PRA consoles policy: file transfer, clipboard, recording and sharing](kb:zpa.pra.consoles-policy); the PRA Portal itself is in [PRA privileged portals and the PRA Portal: fields, certificates and DNS, what end users see, and console login](kb:zpa.pra.portals).
 
 What to check:
 1. Whether the policy rule gives the user a sharing mode before looking at the invitation, since the Accessing page does not link the invite flow to it.
@@ -17,7 +17,7 @@ What to check:
 3. Whether an ejected participant was reinvited.
 
 Not known (open gaps):
-- How the invite flow relates to Share Sessions Mode and Join Sessions Mode [gap:zpa.pra.live-sessions:consoles-policy-tie]: settled by lab-test or source-read
+- How the invite flow relates to Share Sessions and Join Sessions [gap:zpa.pra.live-sessions:consoles-policy-tie]: settled by lab-test or source-read
 
 Area: zpa.pra, its subjects in references/_meta/spine/zpa/zpa.pra.json
 

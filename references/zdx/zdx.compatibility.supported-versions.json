@@ -65,11 +65,11 @@
     },
     {
       "label": "Diagnostics.",
-      "text": "{{diagnostics-windows}} {{diagnostics-macos}} {{diagnostics-android}} The diagnostics session types are in [[zdx.diagnostics.session-types]], whose open question about minimum versions this answers in part. What the table's absent OS rows and Android header mean is open {{gap:header-and-absent-rows}}."
+      "text": "{{diagnostics-windows}} {{diagnostics-macos}} The diagnostics session types are in [[zdx.diagnostics.session-types]], whose open question about minimum versions this answers in part. What a feature's absence from an OS's table means is open {{gap:header-and-absent-rows}}."
     },
     {
       "label": "Device data.",
-      "text": "{{device-events-windows}} {{software-inventory}} {{process-inventory}} {{software-patch-inventory}} {{wifi-collection}}"
+      "text": "{{device-events-windows}} {{device-events-macos}} {{software-inventory}} {{process-inventory}} {{software-patch-inventory}} {{wifi-collection}}"
     },
     {
       "label": "Monitoring and remediation.",
@@ -77,11 +77,15 @@
     },
     {
       "label": "Remediation.",
-      "text": "{{remediation-versions}} The ZDX Module minimum for Remediation is given two ways {{divergence:remediation-module-version}}. The feature itself is in [[zdx.remediation]]."
+      "text": "{{remediation-versions}} The Windows ZDX Module minimum for Remediation is given two ways {{divergence:remediation-module-version}}. The feature itself is in [[zdx.remediation]]."
+    },
+    {
+      "label": "iOS and Android.",
+      "text": "{{ios-features}} {{ios-limitations}} {{android-features}} {{android-limitations}}"
     },
     {
       "label": "Open.",
-      "text": "Whether Software Inventory and Software and Device Inventory are one feature is open {{gap:inventory-names}}, and the Device Events table's macOS row is not claimed {{gap:device-events-macos}}."
+      "text": "Whether Software Inventory and Software and Device Inventory are one feature is open {{gap:inventory-names}}."
     }
   ],
   "checks": [
@@ -102,16 +106,14 @@
   ],
   "claims": {
     "version-policy": {
-      "statement": "The ZDX compatibility page says Zscaler supports the latest Client Connector software version and the two previous versions; ZDX features may also need a subscription level (Ranges & Limitations) and a ZDX role.",
+      "statement": "The ZDX compatibility page says Zscaler supports the latest Client Connector software version and the two previous versions.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "Zscaler supports the latest software version and the two previous versions for Zscaler Client Connector due to the commitment of continuous improvement for Zscaler products.",
-            "Ranges & Limitations: To ensure the feature is supported by your subscription level.",
-            "ZDX Role: To ensure you have the proper permissions for feature access."
+            "Zscaler supports the latest software version and the two previous versions for Zscaler Client Connector due to the commitment of continuous improvement for Zscaler products."
           ]
         }
       ]
@@ -164,25 +166,32 @@
       ]
     },
     "cloud-path-protocols": {
-      "statement": "Cloud Path probe protocol minimums (Client Connector / ZDX Module): Adaptive Mode Windows 3.4 / 2.3 and macOS 3.2 / 2.3.1; ICMP Windows 2.2.1 / 1.0.0; TCP Conventional Windows 3.4 / 2.3; TCP Resilent and TCP Strict Windows 4.9 / 4.8.1.67; UDP Windows 3.0 / 2.0. The table lists no macOS row for ICMP, TCP or UDP.",
+      "statement": "Cloud Path probe protocol minimums (Client Connector / ZDX Module): on Windows, Adaptive Mode 3.4 / 2.3, ICMP 2.2.1 / 1.0.0, TCP - Conventional 3.4 / 2.3, TCP - Resilent and TCP- Strict 4.9 / 4.8.1.67, UDP 3.0 / 2.0; on macOS, Adaptive Mode 3.4 / 2.3. The macOS table lists no ICMP, TCP or UDP row.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Adaptive Mode | Windows | 3.4 | 2.3 |",
-            "| Adaptive Mode | macOS | 3.2 | 2.3.1 |",
-            "| ICMP | Windows | 2.2.1 | 1.0.0 |",
-            "| Cloud Path Probe Protocol | ICMP | 2.2.1 | 1.0.0 | | Cloud Path Probe Protocol | TCP - Conventional | 3.4 | 2.3 |",
-            "| TCP - Resilent | Windows | 4.9 | 4.8.1.67 |",
-            "| TCP- Strict | Windows | 4.9 | 4.8.1.67 |",
-            "| UDP | Windows | 3.0 | 2.0 |"
+            "| Cloud Path Probe Protocol | Adaptive Mode | 3.4 | 2.3 |",
+            "| Cloud Path Probe Protocol | ICMP | 2.2.1 | 1.0.0 |",
+            "| Cloud Path Probe Protocol | TCP - Conventional | 3.4 | 2.3 |",
+            "| Cloud Path Probe Protocol | TCP - Resilent | 4.9 | 4.8.1.67 |",
+            "| Cloud Path Probe Protocol | TCP- Strict | 4.9 | 4.8.1.67 |",
+            "| Cloud Path Probe Protocol | UDP | 3.0 | 2.0 |"
           ],
-          "after": "| Autosense Cloud Path | Zoom | 4.3 | 3.8 | | Cloud Path Probe Protocol | Adaptive Mode | 3.4 | 2.3 |"
+          "after": "View the following ZDX features for Windows:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Cloud Path Probe Protocol | Adaptive Mode | 3.4 | 2.3 |"
+          ],
+          "after": "View the following ZDX features for macOS:"
         }
       ],
-      "conditions": "The table was read in full: rows exist only for Adaptive Mode (Windows, macOS), ICMP, both TCP modes and UDP on Windows; no macOS or mobile row for ICMP, TCP or UDP."
+      "conditions": "The macOS feature table was read in full: its only Cloud Path Probe Protocol row is Adaptive Mode."
     },
     "diagnostics-windows": {
       "statement": "Windows diagnostics minimums (Client Connector / ZDX Module): Deep Tracing 3.1.0.103 / 2.0.0.21; Hi-Fi Cloud Path 4.2 / 4.1; Bandwidth Test 3.9 / 3.8; Bandwidth Test with DNAT Details N/A / 4.4; Packet Capture Probing 3.9 / 3.5.",
@@ -192,13 +201,13 @@
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Deep Tracing | 3.1.0.103 | 2.0.0.21 |",
-            "| Hi-Fi Cloud Path | 4.2 | 4.1 |",
-            "| Bandwidth Test | 3.9 | 3.8 |",
-            "| Bandwidth Test with Destination Network Address Translation (DNAT) Details | N/A | 4.4 |",
-            "| Packet Capture Probing | 3.9 | 3.5 |"
+            "| Diagnostics | Deep Tracing | 3.1.0.103 | 2.0.0.21 |",
+            "| Diagnostics | Hi-Fi Cloud Path | 4.2 | 4.1 |",
+            "| Diagnostics | Bandwidth Test | 3.9 | 3.8 |",
+            "| Diagnostics | Bandwidth Test with Destination Network Address Translation (DNAT) Details | N/A | 4.4 |",
+            "| Diagnostics | Packet Capture Probing | 3.9 | 3.5 |"
           ],
-          "after": "## Diagnostics"
+          "after": "View the following ZDX features for Windows:"
         }
       ]
     },
@@ -210,76 +219,81 @@
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Deep Tracing | 3.0.0.144 | 2.0.0.15 |",
-            "| Hi-Fi Cloud Path | 4.5.1 | 4.4 |",
-            "| Bandwidth Test | 4.3.1 | 3.9 |",
-            "| Packet Capture Probing | 3.6 | 3.5 |"
+            "| Diagnostics | Deep Tracing | 3.0.0.144 | 2.0.0.15 |",
+            "| Diagnostics | Hi-Fi Cloud Path | 4.5.1 | 4.4 |",
+            "| Diagnostics | Bandwidth Test | 4.3.1 | 3.9 |",
+            "| Diagnostics | Packet Capture Probing | 3.6 | 3.5 |"
           ],
-          "after": "### macOS"
+          "after": "View the following ZDX features for macOS:"
         }
       ]
-    },
-    "diagnostics-android": {
-      "statement": "Under the Android and Android on ChromeOS diagnostics heading, Deep Tracing is listed at Client Connector 3.7 and a ZDX Module version of 3.2 (the column header reads 'ZDX Module Version for Windows').",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "zdx-supported-versions-feature-compatibility.json",
-          "quotes": [
-            "| Deep Tracing | 3.7 | 3.2 |",
-            "| Type | Zscaler Client Connector Version | ZDX Module Version for Windows |"
-          ],
-          "after": "### Android and Android on ChromeOS"
-        }
-      ],
-      "conditions": "The Android and Android on ChromeOS diagnostics table was read in full: Deep Tracing is its only row."
     },
     "device-events-windows": {
-      "statement": "Device Events reports on Windows need Client Connector 4.5 and ZDX Module 4.5 for System Crashes, and Client Connector 4.5 and ZDX Module 4.2 for Software Crashes.",
+      "statement": "Device Events Reports on Windows need Client Connector 4.5.1 and ZDX Module 4.4 for System Crashes, and Client Connector 4.5 and ZDX Module 4.5 for Software Crashes.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| System Crashes | Windows | 4.5 | 4.5 |",
-            "| Software Crashes | Windows | 4.5 | 4.2 |"
+            "| Device Events Reports | System Crashes | 4.5.1 | 4.4 |",
+            "| Device Events Reports | Software Crashes | 4.5 | 4.5 |"
           ],
-          "after": "## Device Events Reports"
+          "after": "View the following ZDX features for Windows:"
         }
       ]
     },
-    "software-inventory": {
-      "statement": "Software Inventory minimums (Client Connector / ZDX Module): Windows 3.7.1.56 / 3.3.0.50, macOS 3.6 / 3.3.2.",
+    "device-events-macos": {
+      "statement": "Device Events Reports on macOS list Software Crashes at Client Connector 4.5 and ZDX Module 4.5.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Windows | 3.7.1.56 | 3.3.0.50 |",
+            "| Device Events Reports | Software Crashes | 4.5 | 4.5 |"
+          ],
+          "after": "View the following ZDX features for macOS:"
+        }
+      ],
+      "conditions": "The macOS feature table was read in full: its only Device Events Reports row is Software Crashes."
+    },
+    "software-inventory": {
+      "statement": "Software Inventory and Software Inventory Data Collection minimums (Client Connector / ZDX Module): Windows 3.7.1.56 / 3.3.0.50, macOS 3.6 / 3.3.2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Inventory | Software Inventory Software Inventory Data Collection | 3.7.1.56 | 3.3.0.50 |"
+          ],
+          "after": "View the following ZDX features for Windows:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
             "| Inventory | Software Inventory Software Inventory Data Collection | 3.6 | 3.3.2 |"
           ],
-          "after": "| Inventory | Software Inventory Software Inventory Data Collection | 3.7.1.56 | 3.3.0.50 |"
+          "after": "View the following ZDX features for macOS:"
         }
       ]
     },
     "wifi-collection": {
-      "statement": "Wi-Fi data collection for the Wi-Fi Dashboard needs Client Connector 4.5.0.1 and ZDX Module 4.5.0.1 on Windows; the table has no other OS row.",
+      "statement": "Wi-Fi Dashboard and Wi-Fi Data Collection need Client Connector 4.5.0.1 and ZDX Module 4.5.0.1 on Windows; the macOS, iOS and Android tables list no Wi-Fi row.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "The required version compatibility for Wi-Fi data collection of the Wi-Fi Dashboard is:",
-            "| Windows | 4.5.0.1 | 4.5.0.1 |"
+            "| Inventory | Wi-Fi Dashboard Wi-Fi Data Collection | 4.5.0.1 | 4.5.0.1 |"
           ],
-          "after": "## Wi-Fi Data Collection"
+          "after": "View the following ZDX features for Windows:"
         }
       ],
-      "conditions": "The Wi-Fi Data Collection table was read in full: its only row is Windows."
+      "conditions": "The macOS, iOS and Android and Android on ChromeOS feature tables were read in full: none has a Wi-Fi row."
     },
     "process-inventory": {
       "statement": "Process Inventory (and Process Inventory CPU Incidents) minimums (Client Connector / ZDX Module): Windows 3.9.0.189 / 3.8.0.37, macOS 3.6 / 3.5.",
@@ -289,90 +303,183 @@
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Windows | 3.9.0.189 | 3.8.0.37 |",
-            "| macOS | 3.6 | 3.5 |"
+            "| Inventory | Process Inventory Process Inventory CPU Incidents | 3.9.0.189 | 3.8.0.37 |"
           ],
-          "after": "| Inventory | Process Inventory Process Inventory CPU Incidents | 3.6 | 3.5 |"
+          "after": "View the following ZDX features for Windows:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Inventory | Process Inventory Process Inventory CPU Incidents | 3.6 | 3.5 |"
+          ],
+          "after": "View the following ZDX features for macOS:"
         }
       ]
     },
     "software-patch-inventory": {
-      "statement": "Software Patch Inventory needs Client Connector 3.9 and ZDX Module 4.0 on Windows; the table has no other OS row.",
+      "statement": "Software Patch Inventory (and its data collection) needs Client Connector 3.9 and ZDX Module 4.0 on Windows; the macOS table has no Software Patch Inventory row.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Windows | 3.9 | 4.0 |"
+            "| Inventory | Software Patch Inventory Software Patch Inventory Data Collection | 3.9 | 4.0 |"
           ],
-          "after": "## Software Patch Inventory"
+          "after": "View the following ZDX features for Windows:"
         }
       ],
-      "conditions": "The Software Patch Inventory table was read in full: its only row is Windows."
+      "conditions": "The macOS feature table was read in full: it has no Software Patch Inventory row."
     },
     "rum-versions": {
-      "statement": "Real User Monitoring needs Client Connector 4.8 with ZDX Module 4.7 on Windows and Client Connector 4.8 with ZDX Module 4.6 on macOS.",
+      "statement": "Real User Monitoring (RUM) needs Client Connector 4.8 with ZDX Module 4.6 on both Windows and macOS.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Windows | 4.8 | 4.7 |",
-            "| macOS | 4.8 | 4.6 |"
+            "| Real User Monitoring (RUM) | N/A | 4.8 | 4.6 |"
           ],
-          "after": "| Inventory | Process Inventory Process Inventory CPU Incidents | 3.6 | 3.5 | | Real User Monitoring (RUM) | N/A | 4.8 | 4.6 | | Remediation | N/A | 5.0 | 4.7 |"
+          "after": "View the following ZDX features for Windows:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Real User Monitoring (RUM) | N/A | 4.8 | 4.6 |"
+          ],
+          "after": "View the following ZDX features for macOS:"
         }
       ]
     },
     "remediation-versions": {
-      "statement": "Remediation needs Client Connector 5.0 and ZDX Module 4.7; the table has no OS row.",
+      "statement": "Remediation needs Client Connector 4.8.0.151 with ZDX Module 4.7.0.48 on Windows and Client Connector 5.0 with ZDX Module 4.7 on macOS.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Windows | 4.8.0.151 | 4.7.0.48 |"
+            "| Remediation | N/A | 4.8.0.151 | 4.7.0.48 |"
           ],
-          "after": "| Remediation | N/A | 5.0 | 4.7 |"
+          "after": "View the following ZDX features for Windows:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Remediation | N/A | 5.0 | 4.7 |"
+          ],
+          "after": "View the following ZDX features for macOS:"
         }
-      ],
-      "conditions": "The Remediation table was read in full: its only row is Windows."
+      ]
     },
     "self-service-versions": {
-      "statement": "Self Service (and its settings) needs Client Connector 4.4 with ZDX Module 4.0.1 on Windows and Client Connector 4.3.1 with ZDX Module 3.9 on macOS.",
+      "statement": "Self Service (the Self Service Dashboard and Self Service Settings) needs Client Connector 4.4 with ZDX Module 4.0.1 on Windows and Client Connector 4.3.1 with ZDX Module 3.9 on macOS.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "| Windows | 4.4 | 4.0.1 |",
-            "| macOS | 4.3.1 | 3.9 |"
+            "| Self Service | Self Service Dashboard Self Service Settings | 4.4 | 4.0.1 |"
           ],
-          "after": "| Self Service | Self Service Dashboard Self Service Settings | 4.3.1 | 3.9 |"
+          "after": "View the following ZDX features for Windows:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Self Service | Self Service Dashboard Self Service Settings | 4.3.1 | 3.9 |"
+          ],
+          "after": "View the following ZDX features for macOS:"
         }
       ]
     },
     "autosense-versions": {
-      "statement": "ZDX Autosense is available for Microsoft Teams, Webex and Zoom; Windows minimums (Client Connector / ZDX Module) are Teams 4.3 / 3.8, Webex 4.3.0.121 / 3.8.0.80 and Zoom 4.3 / 3.8.",
+      "statement": "Autosense Cloud Path on Windows is listed for Microsoft Teams, Webex and Zoom, at (Client Connector / ZDX Module) Teams 4.3 / 3.8, Webex 4.3.0.121 / 3.8.0.80 and Zoom 4.3 / 3.8; the macOS table has no Autosense Cloud Path row.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zdx-supported-versions-feature-compatibility.json",
           "quotes": [
-            "ZDX Autosense feature is available for Microsoft Teams, Webex, and Zoom.",
-            "| Microsoft Teams | 4.3 | 3.8 |",
-            "| Webex | 4.3.0.121 | 3.8.0.80 |",
-            "| Zoom | 4.3 | 3.8 |"
+            "| Autosense Cloud Path | Microsoft Teams | 4.3 | 3.8 |",
+            "| Autosense Cloud Path | Webex | 4.3.0.121 | 3.8.0.80 |",
+            "| Autosense Cloud Path | Zoom | 4.3 | 3.8 |"
           ],
-          "after": "## ZDX Autosense for Call Quality"
+          "after": "View the following ZDX features for Windows:"
         }
       ],
-      "conditions": "Only a Windows table is given under ZDX Autosense for Call Quality; no macOS or mobile table appears in the article."
+      "conditions": "The macOS feature table was read in full: it has no Autosense Cloud Path row."
+    },
+    "ios-features": {
+      "statement": "The iOS feature table lists Cloud Path Probe and Web Probe, each at Client Connector 3.8 and ZDX Module 3.6, with Cloud Path Probe marked as having some limitations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Cloud Path Probe* | N/A | 3.8 | 3.6 |",
+            "| Web Probe | N/A | 3.8 | 3.6 |",
+            "- * With some limitations."
+          ],
+          "after": "View the following ZDX features for iOS."
+        }
+      ],
+      "conditions": "The iOS feature table was read in full: Cloud Path Probe and Web Probe are its only rows."
+    },
+    "ios-limitations": {
+      "statement": "On iOS, Call Quality retrieves call data with API to show metrics, and Cloud Path probe configuration is supported but Autosense for Call Quality monitoring is not available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "If the device runs iOS, the following features are limited.",
+            "| Call Quality | Retrieves call data with API to show metrics. |",
+            "| Cloud Path Probe | The Cloud Path probe configuration is supported, but Autosense for Call Quality monitoring is not available for iOS devices. |"
+          ],
+          "after": "View the following ZDX features for iOS."
+        }
+      ]
+    },
+    "android-features": {
+      "statement": "The Android and Android on ChromeOS feature table lists Cloud Path Probe and Web Probe, each at Client Connector 1.12 and ZDX Module 1.0, with Cloud Path Probe marked as having some limitations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "| Cloud Path Probe* | N/A | 1.12 | 1.0 |",
+            "| Web Probe | N/A | 1.12 | 1.0 |",
+            "- * With some limitations."
+          ],
+          "after": "View the following ZDX features for Android and Android on ChromeOS."
+        }
+      ],
+      "conditions": "The Android and Android on ChromeOS feature table was read in full: Cloud Path Probe and Web Probe are its only rows."
+    },
+    "android-limitations": {
+      "statement": "On Android and Android on ChromeOS, Call Quality retrieves call data with API to show metrics, and Cloud Path probe configuration is supported but Autosense for Call Quality monitoring is not available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-supported-versions-feature-compatibility.json",
+          "quotes": [
+            "If the device runs Android and Android on ChromeOS, the following features are limited.",
+            "| Call Quality | Retrieves call data with API to show metrics. |",
+            "| Cloud Path Probe | The Cloud Path probe configuration is supported, but Autosense for Call Quality monitoring is not available for Android and Android on ChromeOS devices. |"
+          ],
+          "after": "View the following ZDX features for Android and Android on ChromeOS."
+        }
+      ]
     }
   },
   "divergences": {
@@ -412,9 +519,9 @@
             "source": "zscaler-help",
             "path": "zdx-supported-versions-feature-compatibility.json",
             "quotes": [
-              "| Windows | 4.8.0.151 | 4.7.0.48 |"
+              "| Remediation | N/A | 4.8.0.151 | 4.7.0.48 |"
             ],
-            "after": "| Remediation | N/A | 5.0 | 4.7 |"
+            "after": "View the following ZDX features for Windows:"
           }
         },
         {
@@ -434,9 +541,9 @@
   "gaps": {
     "header-and-absent-rows": {
       "kind": "semantic",
-      "title": "What the missing OS rows and the Android table's 'ZDX Module Version for Windows' header mean",
+      "title": "What a feature's absence from an OS's table means",
       "status": "open",
-      "detail": "The Android and Android on ChromeOS diagnostics table's column header reads 'ZDX Module Version for Windows'. Most feature tables have no Android or iOS row and the Autosense table is Windows-only; the page does not say whether an absent row means the feature is unsupported on that OS. It also does not define Conventional, Resilient or Strict ('TCP - Resilent' is the page's spelling). Linux rows are also absent, though zcc.interoperability.security-software lists the Linux ZSAUpm path and zcc.passwords-and-otp.otp lists a Disable ZDX option for Linux.",
+      "detail": "The page gives one feature table per OS. Most features have a Windows row only or Windows and macOS rows, and the iOS and Android and Android on ChromeOS tables list only Cloud Path Probe and Web Probe; the page does not say whether an absent row means the feature is unsupported on that OS. Before the 2026-11-13 restructure the page listed Deep Tracing under Android and Android on ChromeOS at Client Connector 3.7 and ZDX Module 3.2 (under a column headed 'ZDX Module Version for Windows'); the current Android table has no Deep Tracing row, and the page does not say whether Android Deep Tracing was dropped. It also does not define Conventional, Resilient or Strict ('TCP - Resilent' is the page's spelling). Linux has no table, though zcc.interoperability.security-software lists the Linux ZSAUpm path and zcc.passwords-and-otp.otp lists a Disable ZDX option for Linux.",
       "resolves_with": [
         "source-read",
         "support-ticket"
@@ -446,16 +553,7 @@
       "kind": "semantic",
       "title": "Whether Software Inventory and Software and Device Inventory are the same feature",
       "status": "open",
-      "detail": "The page says Software and Device Inventory needs Client Connector 3.7.1.56 or later for Windows, and its Software Inventory table lists Windows 3.7.1.56 / 3.3.0.50; it does not say whether the two names are one feature.",
-      "resolves_with": [
-        "source-read"
-      ]
-    },
-    "device-events-macos": {
-      "kind": "semantic",
-      "title": "The Device Events table's macOS row",
-      "status": "open",
-      "detail": "The Device Events table has a macOS row reading 4.5.1 and 4.4 under the Software Crashes line with no type cell, and no System Crashes macOS row; neither is claimed. zdx.devices.health-and-events shows how to read the row (Software Crashes covers macOS, System Crashes is Windows), which this gap does not rely on.",
+      "detail": "The page says Software and Device Inventory needs Client Connector 3.7.1.56 or later for Windows; its Windows table lists Software Inventory and Hardware Inventory each at 3.7.1.56 / 3.3.0.50, and it does not say whether Software and Device Inventory names one of these or both.",
       "resolves_with": [
         "source-read"
       ]
