@@ -49,6 +49,9 @@
       "text": "{{scim-group-sort-order-dsc}} {{scim-group-list-envelope}} {{scim-attribute-header-creation-time-tag}} {{scim-attribute-header-delta}} {{saml-attribute-by-name-exact}}"
     },
     {
+      "text": "The OpenAPI type of a SCIM group's id and what some clouds return disagree {{divergence:scim-group-id-string-or-integer}}. {{go-scim-group-flexible-ints}}"
+    },
+    {
       "heading": "Go SCIM protocol client"
     },
     {
@@ -94,6 +97,13 @@
       "do": "Whether a SCIM user deactivation through the Go SDK sent active at all.",
       "uses": [
         "scim-user-active-omitempty"
+      ]
+    },
+    {
+      "do": "Whether a SCIM group lookup failed on a string id, and whether the Go SDK in use predates 3.8.60.",
+      "uses": [
+        "scim-group-id-string-or-integer",
+        "go-scim-group-flexible-ints"
       ]
     }
   ],
@@ -662,6 +672,33 @@
           "after": "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, idpId string) ([]ScimGroup, *http.Response, error) {"
         }
       ]
+    },
+    "go-scim-group-flexible-ints": {
+      "statement": "From Go SDK 3.8.60, a SCIM group's id, idpId, creationTime and modifiedTime are read whether the API returns each as a JSON number or as a number in a string, and a null or empty value reads as 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "# 3.8.60 (November 16, 2026)",
+            "ZPA `scimgroup`: `id`, `idpId`, `creationTime` and `modifiedTime` are read whether the API returns them as a number or as a number in a string."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "func (s *ScimGroup) UnmarshalJSON(data []byte) error {",
+            "{\"id\", aux.ID, &s.ID},",
+            "{\"idpId\", aux.IdpID, &s.IdpID},",
+            "func parseFlexibleInt64(raw json.RawMessage) (int64, error) {",
+            "if len(raw) == 0 || bytes.Equal(raw, []byte(\"null\")) {",
+            "if str = strings.TrimSpace(str); str == \"\" {",
+            "null/\"\" (0)."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -733,6 +770,46 @@
         }
       ],
       "impact": "A client that decodes these two members as integers fails on the recorded wire form; the Go SDK follows the string form. Compare the type before comparing values."
+    },
+    "scim-group-id-string-or-integer": {
+      "summary": "The OpenAPI schema types a SCIM group's id as an integer, but some ZPA clouds now return it as a string.",
+      "positions": [
+        {
+          "says": "The OpenAPI schema types the SCIM group id as an int64 integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties/id",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go SDK's release notes say some ZPA clouds now return the SCIM group id as a string, so every SCIM group lookup failed to decode.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Some ZPA clouds now return the SCIM group `id` as a string, which made every SCIM group lookup fail with `json: cannot unmarshal string into Go struct field ScimGroup.list.id of type int64`"
+            ]
+          }
+        },
+        {
+          "says": "One customer's zpa_scim_groups lookups, with the configuration and provider version unchanged, passed on 9 November 2026 and failed from 16 November; the reporter infers that the API now returns id as a JSON string.",
+          "evidence": {
+            "source": "github-issues",
+            "path": "terraform-provider-zpa-705.json",
+            "quotes": [
+              "Since sometime between Nov 9 and Nov 16, 2026, every `zpa_scim_groups` data source lookup in our configuration fails during plan with:",
+              "Our configuration and provider version did not change between the last passing plan (Nov 9) and the first failing plan (Nov 16)",
+              "which suggests the ZPA SCIM group API now returns `id` as a JSON string instead of a number"
+            ]
+          }
+        }
+      ],
+      "impact": "A client that decodes the id strictly as an integer fails on those clouds, as the Go SDK did before 3.8.60 and the ZPA Terraform provider before 4.4.18 [[zpa.scim.api-surface:tf-scim-groups-string-id-fix]]. Read the id as either form and compare ids by value, not by JSON type."
     }
   }
 }

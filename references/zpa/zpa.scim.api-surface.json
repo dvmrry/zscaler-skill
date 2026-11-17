@@ -28,6 +28,10 @@
     {
       "rel": "see-also",
       "to": "zpa.scim.group-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.idp-scim-wire"
     }
   ],
   "prose": [
@@ -40,7 +44,7 @@
     },
     {
       "label": "Objects.",
-      "text": "{{group-fields}} What internalId means is partly open {{gap:zpa-64-internal-id}}. {{attribute-header-fields}}"
+      "text": "{{group-fields}} The id's wire type is disputed [[zpa.api.idp-scim-wire:scim-group-id-string-or-integer]]. What internalId means is partly open {{gap:zpa-64-internal-id}}. {{attribute-header-fields}}"
     },
     {
       "label": "SDKs.",
@@ -48,7 +52,7 @@
     },
     {
       "label": "Terraform.",
-      "text": "{{tf-data-sources}} Id-over-name selection in these data sources is in [[zpa.terraform.data-source-selection]], and the SDK's name search in [[zpa.sdk-go.service-defects]]."
+      "text": "{{tf-data-sources}} {{tf-scim-groups-string-id-fix}} Id-over-name selection in these data sources is in [[zpa.terraform.data-source-selection]], and the SDK's name search in [[zpa.sdk-go.service-defects]]."
     },
     {
       "text": "{{go-scim-server-client}}"
@@ -69,7 +73,7 @@
       ]
     },
     {
-      "do": "Which group identifier is in hand: the Zscaler integer id, the IdP's idpGroupId, or the internalId.",
+      "do": "Which group identifier is in hand: the Zscaler id, the IdP's idpGroupId, or the internalId.",
       "uses": [
         "group-fields",
         "zpa-64-internal-id"
@@ -89,6 +93,12 @@
         "tf-data-sources",
         "name-lookups",
         "search-values-drops-domain"
+      ]
+    },
+    {
+      "do": "Whether a failing zpa_scim_groups lookup or SCIM group policy condition runs a provider older than 4.4.18.",
+      "uses": [
+        "tf-scim-groups-string-id-fix"
       ]
     }
   ],
@@ -232,7 +242,7 @@
       ]
     },
     "group-fields": {
-      "statement": "A SCIM group has id, name, idpId, idpGroupId, internalId, creationTime and modifiedTime, with name, idpId and idpGroupId required; the Zscaler id is an integer while idpGroupId is the IdP's own string identifier.",
+      "statement": "A SCIM group has id, name, idpId, idpGroupId, internalId, creationTime and modifiedTime, with name, idpId and idpGroupId required; the contract types id as an integer and idpGroupId as a string.",
       "tier": "A",
       "evidence": [
         {
@@ -604,6 +614,22 @@
           "path": "zscaler/zpa/config_scim.go",
           "quotes": [
             "scimdefaultBaseURL = \"https://scim1.private.zscaler.com/scim/1/\""
+          ]
+        }
+      ]
+    },
+    "tf-scim-groups-string-id-fix": {
+      "statement": "ZPA provider 4.4.18 (16 November 2026) fixes zpa_scim_groups lookups, and SCIM group conditions in policy rules, on ZPA clouds that return the SCIM group ID as a string. It also stops rounding large idp_id values, and keeps the configured idp_name when the API does not return one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.4.18 (November 16, 2026)",
+            "`zpa_scim_groups`: lookups no longer fail with `json: cannot unmarshal string into Go struct field ScimGroup.list.id of type int64` on ZPA clouds that return the SCIM group ID as a string",
+            "The same fix applies to SCIM group conditions in policy rules.",
+            "`zpa_scim_groups`: large `idp_id` values are no longer rounded, and `idp_name` keeps the configured IdP name when the API does not return it."
           ]
         }
       ]
