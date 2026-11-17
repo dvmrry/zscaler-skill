@@ -49,7 +49,7 @@
       "text": "{{scim-group-sort-order-dsc}} {{scim-group-list-envelope}} {{scim-attribute-header-creation-time-tag}} {{scim-attribute-header-delta}} {{saml-attribute-by-name-exact}}"
     },
     {
-      "text": "{{divergence:scim-group-id-string-or-integer}} {{go-scim-group-flexible-ints}}"
+      "text": "The OpenAPI type of a SCIM group's id and what some clouds return disagree {{divergence:scim-group-id-string-or-integer}}. {{go-scim-group-flexible-ints}}"
     },
     {
       "heading": "Go SCIM protocol client"
@@ -694,7 +694,8 @@
             "{\"idpId\", aux.IdpID, &s.IdpID},",
             "func parseFlexibleInt64(raw json.RawMessage) (int64, error) {",
             "if len(raw) == 0 || bytes.Equal(raw, []byte(\"null\")) {",
-            "if str = strings.TrimSpace(str); str == \"\" {"
+            "if str = strings.TrimSpace(str); str == \"\" {",
+            "null/\"\" (0)."
           ]
         }
       ]
@@ -796,12 +797,14 @@
           }
         },
         {
-          "says": "A customer report dates the change: SCIM group lookups that passed on 9 November 2026 failed from 16 November, with the configuration and provider version unchanged.",
+          "says": "One customer's zpa_scim_groups lookups, with the configuration and provider version unchanged, passed on 9 November 2026 and failed from 16 November; the reporter infers that the API now returns id as a JSON string.",
           "evidence": {
             "source": "github-issues",
             "path": "terraform-provider-zpa-705.json",
             "quotes": [
-              "Our configuration and provider version did not change between the last passing plan (Nov 9) and the first failing plan (Nov 16)"
+              "Since sometime between Nov 9 and Nov 16, 2026, every `zpa_scim_groups` data source lookup in our configuration fails during plan with:",
+              "Our configuration and provider version did not change between the last passing plan (Nov 9) and the first failing plan (Nov 16)",
+              "which suggests the ZPA SCIM group API now returns `id` as a JSON string instead of a number"
             ]
           }
         }

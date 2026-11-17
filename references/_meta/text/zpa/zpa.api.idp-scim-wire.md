@@ -15,7 +15,7 @@ In the Go IdP structs every AdminMetadata field is serialized without omitempty,
 
 The SCIM group list documents sortOrder as ascending (ASC) or descending (DSC) and defaults to DSC. [zpa.api.idp-scim-wire:scim-group-sort-order-dsc] In the OpenAPI document the SCIM group list by IdP (/userconfig/v1/.../scimgroup/idpId/{idpId}) returns list, totalCount and totalPages with no currentCount, while the mgmtconfig SAML attribute and SCIM attribute lists also carry currentCount. [zpa.api.idp-scim-wire:scim-group-list-envelope] The Go ScimAttributeHeader struct tags creationTime as `creationTime,omitempty,` with a trailing comma. [zpa.api.idp-scim-wire:scim-attribute-header-creation-time-tag] The Python SCIMAttributeHeader model and the OpenAPI schema carry a delta field; the Go ScimAttributeHeader struct has none. [zpa.api.idp-scim-wire:scim-attribute-header-delta] The Go SAML attribute GetByName compares names with ==, so it is case-sensitive, unlike the SCIM attribute header lookup, which uses strings.EqualFold. [zpa.api.idp-scim-wire:saml-attribute-by-name-exact]
 
-[divergence:zpa.api.idp-scim-wire:scim-group-id-string-or-integer] From Go SDK 3.8.60, a SCIM group's id, idpId, creationTime and modifiedTime are read whether the API returns each as a JSON number or as a number in a string, and a null or empty value reads as 0. [zpa.api.idp-scim-wire:go-scim-group-flexible-ints]
+The OpenAPI type of a SCIM group's id and what some clouds return disagree [divergence:zpa.api.idp-scim-wire:scim-group-id-string-or-integer]. From Go SDK 3.8.60, a SCIM group's id, idpId, creationTime and modifiedTime are read whether the API returns each as a JSON number or as a number in a string, and a null or empty value reads as 0. [zpa.api.idp-scim-wire:go-scim-group-flexible-ints]
 
 ## Go SCIM protocol client
 
@@ -47,7 +47,7 @@ Sources disagree (name both sides):
 - The OpenAPI schema types a SCIM group's id as an integer, but some ZPA clouds now return it as a string. [divergence:zpa.api.idp-scim-wire:scim-group-id-string-or-integer]
   - api-specs: The OpenAPI schema types the SCIM group id as an int64 integer.
   - sdk-go: The Go SDK's release notes say some ZPA clouds now return the SCIM group id as a string, so every SCIM group lookup failed to decode.
-  - github-issues: A customer report dates the change: SCIM group lookups that passed on 9 November 2026 failed from 16 November, with the configuration and provider version unchanged.
+  - github-issues: One customer's zpa_scim_groups lookups, with the configuration and provider version unchanged, passed on 9 November 2026 and failed from 16 November; the reporter infers that the API now returns id as a JSON string.
   Impact: A client that decodes the id strictly as an integer fails on those clouds, as the Go SDK did before 3.8.60 and the ZPA Terraform provider before 4.4.18 [[zpa.scim.api-surface:tf-scim-groups-string-id-fix]]. Read the id as either form and compare ids by value, not by JSON type.
 
 Not known (open gaps):
