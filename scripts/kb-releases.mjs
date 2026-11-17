@@ -23,6 +23,7 @@ export const SECTION_PRODUCT = {
   easm: "easm",
   "identity-protection": "identity-protection",
   itdr: "identity-protection",
+  microsegmentation: "zms",
   risk360: "risk360",
   "secure-ai-apps-infra": "ai-security",
   "secure-ai-users": "ai-security",

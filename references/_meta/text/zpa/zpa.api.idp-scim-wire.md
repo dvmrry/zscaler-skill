@@ -15,6 +15,8 @@ In the Go IdP structs every AdminMetadata field is serialized without omitempty,
 
 The SCIM group list documents sortOrder as ascending (ASC) or descending (DSC) and defaults to DSC. [zpa.api.idp-scim-wire:scim-group-sort-order-dsc] In the OpenAPI document the SCIM group list by IdP (/userconfig/v1/.../scimgroup/idpId/{idpId}) returns list, totalCount and totalPages with no currentCount, while the mgmtconfig SAML attribute and SCIM attribute lists also carry currentCount. [zpa.api.idp-scim-wire:scim-group-list-envelope] The Go ScimAttributeHeader struct tags creationTime as `creationTime,omitempty,` with a trailing comma. [zpa.api.idp-scim-wire:scim-attribute-header-creation-time-tag] The Python SCIMAttributeHeader model and the OpenAPI schema carry a delta field; the Go ScimAttributeHeader struct has none. [zpa.api.idp-scim-wire:scim-attribute-header-delta] The Go SAML attribute GetByName compares names with ==, so it is case-sensitive, unlike the SCIM attribute header lookup, which uses strings.EqualFold. [zpa.api.idp-scim-wire:saml-attribute-by-name-exact]
 
+The OpenAPI type of a SCIM group's id and what some clouds return disagree [divergence:zpa.api.idp-scim-wire:scim-group-id-string-or-integer]. From Go SDK 3.8.60, a SCIM group's id, idpId, creationTime and modifiedTime are read whether the API returns each as a JSON number or as a number in a string, and a null or empty value reads as 0. [zpa.api.idp-scim-wire:go-scim-group-flexible-ints]
+
 ## Go SCIM protocol client
 
 The Go SCIM configuration is built once per process inside a sync.Once and every later NewScimConfig call returns that same configuration, so one process targets one IdP ID. [zpa.api.idp-scim-wire:scim-config-singleton] The Go SCIM client maps the cloud name to a base URL: PRODUCTION (the default) scim1.private.zscaler.com, BETA scim1.zpabeta.net, ZPATWO scim1.zpatwo.net, GOV scim1.zpagov.net, GOVUS scim1.zpagov.us and PREVIEW scim1.zpapreview.net, each under /scim/1/ followed by the IdP ID. [zpa.api.idp-scim-wire:scim-cloud-base-urls] The Go SCIM client always sends Content-Type application/scim+json and a bearer token, a different client from the one that sends application/json to the ZPA management API. [zpa.api.idp-scim-wire:scim-requests-use-scim-json]
@@ -31,6 +33,7 @@ What to check:
 3. Whether a SCIM user was looked up by display name rather than login name.
 4. Which SCIM cloud and IdP ID the process-wide configuration was built with.
 5. Whether a SCIM user deactivation through the Go SDK sent active at all.
+6. Whether a SCIM group lookup failed on a string id, and whether the Go SDK in use predates 3.8.60.
 
 Inferred, not quoted (say so when an answer rests on one):
 - [zpa.api.idp-scim-wire:scim-group-idpname] Tier B: Absence claim: the contract schema and the recorded list entry do not contain idpName; the Python model has no such attribute either. The iamIdpId and iamIdpName fields are in the Go SDK since v3.8.50; the contract has iamIdpId only on the IdP object, not on SCIM groups (read from the whole OpenAPI document).
@@ -41,6 +44,11 @@ Sources disagree (name both sides):
   - sdk-python: A recorded response carries autoProvision "0" and signSamlRequest "1" as strings.
   - sdk-go: The Go IdpController struct types AutoProvision and SignSamlRequest as strings.
   Impact: A client that decodes these two members as integers fails on the recorded wire form; the Go SDK follows the string form. Compare the type before comparing values.
+- The OpenAPI schema types a SCIM group's id as an integer, but some ZPA clouds now return it as a string. [divergence:zpa.api.idp-scim-wire:scim-group-id-string-or-integer]
+  - api-specs: The OpenAPI schema types the SCIM group id as an int64 integer.
+  - sdk-go: The Go SDK's release notes say some ZPA clouds now return the SCIM group id as a string, so every SCIM group lookup failed to decode.
+  - github-issues: One customer's zpa_scim_groups lookups, with the configuration and provider version unchanged, passed on 9 November 2026 and failed from 16 November; the reporter infers that the API now returns id as a JSON string.
+  Impact: A client that decodes the id strictly as an integer fails on those clouds, as the Go SDK did before 3.8.60 and the ZPA Terraform provider before 4.4.18 [[zpa.scim.api-surface:tf-scim-groups-string-id-fix]]. Read the id as either form and compare ids by value, not by JSON type.
 
 Not known (open gaps):
 - Whether SCIM reads need an IdP whose ssoType includes USER [gap:zpa.api.idp-scim-wire:scim-needs-user-sso-type]: settled by lab-test. Blocks: choosing the IdP ID to pass to SCIM group and attribute calls

@@ -54,6 +54,10 @@
       "text": "{{zcc-request-do-double-marshals}} {{zcc-double-marshal-not-reached-by-provider}} {{request-do-fabricates-200}} {{fabricated-200-disables-status-checks}} {{empty-success-body-decoded-as-eof}}"
     },
     {
+      "label": "Response numbers.",
+      "text": "{{html-unescape-rounded-large-integers}}"
+    },
+    {
       "label": "Create responses.",
       "text": "{{ztw-create-requires-exact-content-type}} {{ztw-create-type-assert-fails-after-post}} {{zia-create-same-exact-content-type}} Whether the APIs send the parameterized content types or empty bodies that trigger these is open {{gap:server-response-shapes}}. The same post-write failure is described in [[shared.sdk-go.retries]]."
     },
@@ -89,6 +93,12 @@
         "ztw-create-type-assert-fails-after-post",
         "zia-create-same-exact-content-type",
         "server-response-shapes"
+      ]
+    },
+    {
+      "do": "Whether a large numeric ID read through a Go SDK older than 3.8.60 was rounded.",
+      "uses": [
+        "html-unescape-rounded-large-integers"
       ]
     }
   ],
@@ -1043,6 +1053,30 @@
         }
       ],
       "conditions": "Count of the typed exits: `awk '/^func \\(c \\*Client\\) ExecuteRequest\\(/{f=1} f&&/^}/{f=0} f' zscaler/oneapiconfig.go | grep -c errorx.CheckErrorInResponse` over vendor/zscaler-sdk-go at v3.8.58 returns 4. The plain exits listed are not all of them: the transport and request-build errors return the raw error, and a request-body read failure is another `fmt.Errorf`."
+    },
+    "html-unescape-rounded-large-integers": {
+      "statement": "Before Go SDK 3.8.60, the step that unescapes HTML in name and description re-read the response with numbers as floating point, so integers above 2^53, such as 18-digit IDs sent as JSON numbers, came back rounded. From 3.8.60 they stay exact, in the OneAPI client and the legacy ZPA, ZIA SCIM, ZCC, ZDX and ZWA clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "# 3.8.60 (November 16, 2026)",
+            "Integers above 2^53 in API responses, such as 18-digit IDs stored as numbers, are no longer rounded.",
+            "The step that unescapes HTML in `name` and `description` read the response as floating-point numbers, so a value such as the ZPA SCIM group `idpId` `72060623063613444` came back as `72060623063613440`.",
+            "Applies to the OneAPI client and the legacy ZPA, ZIA SCIM, ZCC, ZDX and ZWA clients."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/utils.go",
+          "quotes": [
+            "dec.UseNumber()"
+          ],
+          "after": "func unescapeHTML(entity interface{}) {"
+        }
+      ]
     }
   },
   "gaps": {
