@@ -136,7 +136,7 @@ def contract_fields_for_resource(product: str, resource: dict, contracts: dict) 
                 if field and field.get("name"):
                     fields.setdefault(field["name"], _contract_field_from_schema(field))
         if cfg.get("compare_required", True) and cfg.get("create"):
-            create_op = contracts.get(_contract_key(product, cfg, cfg["create"]))
+            create_op = contracts.get(_contract_key(product, cfg["create"], contracts))
             for raw in (create_op or {}).get("request_body") or []:
                 field = _contract_reconcile_field(raw)
                 if field and field.get("name"):
