@@ -1,7 +1,7 @@
 # When an app profile change reaches a device (zcc.app-profiles.propagation)
 Also called: app profile change not applied; app profile propagation; zcc policy update; when does zcc download the app profile; update policy zcc
 
-The app checks for app profile updates and downloads changes whenever the user logs out and back into the app or restarts the computer. [zcc.app-profiles.propagation:download-on-relogin] Settings held on the app profile, among them the forwarding profile choice, passwords, SSL certificate installation and log mode, therefore reach a device when it next downloads the profile, not when they are saved. [zcc.app-profiles.propagation:settings-ride-the-profile]
+The app checks for app profile updates and downloads changes whenever users log out and back into the app. [zcc.app-profiles.propagation:download-on-relogin] Settings held on the app profile, among them the forwarding profile choice, passwords, SSL certificate installation and log mode, therefore reach a device when it next downloads the profile, not when they are saved. [zcc.app-profiles.propagation:settings-ride-the-profile]
 
 App profile edits also reach a device without a logout or restart: the help describes the device checking in to download a modified app profile, an automatic policy update, and Update Policy in the app as a manual refresh. [zcc.app-profiles.propagation:connected-without-relogin] How often a connected device checks in is open [gap:zcc.app-profiles.propagation:connected-refresh]. Whether an edit through the API also needs an activate call is open in [Whether an edit is served without calling activate](kb:zcc.api.web-policy-wire:edit-needs-activate).
 
