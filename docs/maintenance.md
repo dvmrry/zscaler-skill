@@ -217,7 +217,10 @@ empties the record when the next run is recorded, so record any run in flight fi
     claim's result is **held**, and the report lists it first with the draft.
     Check the draft against its quotes, edit the run's `--json` if needed, and
     apply it with `node scripts/kb-reanchor.mjs --apply <file.json>`, which
-    skips what the run already wrote. It regenerates the spines, the reading
+    skips what the run already wrote. A draft is written only when every
+    quote it restates is marked valid, and `--apply` takes the verdicts as
+    the file gives them, so run `node scripts/check-full.mjs` after it. It
+    regenerates the spines, the reading
     text and `verified.json`, and leaves what the page no longer supports for
     a person. Read its `--report` before committing;
   - read every in-change entry against its claim;

@@ -95,8 +95,8 @@ test("old_version pins a pinned file's evidence to the release it was quoted fro
     pinned: true, oldRef: "v4.4.14", page: "go.mod", ei: 0,
   });
   const checked = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "replace", new_quote: "go 1.25" }], broken);
-  assert.deepEqual(checked.map((d) => d.verdict), ["valid", "bad length"]);
-  applyDecisions([checked[0], { ...checked[1], verdict: "valid", new_quote: "go 1.25 here" }]);
+  assert.deepEqual(checked.map((d) => d.verdict), ["mixed versions", "bad length"], "the pin must answer for the other broken quote too");
+  applyDecisions([{ ...checked[0], verdict: "valid" }, { ...checked[1], verdict: "valid", new_quote: "go 1.25 here" }]);
   assert.deepEqual(ev, { quotes: ["github.com/zscaler/zscaler-sdk-go/v3 v3.8.56", "go 1.24"], at: ["v4.4.14"] });
   assert.equal(checkDecision({ quote: 1, action: "old_version" }, [{ ...broken[0], pinned: false }]).verdict, "not a pinned file");
 });
@@ -484,4 +484,40 @@ test("the summary keeps the keys the repair job's commit message reads, and coun
   ]);
   for (const k of ["claims", "valid", "unsupported", "rejected", "errors"]) assert.ok(k in s, k);
   assert.deepEqual([s.claims, s.valid, s.held, s.suggested, s.unsupported, s.rejected], [2, 1, 1, 1, 1, 1]);
+});
+
+test("old_version is not applied when another broken quote of its entry has no usable decision", () => {
+  // The independent review of #359: an invalid repair, or none, for the other quote left the pin valid.
+  const ev = { quotes: ["v3.8.56 is pinned here", "go 1.24 is the toolchain"] };
+  const { broken } = entryItems(ev, {
+    norm: normalizeWs, oldText: "x v3.8.56 is pinned here y go 1.24 is the toolchain", newText: "x v3.8.58 is pinned here y go 1.25 is the toolchain",
+    pinned: true, oldRef: "v4.4.14", page: "go.mod", ei: 0,
+  });
+  const invalid = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "replace", new_quote: "go 1.26 is the toolchain" }], broken);
+  assert.deepEqual(invalid.map((c) => c.verdict), ["mixed versions", "not in the source"]);
+  const missing = checkAll([{ quote: 1, action: "old_version" }], broken);
+  assert.deepEqual(missing.map((c) => c.verdict), ["mixed versions"]);
+});
+
+test("a restate that loses its statement takes its entry's other repairs with it", () => {
+  const entry = { quotes: ["a", "b"] };
+  const other = { quotes: ["c"] };
+  const checked = [
+    { quote: 1, action: "replace", verdict: "valid", evidence: entry, round: 1 },
+    { quote: 2, action: "replace_and_restate", verdict: "valid", evidence: entry, round: 1 },
+    { quote: 3, action: "replace", verdict: "valid", evidence: other, round: 1 },
+  ];
+  assert.equal(restatement(checked, { 1: undefined }, "Orig."), undefined);
+  assert.deepEqual(checked.map((c) => c.verdict), [STAYS_BROKEN, "no usable statement", "valid"]);
+});
+
+test("--apply writes a held draft only with every quote it restates", () => {
+  const node = () => ({ data: { statement: "Old.", evidence: [{ quotes: ["q"] }] } });
+  const broken = node();
+  applyResult(broken, { restated: "New.", decisions: [{ action: "replace_and_restate", verdict: STAYS_BROKEN }, { action: "unsupported", verdict: "unsupported" }] });
+  assert.equal(broken.data.statement, "Old.", "the draft's quotes stay broken, so the statement stays as it was");
+  const ready = node();
+  applyResult(ready, { restated: "New.", decisions: [{ action: "replace_and_restate", verdict: "valid", evidence: ready.data.evidence[0], old: "q", qi: 0, new_quote: "q2" }] });
+  assert.equal(ready.data.statement, "New.");
+  assert.deepEqual(ready.data.evidence[0].quotes, ["q2"]);
 });

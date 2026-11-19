@@ -485,15 +485,16 @@ function outcome(ev, decisions) {
  * Each rejection changes the outcome, so this repeats until nothing more is rejected. An entry `old_version` pins
  * takes no other edit.
  */
-function settleEntry(E, cs) {
+function settleEntry(E, cs, quotes) {
   const reject = (list, verdict, detail) => list.forEach((c) => Object.assign(c, { verdict, detail }));
   const valid = () => cs.filter((c) => c.verdict === "valid");
-  if (valid().some((c) => c.action === "old_version")) {
-    // Pinning keeps every quote of the entry as it was at the old version, so it answers for all of them: a quote the
-    // same reply calls unsupported, or repairs, says the claim is not about that version alone.
-    const others = cs.filter((c) => c.action !== "old_version" && (c.verdict === "valid" || c.verdict === "unsupported"));
-    if (!others.length) return;
-    reject(valid().filter((c) => c.action === "old_version"), "mixed versions", "old_version pins the whole evidence entry, but another decision for it repairs a quote or calls it unsupported; give old_version for every quote of the entry, or for none");
+  const pins = () => valid().filter((c) => c.action === "old_version");
+  if (pins().length) {
+    // Pinning keeps every quote of the entry as it was at the old version, so it must answer for every broken one: a
+    // quote the same reply repairs, calls unsupported, or gives no usable decision for is not about that version alone.
+    const pinned = new Set(pins().map((c) => c.quote));
+    if (quotes.every((q) => pinned.has(q))) return;
+    reject(pins(), "mixed versions", "old_version pins the whole evidence entry, so it must be given for every broken quote of the entry; give old_version for all of them, or for none");
   }
   // A working anchor first: a decision that only repeats it does not conflict with one that would move it.
   if (E.ev.after !== undefined && !E.anchorBroken && !E.notAfter) {
@@ -597,7 +598,10 @@ export function checkAll(decisions, broken) {
     seen.add(quote);
     return checkDecision({ ...d, quote }, broken);
   });
-  for (const entry of new Set(broken.map((b) => b.entry))) settleEntry(entry, out.filter((c) => broken[c.quote - 1]?.entry === entry));
+  for (const entry of new Set(broken.map((b) => b.entry))) {
+    const quotes = broken.flatMap((b, i) => (b.entry === entry ? [i + 1] : []));
+    settleEntry(entry, out.filter((c) => broken[c.quote - 1]?.entry === entry), quotes);
+  }
   return out;
 }
 
@@ -634,6 +638,12 @@ export function restatement(checked, statements, original) {
   for (const c of restates) {
     if (c.verdict === "valid" && (round === undefined || (c.round ?? 1) > round)) {
       Object.assign(c, { verdict: "no usable statement", detail: "the reply's restated statement went with a change that was rejected, or was missing" });
+      // Its entry now keeps a broken quote, so the entry's other decisions are applied with it or not at all.
+      for (const o of checked) {
+        if (o !== c && o.verdict === "valid" && o.evidence !== undefined && o.evidence === c.evidence) {
+          Object.assign(o, { verdict: STAYS_BROKEN, detail: "another quote of the same evidence entry lost its restated statement, so the entry would still not anchor" });
+        }
+      }
     }
   }
   return round === undefined ? undefined : statements[round];
@@ -801,8 +811,11 @@ export function applyDecisions(decisions) {
 /** Apply one result to its node: the decisions to the evidence, and a restated statement to the claim or position. */
 export function applyResult(node, r) {
   applyDecisions(r.decisions);
-  if (r.restated && r.position === undefined) node.data.statement = r.restated;
-  else if (r.restated) node.data.positions[r.position].says = r.restated;
+  // A draft is written only with every quote it restates: one whose quote stays broken is for a reviewer to finish.
+  const ready = r.decisions.filter((d) => d.action === "replace_and_restate").every((d) => d.verdict === "valid");
+  if (!r.restated || !ready) return;
+  if (r.position === undefined) node.data.statement = r.restated;
+  else node.data.positions[r.position].says = r.restated;
 }
 
 /**
