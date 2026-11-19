@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { anchorIn, normalizeWs } from "./kb-lib.mjs";
 import {
-  applyDecisions, applyResult, buildPrompt, checkAll, checkDecision, counterpart, decide, entryItems, mismatch, overlap, plain, replay,
-  reportMarkdown, resolveEntry, restatement, resultsJson, retryPrompt, similarLines,
+  applyDecisions, applyResult, buildPrompt, checkAll, checkDecision, counterpart, decide, entryItems, heldFor, lineSpans, linesOf, mismatch,
+  overlap, plain, replay, reportMarkdown, resolveEntry, restatement, resultsJson, retryPrompt, similarLines, STAYS_BROKEN, summary,
 } from "./kb-reanchor.mjs";
 
 const OLD = "## Details\nIntro text here.\nDetails: Clicking the Details icon opens a window with Overview and Prompt Details.\nClosing line.";
@@ -60,8 +60,20 @@ test("the prompt carries the claim's other quotes, so a restatement keeps what t
 
 test("the report lists each decision and a restated statement before and after", () => {
   const md = reportMarkdown([{ id: "a.b:c", statement: "Old.", restated: "New.", decisions: [{ action: "replace_and_restate", verdict: "valid", old: "x", new_quote: "y", reason: "renamed" }] }]);
-  assert.match(md, /1 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check, 0 no longer supported/);
+  assert.match(md, /1 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check; 0 restated statement\(s\) held for review; 0 quote\(s\) no longer supported/);
   assert.match(md, /Statement was: Old\.[\s\S]*Statement now: New\./);
+});
+
+test("a held restatement is reported first, as a draft with its proposed quotes, and not counted as applied", () => {
+  const results = [
+    { id: "a.b:plain", statement: "P.", decisions: [{ action: "replace", verdict: "valid", old: "p", new_quote: "q" }] },
+    { id: "a.b:held", statement: "Old.", restated: "New.", held: "restated", decisions: [{ action: "replace_and_restate", verdict: "valid", old: "x", new_quote: "y" }] },
+  ];
+  const md = reportMarkdown(results);
+  assert.match(md, /2 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check; 1 restated statement\(s\) held for review/);
+  assert.ok(md.indexOf("a.b:held") < md.indexOf("a.b:plain"), "held statements come first");
+  assert.match(md, /### `a\.b:held` \(held for review\)[\s\S]*- proposed: "y"[\s\S]*Draft: New\./);
+  assert.deepEqual([summary(results).valid, summary(results).held], [1, 1]);
 });
 
 test("in a pinned file, a moved context anchor is re-anchored, and the quotes under it need only follow it", () => {
@@ -83,8 +95,8 @@ test("old_version pins a pinned file's evidence to the release it was quoted fro
     pinned: true, oldRef: "v4.4.14", page: "go.mod", ei: 0,
   });
   const checked = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "replace", new_quote: "go 1.25" }], broken);
-  assert.deepEqual(checked.map((d) => d.verdict), ["valid", "bad length"]);
-  applyDecisions([checked[0], { ...checked[1], verdict: "valid", new_quote: "go 1.25 here" }]);
+  assert.deepEqual(checked.map((d) => d.verdict), ["mixed versions", "bad length"], "the pin must answer for the other broken quote too");
+  applyDecisions([{ ...checked[0], verdict: "valid" }, { ...checked[1], verdict: "valid", new_quote: "go 1.25 here" }]);
   assert.deepEqual(ev, { quotes: ["github.com/zscaler/zscaler-sdk-go/v3 v3.8.56", "go 1.24"], at: ["v4.4.14"] });
   assert.equal(checkDecision({ quote: 1, action: "old_version" }, [{ ...broken[0], pinned: false }]).verdict, "not a pinned file");
 });
@@ -226,17 +238,23 @@ test("an anchor is not blamed for quotes it did not move, and a wrong anchor giv
     { quote: 1, action: "replace", new_quote: "Repair App: Click Repair to reinstall the drivers." },
     { quote: 2, action: "anchor", after: "features on macOS devices:" },
   ], both);
-  assert.deepEqual(checked.map((c) => c.verdict), ["valid", "another part of the page"]);
+  // The wrong anchor is rejected on its own; the right repair is not blamed for it, but its entry still has a broken
+  // quote, so it is kept as a suggestion rather than applied.
+  assert.deepEqual(checked.map((c) => c.verdict), [STAYS_BROKEN, "another part of the page"]);
 });
 
-test("old_version supersedes the other edits of its evidence entry", () => {
+test("old_version pins an evidence entry only when it answers for every broken quote of it", () => {
   const ev = { quotes: ["v3.8.56 is pinned here", "go 1.24 is the toolchain"] };
   const { broken } = entryItems(ev, {
     norm: normalizeWs, oldText: "x v3.8.56 is pinned here y go 1.24 is the toolchain", newText: "x v3.8.58 is pinned here y go 1.25 is the toolchain",
     pinned: true, oldRef: "v4.4.14", page: "go.mod", ei: 0,
   });
-  const checked = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "replace", new_quote: "go 1.25 is the toolchain" }], broken);
-  assert.deepEqual(checked.map((c) => c.verdict), ["valid", "superseded"]);
+  const mixed = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "replace", new_quote: "go 1.25 is the toolchain" }], broken);
+  assert.deepEqual(mixed.map((c) => c.verdict), ["mixed versions", STAYS_BROKEN], "pinning one quote and repairing the other is two claims about two versions");
+  const unsupported = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "unsupported" }], broken);
+  assert.deepEqual(unsupported.map((c) => c.verdict), ["mixed versions", "unsupported"]);
+  const both = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "old_version" }], broken);
+  assert.deepEqual(both.map((c) => [c.verdict, c.pin]), [["valid", "v4.4.14"], ["valid", "v4.4.14"]]);
 });
 
 test("a section at the old page's end does not give its place to a copy appended after it", () => {
@@ -312,7 +330,8 @@ test("rejected decisions go back to the model once, with the reason, and the usa
   assert.match(asked[1].at(-1).content, /Item 1 \(replace\): occurs twice: it occurs 2 times/);
   assert.equal(asked[1][1].role, "assistant");
   assert.equal(d.retried, true);
-  assert.deepEqual(d.decisions.map((x) => `${x.quote}:${x.action}/${x.verdict}`), ["2:unsupported/unsupported", "1:anchor/valid"], "the second reply's decision for a standing quote is not taken");
+  // Quote 2 is unsupported, so the entry still fails and quote 1's repair is a suggestion; it stands all the same.
+  assert.deepEqual(d.decisions.map((x) => `${x.quote}:${x.action}/${x.verdict}`), ["2:unsupported/unsupported", `1:anchor/${STAYS_BROKEN}`], "the second reply's decision for a standing quote is not taken");
   assert.equal(retryPrompt(d.decisions, broken), null);
   assert.match(retryPrompt([], broken), /Item 1: no decision was given\.[\s\S]*Item 2: no decision was given\./);
   const once = await decide({ id: "a", statement: "S." }, [], [broken[1]], async () => ({ json: { decisions: [{ quote: 1, action: "unsupported" }] }, text: "{}" }));
@@ -347,4 +366,158 @@ test("a divergence position's decisions and statement survive --json and apply t
   assert.equal(node.data.positions[1].says, "y, reworded");
   assert.equal(node.data.positions[0].says, "x");
   assert.match(reportMarkdown([{ ...r, decisions: [] }]), /### `a\.b:d positions\[1\]`/);
+});
+
+test("an entry is repaired whole or not at all: a data row taken as the anchor, with the entry's quote unsupported, is only a suggestion", () => {
+  // ZDX on #354: the page went from one section per feature to one per OS, and the model replaced the
+  // "## Remediation" anchor with the macOS row while calling the Windows quote unsupported.
+  const ev = { after: "## Remediation", quotes: ["| Windows | 4.8 | 4.7 |"] };
+  const old = "## Remediation | Windows | 4.8 | 4.7 | | macOS | 5.0 | 4.7 |";
+  const now = "View the following ZDX features for Windows: | Remediation | N/A | 4.8.0.151 | 4.7.0.48 | View the following ZDX features for macOS: | Remediation | N/A | 5.0 | 4.7 |";
+  const { broken } = items(ev, old, now);
+  assert.deepEqual(broken.map((b) => [Boolean(b.anchor), b.why]), [[true, "missing"], [false, "missing"]]);
+  const checked = checkAll([{ quote: 1, action: "replace", new_quote: "| Remediation | N/A | 5.0 | 4.7 |" }, { quote: 2, action: "unsupported" }], broken);
+  assert.deepEqual(checked.map((c) => c.verdict), [STAYS_BROKEN, "unsupported"]);
+  assert.match(checked[0].detail, /left as it was, for a person/);
+  assert.equal(retryPrompt(checked, broken), null, "an entry that stays broken is not the decision's fault, so nothing is asked again");
+});
+
+test("a context anchor that still works stays, unless a quote now comes before it", () => {
+  const ev = { after: "features on Windows devices:", quotes: ["Repair App: Click Repair to reinstall the drivers."] };
+  const now = `${WIN_OLD.replace("reinstall the drivers", "reinstall all drivers")} - macOS - The page includes the following features on macOS devices: - Repair App: Click Repair to reinstall the macOS drivers.`;
+  const { broken } = items(ev, WIN_OLD, now);
+  assert.deepEqual(broken.map((b) => b.why), ["missing"]);
+  const moved = checkAll([{ quote: 1, action: "replace", new_quote: "Repair App: Click Repair to reinstall the macOS drivers.", after: "features on macOS devices:" }], broken);
+  assert.equal(moved[0].verdict, "anchor still works");
+  const kept = checkAll([{ quote: 1, action: "replace", new_quote: "Repair App: Click Repair to reinstall all drivers." }], broken);
+  assert.equal(kept[0].verdict, "valid");
+  const before = items({ after: "Section B:", quotes: ["Alpha beta gamma delta."] }, "Intro line here. Section A: x. Section B: Alpha beta gamma delta.", "Intro line here. Alpha beta gamma delta. Section A: x. Section B: y.");
+  assert.deepEqual(before.broken.map((b) => b.why), ["not after its anchor"]);
+  assert.notEqual(checkAll([{ quote: 1, action: "anchor", after: "Intro line here." }], before.broken)[0].verdict, "anchor still works");
+});
+
+test("on a page capture, a repaired quote stays on one line, though a lead-in may run into its list", () => {
+  const withSpans = (ev, oldShown, newShown) => items(ev, oldShown, newShown, { oldSpans: lineSpans(oldShown, plain(oldShown)), newSpans: lineSpans(newShown, plain(newShown)) });
+  const table = withSpans(
+    { quotes: ["| Probe | Adaptive Mode | 3.3 | 2.2 |"] },
+    "## Probes\n| Probe | Adaptive Mode | 3.3 | 2.2 |\n| Probe | ICMP | 2.2.1 | 1.0.0 |",
+    "## Probes\n| Autosense | Zoom | 4.3 | 3.8 |\n| Probe | Adaptive Mode | 3.4 | 2.3 |\n| Probe | ICMP | 2.2.1 | 1.0.0 |",
+  );
+  const joined = checkAll([{ quote: 1, action: "replace", new_quote: "| Autosense | Zoom | 4.3 | 3.8 | | Probe | Adaptive Mode | 3.4 | 2.3 |" }], table.broken);
+  assert.equal(joined[0].verdict, "runs across lines");
+  assert.match(joined[0].detail, /runs over 2 lines of the page/);
+  assert.equal(checkAll([{ quote: 1, action: "replace", new_quote: "| Probe | Adaptive Mode | 3.4 | 2.3 |" }], table.broken)[0].verdict, "valid");
+  const list = withSpans({ quotes: ["Choose a mode: Fast or Slow."] }, "## Modes\nChoose a mode: Fast or Slow.\nDone.", "## Modes\nChoose a mode:\n- Fast\n- Slow\nDone.");
+  assert.equal(checkAll([{ quote: 1, action: "replace", new_quote: "Choose a mode: - Fast - Slow" }], list.broken)[0].verdict, "valid");
+  const many = withSpans({ quotes: ["- Fast - Slow"] }, "## Modes\n- Fast\n- Slow", "## Modes\n- Quick\n- Slow");
+  assert.equal(checkAll([{ quote: 1, action: "replace", new_quote: "- Quick - Slow" }], many.broken)[0].verdict, "valid", "an old quote over two lines may be replaced by one over two");
+});
+
+test("line spans locate each line of a capture in its normalized text, or are not given at all", () => {
+  const shown = "# Head\n- item **one**\n\n| a | b |";
+  const spans = lineSpans(shown, plain(shown));
+  assert.deepEqual(spans.map((s) => s.s), ["# Head", "- item one", "| a | b |"]);
+  assert.deepEqual(linesOf(spans, plain(shown).indexOf("one"), "one | a".length), [1, 2]);
+  assert.equal(lineSpans("a\nb", "a  b"), null);
+});
+
+test("a model's restatement is held unless a reviewed run applies it", () => {
+  assert.equal(heldFor({ restated: "New." }, false), "restated");
+  assert.equal(heldFor({ restated: "New." }, true), undefined);
+  assert.equal(heldFor({}, false), undefined);
+});
+
+test("a restatement in an entry that stays broken keeps its draft, and any restate decision holds the whole result", () => {
+  // Fable 5.2's review: the restate's entry stays broken, so restatement() dropped the draft and the result, not held,
+  // wrote another entry's repair under the old statement.
+  const checked = [
+    { quote: 1, action: "replace_and_restate", verdict: STAYS_BROKEN, round: 1 },
+    { quote: 2, action: "unsupported", verdict: "unsupported", round: 1 },
+    { quote: 3, action: "replace", verdict: "valid", round: 1 },
+  ];
+  assert.equal(restatement(checked, { 1: "New." }, "Old."), "New.");
+  assert.equal(checked[0].verdict, STAYS_BROKEN);
+  assert.equal(heldFor({ decisions: checked }, false), "restated");
+  assert.equal(heldFor({ decisions: [{ action: "replace_and_restate", verdict: "no usable statement" }] }, false), "restated", "a rejected restate still says the statement is stale");
+  assert.equal(heldFor({ decisions: [{ action: "replace", verdict: "valid" }] }, false), undefined);
+});
+
+test("a decision that repeats a working anchor does not conflict with one that would move it", () => {
+  const ev = { after: "features on Windows devices:", quotes: ["Repair App: Click Repair to reinstall the drivers.", "Clear Logs: Click Clear."] };
+  const now = `${WIN_OLD.replace("reinstall the drivers", "reinstall all drivers").replace("Click Clear.", "Click Clear All.")} - macOS - The page includes the following features on macOS devices: - Repair App: Click Repair to reinstall the macOS drivers. - Clear Logs: Click Clear now.`;
+  const { broken } = items(ev, WIN_OLD, now);
+  const checked = checkAll([
+    { quote: 1, action: "replace", new_quote: "Repair App: Click Repair to reinstall all drivers.", after: "features on Windows devices:" },
+    { quote: 2, action: "replace", new_quote: "Clear Logs: Click Clear now.", after: "features on macOS devices:" },
+  ], broken);
+  assert.deepEqual(checked.map((c) => c.verdict), [STAYS_BROKEN, "anchor still works"], "only the move is rejected; the other waits for its sibling");
+});
+
+test("a list item ending in a colon may run into the items nested under it, not into its sibling", () => {
+  const withSpans = (ev, oldShown, newShown) => items(ev, oldShown, newShown, { oldSpans: lineSpans(oldShown, plain(oldShown)), newSpans: lineSpans(newShown, plain(newShown)) });
+  const siblings = withSpans({ quotes: ["- Rule Order: All rules are evaluated."] }, "## Rules\n- Rule Order: All rules are evaluated.\n- Label: A name.", "## Rules\n- Rule Order:\n- All parent rules are evaluated.\n- Label: A name.");
+  assert.equal(checkAll([{ quote: 1, action: "replace", new_quote: "- Rule Order: - All parent rules are evaluated." }], siblings.broken)[0].verdict, "runs across lines");
+  const nested = withSpans({ quotes: ["- Rule Order: All rules are evaluated."] }, "## Rules\n- Rule Order: All rules are evaluated.\n- Label: A name.", "## Rules\n- Rule Order:\n  - All parent rules are evaluated.\n- Label: A name.");
+  assert.equal(checkAll([{ quote: 1, action: "replace", new_quote: "- Rule Order: - All parent rules are evaluated." }], nested.broken)[0].verdict, "valid");
+});
+
+test("an entry that stays broken in the first round is applied once the second round repairs its sibling", async () => {
+  const ev = { quotes: [RESTART, "Repair App: Click Repair to reinstall the drivers."] };
+  const old = WIN_OLD;
+  const now = WIN_OLD.replace("Restart Service: Click Restart to restart the app.", "Restart Service: Click Restart to restart it.").replace("reinstall the drivers", "reinstall all drivers");
+  const { broken } = items(ev, old, now);
+  assert.deepEqual(broken.map((b) => b.why), ["missing", "missing"]);
+  const replies = [
+    { decisions: [{ quote: 1, action: "replace", new_quote: "Restart Service: Click Restart to restart it." }, { quote: 2, action: "replace", new_quote: "Repair App: Click Repair to reinstall the drivers." }] },
+    { decisions: [{ quote: 2, action: "replace", new_quote: "Repair App: Click Repair to reinstall all drivers." }] },
+  ];
+  let n = 0;
+  const d = await decide({ id: "x", statement: "S." }, [], broken, async () => ({ json: replies[n++], text: "{}" }));
+  assert.equal(n, 2);
+  assert.deepEqual(d.decisions.map((x) => `${x.quote}:${x.verdict}`), ["1:valid", "2:valid"]);
+});
+
+test("the summary keeps the keys the repair job's commit message reads, and counts suggestions apart", () => {
+  const s = summary([
+    { id: "a", decisions: [{ verdict: "valid" }, { verdict: STAYS_BROKEN }, { verdict: "unsupported" }, { verdict: "not in the source" }] },
+    { id: "b", held: "restated", decisions: [{ verdict: "valid" }] },
+  ]);
+  for (const k of ["claims", "valid", "unsupported", "rejected", "errors"]) assert.ok(k in s, k);
+  assert.deepEqual([s.claims, s.valid, s.held, s.suggested, s.unsupported, s.rejected], [2, 1, 1, 1, 1, 1]);
+});
+
+test("old_version is not applied when another broken quote of its entry has no usable decision", () => {
+  // The independent review of #359: an invalid repair, or none, for the other quote left the pin valid.
+  const ev = { quotes: ["v3.8.56 is pinned here", "go 1.24 is the toolchain"] };
+  const { broken } = entryItems(ev, {
+    norm: normalizeWs, oldText: "x v3.8.56 is pinned here y go 1.24 is the toolchain", newText: "x v3.8.58 is pinned here y go 1.25 is the toolchain",
+    pinned: true, oldRef: "v4.4.14", page: "go.mod", ei: 0,
+  });
+  const invalid = checkAll([{ quote: 1, action: "old_version" }, { quote: 2, action: "replace", new_quote: "go 1.26 is the toolchain" }], broken);
+  assert.deepEqual(invalid.map((c) => c.verdict), ["mixed versions", "not in the source"]);
+  const missing = checkAll([{ quote: 1, action: "old_version" }], broken);
+  assert.deepEqual(missing.map((c) => c.verdict), ["mixed versions"]);
+});
+
+test("a restate that loses its statement takes its entry's other repairs with it", () => {
+  const entry = { quotes: ["a", "b"] };
+  const other = { quotes: ["c"] };
+  const checked = [
+    { quote: 1, action: "replace", verdict: "valid", evidence: entry, round: 1 },
+    { quote: 2, action: "replace_and_restate", verdict: "valid", evidence: entry, round: 1 },
+    { quote: 3, action: "replace", verdict: "valid", evidence: other, round: 1 },
+  ];
+  assert.equal(restatement(checked, { 1: undefined }, "Orig."), undefined);
+  assert.deepEqual(checked.map((c) => c.verdict), [STAYS_BROKEN, "no usable statement", "valid"]);
+});
+
+test("--apply writes a held draft only with every quote it restates", () => {
+  const node = () => ({ data: { statement: "Old.", evidence: [{ quotes: ["q"] }] } });
+  const broken = node();
+  applyResult(broken, { restated: "New.", decisions: [{ action: "replace_and_restate", verdict: STAYS_BROKEN }, { action: "unsupported", verdict: "unsupported" }] });
+  assert.equal(broken.data.statement, "Old.", "the draft's quotes stay broken, so the statement stays as it was");
+  const ready = node();
+  applyResult(ready, { restated: "New.", decisions: [{ action: "replace_and_restate", verdict: "valid", evidence: ready.data.evidence[0], old: "q", qi: 0, new_quote: "q2" }] });
+  assert.equal(ready.data.statement, "New.");
+  assert.deepEqual(ready.data.evidence[0].quotes, ["q2"]);
 });
