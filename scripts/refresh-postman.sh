@@ -217,17 +217,17 @@ const fs = require("node:fs");
 
 const origin = process.argv[2];
 const contents = process.argv.slice(3).map((filename) => fs.readFileSync(filename, "utf8"));
-const sourceMarker = "@site/docs/tools/postman/02-adding-collection.md";
+// The route table names the page by its source file, which the site has numbered ("02-adding-collection.md") and,
+// since 2026-11-18, not ("adding-collection.md").
+const sourceMarker = /@site\/docs\/tools\/postman\/(?:\d+-)?adding-collection\.md/g;
 const chunkIds = new Set();
 
 for (const content of contents) {
-  let cursor = 0;
-  while ((cursor = content.indexOf(sourceMarker, cursor)) !== -1) {
-    const loader = content.slice(Math.max(0, cursor - 800), cursor);
+  for (const marker of content.matchAll(sourceMarker)) {
+    const loader = content.slice(Math.max(0, marker.index - 800), marker.index);
     for (const match of loader.matchAll(/\.e\((\d+)\)/g)) {
       chunkIds.add(match[1]);
     }
-    cursor += sourceMarker.length;
   }
 }
 

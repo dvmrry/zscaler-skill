@@ -140,17 +140,15 @@ def test_contract_ops_records_an_allowed_missing_operation():
     res = {
         "name": "thing",
         "group": "things",
-        "get": "get-thing",
-        "create": "create-thing",
-        "allow_missing_contract_operations": ["create-thing"],
+        "get": "GET /things/{thingId}",
+        "create": "POST /things",
+        "allow_missing_contract_operations": ["POST /things"],
     }
-    contracts = {
-        "zpa/things/get-thing": {"method": "GET"},
-    }
-    reads, writes, coverage = _contract_ops(res, contracts, "zpa")
-    assert reads == [{"method": "GET"}], reads
+    get = {"method": "GET", "path": "/things/{thingId}"}
+    reads, writes, coverage = _contract_ops(res, {"zpa/things/get-thing": get}, "zpa")
+    assert reads == [get], reads
     assert writes == [], writes
-    assert coverage["missing_operations"] == ["zpa/things/create-thing"], coverage
+    assert coverage["missing_operations"] == ["POST /things"], coverage
 
 
 @case
@@ -158,15 +156,86 @@ def test_contract_ops_still_rejects_an_unexpected_missing_operation():
     res = {
         "name": "thing",
         "group": "things",
-        "get": "get-thing",
-        "create": "create-thing",
+        "get": "GET /things/{thingId}",
+        "create": "POST /things",
     }
     try:
-        _contract_ops(res, {"zpa/things/get-thing": {"method": "GET"}}, "zpa")
+        _contract_ops(res, {"zpa/things/get-thing": {"method": "GET", "path": "/things/{thingId}"}}, "zpa")
     except KeyError as exc:
-        assert "zpa/things/create-thing" in str(exc), exc
+        assert "POST /things" in str(exc), exc
     else:
         raise AssertionError("unexpected operation loss must remain a hard failure")
+
+
+@case
+def test_contract_ops_finds_an_operation_by_route_whatever_its_group_slug_and_parameter_names():
+    # On 2026-11-18 ZTW's network service group by-ID calls moved from `all` to
+    # `policy-resources`, and 29 ZPA operations got new slugs, each at the same route.
+    res = {"name": "thing", "group": "things",
+           "get": "GET /things/{thingId}", "create": "POST /things", "update": "PUT /things/{thingId}"}
+    get = {"method": "GET", "path": "/things/{id}"}
+    post = {"method": "POST", "path": "/things"}
+    put = {"method": "PUT", "path": "/things/{id}"}
+    contracts = {
+        "zpa/all/thing-resource-get-thing-by-id": get,
+        "zpa/things/create-thing": post,
+        "zpa/things/thing-resource-edit-thing": put,
+    }
+    reads, writes, coverage = _contract_ops(res, contracts, "zpa")
+    assert reads == [get] and writes == [post, put], (reads, writes)
+    assert coverage == {
+        "expected_operations": ["zpa/all/thing-resource-get-thing-by-id", "zpa/things/create-thing",
+                                "zpa/things/thing-resource-edit-thing"],
+        "missing_operations": [],
+    }, coverage
+
+
+@case
+def test_contract_ops_prefers_the_exact_path_to_a_parameter_rename():
+    # Two paths that differ only in a parameter's name, as ZDX already has.
+    res = {"name": "thing", "group": "things", "get": "GET /things/{thingId}"}
+    exact = {"method": "GET", "path": "/things/{thingId}"}
+    contracts = {"zpa/a/get-thing": {"method": "GET", "path": "/things/{id}"}, "zpa/b/get-thing": exact}
+    reads, _, coverage = _contract_ops(res, contracts, "zpa")
+    assert reads == [exact] and coverage["expected_operations"] == ["zpa/b/get-thing"], (reads, coverage)
+
+
+@case
+def test_contract_ops_rejects_a_route_that_names_two_operations():
+    res = {"name": "thing", "group": "things", "get": "GET /things/{thingKey}"}
+    contracts = {"zpa/a/get-thing": {"method": "GET", "path": "/things/{id}"},
+                 "zpa/b/get-thing": {"method": "GET", "path": "/things/{thingId}"}}
+    try:
+        _contract_ops(res, contracts, "zpa")
+    except KeyError as exc:
+        assert "GET /things/{thingKey} (names 2 operations)" in str(exc), exc
+    else:
+        raise AssertionError("a route with two operations must not be guessed")
+
+
+@case
+def test_contract_ops_matches_the_method_and_the_product():
+    res = {"name": "thing", "group": "things", "get": "GET /things/{thingId}"}
+    for contracts in ({"zpa/things/edit-thing": {"method": "PUT", "path": "/things/{id}"}},
+                      {"zia/things/get-thing": {"method": "GET", "path": "/things/{id}"}}):
+        try:
+            _contract_ops(res, contracts, "zpa")
+        except KeyError as exc:
+            assert "GET /things/{thingId}" in str(exc), exc
+        else:
+            raise AssertionError(f"another method or product is not this operation: {contracts}")
+
+
+@case
+def test_every_registry_reference_is_a_route():
+    from reconcile_contract import PRODUCTS, ROUTE_REF
+    for product, cfg in PRODUCTS.items():
+        for res in cfg["resources"]:
+            refs = [res["get"], *res.get("extra_gets", []), *res.get("extra_updates", []),
+                    *(x for x in (res.get("create"), res.get("update")) if x),
+                    *res.get("allow_missing_contract_operations", [])]
+            for ref in refs:
+                assert ROUTE_REF.match(ref), (product, res["name"], ref)
 
 
 # TF schema exercising: nested Elem (must not leak), commented-out attributes (must
@@ -385,7 +454,7 @@ func resourceThing() *schema.Resource {
         resource = {
             "name": "thing",
             "group": "things",
-            "get": "get-thing",
+            "get": "GET /things",
             "go": (go_path, "Thing"),
             "tf": tf_path,
         }
@@ -824,7 +893,11 @@ def test_integration_zia_registry():
         vpn["ansible"]["enum"]["value_conflict"]
     casb_dlp = next(r for r in report["resources"] if r["resource"] == "casb_dlp_rule")
     casb_conflicts = {d["field"] for d in casb_dlp["enum"]["value_conflict"]}
-    assert casb_conflicts == {"contentLocation", "type"}, casb_dlp["enum"]["value_conflict"]
+    # On 2026-11-18 the contract gained four `action` values (the *_EXPIRY ones) that
+    # Terraform lacks, so `action` conflicts against the live contract and not yet
+    # against the committed one. The known conflicts must stay, and no other field may join.
+    assert {"contentLocation", "type"} <= casb_conflicts <= {"action", "contentLocation", "type"}, \
+        casb_dlp["enum"]["value_conflict"]
     firewall_dns = next(r for r in report["resources"] if r["resource"] == "firewall_dns_rule")
     assert "isWebEUNEnabled" in firewall_dns["presence"]["go_only_vs_contract"], \
         firewall_dns["presence"]

@@ -67,7 +67,11 @@ case "$url" in
   https://automate.zscaler.com/assets/js/runtime~main.test.js)
     source_file="$MOCK_CURL_FIXTURES/runtime.txt" ;;
   https://automate.zscaler.com/assets/js/main.test.js)
-    source_file="$MOCK_CURL_FIXTURES/main.txt" ;;
+    if [[ "$MOCK_CURL_MODE" == "numbered-source" ]]; then
+      source_file="$MOCK_CURL_FIXTURES/main-numbered.txt"
+    else
+      source_file="$MOCK_CURL_FIXTURES/main.txt"
+    fi ;;
   https://automate.zscaler.com/assets/js/f8b22e48.804c5b80.js)
     case "$MOCK_CURL_MODE" in
       missing|ambiguous|unsafe)
@@ -148,6 +152,14 @@ test("discovers and validates the current collection through the Docusaurus page
     },
     item: [{ name: "Fixture folder", item: [] }],
   });
+});
+
+test("finds the page chunk when the route table names the source file with its old number prefix", (t) => {
+  const state = makeState(t);
+  const result = run(state, "numbered-source");
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /OneAPI_postman_collection_07_10_2026\.json/);
 });
 
 test("a new collection is installed with mode 0644", (t) => {
