@@ -23,11 +23,16 @@
 // outside where they are is rejected, so a page that gained a second model's or OS's section does not move a claim
 // onto the wrong one; and one whose place the text cannot settle (the page repeats that part, or its surroundings
 // changed or moved) is applied with a `review` note for a person, since only the headings and the statement's meaning
-// can tell which copy it is about. Rejected decisions go back to the model once, with the reason. A restated statement is taken only when every restate decision of the reply that wrote it
-// was accepted. With --write the decisions are applied, the spines and verified.json are regenerated, and `kb.mjs
-// check` runs on the subjects they touched. The claim audit is still the check of what a restated statement says. A
-// quote the source no longer supports is left broken: turn its claim into a gap, or restate it from what the source
-// now says.
+// can tell which copy it is about. A context anchor that still works may not move, and on a page capture a repaired
+// quote stays on one line (heading, list item, table row) when the old one did. The entry must then pass the gate
+// whole: if another of its quotes, or its anchor, still fails, none of its decisions is applied, and they stay in the
+// report as suggestions. Rejected decisions go back to the model once, with the reason. A restated statement is taken
+// only when every restate decision of the reply that wrote it was accepted, and even then it is held, not written:
+// the statement, its quotes and the draft go to the report and --json for a reviewer, who applies them with --apply.
+// With --write the other decisions are applied, the spines and verified.json are regenerated, and `kb.mjs check`
+// runs on the subjects they touched. A quote the source no longer supports is left broken: turn its claim into a gap,
+// or restate it from what the source now says. The source text is the gate's own (kb-lib's anchorTextOf), so a
+// capture that is not a page, such as the Postman collection or a Markdown file, is repaired too.
 //
 // The model is any OpenAI-compatible chat endpoint: KB_MODEL_ENDPOINT (base URL, for example
 // http://localhost:8080/v1 for a local server or https://openrouter.ai/api/v1), KB_MODEL (its model ID) and, if it needs one,
@@ -42,7 +47,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { allEvidence, anchorEvidence, anchorIn, buildGraph, captureText, loadPublic, normalizeWs } from "./kb-lib.mjs";
+import { allEvidence, anchorEvidence, anchorIn, anchorTextOf, buildGraph, loadPublic, normalizeWs } from "./kb-lib.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const QUOTE_MIN = 8;
@@ -82,6 +87,37 @@ function pieces(text) {
   out.push({ s: text.slice(at), at });
   return out.filter((p) => p.s.length);
 }
+
+/**
+ * Where each line of a page capture's captureText is in its normalized text (`normalized`): a heading, a list item, a
+ * table row or a paragraph is one line. Null when the normalized lines don't join back into the normalized text, so
+ * that no check rests on positions that don't match it.
+ */
+export function lineSpans(shown, normalized) {
+  const spans = [];
+  let at = 0;
+  for (const line of shown.split("\n")) {
+    const s = plain(line);
+    if (!s) continue;
+    // captureText indents a list item two spaces per level; a paragraph or a heading is not an item (depth -1).
+    const item = /^\s*(-|\d+\.)\s/.test(line);
+    spans.push({ at, end: at + s.length, s, depth: item ? line.match(/^ */)[0].length / 2 : -1 });
+    at += s.length + 1;
+  }
+  return spans.map((x) => x.s).join(" ") === normalized ? spans : null;
+}
+
+/** The indexes of the lines that the `len` characters at `at` touch. */
+export const linesOf = (spans, at, len) => spans.flatMap((s, i) => (s.at < at + len && s.end > at ? [i] : []));
+
+/**
+ * True when lines `ix` are a lead-in ending in a colon and the list it introduces: list items deeper than the lead-in
+ * (any items, after a paragraph; nested ones, after an item). Two sibling items are two things, colon or not.
+ */
+const leadIn = (spans, ix) => {
+  const head = spans[ix[0]];
+  return head.s.endsWith(":") && ix.slice(1).every((i) => spans[i].depth > head.depth);
+};
 
 /** Longest-common-subsequence alignment of two word arrays, as matched index pairs. */
 export function align(a, b) {
@@ -290,6 +326,9 @@ export function entryItems(ev, t) {
     ev, newText, oldText, norm, pinned: Boolean(t.pinned), anchorBroken: Boolean(anchorBroken), oldAnchorAt,
     kept: new Set(ev.quotes.filter((_, i) => !status[i])),
     oldAt: ev.quotes.map((q) => (oldText ? oldText.indexOf(norm(q), oldFrom) : -1)),
+    // A quote that now comes before a working anchor is the one case where the anchor may move.
+    notAfter: status.some((s) => s?.why === "not after its anchor"),
+    oldSpans: t.oldSpans ?? null, newSpans: t.newSpans ?? null,
   };
   const item = (quote, why, extra) => {
     const nq = norm(quote);
@@ -381,6 +420,10 @@ export function mismatch(q, text) {
 }
 
 const ACTIONS = new Set(["replace", "replace_and_restate", "anchor"]);
+/** The verdict of a decision fine on its own whose evidence entry still fails: kept as a suggestion, not asked again. */
+export const STAYS_BROKEN = "entry stays broken";
+/** Verdicts a second round leaves standing. */
+const STANDS = new Set(["valid", "unsupported", STAYS_BROKEN]);
 
 /**
  * One decision checked on its own: a known action on a known item, a new quote or anchor of the right length that is
@@ -431,7 +474,14 @@ function outcome(ev, decisions) {
  *    anchor placed it, every decision that gives that anchor, since the anchor is the whole entry's. One whose place is "moved" or "unsure" stays valid with a `review`
  *    reason, for a person to check: the text cannot tell whether it is the right copy;
  *  - every quote that anchors now or is repaired must anchor by the gate's rule; a quote nothing repaired anchored
- *    before, so only a moved anchor can break it, and a repaired quote that fails is its own decision's fault.
+ *    before, so only a moved anchor can break it, and a repaired quote that fails is its own decision's fault;
+ *  - a context anchor that still works stays: it is what picks the entry's part of the page (an OS's or a model's
+ *    section), unless a quote now comes before it;
+ *  - on a page capture, a repaired quote stays on one line (a heading, a list item, a table row) when the old quote
+ *    did, except that a lead-in may run into its list: one that runs into the next row or item joins two things;
+ *  - the entry as the decisions leave it passes the gate whole, or none of them is applied: a half-repaired entry
+ *    still fails, and a person repairs it from what it was, with these decisions as suggestions ("entry stays broken",
+ *    which is not the decision's own fault, so it is not asked again).
  * Each rejection changes the outcome, so this repeats until nothing more is rejected. An entry `old_version` pins
  * takes no other edit.
  */
@@ -439,8 +489,20 @@ function settleEntry(E, cs) {
   const reject = (list, verdict, detail) => list.forEach((c) => Object.assign(c, { verdict, detail }));
   const valid = () => cs.filter((c) => c.verdict === "valid");
   if (valid().some((c) => c.action === "old_version")) {
-    reject(valid().filter((c) => c.action !== "old_version"), "superseded", "old_version pins the whole evidence entry to the old version");
-    return;
+    // Pinning keeps every quote of the entry as it was at the old version, so it answers for all of them: a quote the
+    // same reply calls unsupported, or repairs, says the claim is not about that version alone.
+    const others = cs.filter((c) => c.action !== "old_version" && (c.verdict === "valid" || c.verdict === "unsupported"));
+    if (!others.length) return;
+    reject(valid().filter((c) => c.action === "old_version"), "mixed versions", "old_version pins the whole evidence entry, but another decision for it repairs a quote or calls it unsupported; give old_version for every quote of the entry, or for none");
+  }
+  // A working anchor first: a decision that only repeats it does not conflict with one that would move it.
+  if (E.ev.after !== undefined && !E.anchorBroken && !E.notAfter) {
+    const current = E.norm(E.ev.after);
+    reject(
+      valid().filter((c) => c.after && c.after !== current),
+      "anchor still works",
+      `the context anchor "${E.ev.after.slice(0, 80)}" still works and picks this entry's part of the page; give a quote from the text after it, without "after"`,
+    );
   }
   const movers = () => valid().filter((c) => c.anchor || c.after);
   if (new Set(movers().map((c) => (c.anchor ? c.new_quote : c.after))).size > 1) {
@@ -453,6 +515,24 @@ function settleEntry(E, cs) {
     const r = resolveEntry(E.newText, E.norm, copy);
     const repairOf = (qi) => valid().find((c) => !c.anchor && c.qi === qi);
     const holds = (qi) => E.kept.has(E.ev.quotes[qi]) || repairOf(qi) !== undefined;
+    // A repaired quote that runs over more lines of the page than the old one joins what the page keeps apart.
+    if (E.oldSpans && E.newSpans) {
+      const split = [];
+      for (const [qi, x] of r.quotes.entries()) {
+        const own = repairOf(qi);
+        if (!own || own.action === "anchor" || x.code || E.oldAt[qi] < 0) continue;
+        if (linesOf(E.oldSpans, E.oldAt[qi], E.norm(E.ev.quotes[qi]).length).length !== 1) continue;
+        const q = E.norm(copy.quotes[qi]);
+        const ix = linesOf(E.newSpans, x.at, q.length);
+        if (ix.length > 1 && !leadIn(E.newSpans, ix)) split.push({ own, q, n: ix.length });
+      }
+      if (split.length) {
+        for (const s of split) {
+          reject([s.own], "runs across lines", `"${s.q.slice(0, 60)}" runs over ${s.n} lines of the page, where the old quote was on one: a heading, list item or table row ends inside it. Quote the part on the one line that says it`);
+        }
+        continue;
+      }
+    }
     // Where each quote a decision placed is, against where it was.
     const placed = [];
     const renewed = valid().find((c) => c.anchor);
@@ -494,7 +574,13 @@ function settleEntry(E, cs) {
     // entry whatever the quotes do, so its error is not the decisions'.
     const held = { ...copy, quotes: copy.quotes.filter((_, qi) => holds(qi)) };
     const errors = anchorIn(E.newText, held, "", { emphasis: !E.pinned }).errors.filter((e) => movers().length || !E.anchorBroken || !/after-anchor/.test(e));
-    if (errors.length) reject(valid(), "does not anchor", `the evidence entry would not anchor: ${errors.join("; ")}`);
+    if (errors.length) {
+      reject(valid(), "does not anchor", `the evidence entry would not anchor: ${errors.join("; ")}`);
+      return;
+    }
+    // The whole entry, its unrepaired quotes and its anchor included, must pass as the gate checks it.
+    const whole = valid().length ? anchorIn(E.newText, copy, "", { emphasis: !E.pinned }).errors : [];
+    if (whole.length) reject(valid(), STAYS_BROKEN, `the evidence entry would still not anchor (${whole.join("; ").slice(0, 240)}), so it is left as it was, for a person`);
     return;
   }
 }
@@ -518,7 +604,7 @@ export function checkAll(decisions, broken) {
 /** The follow-up to a reply some of whose decisions were rejected, or null when every broken item has a usable one. */
 export function retryPrompt(checked, broken) {
   const lines = [];
-  for (const c of checked) if (c.verdict !== "valid" && c.verdict !== "unsupported") lines.push(`- Item ${c.quote} (${c.action}): ${c.verdict}${c.detail ? `: ${c.detail}` : ""}.`);
+  for (const c of checked) if (!STANDS.has(c.verdict)) lines.push(`- Item ${c.quote} (${c.action}): ${c.verdict}${c.detail ? `: ${c.detail}` : ""}.`);
   broken.forEach((_, i) => {
     if (!checked.some((c) => c.quote === i + 1)) lines.push(`- Item ${i + 1}: no decision was given.`);
   });
@@ -539,9 +625,10 @@ export function retryPrompt(checked, broken) {
  */
 export function restatement(checked, statements, original) {
   const restates = checked.filter((c) => c.action === "replace_and_restate");
+  // A restate whose entry stays broken is fine on its own, so its reply's draft is still worth a reviewer's time.
   const usable = (n) => {
     const own = restates.filter((c) => (c.round ?? 1) === n);
-    return own.length > 0 && own.every((c) => c.verdict === "valid") && statements[n] && statements[n] !== original;
+    return own.length > 0 && own.every((c) => c.verdict === "valid" || c.verdict === STAYS_BROKEN) && statements[n] && statements[n] !== original;
   };
   const round = [2, 1].find(usable);
   for (const c of restates) {
@@ -570,7 +657,8 @@ async function ask(messages) {
 
 /**
  * Ask for one statement's decisions, and once more for those the checks rejected. A first-round decision that was
- * valid or unsupported stands; the second round's replace the rest, and all are checked again together.
+ * valid, unsupported or only in an entry that stays broken stands; the second round's replace the rest, and all are
+ * checked again together.
  */
 export async function decide(unit, kept, broken, askModel = ask) {
   const prompt = buildPrompt(unit, kept, broken);
@@ -581,7 +669,7 @@ export async function decide(unit, kept, broken, askModel = ask) {
   const again = retryPrompt(checked, broken);
   if (again) {
     const second = await askModel([{ role: "user", content: prompt }, { role: "assistant", content: first.text }, { role: "user", content: again }]);
-    const stand = raw.filter((_, i) => checked[i].verdict === "valid" || checked[i].verdict === "unsupported");
+    const stand = raw.filter((_, i) => STANDS.has(checked[i].verdict));
     const taken = new Set(stand.map((d) => Number(d.quote)));
     const fresh = (second.json.decisions || []).filter((d) => !taken.has(Number(d.quote))).map((d) => ({ ...d, round: 2 }));
     checked = checkAll([...stand, ...fresh], broken);
@@ -607,12 +695,16 @@ function sourceTexts(g, ev, base) {
   const src = g.sources.sources[ev.source];
   if (src.kind === "capture") {
     const file = path.join(src.root, ev.path);
-    const text = (json) => plain(captureText(JSON.parse(json).blocks));
-    return {
-      norm: plain,
-      oldText: tryRead(() => text(execFileSync("git", ["-C", g.root, "show", `${base}:${file}`], GIT))),
-      newText: tryRead(() => text(fs.readFileSync(path.join(g.root, file), "utf8"))),
+    // The gate's own text: a page capture's captureText, any other capture (a collection, a Markdown file) as it is.
+    const read = (raw) => {
+      if (raw === null) return { text: null, spans: null };
+      const shown = anchorTextOf(raw, ev);
+      const text = plain(shown);
+      return { text, spans: shown === raw ? null : lineSpans(shown, text) };
     };
+    const before = read(tryRead(() => execFileSync("git", ["-C", g.root, "show", `${base}:${file}`], GIT)));
+    const now = read(tryRead(() => fs.readFileSync(path.join(g.root, file), "utf8")));
+    return { norm: plain, oldText: before.text, newText: now.text, oldSpans: before.spans, newSpans: now.spans };
   }
   const dir = path.join(g.root, src.root);
   const oldPin = tryRead(() => execFileSync("git", ["-C", g.root, "rev-parse", `${base}:${src.root}`], GIT).trim());
@@ -713,27 +805,65 @@ export function applyResult(node, r) {
   else if (r.restated) node.data.positions[r.position].says = r.restated;
 }
 
+/**
+ * Why a result is held instead of written, or undefined. A result where the model restated the statement, or chose to
+ * for any quote, is held whole: on #354 its call that the statement had to change held for 37 of 38 claims, but its
+ * wording for only about half, and a repaired quote under the old statement would turn the gate green on a claim known
+ * to be stale, whether or not its restate was accepted. A reviewed run applied with --apply is written as it is.
+ */
+export const heldFor = (r, reviewed) =>
+  !reviewed && (r.restated !== undefined || r.decisions?.some((d) => d.action === "replace_and_restate")) ? "restated" : undefined;
+
 /** A result's statement label: the claim, or the divergence position. */
 const labelOf = (r) => (r.position === undefined ? r.id : `${r.id} positions[${r.position}]`);
 
+/** A run's counts, as the last line of its output. `valid` counts only what was applied; `held` statements were not. */
+export function summary(results, subjects = []) {
+  const applied = results.filter((r) => !r.held).flatMap((r) => r.decisions);
+  const all = results.flatMap((r) => r.decisions);
+  const n = (list, v) => list.filter((d) => d.verdict === v).length;
+  return {
+    claims: results.length,
+    valid: n(applied, "valid"),
+    review: applied.filter((d) => d.verdict === "valid" && d.review).length,
+    held: results.filter((r) => r.held).length,
+    unsupported: n(all, "unsupported"),
+    suggested: n(all, STAYS_BROKEN),
+    rejected: all.filter((d) => !STANDS.has(d.verdict)).length,
+    errors: results.filter((r) => r.error).length,
+    retried: results.filter((r) => r.retried).length,
+    subjects,
+  };
+}
+
 export function reportMarkdown(results) {
-  const n = (v) => results.flatMap((r) => r.decisions).filter((d) => d.verdict === v).length;
-  const review = results.flatMap((r) => r.decisions).filter((d) => d.verdict === "valid" && d.review).length;
-  const out = [`## Re-anchored quotes`, "", `${results.length} statement(s): ${n("valid")} quote(s) re-anchored, ${review} of them to check, ${n("unsupported")} no longer supported by their source, ${results.flatMap((r) => r.decisions).length - n("valid") - n("unsupported")} rejected.`, ""];
-  if (review) out.push("A re-anchored quote to check is marked **check**: its place on the page could not be confirmed from the text, so read it against its statement and the page's headings.", "");
-  for (const r of results) {
-    out.push(`### \`${labelOf(r)}\``, "");
+  const s = summary(results);
+  const out = [
+    "## Re-anchored quotes",
+    "",
+    `${results.length} statement(s): ${s.valid} quote(s) re-anchored, ${s.review} of them to check; ${s.held} restated statement(s) held for review; ${s.unsupported} quote(s) no longer supported by their source; ${s.suggested} repair(s) left as suggestions because their evidence entry still fails; ${s.rejected} rejected.`,
+    "",
+  ];
+  if (s.held) out.push("A **held** statement was not written: the model judged that the page changed what it says. Its quotes stay broken until a reviewer checks the draft, edits the run's JSON if needed, and applies it with `node scripts/kb-reanchor.mjs --apply <file.json>`.", "");
+  if (s.suggested) out.push("A repair marked **suggested** was not written either: another quote or the context anchor of its evidence entry still fails, so the entry is left as it was. Repair the entry from these.", "");
+  if (s.review) out.push("A re-anchored quote to check is marked **check**: its place on the page could not be confirmed from the text, so read it against its statement and the page's headings.", "");
+  // Held statements first: they need a person before the gate can pass.
+  for (const r of [...results.filter((x) => x.held), ...results.filter((x) => !x.held)]) {
+    out.push(`### \`${labelOf(r)}\`${r.held ? " (held for review)" : ""}`, "");
     if (r.retried) out.push("Asked twice: the first reply had decisions the checks rejected.", "");
+    const now = r.held ? "proposed" : "now";
     for (const d of r.decisions) {
-      out.push(`- **${d.action}** (${d.verdict}${d.verdict === "valid" && d.review ? ", **check**" : ""}): ${d.reason ?? ""}`, `  - was: "${d.old}"`);
-      if (d.verdict === "valid" && d.action === "old_version") out.push(`  - kept, with the evidence pinned to ${d.pin}`);
-      else if (d.verdict === "valid" && d.action === "anchor") out.push(`  - kept, now after: "${d.after}"`);
-      else if (d.verdict === "valid" && d.anchor) out.push(`  - context anchor now: "${d.new_quote}"`);
-      else if (d.verdict === "valid") out.push(`  - now: "${d.new_quote}"`, ...(d.after ? [`  - after: "${d.after}"`] : []));
-      else if (d.detail) out.push(`  - why: ${d.detail}`);
+      const shown = d.verdict === STAYS_BROKEN ? "suggested" : d.verdict;
+      out.push(`- **${d.action}** (${shown}${d.verdict === "valid" && d.review ? ", **check**" : ""}): ${d.reason ?? ""}`, `  - was: "${d.old}"`);
+      const proposal = d.verdict === "valid" || d.verdict === STAYS_BROKEN;
+      if (proposal && d.action === "old_version") out.push(`  - kept, with the evidence pinned to ${d.pin}`);
+      else if (proposal && d.action === "anchor") out.push(`  - kept, ${now} after: "${d.after}"`);
+      else if (proposal && d.anchor) out.push(`  - context anchor ${now}: "${d.new_quote}"`);
+      else if (proposal && d.new_quote !== undefined) out.push(`  - ${now}: "${d.new_quote}"`, ...(d.after ? [`  - after: "${d.after}"`] : []));
+      if (d.verdict !== "valid" && d.detail) out.push(`  - why: ${d.detail}`);
       if (d.verdict === "valid" && d.review) out.push(`  - check: ${d.review}`);
     }
-    if (r.restated) out.push("", `Statement was: ${r.statement}`, "", `Statement now: ${r.restated}`);
+    if (r.restated) out.push("", `Statement was: ${r.statement}`, "", `${r.held ? "Draft" : "Statement now"}: ${r.restated}`);
     if (r.error) out.push(`- error: ${r.error}`);
     out.push("");
   }
@@ -759,14 +889,22 @@ async function main(argv) {
   const results = [];
   const touched = new Set();
   const settle = (r, node) => {
+    const held = heldFor(r, apply !== undefined);
+    if (held) r.held = held;
+    else delete r.held;
     results.push(r);
-    process.stderr.write(`${labelOf(r)}: ${r.error ?? r.decisions.map((d) => `${d.action}/${d.verdict}${d.review ? " (check)" : ""}`).join(", ")}${r.retried ? " (asked twice)" : ""}\n`);
-    if (!write || !node) return;
+    process.stderr.write(`${labelOf(r)}: ${r.error ?? r.decisions.map((d) => `${d.action}/${d.verdict}${d.review ? " (check)" : ""}`).join(", ")}${r.retried ? " (asked twice)" : ""}${r.held ? " (held for review)" : ""}\n`);
+    if (!write || !node || r.held) return;
     applyResult(node, r);
     if (r.decisions.some((d) => d.verdict === "valid")) touched.add(node.file);
+    // A --write run's JSON says what it already wrote, so applying the reviewed JSON later writes only the rest.
+    if (!apply) r.applied = true;
   };
   if (apply) {
-    for (const { node, ...r } of replay(g, JSON.parse(fs.readFileSync(apply, "utf8")))) settle(r, node);
+    const reviewed = JSON.parse(fs.readFileSync(apply, "utf8"));
+    const done = reviewed.filter((r) => r.applied).length;
+    if (done) process.stderr.write(`${done} result(s) the run already wrote are skipped\n`);
+    for (const { node, ...r } of replay(g, reviewed.filter((x) => !x.applied))) settle(r, node);
   } else {
     for (const unit of worklist(g, base, opt("--only"))) {
       const { node, position, statement, kept, broken } = unit;
@@ -797,8 +935,7 @@ async function main(argv) {
     run(["scripts/kb.mjs", "verified"], [0, 1]);
     spawnSync(process.execPath, ["scripts/kb.mjs", "check", ...subjects], { cwd: ROOT, stdio: "inherit" });
   }
-  const all = results.flatMap((r) => r.decisions);
-  console.log(JSON.stringify({ claims: results.length, valid: all.filter((d) => d.verdict === "valid").length, review: all.filter((d) => d.verdict === "valid" && d.review).length, unsupported: all.filter((d) => d.verdict === "unsupported").length, rejected: all.filter((d) => !["valid", "unsupported"].includes(d.verdict)).length, errors: results.filter((r) => r.error).length, retried: results.filter((r) => r.retried).length, subjects }));
+  console.log(JSON.stringify(summary(results, subjects)));
   return 0;
 }
 

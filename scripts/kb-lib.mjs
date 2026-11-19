@@ -222,9 +222,9 @@ function sourceFile(g, ev) {
 /**
  * The text a quote anchors in. A help capture is JSON (`kind: "help-article"`, written by
  * scripts/help_capture.py); its quotes anchor in captureText, the fixed serialization of its blocks.
- * A pointer still resolves against the raw JSON.
+ * A pointer still resolves against the raw JSON. Any other file's quotes anchor in its text as it is.
  */
-function anchorTextOf(text, ev) {
+export function anchorTextOf(text, ev) {
   if (text === null || ev.pointer !== undefined || !text.startsWith("{")) return text;
   let doc;
   try { doc = JSON.parse(text); } catch { return text; }

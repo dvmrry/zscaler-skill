@@ -193,7 +193,12 @@ empties the record when the next run is recorded, so record any run in flight fi
     section. It checks the decisions together, one evidence entry at a time:
     - the entry, as the decisions would leave it, must anchor by the gate's own
       rule, with at most one new anchor, and every quote that anchors now must
-      still anchor;
+      still anchor. It is repaired whole or not at all: if another of its
+      quotes, or its anchor, still fails, none of its decisions is applied,
+      and the report lists them as **suggested**;
+    - a context anchor that still works stays where it is, unless a quote now
+      comes before it, and on a help page a repaired quote stays on one line
+      (a heading, a list item, a table row) when the old one did;
     - each quote whose place a decision set is placed against its old
       surroundings, the sentence or item just before it and the one just
       after, as they were. A repair between them, where they are on the page
@@ -207,10 +212,14 @@ empties the record when the next run is recorded, so record any run in flight fi
     A page the vendor rewrote can be rejected where the repair was right; that
     is left for a person. The run's last line counts the quotes to check as
     `review`. It asks the model once more about the
-    decisions the checks rejected. It restates a claim only when every restate
-    decision of the reply that wrote the statement was accepted. It regenerates
-    the spines, the reading text and `verified.json`, and leaves what the page no longer supports
-    for a person. Read its `--report` before committing;
+    decisions the checks rejected. It never writes a restated statement: when
+    the model restates a claim, or chooses to for any of its quotes, the
+    claim's result is **held**, and the report lists it first with the draft.
+    Check the draft against its quotes, edit the run's `--json` if needed, and
+    apply it with `node scripts/kb-reanchor.mjs --apply <file.json>`, which
+    skips what the run already wrote. It regenerates the spines, the reading
+    text and `verified.json`, and leaves what the page no longer supports for
+    a person. Read its `--report` before committing;
   - read every in-change entry against its claim;
   - run the claim audit on the claims you touched.
 
