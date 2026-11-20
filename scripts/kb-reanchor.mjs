@@ -1,53 +1,76 @@
 #!/usr/bin/env node
-// scripts/kb-reanchor.mjs — repair claim quotes that a reworded help page or a moved vendor pin broke, with a
-// model as a narrow judge.
+// scripts/kb-reanchor.mjs — repair claim quotes that a reworded help page or a moved vendor pin broke: from a diff of
+// the page where it can, with a model as a narrow judge.
 //
 // `kb.mjs requote` repairs what changed only by spacing. What is left is a page the vendor reworded or extended, or
 // vendor code that changed at a new pin. For every claim, and every divergence position, whose quotes in a help
 // capture or a pinned file no longer anchor, this finds each broken quote's passage as it was at --base (the capture
-// then, or the file at the pin --base recorded) and says why it broke: it is missing (then the model sees the same
-// part of the source now, or its most similar sentences), or it now occurs more than once (then it sees every
-// occurrence), or it no longer follows its context anchor. It asks the model for one decision per broken quote:
+// then, or the file at the pin --base recorded) and says why it broke: it is missing, or it now occurs more than once,
+// or it no longer follows its context anchor.
+//
+// A statement whose broken quotes are all on page captures is repaired from the diff (kb-reanchor-diff.mjs). The old
+// and the new page are aligned line by line and sentence by sentence; each broken quote's new text is carved from the
+// sentence its old one became, and a quote that is repeated now gets the heading or list lead-in above it as its
+// `after` anchor. A quote with no counterpart (its section was restructured, or the passage removed) is left for a
+// person, with the page's most similar sentences. Then the words that changed decide what happens:
+//   - only spacing, punctuation, case or articles (a number's sign, decimal point, percent or plus is not punctuation):
+//     the repair is written;
+//   - anything else, or a context anchor whose line is gone and stood in for: the model is asked one question, whether
+//     the statement still holds exactly as written with the new text in place of the old. "yes" writes the repairs; "no", an unclear reply, or no model configured holds
+//     the statement for a reviewer, with its repaired quotes and the model's reason attached.
+// The model never chooses a quote. Replayed on refresh #354's 200 broken quotes, with Haiku 5.5 as the model, this wrote
+// 53 repairs: 51 the reviewers' own and none wrong (2 the comparison could not decide). It held 45, and found no
+// counterpart for 75.
+//
+// Any other statement (one citing a pinned file, or a capture that is not a page, such as the Postman collection or a
+// Markdown file) needs a model, which is asked for one decision per broken quote:
 //   replace              the new text says the same thing: a new quote, copied from the new text
 //   replace_and_restate  the new text changed something the statement relies on: a new quote and a restated claim
 //   anchor               the quote is unchanged but repeated: an `after` context anchor that picks its occurrence
 //   old_version          (a pinned file) the claim is about one version, so the evidence is pinned to the old one
 //   unsupported          the source no longer says it: left broken, for a person (or a gap)
 // A replace may give an `after` anchor too, and a broken `after` anchor is re-anchored the same way. The model sees the
-// statement, its other quotes and the passages; it never edits a file.
+// statement, its other quotes and the passages; it never edits a file. Rejected decisions go back to the model once,
+// with the reason. A restated statement is taken only when every restate decision of the reply that wrote it was
+// accepted, and even then it is held, not written: the statement, its quotes and the draft go to the report and --json
+// for a reviewer, who applies them with --apply.
 //
-// The model's decisions are checked as a whole, evidence entry by evidence entry: the entry as the decisions would
-// leave it must anchor by the gate's own rule (kb-lib's anchorIn) for every quote that anchors now or is repaired,
-// with at most one new context anchor; and every quote whose place a decision set is placed against its old
+// Every repair, from the diff or the model, is checked as a whole, evidence entry by evidence entry: the entry as the
+// repairs would leave it must anchor by the gate's own rule (kb-lib's anchorIn) for every quote that anchors now or is
+// repaired, with at most one new context anchor; and every quote whose place a repair set is placed against its old
 // surroundings, the sentences just before and after it. A repair where they still are, in one place, is safe; one
 // outside where they are is rejected, so a page that gained a second model's or OS's section does not move a claim
 // onto the wrong one; and one whose place the text cannot settle (the page repeats that part, or its surroundings
 // changed or moved) is applied with a `review` note for a person, since only the headings and the statement's meaning
 // can tell which copy it is about. A context anchor that still works may not move, and on a page capture a repaired
 // quote stays on one line (heading, list item, table row) when the old one did. The entry must then pass the gate
-// whole: if another of its quotes, or its anchor, still fails, none of its decisions is applied, and they stay in the
-// report as suggestions. Rejected decisions go back to the model once, with the reason. A restated statement is taken
-// only when every restate decision of the reply that wrote it was accepted, and even then it is held, not written:
-// the statement, its quotes and the draft go to the report and --json for a reviewer, who applies them with --apply.
-// With --write the other decisions are applied, the spines and verified.json are regenerated, and `kb.mjs check`
-// runs on the subjects they touched. A quote the source no longer supports is left broken: turn its claim into a gap,
-// or restate it from what the source now says. The source text is the gate's own (kb-lib's anchorTextOf), so a
-// capture that is not a page, such as the Postman collection or a Markdown file, is repaired too.
+// whole: if another of its quotes, or its anchor, still fails, none of its repairs is applied, and they stay in the
+// report as suggestions.
+//
+// With --write the repairs not held are applied, the spines and verified.json are regenerated, and `kb.mjs check` runs
+// on the subjects they touched. A quote the source no longer supports is left broken: turn its claim into a gap, or
+// restate it from what the source now says. The source text is the gate's own (kb-lib's anchorTextOf).
 //
 // The model is any OpenAI-compatible chat endpoint: KB_MODEL_ENDPOINT (base URL, for example
-// http://localhost:8080/v1 for a local server or https://openrouter.ai/api/v1), KB_MODEL (its model ID) and, if it needs one,
-// KB_MODEL_API_KEY.
+// http://localhost:8080/v1 for a local server or https://openrouter.ai/api/v1), KB_MODEL (its model ID) and, if it
+// needs one, KB_MODEL_API_KEY. With --no-model instead, the diff's repairs are still made, every one that needs the check
+// is held, and a statement that needs a model is reported as an error; without either, the run stops, so a job whose
+// model is missing does not run half of the repair unnoticed.
 //
 // A run's --json output can be read and edited, then applied as reviewed with --apply, which asks no model: a model's
-// decisions differ from run to run, so a dry run reviewed by a person should be applied as it is.
+// answers differ from run to run, so a dry run reviewed by a person should be applied as it is. A held statement in it
+// is applied too: a reviewer restates it first (its `restated`), when the page changed what it says, or removes it.
 //
-// Usage: node scripts/kb-reanchor.mjs --base <ref> [--only <claim-id>] [--write] [--report <file.md>] [--json <file>]
+// Usage: node scripts/kb-reanchor.mjs --base <ref> [--no-model] [--only <claim-id>] [--write] [--report <file.md>] [--json <file>]
 //        node scripts/kb-reanchor.mjs --apply <file.json>
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { allEvidence, anchorEvidence, anchorIn, anchorTextOf, buildGraph, loadPublic, normalizeWs } from "./kb-lib.mjs";
+import { align, editClass, occurrences, proposeEntry } from "./kb-reanchor-diff.mjs";
+
+export { align, occurrences };
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const QUOTE_MIN = 8;
@@ -60,14 +83,6 @@ const PLACES = 6;
 /** Anchoring text as quotes match it: whitespace normalized, bold markers dropped. */
 export const plain = (s) => normalizeWs(s.replaceAll("**", ""));
 const tokens = (s) => [...s.matchAll(/\S+/g)].map((x) => ({ w: x[0], at: x.index, end: x.index + x[0].length }));
-
-/** Every position of `q` in `text`, from `from` on. */
-export function occurrences(text, q, from = 0) {
-  const out = [];
-  if (!q) return out;
-  for (let i = text.indexOf(q, from); i !== -1; i = text.indexOf(q, i + 1)) out.push(i);
-  return out;
-}
 
 /** The text before and just after position `at`, with the `len` characters there marked: enough to tell its section. */
 const place = (text, at, len) => `${text.slice(Math.max(0, at - 240), at)}⟦${text.slice(at, at + len)}⟧${text.slice(at + len, at + len + 60)}`;
@@ -118,19 +133,6 @@ const leadIn = (spans, ix) => {
   const head = spans[ix[0]];
   return head.s.endsWith(":") && ix.slice(1).every((i) => spans[i].depth > head.depth);
 };
-
-/** Longest-common-subsequence alignment of two word arrays, as matched index pairs. */
-export function align(a, b) {
-  const dp = Array.from({ length: a.length + 1 }, () => new Int32Array(b.length + 1));
-  for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--) dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-  const pairs = [];
-  for (let i = 0, j = 0; i < a.length && j < b.length;) {
-    if (a[i] === b[j]) pairs.push([i++, j++]);
-    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
-    else j++;
-  }
-  return pairs;
-}
 
 /** Share of `a`'s words that `b` has (case-insensitive): a cheap measure of how much of a passage survived. */
 export function overlap(a, b) {
@@ -329,6 +331,8 @@ export function entryItems(ev, t) {
     // A quote that now comes before a working anchor is the one case where the anchor may move.
     notAfter: status.some((s) => s?.why === "not after its anchor"),
     oldSpans: t.oldSpans ?? null, newSpans: t.newSpans ?? null,
+    // The old texts a quote is looked up in for the diff: the base text, then the page as later commits left it.
+    olds: t.olds ?? [{ text: oldText, spans: t.oldSpans ?? null }],
   };
   const item = (quote, why, extra) => {
     const nq = norm(quote);
@@ -422,8 +426,10 @@ export function mismatch(q, text) {
 const ACTIONS = new Set(["replace", "replace_and_restate", "anchor"]);
 /** The verdict of a decision fine on its own whose evidence entry still fails: kept as a suggestion, not asked again. */
 export const STAYS_BROKEN = "entry stays broken";
-/** Verdicts a second round leaves standing. */
-const STANDS = new Set(["valid", "unsupported", STAYS_BROKEN]);
+/** The verdict of a broken quote the diff found no counterpart for: left for a person. */
+export const LEFT = "no counterpart";
+/** Verdicts a second round leaves standing, and that are not rejections. */
+const STANDS = new Set(["valid", "unsupported", STAYS_BROKEN, LEFT]);
 
 /**
  * One decision checked on its own: a known action on a known item, a new quote or anchor of the right length that is
@@ -653,12 +659,12 @@ const SYSTEM =
   "You repair citations in a knowledge base. Each statement rests on verbatim quotes from vendor help pages and pinned vendor files (SDK and provider code, changelogs). The vendor changed a page or a file, so some quotes no longer appear in it, or now appear in more than one place. Decide, for each broken quote, how to repair it using only the NEW text you are given. Reply with JSON only.";
 
 /** Ask the configured OpenAI-compatible endpoint; returns the reply's text and its parsed JSON. */
-async function ask(messages) {
+async function ask(messages, system = SYSTEM) {
   const { KB_MODEL_ENDPOINT: endpoint, KB_MODEL: model, KB_MODEL_API_KEY: key } = process.env;
   const r = await fetch(`${endpoint.replace(/\/$/, "")}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(key ? { Authorization: `Bearer ${key}` } : {}) },
-    body: JSON.stringify({ model, temperature: 0.1, max_tokens: 6000, messages: [{ role: "system", content: SYSTEM }, ...messages] }),
+    body: JSON.stringify({ model, temperature: 0.1, max_tokens: 6000, messages: [{ role: "system", content: system }, ...messages] }),
   });
   if (!r.ok) throw new Error(`${endpoint}: HTTP ${r.status} ${(await r.text()).slice(0, 200)}`);
   const text = (await r.json()).choices?.[0]?.message?.content ?? "";
@@ -688,6 +694,77 @@ export async function decide(unit, kept, broken, askModel = ask) {
   return { decisions: checked, statement: restatement(checked, statements, unit.statement), retried: Boolean(again) };
 }
 
+/** True when every broken item of a statement is on a page capture, whose lines the diff aligns. */
+export const diffable = (broken) => broken.every((b) => !b.pinned && b.entry.newSpans && b.entry.olds.some((o) => o.spans));
+
+const HOW = { same: "its line is unchanged", reworded: "its sentence was reworded", moved: "its sentence moved" };
+const howOf = (p) => (p.edit === "structure" ? "its line is gone, so the line above the entry's first quote stands in" : (HOW[p.feat.lineHow] ?? "the quote is repeated now"));
+
+/**
+ * A statement's repairs from the diff (kb-reanchor-diff's proposeEntry), one per broken item, checked as a model's
+ * decisions are (checkAll). Each carries `edit`, what changed in its words. A quote the diff finds no counterpart for
+ * is LEFT, with the new page's sentences most like it, for a person.
+ */
+export function proposeAll(broken) {
+  const proposals = new Map();
+  for (const entry of new Set(broken.map((b) => b.entry))) {
+    for (const [b, p] of proposeEntry(entry, broken.filter((x) => x.entry === entry), entry.olds)) proposals.set(b, p);
+  }
+  const decisions = [];
+  const left = [];
+  broken.forEach((b, i) => {
+    const p = proposals.get(b);
+    if (p.action === "decline") {
+      const similar = similarLines(b.newText, b.norm(b.quote), 3);
+      left.push({ quote: i + 1, action: "none", reason: p.why, old: b.quote, qi: b.qi, evidence: b.evidence, ei: b.ei, slot: b.slot, anchor: b.anchor, verdict: LEFT, ...(similar.length ? { similar } : {}) });
+      return;
+    }
+    const how = [howOf(p), `${p.edit} change`, ...(p.feat.anchorKind ? [`anchored after its ${p.feat.anchorKind}`] : [])];
+    decisions.push({ quote: i + 1, action: p.action, ...(p.new_quote === undefined ? {} : { new_quote: p.new_quote }), ...(p.after ? { after: p.after } : {}), edit: p.edit, reason: `from the diff: ${how.join("; ")}` });
+  });
+  return [...checkAll(decisions, broken), ...left].sort((a, b) => a.quote - b.quote);
+}
+
+const CHECK_SYSTEM =
+  "You check whether one statement in a knowledge base still holds after the vendor reworded the help page it cites. You are given the statement and, for each cited quote that changed, the old and the new text. Reply with JSON only.";
+
+/** The yes/no question for a statement whose repaired quotes changed content words. */
+export function checkPrompt(statement, changes, kept) {
+  const lines = [`Statement: ${statement}`, "", "Quotes the statement cites, whose text the vendor changed:"];
+  changes.forEach((c, i) => lines.push(`${i + 1}. ${c.anchor ? "OLD (the line its quotes are under)" : "OLD"}: ${c.old}`, `   NEW: ${c.new_quote}`));
+  if (kept.length) lines.push("", "Its other quotes, unchanged:", ...kept.slice(0, 12).map((k) => `- ${k.quote}`));
+  lines.push(
+    "",
+    "Question: with each NEW text in place of its OLD text, is every part of the statement still supported exactly as it is written: the same names, values, lists, conditions and scope?",
+    'Answer "no" if a change renames, removes, adds to, narrows or widens something the statement says: a field, option or product name the statement uses; a number or version; an item of a list the statement enumerates; an OS, product or condition the statement is limited to.',
+    'Answer "yes" if the changes are only wording, formatting, or detail the statement does not speak of.',
+    "",
+    'Reply with only: {"holds": "yes" or "no", "why": "one short sentence"}',
+  );
+  return lines.join("\n");
+}
+
+/** Edits a person or the model must confirm: content words, numbers or signs changed, or an anchor stood in for one gone. */
+const UNSURE = new Set(["content", "structure"]);
+
+/**
+ * Whether a statement still holds as written with its repairs: asked only when a repair that will be written changed
+ * content (UNSURE), and then about all of its quote and context-anchor repairs, since an anchor is what scopes its
+ * entry to an OS's or a model's section. Undefined when none did; else { holds, why }, where `holds` is "yes", "no",
+ * or null when there is no model or its reply has no answer.
+ */
+export async function checkStatement(statement, kept, decisions, askModel) {
+  const changes = decisions.filter((d) => d.verdict === "valid" && d.new_quote !== undefined);
+  if (!changes.some((d) => UNSURE.has(d.edit))) return undefined;
+  if (!askModel) return { holds: null, why: "no model is configured to check it" };
+  try {
+    const { json } = await askModel([{ role: "user", content: checkPrompt(statement, changes, kept) }], CHECK_SYSTEM);
+    return { holds: json.holds === "yes" || json.holds === "no" ? json.holds : null, why: String(json.why ?? "") };
+  } catch (e) {
+    return { holds: null, why: `the model could not be asked: ${String(e.message ?? e).slice(0, 200)}` };
+  }
+}
+
 const GIT = { encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] };
 const tryRead = (fn) => {
   try {
@@ -696,6 +773,12 @@ const tryRead = (fn) => {
     return null;
   }
 };
+
+/**
+ * The commits since `base` that changed `file`, newest first; none when git cannot tell (a shallow clone without the
+ * base, a base that is not a commit).
+ */
+export const laterCommits = (root, base, file) => tryRead(() => execFileSync("git", ["-C", root, "log", "--format=%H", `${base}..HEAD`, "--", file], GIT).split("\n").filter(Boolean)) ?? [];
 
 /**
  * An evidence entry's source text before and after: a capture at --base and as committed now; a pinned file at the
@@ -712,9 +795,13 @@ function sourceTexts(g, ev, base) {
       const text = plain(shown);
       return { text, spans: shown === raw ? null : lineSpans(shown, text) };
     };
-    const before = read(tryRead(() => execFileSync("git", ["-C", g.root, "show", `${base}:${file}`], GIT)));
+    const show = (ref) => read(tryRead(() => execFileSync("git", ["-C", g.root, "show", `${ref}:${file}`], GIT)));
+    const before = show(base);
     const now = read(tryRead(() => fs.readFileSync(path.join(g.root, file), "utf8")));
-    return { norm: plain, oldText: before.text, newText: now.text, oldSpans: before.spans, newSpans: now.spans };
+    // The page as each commit since --base left it, newest first: a quote an earlier repair on the same branch took
+    // from a page that has changed again since is in none of the base text, but in one of these.
+    const later = laterCommits(g.root, base, file).map(show).filter((x) => x.text && x.text !== now.text && x.text !== before.text);
+    return { norm: plain, oldText: before.text, newText: now.text, oldSpans: before.spans, newSpans: now.spans, olds: [before, ...later] };
   }
   const dir = path.join(g.root, src.root);
   const oldPin = tryRead(() => execFileSync("git", ["-C", g.root, "rev-parse", `${base}:${src.root}`], GIT).trim());
@@ -822,10 +909,31 @@ export function applyResult(node, r) {
  * Why a result is held instead of written, or undefined. A result where the model restated the statement, or chose to
  * for any quote, is held whole: on #354 its call that the statement had to change held for 37 of 38 claims, but its
  * wording for only about half, and a repaired quote under the old statement would turn the gate green on a claim known
- * to be stale, whether or not its restate was accepted. A reviewed run applied with --apply is written as it is.
+ * to be stale, whether or not its restate was accepted. A result from the diff is held when its content change was not
+ * confirmed: the model said the statement no longer holds as written, or could not say. A reviewed run applied with
+ * --apply is written as it is.
  */
-export const heldFor = (r, reviewed) =>
-  !reviewed && (r.restated !== undefined || r.decisions?.some((d) => d.action === "replace_and_restate")) ? "restated" : undefined;
+export const heldFor = (r, reviewed) => {
+  if (reviewed) return undefined;
+  if (r.restated !== undefined || r.decisions?.some((d) => d.action === "replace_and_restate")) return "restated";
+  if (r.check && r.check.holds !== "yes") return "statement";
+  if (r.heldWith) return "divergence";
+  return undefined;
+};
+
+/** True when a result leaves its statement for a person: held, failed, or with a quote not repaired. */
+const unsettled = (r) => Boolean(heldFor(r, false) || r.error || r.decisions.some((d) => d.verdict !== "valid"));
+
+/**
+ * A divergence is one claim whose positions are compared with each other: when one position is left for a person
+ * (held, failed, or with a quote not repaired), its others are held with it (`heldWith`), since the comparison may no
+ * longer stand. Replayed on #354 without this, the diff and the check wrote one position of a divergence the reviewers
+ * dropped, whose other position was held.
+ */
+export function holdDivergences(results) {
+  const held = new Set(results.filter((r) => r.position !== undefined && unsettled(r)).map((r) => r.id));
+  for (const r of results) if (held.has(r.id) && r.position !== undefined && !unsettled(r)) r.heldWith = "another position of this divergence is left for a person";
+}
 
 /** A result's statement label: the claim, or the divergence position. */
 const labelOf = (r) => (r.position === undefined ? r.id : `${r.id} positions[${r.position}]`);
@@ -842,6 +950,7 @@ export function summary(results, subjects = []) {
     held: results.filter((r) => r.held).length,
     unsupported: n(all, "unsupported"),
     suggested: n(all, STAYS_BROKEN),
+    left: n(all, LEFT),
     rejected: all.filter((d) => !STANDS.has(d.verdict)).length,
     errors: results.filter((r) => r.error).length,
     retried: results.filter((r) => r.retried).length,
@@ -854,20 +963,23 @@ export function reportMarkdown(results) {
   const out = [
     "## Re-anchored quotes",
     "",
-    `${results.length} statement(s): ${s.valid} quote(s) re-anchored, ${s.review} of them to check; ${s.held} restated statement(s) held for review; ${s.unsupported} quote(s) no longer supported by their source; ${s.suggested} repair(s) left as suggestions because their evidence entry still fails; ${s.rejected} rejected.`,
+    `${results.length} statement(s): ${s.valid} quote(s) re-anchored, ${s.review} of them to check; ${s.held} statement(s) held for review; ${s.left} quote(s) with no counterpart on the new page; ${s.unsupported} quote(s) no longer supported by their source; ${s.suggested} repair(s) left as suggestions because their evidence entry still fails; ${s.rejected} rejected.`,
     "",
   ];
-  if (s.held) out.push("A **held** statement was not written: the model judged that the page changed what it says. Its quotes stay broken until a reviewer checks the draft, edits the run's JSON if needed, and applies it with `node scripts/kb-reanchor.mjs --apply <file.json>`.", "");
+  if (s.held) out.push("A **held** statement was not written: the page changed something it may rely on. Its quotes stay broken until a reviewer checks it, restates it in the run's JSON (`restated`) if the page changed what it says, and applies it with `node scripts/kb-reanchor.mjs --apply <file.json>`.", "");
+  if (s.left) out.push("A quote marked **no counterpart** has nothing on the new page that its passage became: the section was restructured or the passage removed. Find where the page says it now, or turn the claim into a gap; the page's most similar sentences are listed.", "");
   if (s.suggested) out.push("A repair marked **suggested** was not written either: another quote or the context anchor of its evidence entry still fails, so the entry is left as it was. Repair the entry from these.", "");
   if (s.review) out.push("A re-anchored quote to check is marked **check**: its place on the page could not be confirmed from the text, so read it against its statement and the page's headings.", "");
   // Held statements first: they need a person before the gate can pass.
   for (const r of [...results.filter((x) => x.held), ...results.filter((x) => !x.held)]) {
     out.push(`### \`${labelOf(r)}\`${r.held ? " (held for review)" : ""}`, "");
     if (r.retried) out.push("Asked twice: the first reply had decisions the checks rejected.", "");
+    if (r.check) out.push(`Does the statement still hold with the new quotes? ${r.check.holds ?? "not answered"}${r.check.why ? `: ${r.check.why}` : ""}`, "");
+    if (r.heldWith) out.push(`Held because ${r.heldWith}.`, "");
     const now = r.held ? "proposed" : "now";
     for (const d of r.decisions) {
       const shown = d.verdict === STAYS_BROKEN ? "suggested" : d.verdict;
-      out.push(`- **${d.action}** (${shown}${d.verdict === "valid" && d.review ? ", **check**" : ""}): ${d.reason ?? ""}`, `  - was: "${d.old}"`);
+      out.push(`- **${d.verdict === LEFT ? "left for a person" : d.action}** (${shown}${d.verdict === "valid" && d.review ? ", **check**" : ""}): ${d.reason ?? ""}`, `  - was: "${d.old}"`);
       const proposal = d.verdict === "valid" || d.verdict === STAYS_BROKEN;
       if (proposal && d.action === "old_version") out.push(`  - kept, with the evidence pinned to ${d.pin}`);
       else if (proposal && d.action === "anchor") out.push(`  - kept, ${now} after: "${d.after}"`);
@@ -875,6 +987,7 @@ export function reportMarkdown(results) {
       else if (proposal && d.new_quote !== undefined) out.push(`  - ${now}: "${d.new_quote}"`, ...(d.after ? [`  - after: "${d.after}"`] : []));
       if (d.verdict !== "valid" && d.detail) out.push(`  - why: ${d.detail}`);
       if (d.verdict === "valid" && d.review) out.push(`  - check: ${d.review}`);
+      for (const line of d.similar ?? []) out.push(`  - similar: "${line}"`);
     }
     if (r.restated) out.push("", `Statement was: ${r.statement}`, "", `${r.held ? "Draft" : "Statement now"}: ${r.restated}`);
     if (r.error) out.push(`- error: ${r.error}`);
@@ -890,9 +1003,11 @@ async function main(argv) {
   const opt = (k) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : undefined);
   const base = opt("--base");
   const apply = opt("--apply");
-  if (!apply && (!base || !process.env.KB_MODEL_ENDPOINT || !process.env.KB_MODEL)) {
+  const model = Boolean(process.env.KB_MODEL_ENDPOINT && process.env.KB_MODEL);
+  if (!apply && (!base || (!model && !argv.includes("--no-model")))) {
     console.error(
       "usage: KB_MODEL_ENDPOINT=<url> KB_MODEL=<id> node scripts/kb-reanchor.mjs --base <ref> [--only <claim-id>] [--write] [--report <file.md>] [--json <file>]\n" +
+        "       node scripts/kb-reanchor.mjs --base <ref> --no-model [...]   without a model: only page quotes, from the diff, with every content change held\n" +
         "       node scripts/kb-reanchor.mjs --apply <file.json>   apply a reviewed run's --json decisions, without the model",
     );
     return 2;
@@ -919,19 +1034,32 @@ async function main(argv) {
     if (done) process.stderr.write(`${done} result(s) the run already wrote are skipped\n`);
     for (const { node, ...r } of replay(g, reviewed.filter((x) => !x.applied))) settle(r, node);
   } else {
+    const done = [];
     for (const unit of worklist(g, base, opt("--only"))) {
       const { node, position, statement, kept, broken } = unit;
       const r = { id: node.id, ...(position === undefined ? {} : { position }), statement, decisions: [] };
       try {
-        const d = await decide({ id: unit.label, statement, context: unit.context }, kept, broken);
-        r.decisions = d.decisions;
-        r.retried = d.retried;
-        if (d.statement !== undefined) r.restated = d.statement;
+        if (diffable(broken)) {
+          r.repair = "diff";
+          r.decisions = proposeAll(broken);
+          const check = await checkStatement(statement, kept, r.decisions, model ? ask : null);
+          if (check) r.check = check;
+        } else if (!model) {
+          r.error = "this statement cites a pinned file or a capture that is not a page, which only a model can repair: set KB_MODEL_ENDPOINT and KB_MODEL";
+        } else {
+          r.repair = "model";
+          const d = await decide({ id: unit.label, statement, context: unit.context }, kept, broken);
+          r.decisions = d.decisions;
+          r.retried = d.retried;
+          if (d.statement !== undefined) r.restated = d.statement;
+        }
       } catch (e) {
         r.error = String(e.message ?? e);
       }
-      settle(r, node);
+      done.push([r, node]);
     }
+    holdDivergences(done.map(([r]) => r));
+    for (const [r, node] of done) settle(r, node);
   }
   for (const { file, data } of g.files.subjects) if (touched.has(file)) fs.writeFileSync(path.join(ROOT, file), `${JSON.stringify(data, null, 2)}\n`);
   if (opt("--report")) fs.writeFileSync(opt("--report"), `${reportMarkdown(results)}\n`);
