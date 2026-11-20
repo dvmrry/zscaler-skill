@@ -13,19 +13,19 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 ## Totals
 
 - Type drift (contract vs Go primitive category): **0**
-- Required drift (contract vs TF): **47**
-- Enum: **63** match / **11** value-conflict / **37** one-sided
+- Required drift (contract vs TF): **48**
+- Enum: **64** match / **12** value-conflict / **37** one-sided
 - Contract readonly fields checked: **9** (TF disagreement: 0)
 
 - Ansible module surface: **52** present / **2** no surface
 - Ansible required drift: **44**
-- Ansible enum: **72** match / **18** value-conflict / **38** one-sided
+- Ansible enum: **74** match / **18** value-conflict / **38** one-sided
 
 - Python SDK surface: **54** present / **0** no surface
-- Python SDK presence: **39** contract-unmatched / **50** python-only fields
+- Python SDK presence: **59** contract-unmatched / **41** python-only fields
 
 - MCP tool surface: **33** present / **21** no surface (**25** with request-field surface)
-- MCP request-field presence: **349** contract-unmatched / **30** MCP-only fields
+- MCP request-field presence: **367** contract-unmatched / **30** MCP-only fields
 
 - Expected operations absent from the captured contract: **0**
 
@@ -35,14 +35,6 @@ Official client/provider families that cannot yet be reconciled field by field b
 
 | family | API path family | official surfaces |
 |---|---|---|
-| `endpoint_application_catalog` | `/zia/api/v1/endPointApplications` | `go`, `tf` |
-| `endpoint_custom_applications` | `/zia/api/v1/endPointApplications/customApps` | `go`, `tf` |
-| `endpoint_application_groups` | `/zia/api/v1/endPointApplicationGroups` | `go`, `tf` |
-| `endpoint_dlp_resources` | `/zia/api/v1/dlpEndpointResource`<br>`/zia/api/v1/endPointDlpResourceGroups` | `go`, `tf` |
-| `endpoint_dlp_rules` | `/zia/api/v1/endPointDlpRules` | `go`, `tf` |
-| `outbound_email_dlp` | `/zia/api/v1/emailDlpRules` | `go`, `tf` |
-| `dns_application_groups` | `/zia/api/v1/dnsApplicationGroups` | `go`, `tf` |
-| `eun_templates_and_status` | `/zia/api/v1/eunTemplate`<br>`/zia/api/v1/userConfirmation` | `go`, `tf` |
 | `ips_categories` | `/zia/api/v1/ipsCategories` | `go` |
 
 ## Contract Groups Outside Terraform Scope
@@ -66,17 +58,13 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## advanced_settings
 
-`PUT /zia/api/v1/advancedSettings` — contract 50 / Go 51 / TF 50 fields / Ansible 50 fields / Python 49 fields / MCP 2 tools
+`PUT /zia/api/v1/advancedSettings` — contract 51 / Go 51 / TF 50 fields / Ansible 50 fields / Python 49 fields / MCP 2 tools
 
-**Contract fields unmatched in the Ansible module:** `dnsResolutionOnTransparentProxyIPv6Apps`, `dnsResolutionOnTransparentProxyIPv6ExemptApps`, `dnsResolutionOnTransparentProxyIPv6ExemptUrlCategories`, `dnsResolutionOnTransparentProxyIPv6UrlCategories`, `enableEvaluatePolicyOnGlobalSSLBypass`, `enableIPv6DnsOptimizationOnAllTransparentProxy`, `enableIPv6DnsResolutionOnTransparentProxy`
+**Contract fields unmatched in the Ansible module:** `apiSessionTimeout`, `dnsResolutionOnTransparentProxyIPv6Apps`, `dnsResolutionOnTransparentProxyIPv6ExemptApps`, `dnsResolutionOnTransparentProxyIPv6ExemptUrlCategories`, `dnsResolutionOnTransparentProxyIPv6UrlCategories`, `enableEvaluatePolicyOnGlobalSSLBypass`, `enableIPv6DnsOptimizationOnAllTransparentProxy`, `enableIPv6DnsResolutionOnTransparentProxy`
 
 **Ansible module fields absent from the contract:** `dnsResolutionOnTransparentProxyIpv6Apps`, `dnsResolutionOnTransparentProxyIpv6ExemptApps`, `dnsResolutionOnTransparentProxyIpv6ExemptUrlCategories`, `dnsResolutionOnTransparentProxyIpv6UrlCategories`, `enableEvaluatePolicyOnGlobalSslBypass`, `enableIpv6DnsOptimizationOnAllTransparentProxy`, `enableIpv6DnsResolutionOnTransparentProxy`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `ecsObject`
-
-**Go SDK fields absent from the contract:** `apiSessionTimeout`
-
-**Terraform provider corroborates these non-contract client fields:** `apiSessionTimeout`
+**Contract fields unmatched in the Python SDK model/request surface:** `apiSessionTimeout`, `ecsObject`
 
 ## advanced_threat_settings
 
@@ -179,7 +167,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## casb_dlp_rule
 
-`POST /zia/api/v1/casbDlpRules` — contract 53 / Go 53 / TF 45 fields / Ansible 44 fields / Python 51 fields / no MCP surface
+`POST /zia/api/v1/casbDlpRules` — contract 55 / Go 53 / TF 45 fields / Ansible 44 fields / Python 51 fields / no MCP surface
 
 **Required drift:**
 
@@ -187,6 +175,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Enum value conflicts:**
 
+- `action`: contract ['OFLCASB_DLP_REPORT_INCIDENT', 'OFLCASB_DLP_SHARE_READ_ONLY', 'OFLCASB_DLP_EXTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_INTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_REMOVE_PUBLIC_LINK_SHARE', 'OFLCASB_DLP_REVOKE_SHARE', 'OFLCASB_DLP_REMOVE_EXTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_INTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_COLLABORATORS', 'OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE', 'OFLCASB_DLP_REMOVE_DISCOVERABLE', 'OFLCASB_DLP_NOTIFY_END_USER', 'OFLCASB_DLP_APPLY_MIP_TAG', 'OFLCASB_DLP_APPLY_BOX_TAG', 'OFLCASB_DLP_MOVE_TO_RESTRICTED_FOLDER', 'OFLCASB_DLP_REMOVE', 'OFLCASB_DLP_QUARANTINE', 'OFLCASB_DLP_APPLY_EMAIL_TAG', 'OFLCASB_DLP_APPLY_GOOGLEDRIVE_LABEL', 'OFLCASB_DLP_REMOVE_EXT_COLLABORATORS', 'OFLCASB_DLP_QUARANTINE_TO_USER_ROOT_FOLDER', 'OFLCASB_DLP_APPLY_WATERMARK', 'OFLCASB_DLP_REMOVE_WATERMARK', 'OFLCASB_DLP_APPLY_HEADER', 'OFLCASB_DLP_APPLY_FOOTER', 'OFLCASB_DLP_APPLY_HEADER_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER', 'OFLCASB_DLP_REMOVE_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER_FOOTER', 'OFLCASB_DLP_BLOCK', 'OFLCASB_DLP_APPLY_ATLASSIAN_CLASSIFICATION_LABEL', 'OFLCASB_DLP_ALLOW', 'OFLCASB_DLP_REDACT', 'OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE_EXPIRY', 'OFLCASB_DLP_REMOVE_EXTERNAL_LINK_SHARE_EXPIRY', 'OFLCASB_DLP_REMOVE_COLLABORATORS_EXPIRY', 'OFLCASB_DLP_REMOVE_SHARING_EXPIRY'] vs TF ['OFLCASB_DLP_REPORT_INCIDENT', 'OFLCASB_DLP_SHARE_READ_ONLY', 'OFLCASB_DLP_EXTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_INTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_REMOVE_PUBLIC_LINK_SHARE', 'OFLCASB_DLP_REVOKE_SHARE', 'OFLCASB_DLP_REMOVE_EXTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_INTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_COLLABORATORS', 'OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE', 'OFLCASB_DLP_REMOVE_DISCOVERABLE', 'OFLCASB_DLP_NOTIFY_END_USER', 'OFLCASB_DLP_APPLY_MIP_TAG', 'OFLCASB_DLP_APPLY_BOX_TAG', 'OFLCASB_DLP_MOVE_TO_RESTRICTED_FOLDER', 'OFLCASB_DLP_REMOVE', 'OFLCASB_DLP_QUARANTINE', 'OFLCASB_DLP_APPLY_EMAIL_TAG', 'OFLCASB_DLP_APPLY_GOOGLEDRIVE_LABEL', 'OFLCASB_DLP_REMOVE_EXT_COLLABORATORS', 'OFLCASB_DLP_QUARANTINE_TO_USER_ROOT_FOLDER', 'OFLCASB_DLP_APPLY_WATERMARK', 'OFLCASB_DLP_REMOVE_WATERMARK', 'OFLCASB_DLP_APPLY_HEADER', 'OFLCASB_DLP_APPLY_FOOTER', 'OFLCASB_DLP_APPLY_HEADER_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER', 'OFLCASB_DLP_REMOVE_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER_FOOTER', 'OFLCASB_DLP_BLOCK', 'OFLCASB_DLP_APPLY_ATLASSIAN_CLASSIFICATION_LABEL', 'OFLCASB_DLP_ALLOW', 'OFLCASB_DLP_REDACT']
 - `contentLocation`: contract ['ANY', 'CONTENT_LOCATION_PRIVATE_CHANNEL', 'CONTENT_LOCATION_PUBLIC_CHANNEL', 'CONTENT_LOCATION_SHARED_CHANNEL', 'CONTENT_LOCATION_DIRECT_MESSAGE', 'CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE'] vs TF ['CONTENT_LOCATION_PRIVATE_CHANNEL', 'CONTENT_LOCATION_PUBLIC_CHANNEL', 'CONTENT_LOCATION_SHARED_CHANNEL', 'CONTENT_LOCATION_DIRECT_MESSAGE', 'CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE']
 - `type`: contract ['ANY', 'NONE', 'OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI'] vs TF ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI']
 
@@ -196,16 +185,19 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Ansible enum value conflicts:**
 
+- `action`: contract ['OFLCASB_DLP_REPORT_INCIDENT', 'OFLCASB_DLP_SHARE_READ_ONLY', 'OFLCASB_DLP_EXTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_INTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_REMOVE_PUBLIC_LINK_SHARE', 'OFLCASB_DLP_REVOKE_SHARE', 'OFLCASB_DLP_REMOVE_EXTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_INTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_COLLABORATORS', 'OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE', 'OFLCASB_DLP_REMOVE_DISCOVERABLE', 'OFLCASB_DLP_NOTIFY_END_USER', 'OFLCASB_DLP_APPLY_MIP_TAG', 'OFLCASB_DLP_APPLY_BOX_TAG', 'OFLCASB_DLP_MOVE_TO_RESTRICTED_FOLDER', 'OFLCASB_DLP_REMOVE', 'OFLCASB_DLP_QUARANTINE', 'OFLCASB_DLP_APPLY_EMAIL_TAG', 'OFLCASB_DLP_APPLY_GOOGLEDRIVE_LABEL', 'OFLCASB_DLP_REMOVE_EXT_COLLABORATORS', 'OFLCASB_DLP_QUARANTINE_TO_USER_ROOT_FOLDER', 'OFLCASB_DLP_APPLY_WATERMARK', 'OFLCASB_DLP_REMOVE_WATERMARK', 'OFLCASB_DLP_APPLY_HEADER', 'OFLCASB_DLP_APPLY_FOOTER', 'OFLCASB_DLP_APPLY_HEADER_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER', 'OFLCASB_DLP_REMOVE_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER_FOOTER', 'OFLCASB_DLP_BLOCK', 'OFLCASB_DLP_APPLY_ATLASSIAN_CLASSIFICATION_LABEL', 'OFLCASB_DLP_ALLOW', 'OFLCASB_DLP_REDACT', 'OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE_EXPIRY', 'OFLCASB_DLP_REMOVE_EXTERNAL_LINK_SHARE_EXPIRY', 'OFLCASB_DLP_REMOVE_COLLABORATORS_EXPIRY', 'OFLCASB_DLP_REMOVE_SHARING_EXPIRY'] vs Ansible ['OFLCASB_DLP_REPORT_INCIDENT', 'OFLCASB_DLP_SHARE_READ_ONLY', 'OFLCASB_DLP_EXTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_INTERNAL_SHARE_READ_ONLY', 'OFLCASB_DLP_REMOVE_PUBLIC_LINK_SHARE', 'OFLCASB_DLP_REVOKE_SHARE', 'OFLCASB_DLP_REMOVE_EXTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_INTERNAL_SHARE', 'OFLCASB_DLP_REMOVE_COLLABORATORS', 'OFLCASB_DLP_REMOVE_INTERNAL_LINK_SHARE', 'OFLCASB_DLP_REMOVE_DISCOVERABLE', 'OFLCASB_DLP_NOTIFY_END_USER', 'OFLCASB_DLP_APPLY_MIP_TAG', 'OFLCASB_DLP_APPLY_BOX_TAG', 'OFLCASB_DLP_MOVE_TO_RESTRICTED_FOLDER', 'OFLCASB_DLP_REMOVE', 'OFLCASB_DLP_QUARANTINE', 'OFLCASB_DLP_APPLY_EMAIL_TAG', 'OFLCASB_DLP_APPLY_GOOGLEDRIVE_LABEL', 'OFLCASB_DLP_REMOVE_EXT_COLLABORATORS', 'OFLCASB_DLP_QUARANTINE_TO_USER_ROOT_FOLDER', 'OFLCASB_DLP_APPLY_WATERMARK', 'OFLCASB_DLP_REMOVE_WATERMARK', 'OFLCASB_DLP_APPLY_HEADER', 'OFLCASB_DLP_APPLY_FOOTER', 'OFLCASB_DLP_APPLY_HEADER_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER', 'OFLCASB_DLP_REMOVE_FOOTER', 'OFLCASB_DLP_REMOVE_HEADER_FOOTER', 'OFLCASB_DLP_BLOCK', 'OFLCASB_DLP_APPLY_ATLASSIAN_CLASSIFICATION_LABEL', 'OFLCASB_DLP_ALLOW', 'OFLCASB_DLP_REDACT'] (ziacloud-ansible)
 - `contentLocation`: contract ['ANY', 'CONTENT_LOCATION_PRIVATE_CHANNEL', 'CONTENT_LOCATION_PUBLIC_CHANNEL', 'CONTENT_LOCATION_SHARED_CHANNEL', 'CONTENT_LOCATION_DIRECT_MESSAGE', 'CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE'] vs Ansible ['CONTENT_LOCATION_PRIVATE_CHANNEL', 'CONTENT_LOCATION_PUBLIC_CHANNEL', 'CONTENT_LOCATION_SHARED_CHANNEL', 'CONTENT_LOCATION_DIRECT_MESSAGE', 'CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE'] (ziacloud-ansible)
 - `type`: contract ['ANY', 'NONE', 'OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI'] vs Ansible ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI'] (ziacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `accessControl`, `auditor`, `cloudAppTenants`, `criteriaDomainProfiles`, `deviceGroups`, `deviceTrustLevels`, `devices`, `emailRecipientProfiles`, `entityGroups`, `excludedDomainProfiles`, `includedDomainProfiles`, `lastModifiedBy`, `lastModifiedTime`, `numberOfExternalCollaborators`, `numberOfInternalCollaborators`, `objectTypes`, `state`
+**Contract fields unmatched in the Ansible module:** `accessControl`, `auditor`, `cloudAppTenants`, `criteriaDomainProfiles`, `deviceGroups`, `deviceTrustLevels`, `devices`, `emailRecipientProfiles`, `entityGroups`, `excludedDomainProfiles`, `fileSharingExpiryTime`, `fileSharingExpiryTimeType`, `includedDomainProfiles`, `lastModifiedBy`, `lastModifiedTime`, `numberOfExternalCollaborators`, `numberOfInternalCollaborators`, `objectTypes`, `state`
 
 **Ansible module fields absent from the contract:** `cloudAppTenantIds`, `criteriaDomainProfileIds`, `emailRecipientProfileIds`, `enabled`, `entityGroupIds`, `excludedDomainProfileIds`, `includedDomainProfileIds`, `objectTypeIds`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `deviceGroups`, `deviceTrustLevels`, `devices`
+**Contract fields unmatched in the Python SDK model/request surface:** `deviceGroups`, `deviceTrustLevels`, `devices`, `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
 
 **Python SDK fields absent from the contract:** `ruleType`
+
+**Contract fields absent from the Go SDK struct:** `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
 
 ## casb_malware_rule
 
@@ -403,7 +395,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## firewall_dns_rule
 
-`POST /zia/api/v1/firewallDnsRules` — contract 41 / Go 48 / TF 46 fields / Ansible 34 fields / Python 43 fields / MCP 5 tools
+`POST /zia/api/v1/firewallDnsRules` — contract 45 / Go 48 / TF 46 fields / Ansible 34 fields / Python 43 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -416,43 +408,49 @@ Captured contract groups with no Terraform resource mapping in this report:
 - `order`: contract required=True, Ansible required=False (contract stricter than Ansible; ziacloud-ansible)
 - `rank`: contract required=True, Ansible required=False (contract stricter than Ansible; ziacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `accessControl`, `capturePCAP`, `defaultRule`, `deviceGroups`, `devices`, `ednsEcsObject`, `lastModifiedBy`, `lastModifiedTime`, `predefined`, `redirectIp`, `state`
+**Contract fields unmatched in the Ansible module:** `accessControl`, `capturePCAP`, `defaultRule`, `deviceGroups`, `devices`, `ednsEcsObject`, `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `excludeContextShieldEndPoint`, `lastModifiedBy`, `lastModifiedTime`, `predefined`, `redirectIp`, `state`
 
 **Ansible module fields absent from the contract:** `capturePcap`, `enabled`, `isDefaultRuleName`, `isWebEunEnabled`
 
+**Contract fields unmatched in the Python SDK model/request surface:** `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `excludeContextShieldEndPoint`
+
 **Python SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `isWebEunEnabled`
 
-**Contract fields unmatched in MCP request tools:** `accessControl`, `applicationGroups`, `applications`, `blockResponseCode`, `capturePCAP`, `defaultRule`, `departments`, `destAddresses`, `destCountries`, `destIpCategories`, `destIpGroups`, `destIpv6Groups`, `deviceGroups`, `devices`, `dnsGateway`, `dnsRuleRequestTypes`, `ednsEcsObject`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `predefined`, `protocols`, `redirectIp`, `resCategories`, `sourceCountries`, `srcIpGroups`, `srcIps`, `srcIpv6Groups`, `state`, `timeWindows`, `users`, `zpaIpGroup`
+**Contract fields unmatched in MCP request tools:** `accessControl`, `applicationGroups`, `applications`, `blockResponseCode`, `capturePCAP`, `defaultRule`, `departments`, `destAddresses`, `destCountries`, `destIpCategories`, `destIpGroups`, `destIpv6Groups`, `deviceGroups`, `devices`, `dnsGateway`, `dnsRuleRequestTypes`, `ednsEcsObject`, `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `excludeContextShieldEndPoint`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `predefined`, `protocols`, `redirectIp`, `resCategories`, `sourceCountries`, `srcIpGroups`, `srcIps`, `srcIpv6Groups`, `state`, `timeWindows`, `users`, `zpaIpGroup`
 
 **MCP request fields absent from the contract:** `advanced`, `enabled`
 
-**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `isWebEUNEnabled`
+**Contract fields absent from the Go SDK struct:** `endPointApplicationThreatLevels`
 
-**Terraform provider corroborates these non-contract client fields:** `defaultDnsRuleNameUsed`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `isWebEunEnabled`
+**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `eunTemplateId`, `isEunEnabled`, `isWebEUNEnabled`
+
+**Terraform provider corroborates these non-contract client fields:** `defaultDnsRuleNameUsed`, `eunTemplateId`, `isEunEnabled`, `isWebEunEnabled`
 
 ## firewall_filtering_rule
 
-`POST /zia/api/v1/firewallFilteringRules` — contract 38 / Go 44 / TF 42 fields / Ansible 35 fields / Python 41 fields / MCP 5 tools
+`POST /zia/api/v1/firewallFilteringRules` — contract 42 / Go 44 / TF 42 fields / Ansible 35 fields / Python 41 fields / MCP 5 tools
 
 **Required drift:**
 
 - `order`: contract required=False, TF required=True (TF stricter than API)
 
-**Contract fields unmatched in the Ansible module:** `defaultRule`, `lastModifiedBy`, `lastModifiedTime`, `predefined`, `state`
+**Contract fields unmatched in the Ansible module:** `defaultRule`, `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `excludeContextShieldEndPoint`, `lastModifiedBy`, `lastModifiedTime`, `predefined`, `state`
 
 **Ansible module fields absent from the contract:** `enableFullLogging`, `enabled`
 
+**Contract fields unmatched in the Python SDK model/request surface:** `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `excludeContextShieldEndPoint`
+
 **Python SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `zpaAppSegments`
 
-**Contract fields unmatched in MCP request tools:** `appServiceGroups`, `appServices`, `defaultRule`, `departments`, `destAddresses`, `destCountries`, `destIpCategories`, `destIpGroups`, `destIpv6Groups`, `deviceGroups`, `deviceTrustLevels`, `devices`, `excludeSrcCountries`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `nwApplicationGroups`, `nwApplications`, `nwServiceGroups`, `nwServices`, `predefined`, `sourceCountries`, `srcIpGroups`, `srcIps`, `srcIpv6Groups`, `state`, `timeWindows`, `users`, `workloadGroups`
+**Contract fields unmatched in MCP request tools:** `appServiceGroups`, `appServices`, `defaultRule`, `departments`, `destAddresses`, `destCountries`, `destIpCategories`, `destIpGroups`, `destIpv6Groups`, `deviceGroups`, `deviceTrustLevels`, `devices`, `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `excludeContextShieldEndPoint`, `excludeSrcCountries`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `nwApplicationGroups`, `nwApplications`, `nwServiceGroups`, `nwServices`, `predefined`, `sourceCountries`, `srcIpGroups`, `srcIps`, `srcIpv6Groups`, `state`, `timeWindows`, `users`, `workloadGroups`
 
 **MCP request fields absent from the contract:** `advanced`, `enabled`
 
-**Contract fields absent from the Go SDK struct:** `destIpv6Groups`, `srcIpv6Groups`
+**Contract fields absent from the Go SDK struct:** `destIpv6Groups`, `endPointApplicationThreatLevels`, `srcIpv6Groups`
 
-**Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `zpaAppSegments`
+**Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `eunTemplateId`, `isEunEnabled`, `zpaAppSegments`
 
-**Terraform provider corroborates these non-contract client fields:** `enableFullLogging`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `zpaAppSegments`
+**Terraform provider corroborates these non-contract client fields:** `enableFullLogging`, `eunTemplateId`, `isEunEnabled`, `zpaAppSegments`
 
 ## firewall_ips_rule
 
@@ -573,7 +571,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## location
 
-`POST /zia/api/v1/locations` — contract 45 / Go 60 / TF 54 fields / Ansible 47 fields / Python 59 fields / MCP 7 tools
+`POST /zia/api/v1/locations` — contract 49 / Go 60 / TF 54 fields / Ansible 47 fields / Python 59 fields / MCP 7 tools
 
 **Enum value conflicts:**
 
@@ -583,23 +581,23 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 - `profile`: contract ['NONE', 'CORPORATE', 'SERVER', 'GUESTWIFI', 'IOT'] vs Ansible ['NONE', 'CORPORATE', 'SERVER', 'GUESTWIFI', 'IOT', 'EXTRANET'] (ziacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `cookiesAndProxy`, `managedBy`, `surrogateIP`, `surrogateIPEnforcedForKnownBrowsers`, `zappSSLScanEnabled`
+**Contract fields unmatched in the Ansible module:** `cookiesAndProxy`, `managedBy`, `subLocAccIds`, `surrogateIP`, `surrogateIPEnforcedForKnownBrowsers`, `zappSSLScanEnabled`
 
-**Ansible module fields absent from the contract:** `iotEnforcePolicySet`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`, `surrogateIp`, `surrogateIpEnforcedForKnownBrowsers`, `zappSslScanEnabled`
+**Ansible module fields absent from the contract:** `iotEnforcePolicySet`, `surrogateIp`, `surrogateIpEnforcedForKnownBrowsers`, `zappSslScanEnabled`
 
 **Contract fields unmatched in the Python SDK model/request surface:** `city`, `ipv6Dns64Prefix`, `managedBy`, `other6SubLocation`, `zappSSLScanEnabled`
 
-**Python SDK fields absent from the contract:** `basicAuthEnabled`, `childCount`, `digestAuthEnabled`, `dynamiclocationGroups`, `ecLocation`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `language`, `matchInChild`, `nonEditable`, `state`, `staticLocationGroups`, `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`, `zappSslScanEnabled`
+**Python SDK fields absent from the contract:** `basicAuthEnabled`, `childCount`, `digestAuthEnabled`, `dynamiclocationGroups`, `ecLocation`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `language`, `matchInChild`, `nonEditable`, `state`, `staticLocationGroups`, `zappSslScanEnabled`
 
-**Contract fields unmatched in MCP request tools:** `aupBlockInternetUntilAccepted`, `aupEnabled`, `aupForceSslInspection`, `aupTimeoutInDays`, `authRequired`, `cautionEnabled`, `city`, `cookiesAndProxy`, `defaultExtranetDns`, `defaultExtranetTsPool`, `displayTimeUnit`, `dnBandwidth`, `extranet`, `extranetDns`, `extranetIpPool`, `geoOverride`, `id`, `idleTimeInMinutes`, `iotDiscoveryEnabled`, `ipsControl`, `ipv6Dns64Prefix`, `ipv6Enabled`, `latitude`, `longitude`, `managedBy`, `ofwEnabled`, `other6SubLocation`, `otherSubLocation`, `parentId`, `ports`, `profile`, `sslScanEnabled`, `surrogateIP`, `surrogateIPEnforcedForKnownBrowsers`, `surrogateRefreshTimeInMinutes`, `surrogateRefreshTimeUnit`, `upBandwidth`, `vpnCredentials`, `xffForwardEnabled`, `zappSSLScanEnabled`
+**Contract fields unmatched in MCP request tools:** `aupBlockInternetUntilAccepted`, `aupEnabled`, `aupForceSslInspection`, `aupTimeoutInDays`, `authRequired`, `cautionEnabled`, `city`, `cookiesAndProxy`, `defaultExtranetDns`, `defaultExtranetTsPool`, `displayTimeUnit`, `dnBandwidth`, `extranet`, `extranetDns`, `extranetIpPool`, `geoOverride`, `id`, `idleTimeInMinutes`, `iotDiscoveryEnabled`, `ipsControl`, `ipv6Dns64Prefix`, `ipv6Enabled`, `latitude`, `longitude`, `managedBy`, `ofwEnabled`, `other6SubLocation`, `otherSubLocation`, `parentId`, `ports`, `profile`, `sslScanEnabled`, `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`, `surrogateIP`, `surrogateIPEnforcedForKnownBrowsers`, `surrogateRefreshTimeInMinutes`, `surrogateRefreshTimeUnit`, `upBandwidth`, `vpnCredentials`, `xffForwardEnabled`, `zappSSLScanEnabled`
 
 **MCP request fields absent from the contract:** `advanced`
 
 **Contract fields absent from the Go SDK struct:** `city`, `latitude`, `longitude`, `managedBy`
 
-**Go SDK fields absent from the contract:** `basicAuthEnabled`, `childCount`, `digestAuthEnabled`, `dynamiclocationGroups`, `ecLocation`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `language`, `matchInChild`, `state`, `staticLocationGroups`, `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`, `virtualZenClusters`, `virtualZens`
+**Go SDK fields absent from the contract:** `basicAuthEnabled`, `childCount`, `digestAuthEnabled`, `dynamiclocationGroups`, `ecLocation`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `language`, `matchInChild`, `state`, `staticLocationGroups`, `virtualZenClusters`, `virtualZens`
 
-**Terraform provider corroborates these non-contract client fields:** `basicAuthEnabled`, `digestAuthEnabled`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `state`, `staticLocationGroups`, `subLocAccIds`, `subLocScope`, `subLocScopeValues`, `virtualZenClusters`, `virtualZens`
+**Terraform provider corroborates these non-contract client fields:** `basicAuthEnabled`, `digestAuthEnabled`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `state`, `staticLocationGroups`, `virtualZenClusters`, `virtualZens`
 
 ## network_application_group
 
@@ -767,7 +765,6 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Ansible enum value conflicts:**
 
-- `fileTypes`: contract ['ANY', 'NONE', 'FTCATEGORY_FLASH', 'FTCATEGORY_JAVA_APPLET', 'FTCATEGORY_HTA', 'FTCATEGORY_ZIP', 'FTCATEGORY_TAR', 'FTCATEGORY_BZIP2', 'FTCATEGORY_RAR', 'FTCATEGORY_ISO', 'FTCATEGORY_P7Z', 'FTCATEGORY_SCZIP', 'FTCATEGORY_DMG', 'FTCATEGORY_WINDOWS_EXECUTABLES', 'FTCATEGORY_MICROSOFT_INSTALLER', 'FTCATEGORY_WINDOWS_LIBRARY', 'FTCATEGORY_PYTHON', 'FTCATEGORY_POWERSHELL', 'FTCATEGORY_VISUAL_BASIC_SCRIPT', 'FTCATEGORY_BAT', 'FTCATEGORY_JPEG', 'FTCATEGORY_PNG', 'FTCATEGORY_WINDOWS_SCRIPT_FILES', 'FTCATEGORY_APK', 'FTCATEGORY_MS_POWERPOINT', 'FTCATEGORY_MS_WORD', 'FTCATEGORY_MS_EXCEL', 'FTCATEGORY_MS_RTF', 'FTCATEGORY_PDF_DOCUMENT'] vs Ansible ['FTCATEGORY_BAT', 'FTCATEGORY_APK', 'FTCATEGORY_WINDOWS_SCRIPT_FILES', 'FTCATEGORY_JAVA_APPLET', 'FTCATEGORY_PDF_DOCUMENT', 'FTCATEGORY_MS_RTF', 'FTCATEGORY_FLASH', 'FTCATEGORY_POWERSHELL', 'FTCATEGORY_WINDOWS_LIBRARY', 'FTCATEGORY_MS_EXCEL', 'FTCATEGORY_HTA', 'FTCATEGORY_VISUAL_BASIC_SCRIPT', 'FTCATEGORY_MS_POWERPOINT', 'FTCATEGORY_TAR', 'FTCATEGORY_WINDOWS_EXECUTABLES', 'FTCATEGORY_SCZIP', 'FTCATEGORY_RAR', 'FTCATEGORY_ZIP', 'FTCATEGORY_P7Z', 'FTCATEGORY_MICROSOFT_INSTALLER', 'FTCATEGORY_BZIP2', 'FTCATEGORY_PYTHON', 'FTCATEGORY_MS_WORD', 'FTCATEGORY_ISO', 'FTCATEGORY_DMG', 'FTCATEGORY_JPEG', 'FTCATEGORY_PNG'] (ziacloud-ansible)
 - `protocols`: contract ['ANY_RULE', 'SMRULEF_CASCADING_ALLOWED', 'FOHTTP_RULE', 'FTP_RULE', 'HTTPS_RULE', 'HTTP_RULE'] vs Ansible ['FOHTTP_RULE', 'FTP_RULE', 'HTTPS_RULE', 'HTTP_RULE'] (ziacloud-ansible)
 
 **Contract fields unmatched in the Ansible module:** `accessControl`, `cbiProfile`, `cbiProfileId`, `defaultRule`, `deviceGroups`, `devices`, `lastModifiedBy`, `lastModifiedTime`, `state`, `timeWindows`
@@ -792,7 +789,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ssl_inspection_rule
 
-`POST /zia/api/v1/sslInspectionRules` — contract 32 / Go 34 / TF 30 fields / Ansible 27 fields / Python 32 fields / MCP 5 tools
+`POST /zia/api/v1/sslInspectionRules` — contract 35 / Go 34 / TF 30 fields / Ansible 27 fields / Python 32 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -809,17 +806,17 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 - `userAgentTypes`: contract ['OPERA', 'FIREFOX', 'MSIE', 'MSEDGE', 'CHROME', 'SAFARI', 'OTHER', 'MSCHREDGE', 'BRAVE'] vs Ansible ['OPERA', 'FIREFOX', 'MSIE', 'MSEDGE', 'CHROME', 'SAFARI', 'OTHER', 'MSCHREDGE'] (ziacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `accessControl`, `defaultRule`, `lastModifiedBy`, `lastModifiedTime`, `predefined`, `state`
+**Contract fields unmatched in the Ansible module:** `accessControl`, `defaultRule`, `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `lastModifiedBy`, `lastModifiedTime`, `predefined`, `state`
 
 **Ansible module fields absent from the contract:** `enabled`
 
-**Contract fields unmatched in MCP request tools:** `accessControl`, `cloudApplications`, `defaultRule`, `departments`, `destIpGroups`, `deviceGroups`, `deviceTrustLevels`, `devices`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `platforms`, `predefined`, `proxyGateways`, `roadWarriorForKerberos`, `sourceIpGroups`, `state`, `timeWindows`, `urlCategories`, `userAgentTypes`, `users`, `workloadGroups`, `zpaAppSegments`
+**Contract fields unmatched in the Python SDK model/request surface:** `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`
+
+**Contract fields unmatched in MCP request tools:** `accessControl`, `cloudApplications`, `defaultRule`, `departments`, `destIpGroups`, `deviceGroups`, `deviceTrustLevels`, `devices`, `endPointApplicationGroups`, `endPointApplicationThreatLevels`, `endPointApplications`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `platforms`, `predefined`, `proxyGateways`, `roadWarriorForKerberos`, `sourceIpGroups`, `state`, `timeWindows`, `urlCategories`, `userAgentTypes`, `users`, `workloadGroups`, `zpaAppSegments`
 
 **MCP request fields absent from the contract:** `advanced`, `enabled`
 
-**Go SDK fields absent from the contract:** `endPointApplicationGroups`, `endPointApplications`
-
-**Terraform provider corroborates these non-contract client fields:** `endPointApplicationGroups`, `endPointApplications`
+**Contract fields absent from the Go SDK struct:** `endPointApplicationThreatLevels`
 
 ## static_ip
 
@@ -852,7 +849,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## url_category
 
-`POST /zia/api/v1/urlCategories` — contract 19 / Go 24 / TF 24 fields / Ansible 17 fields / Python 22 fields / MCP 10 tools
+`POST /zia/api/v1/urlCategories` — contract 22 / Go 24 / TF 24 fields / Ansible 17 fields / Python 22 fields / MCP 10 tools
 
 **Required drift:**
 
@@ -864,33 +861,27 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Contract fields unmatched in the Ansible module:** `customIpRangesCount`, `customUrlsCount`, `ipRangesRetainingParentCategoryCount`, `urlKeywordCounts`, `urlsRetainingParentCategoryCount`
 
-**Ansible module fields absent from the contract:** `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
-
-**Python SDK fields absent from the contract:** `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
-
-**Contract fields unmatched in MCP request tools:** `customCategory`, `customIpRangesCount`, `customUrlsCount`, `dbCategorizedUrls`, `editable`, `id`, `ipRangesRetainingParentCategory`, `ipRangesRetainingParentCategoryCount`, `keywordsRetainingParentCategory`, `scopes`, `type`, `urlKeywordCounts`, `urlsRetainingParentCategoryCount`
+**Contract fields unmatched in MCP request tools:** `customCategory`, `customIpRangesCount`, `customUrlsCount`, `dbCategorizedUrls`, `editable`, `id`, `ipRangesRetainingParentCategory`, `ipRangesRetainingParentCategoryCount`, `keywordsRetainingParentCategory`, `regexPatterns`, `regexPatternsRetainingParentCategory`, `scopes`, `type`, `urlKeywordCounts`, `urlType`, `urlsRetainingParentCategoryCount`
 
 **MCP request fields absent from the contract:** `advanced`, `name`
 
-**Go SDK fields absent from the contract:** `categoryGroup`, `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`, `val`
+**Go SDK fields absent from the contract:** `categoryGroup`, `val`
 
-**Terraform provider corroborates these non-contract client fields:** `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`, `val`
+**Terraform provider corroborates these non-contract client fields:** `val`
 
 ## url_filtering_and_cloud_app_settings
 
-`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 31 / TF 29 fields / Ansible 20 fields / Python 22 fields / no MCP surface
+`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 29 / Go 31 / TF 29 fields / Ansible 20 fields / Python 22 fields / no MCP surface
 
-**Contract fields unmatched in the Ansible module:** `enableCIPACompliance`, `enableMicrosoftCoPilotPrompt`, `enablePOEPrompt`, `enablePerPlexityPrompt`, `safeSearchApps`
+**Contract fields unmatched in the Ansible module:** `enableCIPACompliance`, `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMicrosoftCoPilotPrompt`, `enableMistralAIPrompt`, `enablePOEPrompt`, `enablePerPlexityPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`, `safeSearchApps`
 
 **Ansible module fields absent from the contract:** `enableCipaCompliance`, `enableMicrosoftCopilotPrompt`, `enablePerplexityPrompt`, `enablePoePrompt`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `safeSearchApps`
+**Contract fields unmatched in the Python SDK model/request surface:** `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableWriterPrompt`, `safeSearchApps`
 
-**Python SDK fields absent from the contract:** `enableGoogleAIPrompt`, `enableQuillbotAIPrompt`
+**Go SDK fields absent from the contract:** `enableCreativeCommonsSearchResults`, `zveloDbLookupDisabled`
 
-**Go SDK fields absent from the contract:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
-
-**Terraform provider corroborates these non-contract client fields:** `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
+**Terraform provider corroborates these non-contract client fields:** `zveloDbLookupDisabled`
 
 ## user
 
@@ -907,6 +898,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 **Required drift:**
 
 - `order`: contract required=False, TF required=True (TF stricter than API)
+- `urlCategories`: contract required=False, TF required=True (TF stricter than API)
 
 **Enum value conflicts:**
 

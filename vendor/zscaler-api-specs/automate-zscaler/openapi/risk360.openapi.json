@@ -1,0 +1,242 @@
+{
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "BearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "API Reference Guide for Risk360 REST endpoints. Most Risk360 data is served through the Risk domain of the Analytics GraphQL API; these endpoints cover operations that GraphQL cannot, such as downloading generated report files.",
+    "title": "Risk360 API",
+    "version": "docusaurus-blob-snapshot"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/rest/v1/reports/download": {
+      "get": {
+        "description": "Downloads a generated report file as an attachment. First, generate the report with the <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/analytics/domains/risk-score/queries/risk_generate_report\"><code>risk_generate_report</code></a> GraphQL query, and then check its progress with <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/analytics/domains/risk-score/queries/risk_report_status\"><code>risk_report_status</code></a>. When the job completes, use the <code>report_id</code>, <code>report_type</code>, and <code>file_name</code> values it returns. To download an earlier report, get these values from <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/analytics/domains/risk-score/queries/risk_historical_reports\"><code>risk_historical_reports</code></a>. For multi-tenant API clients, include the <code>x-zinsights-scope</code> header (for example, <code>RISK360:&lt;cloud&gt;:&lt;tenant_id&gt;</code>) to select the tenant.",
+        "operationId": "Download Report",
+        "parameters": [
+          {
+            "description": "The product that generated the report. Only <code>risk</code> is currently supported.",
+            "example": "risk",
+            "in": "query",
+            "name": "source",
+            "required": true
+          },
+          {
+            "description": "The unique identifier of the generated report.",
+            "in": "query",
+            "name": "report_id",
+            "required": true
+          },
+          {
+            "description": "The type of the generated report (for example, <code>eas_reporting</code>).",
+            "in": "query",
+            "name": "report_type",
+            "required": true
+          },
+          {
+            "description": "Optional. The file name to use for the downloaded attachment.",
+            "in": "query",
+            "name": "file_name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The report file is returned as a binary attachment."
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INVALID_REPORT_TYPE",
+                    "message": "Unknown reportType: eas_reporting11"
+                  }
+                },
+                "schema": {
+                  "description": "The error response body.",
+                  "properties": {
+                    "error": {
+                      "description": "The error details.",
+                      "properties": {
+                        "code": {
+                          "description": "Upstream error code when available; otherwise INVALID_REQUEST for 4xx, INTERNAL_ERROR for 5xx",
+                          "example": "INVALID_REPORT_TYPE",
+                          "type": "string"
+                        },
+                        "message": {
+                          "description": "Client-facing error detail",
+                          "example": "Unknown reportType: eas_reporting11",
+                          "type": "string"
+                        }
+                      },
+                      "title": "ErrorDetail",
+                      "type": "object"
+                    }
+                  },
+                  "title": "UpstreamErrorEnvelope",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client error, such as a missing or unsupported <code>source</code>, an unknown report type, a report that is not found, or a rate limit."
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "UNKNOWN",
+                    "message": "Failed to download report artifact."
+                  }
+                },
+                "schema": {
+                  "description": "The error response body.",
+                  "properties": {
+                    "error": {
+                      "description": "The error details.",
+                      "properties": {
+                        "code": {
+                          "description": "Upstream error code when available; otherwise INVALID_REQUEST for 4xx, INTERNAL_ERROR for 5xx",
+                          "example": "INVALID_REPORT_TYPE",
+                          "type": "string"
+                        },
+                        "message": {
+                          "description": "Client-facing error detail",
+                          "example": "Unknown reportType: eas_reporting11",
+                          "type": "string"
+                        }
+                      },
+                      "title": "ErrorDetail",
+                      "type": "object"
+                    }
+                  },
+                  "title": "UpstreamErrorEnvelope",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The report file could not be downloaded because of a server error."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Risk360",
+            "url": "https://api.zsapi.net/zins",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "reports"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "1f6080bbd6981c3be1aec8d0f3e5dab0f4f107071372dbe7803842bf0e2e4cb8",
+          "chunk_id": 989554,
+          "chunk_url": "https://automate.zscaler.com/assets/js/534e5aee.df964553.js",
+          "module": 647905
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "content": "Downloads a generated report file as an attachment. First, generate the report with the <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/analytics/domains/risk-score/queries/risk_generate_report\"><code>risk_generate_report</code></a> GraphQL query, and then check its progress with <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/analytics/domains/risk-score/queries/risk_report_status\"><code>risk_report_status</code></a>. When the job completes, use the <code>report_id</code>, <code>report_type</code>, and <code>file_name</code> values it returns. To download an earlier report, get these values from <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/analytics/domains/risk-score/queries/risk_historical_reports\"><code>risk_historical_reports</code></a>. For multi-tenant API clients, include the <code>x-zinsights-scope</code> header (for example, <code>RISK360:&lt;cloud&gt;:&lt;tenant_id&gt;</code>) to select the tenant.",
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "Download a generated report",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "reports",
+                "download"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) The product that generated the report. Only <code>risk</code> is currently supported.",
+                    "type": "text/plain"
+                  },
+                  "key": "source",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) The unique identifier of the generated report.",
+                    "type": "text/plain"
+                  },
+                  "key": "report_id",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "(Required) The type of the generated report (for example, <code>eas_reporting</code>).",
+                    "type": "text/plain"
+                  },
+                  "key": "report_type",
+                  "value": ""
+                },
+                {
+                  "description": {
+                    "content": "Optional. The file name to use for the downloaded attachment.",
+                    "type": "text/plain"
+                  },
+                  "key": "file_name",
+                  "value": ""
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        "x-zscaler-operation-key": "risk360/reports/download-report",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/risk360/reports/download-report"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Risk360",
+      "url": "https://api.zsapi.net/zins",
+      "variables": {}
+    }
+  ],
+  "x-zscaler-source": {
+    "kind": "automate-docusaurus-blobs",
+    "operation_count": 1,
+    "product": "risk360"
+  }
+}
