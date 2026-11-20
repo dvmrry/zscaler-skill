@@ -60,7 +60,7 @@ test("the prompt carries the claim's other quotes, so a restatement keeps what t
 
 test("the report lists each decision and a restated statement before and after", () => {
   const md = reportMarkdown([{ id: "a.b:c", statement: "Old.", restated: "New.", decisions: [{ action: "replace_and_restate", verdict: "valid", old: "x", new_quote: "y", reason: "renamed" }] }]);
-  assert.match(md, /1 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check; 0 restated statement\(s\) held for review; 0 quote\(s\) no longer supported/);
+  assert.match(md, /1 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check; 0 statement\(s\) held for review; 0 quote\(s\) with no counterpart on the new page; 0 quote\(s\) no longer supported/);
   assert.match(md, /Statement was: Old\.[\s\S]*Statement now: New\./);
 });
 
@@ -70,7 +70,7 @@ test("a held restatement is reported first, as a draft with its proposed quotes,
     { id: "a.b:held", statement: "Old.", restated: "New.", held: "restated", decisions: [{ action: "replace_and_restate", verdict: "valid", old: "x", new_quote: "y" }] },
   ];
   const md = reportMarkdown(results);
-  assert.match(md, /2 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check; 1 restated statement\(s\) held for review/);
+  assert.match(md, /2 statement\(s\): 1 quote\(s\) re-anchored, 0 of them to check; 1 statement\(s\) held for review/);
   assert.ok(md.indexOf("a.b:held") < md.indexOf("a.b:plain"), "held statements come first");
   assert.match(md, /### `a\.b:held` \(held for review\)[\s\S]*- proposed: "y"[\s\S]*Draft: New\./);
   assert.deepEqual([summary(results).valid, summary(results).held], [1, 1]);

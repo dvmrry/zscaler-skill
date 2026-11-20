@@ -184,22 +184,50 @@ empties the record when the next run is recorded, so record any run in flight fi
   - re-anchor it on the branch, or turn the claim into a gap when the source
     no longer says it. `node scripts/kb-reanchor.mjs --base main --write`
     does the re-anchoring for capture quotes, in claims and in divergence
-    positions. It is given `KB_MODEL_ENDPOINT` and `KB_MODEL`, any
-    OpenAI-compatible endpoint, plus `KB_MODEL_API_KEY` if that endpoint needs
-    one. For each broken quote it tells the model why it broke. A missing quote
-    comes with the old passage and the same part of the new page. A quote the
-    page now repeats, for another OS or model, comes with every place it
-    occurs, so the model can give an `after` anchor that picks the right
-    section. It checks the decisions together, one evidence entry at a time:
-    - the entry, as the decisions would leave it, must anchor by the gate's own
+    positions. A statement whose broken quotes are all on help pages is
+    repaired from a diff of the page, as it was at `--base` and as it is now:
+    - the old and new lines are aligned, then the sentences in each changed
+      stretch, and each broken quote's new text is carved from the sentence
+      its old one became. A quote the page now repeats, for another OS or
+      model, gets the heading, parent item or lead-in above it as its `after`
+      anchor, and a broken anchor follows its line. A quote an earlier repair
+      on the branch took from a later version of the page is looked up in
+      that version;
+    - a repair that changed only spacing, punctuation, case or articles is
+      written. A number's sign, decimal point, percent or plus is not
+      punctuation. Any other change, or an anchor that stands in for a line
+      the page lost, is written only when the model, asked one yes/no
+      question, says the statement still holds exactly as written with the
+      new text. Otherwise the statement is **held** with its repaired quotes
+      and the model's reason. When one position of a divergence is left for a
+      person, its other positions are held too;
+    - a quote with nothing on the new page that its passage became (the
+      section was restructured, or the passage removed) is left for a person,
+      marked **no counterpart**, with the page's most similar sentences.
+
+    The model never chooses a quote here. Replayed on refresh #354's 200
+    broken quotes against the hand-reviewed merge, it wrote 53 repairs, none
+    of them wrong, held 45 and found no counterpart for 75. A statement that cites a
+    pinned file, or a capture that is not a page, is repaired by the model
+    instead: it is given each broken quote with why it broke, the old passage
+    and the same part of the new text (or every place a repeated quote
+    occurs), and decides how to repair it.
+
+    The model is any OpenAI-compatible endpoint: `KB_MODEL_ENDPOINT` and
+    `KB_MODEL`, plus `KB_MODEL_API_KEY` if that endpoint needs one. Without
+    one the run stops, unless it is given `--no-model`: then only help-page
+    quotes are repaired, and every repair that needs the check is held. Every
+    repair, from the diff or the model, is checked together with the rest of
+    its evidence entry:
+    - the entry, as the repairs would leave it, must anchor by the gate's own
       rule, with at most one new anchor, and every quote that anchors now must
       still anchor. It is repaired whole or not at all: if another of its
-      quotes, or its anchor, still fails, none of its decisions is applied,
+      quotes, or its anchor, still fails, none of its repairs is applied,
       and the report lists them as **suggested**;
     - a context anchor that still works stays where it is, unless a quote now
       comes before it, and on a help page a repaired quote stays on one line
       (a heading, a list item, a table row) when the old one did;
-    - each quote whose place a decision set is placed against its old
+    - each quote whose place a repair set is placed against its old
       surroundings, the sentence or item just before it and the one just
       after, as they were. A repair between them, where they are on the page
       once, is safe. One outside them is rejected, so a page that gained a
@@ -209,20 +237,19 @@ empties the record when the next run is recorded, so record any run in flight fi
       at the page's start or end, or the vendor moved it. Only the headings and
       the statement's meaning can tell which copy such a quote is about.
 
-    A page the vendor rewrote can be rejected where the repair was right; that
-    is left for a person. The run's last line counts the quotes to check as
-    `review`. It asks the model once more about the
-    decisions the checks rejected. It never writes a restated statement: when
-    the model restates a claim, or chooses to for any of its quotes, the
-    claim's result is **held**, and the report lists it first with the draft.
-    Check the draft against its quotes, edit the run's `--json` if needed, and
-    apply it with `node scripts/kb-reanchor.mjs --apply <file.json>`, which
-    skips what the run already wrote. A draft is written only when every
-    quote it restates is marked valid, and `--apply` takes the verdicts as
-    the file gives them, so run `node scripts/check-full.mjs` after it. It
-    regenerates the spines, the reading
-    text and `verified.json`, and leaves what the page no longer supports for
-    a person. Read its `--report` before committing;
+    The run's last line counts the quotes to check as `review` and the quotes
+    with no counterpart as `left`. On the model's route it asks once more
+    about the decisions the checks rejected, and it never writes a restated
+    statement: when the model restates a claim, or chooses to for any of its
+    quotes, the claim's result is held with the draft. The report lists held
+    statements first. Check each against its quotes, restate it in the run's
+    `--json` (`restated`) if the page changed what it says, and apply it with
+    `node scripts/kb-reanchor.mjs --apply <file.json>`, which skips what the
+    run already wrote. A draft is written only when every quote it restates
+    is marked valid, and `--apply` takes the verdicts as the file gives them,
+    so run `node scripts/check-full.mjs` after it. The run regenerates the
+    spines, the reading text and `verified.json`, and leaves what the page no
+    longer supports for a person. Read its `--report` before committing;
   - read every in-change entry against its claim;
   - run the claim audit on the claims you touched.
 

@@ -27,7 +27,7 @@ const MAINTAINER_ONLY = [
   /^scripts\/(release-version\.sh|release-scope\.mjs)$/,
   /^scripts\/gen-[^/]+\.mjs$/,
   /^scripts\/tf-schema\.go$/,
-  /^scripts\/(kb-refresh|kb-reanchor|kb-requote|kb-move|kb-drift|kb-eval|bump-pins|capture-queue|vendor-impact-summary|regen-goldens|refresh-discovery)\.mjs$/,
+  /^scripts\/(kb-refresh|kb-reanchor|kb-reanchor-diff|kb-requote|kb-move|kb-drift|kb-eval|bump-pins|capture-queue|vendor-impact-summary|regen-goldens|refresh-discovery)\.mjs$/,
   /^scripts\/refresh-[^/]+\.sh$/,
   /^scripts\/(help_capture|zscaler_pages|automate_pages|postman_capture|issue_capture|issue_watch_config|l1_inventory|claim_audit)\.py$/,
   /^scripts\/(issue-watch|maintenance-digest|run-evals|find-asymmetries)\.py$/,
