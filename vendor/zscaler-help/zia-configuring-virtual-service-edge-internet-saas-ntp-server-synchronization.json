@@ -5,21 +5,71 @@
   "source": {
     "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-ntp-server-synchronization",
     "node": "1401161",
-    "revision": "3203775",
-    "updated": "2026-05-06",
+    "revision": "3258184",
+    "updated": "2026-11-20",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-04",
+  "captured_at": "2026-11-21",
   "blocks": [
     {
-      "text": "Virtual Service Edges for Internet & SaaS (ZIA) are extremely sensitive to the virtual machine (VM) and cloud times being in sync. By default, the VM synchronizes the time with public NTP servers (e.g., pool.ntp.org). However, if you have a local NTP server, you can configure the Virtual Service Edge to synchronize time with it."
+      "text": "Virtual Service Edges for Internet & SaaS (ZIA) are extremely sensitive to the virtual machine (VM) and cloud times being in sync. By default, the Virtual Service Edges synchronize their time with public NTP servers (pool.ntp.org) when the Virtual Service Edge services start. However, if you have a local NTP server, you can configure the Virtual Service Edges to synchronize time with it."
     },
     {
-      "heading": "Custom Configuration of NTP Servers Using CLI",
+      "text": "You can enable the NTP daemon (ntpd) to synchronize its time, using your local NTP servers or pool.ntp.org, with the following command:"
+    },
+    {
+      "text": "vzen ntp-manager"
+    },
+    {
+      "item": "The commands vzen enable-ntpd, vzen disable-ntpd, and vzen modify-ntpd-servers are deprecated and replaced by vzen ntp-manager.",
+      "depth": 0
+    },
+    {
+      "item": "Modifying the NTP configuration causes the Virtual Service Edge services to stop and restart. This restart takes several minutes longer than a standard restart due to NTP synchronization. Ensure that you apply NTP changes during a maintenance window and that the Virtual Service Edge management interface can reach your NTP servers over UDP port 123.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring NTP Servers",
       "level": 1
     },
     {
-      "text": "To custom configure NTP servers using CLI:"
+      "text": "For the first-time deployment, configure the Virtual Service Edge to use either your local NTP servers or the public servers."
+    },
+    {
+      "text": "To configure the Virtual Service Edge to use your local NTP servers:"
+    },
+    {
+      "item": "Log in to the Virtual Service Edge.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Run the following command with your NTP server IPv4 addresses or hostnames that resolve to a single address, separated by commas:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen ntp-manager --enable --servers <ip1,ip2,ip3,...>",
+      "depth": 0
+    },
+    {
+      "item": "After you enter the NTP server addresses, you are prompted to apply the changes immediately.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Apply the changes immediately by entering y. Zscaler recommends applying the changes immediately.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "Alternatively, you can configure the public servers (pool.ntp.org)."
+    },
+    {
+      "text": "To configure the Virtual Service Edge to use public servers:"
     },
     {
       "item": "Log in to the Virtual Service Edge.",
@@ -32,162 +82,473 @@
       "number": 2
     },
     {
-      "item": "sudo vzen enable-ntpd",
+      "item": "sudo vzen ntp-manager --enable",
       "depth": 0
     },
     {
-      "item": "This command prompts you to enter the custom NTP servers. After adding the NTP servers, you are prompted to restart NTPD immediately. Zscaler recommends you enter y to restart NTPD immediately.",
+      "item": "See image.",
       "depth": 0
     },
     {
-      "item": "The Virtual Service Edge and NTP service are restarted in this process. Ensure that your organization is prepared for the services to shut down momentarily before restarting.",
+      "item": "Press Enter at the server prompt.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Apply the changes immediately by entering y. Zscaler recommends applying the changes immediately.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Your servers are the preferred time sources. The public servers (pool.ntp.org) are kept as a fallback.",
       "depth": 0
     },
     {
-      "item": "Sample output of this command.",
-      "depth": 0
+      "item": "For Virtual Service Edges deployed on VMware ESXi, ensure that the ESXi host's clock is synchronized with NTP and that the Synchronize guest time with host option is disabled in the VM's VMware Tools settings.",
+      "depth": 0,
+      "strong": [
+        [
+          123,
+          155
+        ],
+        [
+          187,
+          199
+        ]
+      ]
     },
     {
-      "item": "You can stop the configured NTP servers using the vzen disable-ntpd command.",
-      "depth": 0
-    },
-    {
-      "heading": "Modify Custom NTP Servers Using CLI",
-      "level": 1
-    },
-    {
-      "text": "You can either add or remove custom NTP servers from the configuration file using CLI. Using CLI to add or remove custom NTP servers prevents configuration files from being corrupted because of syntax errors, and it avoids duplicate entries of the servers in the configuration file."
-    },
-    {
-      "heading": "Adding Custom NTP Servers Using CLI",
+      "heading": "Checking NTP Server Status",
       "level": 2
     },
     {
-      "text": "To add custom NTP servers using CLI:"
+      "text": "To check the NTP server status, run the following command:"
     },
     {
-      "item": "Log in to the Virtual Service Edge.",
-      "depth": 0,
-      "number": 1
+      "text": "sudo vzen ntp-manager --status"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The output shows whether ntpd is running and its time is synchronized, and lists your configured servers."
+    },
+    {
+      "text": "Synchronization can take a few minutes after the first start."
+    },
+    {
+      "heading": "Modifying NTP Servers",
+      "level": 2
+    },
+    {
+      "text": "You can perform the following operations on NTP servers:"
+    },
+    {
+      "item": "Add",
+      "depth": 0
+    },
+    {
+      "item": "To add NTP servers:",
+      "depth": 0
     },
     {
       "item": "Run the following command:",
-      "depth": 0,
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen ntp-manager",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "This prompts you to enter a number between 1 and 5.",
+      "depth": 1
+    },
+    {
+      "item": "1 - Enable ntpd",
+      "depth": 2
+    },
+    {
+      "item": "2 - Disable ntpd",
+      "depth": 2
+    },
+    {
+      "item": "3 - Manage NTP servers",
+      "depth": 2
+    },
+    {
+      "item": "4 - Show status",
+      "depth": 2
+    },
+    {
+      "item": "5 - Exist",
+      "depth": 2
+    },
+    {
+      "item": "Enter 3 (Manage NTP Servers).",
+      "depth": 1,
       "number": 2
     },
     {
-      "item": "sudo vzen modify-ntpd-servers",
-      "depth": 0
+      "item": "This prompts you to enter one of the following to modify servers in ntp.conf:",
+      "depth": 1
     },
     {
-      "item": "This command prompts you to enter either add or remove.",
-      "depth": 0
+      "item": "add",
+      "depth": 2
+    },
+    {
+      "item": "remove",
+      "depth": 2
+    },
+    {
+      "item": "replace",
+      "depth": 2
     },
     {
       "item": "Enter add.",
-      "depth": 0,
+      "depth": 1,
       "number": 3
     },
     {
-      "item": "This prompts you to enter the custom NTP server addresses. If an NTP server address has already been entered or exists in the configuration file, then this command skips the duplicate entry.",
-      "depth": 0
+      "item": "This prompts you to confirm adding NTP servers.",
+      "depth": 1
     },
     {
-      "item": "After you enter the NTP server addresses, enter q to quit the addition of the NTP servers.",
-      "depth": 0,
+      "item": "Enter y.",
+      "depth": 1,
       "number": 4
     },
     {
-      "item": "After you quit adding the NTP servers, you are prompted to start NTPD immediately. Zscaler recommends you enter y to restart NTPD immediately.",
+      "item": "Remove",
       "depth": 0
     },
     {
-      "item": "The Virtual Service Edge and NTP service are restarted in this process. Ensure that your organization is prepared for the services to shut down momentarily before restarting.",
+      "item": "To remove NTP servers:",
       "depth": 0
     },
     {
-      "item": "Sample output of this command.",
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen ntp-manager",
+      "depth": 1
+    },
+    {
+      "item": "This prompts you to enter a number between 1 and 5.",
+      "depth": 1
+    },
+    {
+      "item": "1 - Enable ntpd",
+      "depth": 2
+    },
+    {
+      "item": "2 - Disable ntpd",
+      "depth": 2
+    },
+    {
+      "item": "3 - Manage NTP servers",
+      "depth": 2
+    },
+    {
+      "item": "4 - Show status",
+      "depth": 2
+    },
+    {
+      "item": "5 - Exist",
+      "depth": 2
+    },
+    {
+      "item": "Enter 3 (Manage NTP Servers).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "This prompts you to enter one of the following to modify servers in ntp.conf:",
+      "depth": 1
+    },
+    {
+      "item": "add",
+      "depth": 2
+    },
+    {
+      "item": "remove",
+      "depth": 2
+    },
+    {
+      "item": "replace",
+      "depth": 2
+    },
+    {
+      "item": "Enter remove.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "This prompts you to confirm removing NTP servers.",
+      "depth": 1
+    },
+    {
+      "item": "Enter y.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Replace",
       "depth": 0
     },
     {
-      "heading": "Removing Custom NTP Servers Using CLI",
+      "item": "To replace NTP servers:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen ntp-manager",
+      "depth": 1
+    },
+    {
+      "item": "This prompts you to enter a number between 1 and 5.",
+      "depth": 1
+    },
+    {
+      "item": "1 - Enable ntpd",
+      "depth": 2
+    },
+    {
+      "item": "2 - Disable ntpd",
+      "depth": 2
+    },
+    {
+      "item": "3 - Manage NTP servers",
+      "depth": 2
+    },
+    {
+      "item": "4 - Show status",
+      "depth": 2
+    },
+    {
+      "item": "5 - Exist",
+      "depth": 2
+    },
+    {
+      "item": "Enter 3 (Manage NTP Servers).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "This prompts you to enter one of the following to modify servers in ntp.conf:",
+      "depth": 1
+    },
+    {
+      "item": "add",
+      "depth": 2
+    },
+    {
+      "item": "remove",
+      "depth": 2
+    },
+    {
+      "item": "replace",
+      "depth": 2
+    },
+    {
+      "item": "Enter replace.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "This prompts you to confirm replacing NTP servers.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Enter y.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "To replace the whole list in one step, run the following command and enter y to apply:",
+      "depth": 0
+    },
+    {
+      "item": "sudo vzen ntp-manager --enable --servers <ip1,ip2,ip3,...>",
+      "depth": 0
+    },
+    {
+      "heading": "Disabling NTP",
       "level": 2
     },
     {
-      "text": "To remove custom NTP servers using CLI:"
+      "text": "Zscaler doesn't recommend disabling NTP."
     },
     {
-      "item": "Log in to the Virtual Service Edge.",
-      "depth": 0,
-      "number": 1
+      "text": "To disable NTP:"
     },
     {
       "item": "Run the following command:",
       "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen ntp-manager --disable",
+      "depth": 0
+    },
+    {
+      "item": "After disabling NTP, you are prompted to apply the changes immediately.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Apply the changes immediately by entering y.",
+      "depth": 0,
       "number": 2
     },
     {
-      "item": "sudo vzen modify-ntpd-servers",
-      "depth": 0
+      "text": "Disabling NTP stops the ntpd, and the Virtual Service Edges synchronize their time with public servers (pool.ntp.org) when services start. If the Virtual Service Edges cannot reach the public servers, their time might drift. The configured server list is preserved, allowing you to re-enable NTP later."
     },
     {
-      "item": "This command prompts you to enter either add or remove.",
-      "depth": 0
+      "heading": "Command Summary",
+      "level": 2
     },
     {
-      "item": "Enter remove.",
-      "depth": 0,
-      "number": 3
+      "table": [
+        [
+          "Command",
+          "Description"
+        ],
+        [
+          "sudo vzen ntp-manager",
+          "Shows interactive menu"
+        ],
+        [
+          "sudo vzen ntp-manager --enable --servers <ip1,ip2,ip3,...>",
+          "Enables NTP with your organization's NTP servers"
+        ],
+        [
+          "sudo vzen ntp-manager --enable",
+          "Enables NTP with the public servers (pool.ntp.org)"
+        ],
+        [
+          "sudo vzen ntp-manager --disable",
+          "Disables NTP"
+        ],
+        [
+          "sudo vzen ntp-manager --status",
+          "Shows current NTP status"
+        ],
+        [
+          "sudo vzen ntp-manager --validate",
+          "Checks the node before making changes"
+        ]
+      ]
     },
     {
-      "item": "This command lists the current NTP servers in the configuration file and prompts you to enter the index associated with an NTP server that you want to remove. After you remove the NTP server, the updated list of current NTP servers appears.",
-      "depth": 0
-    },
-    {
-      "item": "After you remove the NTP servers, enter q to quit the removal of the NTP servers.",
-      "depth": 0,
-      "number": 4
-    },
-    {
-      "item": "After you quit removing the NTP servers, you are prompted to start NTPD immediately. Zscaler recommends you enter y to restart NTPD immediately.",
-      "depth": 0
-    },
-    {
-      "item": "The Virtual Service Edge and NTP service are restarted in this process. Ensure that your organization is prepared for the services to shut down momentarily before restarting.",
-      "depth": 0
-    },
-    {
-      "item": "Sample output of this command.",
-      "depth": 0
-    },
-    {
-      "heading": "Synchronizing Times",
+      "heading": "Updating an Existing NTP Configuration",
       "level": 1
     },
     {
-      "text": "You can synchronize times using one of the following methods:"
+      "text": "If you configured NTP on an existing deployment, standardize the NTP configuration on all the Virtual Service Edges with vzen ntp-manager."
     },
     {
-      "item": "Create a Cron Job",
+      "text": "To see the steps that apply to your node, run the following command:"
+    },
+    {
+      "text": "sudo vzen ntp-manager --validate"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If the validation fails, follow the steps shown in the output or contact Zscaler Support."
+    },
+    {
+      "heading": "Standardizing the NTP Configuration",
+      "level": 2
+    },
+    {
+      "text": "Standardize the NTP configuration on all the Virtual Service Edges if NTP is configured on an existing deployment, based on the following scenarios:"
+    },
+    {
+      "item": "Configured or Modified Custom NTP Servers Using CLI",
       "depth": 0
     },
     {
-      "item": "To create a cron job to synchronize the time from the configured local NTP servers:",
+      "item": "If you used the vzen enable-ntpd command to configure custom NTP servers or the vzen modify-ntpd-servers command to modify custom NTP servers, re-enable NTP with your NTP servers.",
       "depth": 0
     },
     {
-      "item": "Run the following as root: crontab -e",
+      "item": "The vzen ntp-manager command replaces the vzen enable-ntpd and vzen modify-ntpd-servers commands.",
+      "depth": 0
+    },
+    {
+      "item": "To re-enable NTP with your NTP servers:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command and note your NTP servers:",
       "depth": 1,
       "number": 1
     },
     {
-      "item": "Add the following line: */10 * * * * ntpdate <ntp-server-name>",
+      "item": "sudo vzen ntp-manager --status",
+      "depth": 1
+    },
+    {
+      "item": "Ignore the pool.ntp.org entries.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command with your NTP server IPv4 addresses or hostnames that resolve to a single address, separated by commas:",
       "depth": 1,
       "number": 2
     },
     {
-      "item": "Replace <ntp-server-name> with your local NTP server's FQDN or IP address.",
+      "item": "sudo vzen ntp-manager --enable --servers <ip1,ip2,ip3,...>",
       "depth": 1
+    },
+    {
+      "item": "After you enter the NTP server addresses, you are prompted to apply the changes immediately.",
+      "depth": 1
+    },
+    {
+      "item": "Apply the changes immediately by entering y.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Created a Cron Job",
+      "depth": 0
+    },
+    {
+      "item": "If you created a cron job, remove the NTP setting from cron and re-enable NTP with your NTP servers.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo crontab -e",
+      "depth": 1
+    },
+    {
+      "item": "Delete only the line */10 * * * * ntpdate <ntp-server-name>.",
+      "depth": 1,
+      "number": 2
     },
     {
       "item": "Save and exit.",
@@ -195,50 +556,81 @@
       "number": 3
     },
     {
-      "item": "This time-synchronization command will run every 10 minutes.",
+      "item": "Run the following command with your NTP server IPv4 addresses or hostnames that resolve to a single address, separated by commas:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo vzen ntp-manager --enable --servers <ip1,ip2,ip3,...>",
       "depth": 1
     },
     {
-      "item": "Edit the /etc/hosts File",
+      "item": "After you enter the NTP server addresses, you are prompted to apply the changes immediately.",
+      "depth": 1
+    },
+    {
+      "item": "Apply the changes immediately by entering y.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Edited the /etc/hosts File",
       "depth": 0
     },
     {
-      "item": "To make pool.ntp.org hostnames resolve to your local NTP server IP address by manipulating the /etc/hosts file:",
+      "item": "If you edited the /etc/hosts file, your /etc/hosts entries continue to work with ntpd.",
       "depth": 0
     },
     {
-      "item": "Open the /etc/hosts file.",
+      "item": "To configure your NTP servers directly:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command with your NTP server IPv4 addresses or hostnames that resolve to a single address, separated by commas:",
       "depth": 1,
       "number": 1
     },
     {
-      "item": "Add up to 4 NTP servers by adding the following lines:",
+      "item": "sudo vzen ntp-manager --enable --servers <ip1,ip2,ip3,...>",
+      "depth": 1
+    },
+    {
+      "item": "After you enter the NTP server addresses, you are prompted to apply the changes immediately.",
+      "depth": 1
+    },
+    {
+      "item": "Apply the changes immediately by entering y.",
       "depth": 1,
       "number": 2
     },
     {
-      "item": "<ntp-server-IP-address1> 0.pool.ntp.org",
-      "depth": 2
+      "item": "Optionally, if the Virtual Service Edges can reach the public servers (pool.ntp.org), you can remove the pool.ntp.org entries from /etc/hosts file.",
+      "depth": 0
     },
     {
-      "item": "<ntp-server-IP-address2> 1.pool.ntp.org",
-      "depth": 2
+      "heading": "Verifying NTP Configuration",
+      "level": 1
     },
     {
-      "item": "<ntp-server-IP-address3> 2.pool.ntp.org",
-      "depth": 2
+      "text": "Run the following command:"
     },
     {
-      "item": "<ntp-server-IP-address4> 3.pool.ntp.org",
-      "depth": 2
+      "text": "sudo vzen ntp-manager --status"
     },
     {
-      "item": "Save your changes.",
-      "depth": 1,
-      "number": 3
+      "text": "Make sure you see the following:"
     },
     {
-      "text": "Adding alternate NTP servers to the /etc/ntp.conf file is not supported. However, you can modify the /etc/hosts file as described in the Edit the /etc/hosts File section."
+      "item": "ntpd process: Running",
+      "depth": 0
+    },
+    {
+      "item": "ntpstat: Synchronized to NTP server",
+      "depth": 0
+    },
+    {
+      "item": "Configured servers: Lists your servers",
+      "depth": 0
     }
   ]
 }
