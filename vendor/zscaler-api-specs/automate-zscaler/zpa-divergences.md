@@ -12,32 +12,31 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## Totals
 
-- Type drift (contract vs Go primitive category): **84**
-- Required drift (contract vs TF): **20**
-- Enum: **15** match / **3** value-conflict / **4** one-sided
-- Contract readonly fields checked: **5** (TF disagreement: 0)
+- Type drift (contract vs Go primitive category): **94**
+- Required drift (contract vs TF): **28**
+- Enum: **15** match / **3** value-conflict / **5** one-sided
+- Contract readonly fields checked: **2** (TF disagreement: 0)
 
 - Ansible module surface: **13** present / **3** no surface
-- Ansible required drift: **2**
-- Ansible enum: **6** match / **2** value-conflict / **6** one-sided
+- Ansible required drift: **4**
+- Ansible enum: **6** match / **2** value-conflict / **7** one-sided
 
 - Python SDK surface: **16** present / **0** no surface
-- Python SDK presence: **37** contract-unmatched / **42** python-only fields
+- Python SDK presence: **67** contract-unmatched / **13** python-only fields
 
 - MCP tool surface: **12** present / **4** no surface (**10** with request-field surface)
-- MCP request-field presence: **166** contract-unmatched / **17** MCP-only fields
+- MCP request-field presence: **216** contract-unmatched / **14** MCP-only fields
 
-- Expected operations absent from the captured contract: **3**
+- Expected operations absent from the captured contract: **0**
 
 ## app_connector_group
 
-`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}` — contract 39 / Go 41 / TF 26 fields / Ansible 24 fields / Python 46 fields / MCP 5 tools
-
-**Contract coverage gap:** expected operation(s) absent from the current capture: `zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer`. Required-field comparison is unavailable until a create operation is captured.
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` — contract 45 / Go 41 / TF 26 fields / Ansible 24 fields / Python 46 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
+- `enrollmentCertId`: contract `int64` vs Go `string`
 - `geoLocationId`: contract `int64` vs Go `string`
 - `id`: contract `int64` vs Go `string`
 - `microtenantId`: contract `int64` vs Go `string`
@@ -45,25 +44,31 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `modifiedTime`: contract `int32` vs Go `string`
 - `versionProfileId`: contract `int64` vs Go `string`
 
-**Contract fields unmatched in the Ansible module:** `city`, `connectorGroupType`, `connectors`, `creationTime`, `dcHostingInfo`, `geoLocationId`, `ipAcl`, `microtenantName`, `modifiedBy`, `modifiedTime`, `npAssistantGroup`, `serverGroups`, `siteId`, `siteName`, `upgradePriority`, `versionProfileName`, `versionProfileVisibilityScope`
+**Required drift:**
 
-**Ansible module fields absent from the contract:** `enrollmentCertId`, `userCodes`
+- `latitude`: contract required=False, TF required=True (TF stricter than API)
+- `location`: contract required=False, TF required=True (TF stricter than API)
+- `longitude`: contract required=False, TF required=True (TF stricter than API)
 
-**Python SDK fields absent from the contract:** `enrollmentCertId`, `nameWithoutTrim`, `privateCloudId`, `readOnly`, `restrictionType`, `version`, `zscalerManaged`
+**Contract fields unmatched in the Ansible module:** `city`, `connectorGroupType`, `connectors`, `creationTime`, `dcHostingInfo`, `geoLocationId`, `ipAcl`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `npAssistantGroup`, `privateCloudId`, `readOnly`, `restrictionType`, `serverGroups`, `siteName`, `upgradePriority`, `version`, `versionProfileName`, `versionProfileVisibilityScope`, `zscalerManaged`
 
-**Contract fields unmatched in MCP request tools:** `city`, `connectorGroupType`, `connectors`, `creationTime`, `dcHostingInfo`, `geoLocationId`, `id`, `ipAcl`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `npAssistantGroup`, `praEnabled`, `serverGroups`, `siteId`, `siteName`, `tcpQuickAckApp`, `tcpQuickAckAssistant`, `tcpQuickAckReadAssistant`, `upgradePriority`, `useInDrMode`, `versionProfileId`, `versionProfileName`, `versionProfileVisibilityScope`, `wafDisabled`
+**Ansible module fields absent from the contract:** `userCodes`
 
-**MCP request fields absent from the contract:** `connectorIds`, `enrollmentCertId`, `enrollmentCertName`, `serverGroupIds`, `versionProfile`
+**Python SDK fields absent from the contract:** `siteId`
 
-**Contract fields absent from the Go SDK struct:** `city`, `ipAcl`, `upgradePriority`
+**Contract fields unmatched in MCP request tools:** `city`, `connectorGroupType`, `connectors`, `creationTime`, `dcHostingInfo`, `geoLocationId`, `id`, `ipAcl`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `npAssistantGroup`, `praEnabled`, `privateCloudId`, `readOnly`, `restrictionType`, `serverGroups`, `siteName`, `tcpQuickAckApp`, `tcpQuickAckAssistant`, `tcpQuickAckReadAssistant`, `upgradePriority`, `useInDrMode`, `version`, `versionProfileId`, `versionProfileName`, `versionProfileVisibilityScope`, `wafDisabled`, `zscalerManaged`
 
-**Go SDK fields absent from the contract:** `enrollmentCertId`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+**MCP request fields absent from the contract:** `connectorIds`, `enrollmentCertName`, `serverGroupIds`, `versionProfile`
 
-**Terraform provider corroborates these non-contract client fields:** `enrollmentCertId`, `userCodes`
+**Contract fields absent from the Go SDK struct:** `city`, `ipAcl`, `privateCloudId`, `upgradePriority`, `version`
+
+**Go SDK fields absent from the contract:** `siteId`
+
+**Terraform provider corroborates these non-contract client fields:** `userCodes`
 
 ## application_server
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/server` — contract 12 / Go 12 / TF 8 fields / Ansible 6 fields / Python 7 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/server` — contract 14 / Go 12 / TF 8 fields / Ansible 6 fields / Python 7 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -82,15 +87,17 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - `enabled`: contract required=True, Ansible required=False (contract stricter than Ansible; zpacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `configSpace`, `creationTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`
+**Contract fields unmatched in the Ansible module:** `appServerGroupAssociations`, `configSpace`, `creationTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `creationTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`
+**Contract fields unmatched in the Python SDK model/request surface:** `appServerGroupAssociations`, `creationTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`
 
-**Contract fields unmatched in MCP request tools:** `configSpace`, `creationTime`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`
+**Contract fields unmatched in MCP request tools:** `appServerGroupAssociations`, `configSpace`, `creationTime`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`
+
+**Contract fields absent from the Go SDK struct:** `appServerGroupAssociations`, `nameWithoutTrim`
 
 ## application_segment
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 51 / Go 56 / TF 35 fields / Ansible 32 fields / Python 55 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 60 / Go 56 / TF 36 fields / Ansible 32 fields / Python 55 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -110,27 +117,27 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `tcpProtocols`: contract ['NONE', 'KERBEROS', 'LDAP', 'SMB'] vs Ansible ['KERBEROS', 'LDAP', 'SMB'] (zpacloud-ansible)
 - `udpProtocols`: contract ['NONE', 'KERBEROS', 'LDAP', 'SMB'] vs Ansible ['KERBEROS', 'LDAP', 'SMB'] (zpacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `apiProtectionEnabled`, `appRecommendationId`, `autoAppProtectEnabled`, `clientlessApps`, `commonAppsDto`, `configSpace`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `extranetEnabled`, `inconsistentConfigDetails`, `inspectionApps`, `isIncompleteDRConfig`, `microtenantName`, `modifiedBy`, `modifiedTime`, `praApps`, `segmentGroupName`, `serverGroups`, `sharedMicrotenantDetails`, `zpnErId`
+**Contract fields unmatched in the Ansible module:** `apiProtectionEnabled`, `appRecommendationId`, `autoAppProtectEnabled`, `clientlessApps`, `commonAppsDto`, `configSpace`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `extranetEnabled`, `guestDetails`, `hbrEnabled`, `inconsistentConfigDetails`, `inspectionApps`, `isIncompleteDRConfig`, `microtenantName`, `modifiedBy`, `modifiedTime`, `praApps`, `readOnly`, `restrictionType`, `segmentGroupName`, `serverGroups`, `sharedMicrotenantDetails`, `stickyEntity`, `stickyGroup`, `tags`, `zpnErId`, `zscalerManaged`
 
-**Ansible module fields absent from the contract:** `policyStyle`, `serverGroupIds`
+**Ansible module fields absent from the contract:** `serverGroupIds`
 
 **Contract fields unmatched in the Python SDK model/request surface:** `appRecommendationId`, `defaultIdleTimeout`, `defaultMaxAge`, `inconsistentConfigDetails`, `tcpProtocols`, `udpProtocols`
 
-**Python SDK fields absent from the contract:** `applicationGroup`, `guestDetails`, `hbrEnabled`, `policyStyle`, `readOnly`, `restrictionType`, `stickyEntity`, `stickyGroup`, `tags`, `zscalerManaged`
+**Python SDK fields absent from the contract:** `applicationGroup`
 
-**Contract fields unmatched in MCP request tools:** `adpEnabled`, `apiProtectionEnabled`, `appRecommendationId`, `autoAppProtectEnabled`, `bypassOnReauth`, `bypassType`, `clientlessApps`, `commonAppsDto`, `configSpace`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `doubleEncrypt`, `extranetEnabled`, `fqdnDnsCheck`, `healthCheckType`, `healthReporting`, `icmpAccessType`, `id`, `inconsistentConfigDetails`, `inspectTrafficWithZia`, `inspectionApps`, `ipAnchored`, `isCnameEnabled`, `isIncompleteDRConfig`, `matchStyle`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `passiveHealthEnabled`, `praApps`, `segmentGroupName`, `selectConnectorCloseToApp`, `serverGroups`, `sharedMicrotenantDetails`, `tcpKeepAlive`, `tcpPortRange`, `tcpProtocols`, `udpPortRange`, `udpProtocols`, `useInDrMode`, `weightedLoadBalancing`, `zpnErId`
+**Contract fields unmatched in MCP request tools:** `adpEnabled`, `apiProtectionEnabled`, `appRecommendationId`, `autoAppProtectEnabled`, `bypassOnReauth`, `bypassType`, `clientlessApps`, `commonAppsDto`, `configSpace`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `doubleEncrypt`, `extranetEnabled`, `fqdnDnsCheck`, `guestDetails`, `hbrEnabled`, `healthCheckType`, `healthReporting`, `icmpAccessType`, `id`, `inconsistentConfigDetails`, `inspectTrafficWithZia`, `inspectionApps`, `ipAnchored`, `isCnameEnabled`, `isIncompleteDRConfig`, `matchStyle`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `passiveHealthEnabled`, `policyStyle`, `praApps`, `readOnly`, `restrictionType`, `segmentGroupName`, `selectConnectorCloseToApp`, `serverGroups`, `sharedMicrotenantDetails`, `stickyEntity`, `stickyGroup`, `tags`, `tcpKeepAlive`, `tcpPortRange`, `tcpProtocols`, `udpPortRange`, `udpProtocols`, `useInDrMode`, `weightedLoadBalancing`, `zpnErId`, `zscalerManaged`
 
 **MCP request fields absent from the contract:** `advanced`, `serverGroupIds`
 
 **Contract fields absent from the Go SDK struct:** `commonAppsDto`, `inconsistentConfigDetails`, `inspectionApps`, `praApps`, `tcpProtocols`, `udpProtocols`
 
-**Go SDK fields absent from the contract:** `applications`, `guestDetails`, `hbrEnabled`, `policyStyle`, `readOnly`, `restrictionType`, `shareToMicrotenants`, `stickyEntity`, `stickyGroup`, `tags`, `zscalerManaged`
+**Go SDK fields absent from the contract:** `applications`, `shareToMicrotenants`
 
-**Terraform provider corroborates these non-contract client fields:** `policyStyle`, `shareToMicrotenants`
+**Terraform provider corroborates these non-contract client fields:** `shareToMicrotenants`
 
 ## ba_certificate
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/certificate` — contract 20 / Go 20 / TF 6 fields / Ansible 5 fields / Python 18 fields / MCP 4 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/certificate` — contract 24 / Go 20 / TF 6 fields / Ansible 5 fields / Python 18 fields / MCP 4 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -146,11 +153,13 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - `certBlob`: contract required=True, TF required=False (contract stricter than TF)
 
-**Contract fields unmatched in the Ansible module:** `cName`, `certChain`, `certificate`, `creationTime`, `issuedBy`, `issuedTo`, `microtenantName`, `modifiedBy`, `modifiedTime`, `publicKey`, `san`, `serialNo`, `status`, `validFromInEpochSec`, `validToInEpochSec`
+**Contract fields unmatched in the Ansible module:** `cName`, `certChain`, `certificate`, `creationTime`, `issuedBy`, `issuedTo`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `publicKey`, `readOnly`, `restrictionType`, `san`, `serialNo`, `status`, `validFromInEpochSec`, `validToInEpochSec`, `zscalerManaged`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `certBlob`, `certChain`
+**Contract fields unmatched in the Python SDK model/request surface:** `certBlob`, `certChain`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
 
-**Contract fields unmatched in MCP request tools:** `cName`, `certChain`, `certificate`, `creationTime`, `description`, `id`, `issuedBy`, `issuedTo`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `publicKey`, `san`, `serialNo`, `status`, `validFromInEpochSec`, `validToInEpochSec`
+**Contract fields unmatched in MCP request tools:** `cName`, `certChain`, `certificate`, `creationTime`, `description`, `id`, `issuedBy`, `issuedTo`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `publicKey`, `readOnly`, `restrictionType`, `san`, `serialNo`, `status`, `validFromInEpochSec`, `validToInEpochSec`, `zscalerManaged`
+
+**Contract fields absent from the Go SDK struct:** `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
 
 ## emergency_access
 
@@ -173,7 +182,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## inspection_custom_control
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom` — contract 21 / Go 20 / TF 12 fields / no Ansible surface / Python 21 fields / no MCP surface
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom` — contract 22 / Go 20 / TF 12 fields / no Ansible surface / Python 21 fields / no MCP surface
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -195,11 +204,13 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `defaultAction`: contract ['PASS', 'BLOCK', 'REDIRECT', 'ALLOW'] vs TF ['PASS', 'BLOCK', 'REDIRECT']
 - `protocolType`: contract ['HTTP', 'HTTPS', 'FTP', 'RDP', 'SSH', 'WEBSOCKET', 'VNC', 'REALVNC', 'NONE', 'AUTO', 'DYNAMIC', 'KRB', 'LDAP', 'SMB'] vs TF ['HTTP', 'HTTPS', 'FTP', 'RDP', 'SSH', 'WEBSOCKET', 'VNC', 'NONE', 'AUTO', 'DYNAMIC']
 
-**Contract fields absent from the Go SDK struct:** `controlException`
+**Contract fields unmatched in the Python SDK model/request surface:** `nameWithoutTrim`
+
+**Contract fields absent from the Go SDK struct:** `controlException`, `nameWithoutTrim`
 
 ## inspection_profile
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile` — contract 21 / Go 21 / TF 17 fields / no Ansible surface / Python 22 fields / MCP 1 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile` — contract 26 / Go 21 / TF 17 fields / no Ansible surface / Python 22 fields / MCP 1 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -215,9 +226,9 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `name`: contract required=True, TF required=False (contract stricter than TF)
 - `paranoiaLevel`: contract required=True, TF required=False (contract stricter than TF)
 
-**Python SDK fields absent from the contract:** `apiDiscoveryEnabled`
+**Contract fields unmatched in the Python SDK model/request surface:** `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `profileSource`
 
-**Contract fields absent from the Go SDK struct:** `exceptionsVersion`, `predefinedADPControls`
+**Contract fields absent from the Go SDK struct:** `apiDiscoveryEnabled`, `exceptionsVersion`, `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `predefinedADPControls`, `profileSource`
 
 **Go SDK fields absent from the contract:** `commonGlobalOverrideActionsConfig`, `overrideAction`
 
@@ -225,13 +236,19 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## lss_config
 
-`GET /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}` — contract 6 / Go 5 / TF 5 fields / Ansible 4 fields / Python 8 fields / MCP 2 tools
-
-**Contract coverage gap:** expected operation(s) absent from the current capture: `zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer`. Required-field comparison is unavailable until a create operation is captured.
+`POST /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig` — contract 6 / Go 5 / TF 5 fields / Ansible 4 fields / Python 8 fields / MCP 2 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `id`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `config`: contract required=True, TF required=False (contract stricter than TF)
+
+**Ansible required drift:**
+
+- `config`: contract required=True, Ansible required=False (contract stricter than Ansible; zpacloud-ansible)
 
 **Contract fields unmatched in the Ansible module:** `connectorGroups`, `inconsistentConfigDetails`, `policyRule`
 
@@ -273,7 +290,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## pra_console
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole` — contract 13 / Go 12 / TF 8 fields / Ansible 8 fields / Python 11 fields / no MCP surface
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole` — contract 14 / Go 12 / TF 8 fields / Ansible 8 fields / Python 11 fields / no MCP surface
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -289,17 +306,17 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `praApplication`: contract required=False, TF required=True (TF stricter than API)
 - `praPortals`: contract required=False, TF required=True (TF stricter than API)
 
-**Contract fields unmatched in the Ansible module:** `creationTime`, `inconsistentConfigDetails`, `microtenantName`, `modifiedBy`, `modifiedTime`, `praApplication`, `praPortals`
+**Contract fields unmatched in the Ansible module:** `creationTime`, `inconsistentConfigDetails`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `praApplication`, `praPortals`
 
 **Ansible module fields absent from the contract:** `praApplicationId`, `praPortalIds`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `iconText`, `inconsistentConfigDetails`
+**Contract fields unmatched in the Python SDK model/request surface:** `iconText`, `inconsistentConfigDetails`, `nameWithoutTrim`
 
-**Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`
+**Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`, `nameWithoutTrim`
 
 ## pra_credential
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/credential` — contract 15 / Go 16 / TF 10 fields / Ansible 11 fields / Python 9 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/credential` — contract 16 / Go 16 / TF 10 fields / Ansible 11 fields / Python 9 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -319,21 +336,23 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - `credentialType`: contract required=True, Ansible required=False (contract stricter than Ansible; zpacloud-ansible)
 
-**Contract fields unmatched in the Ansible module:** `creationTime`, `lastCredentialResetTime`, `microtenantName`, `modifiedBy`, `modifiedTime`
+**Contract fields unmatched in the Ansible module:** `creationTime`, `lastCredentialResetTime`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`
 
 **Ansible module fields absent from the contract:** `updateSecret`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `creationTime`, `modifiedBy`, `modifiedTime`, `passphrase`, `password`, `privateKey`
+**Contract fields unmatched in the Python SDK model/request surface:** `creationTime`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `passphrase`, `password`, `privateKey`
 
-**Contract fields unmatched in MCP request tools:** `creationTime`, `id`, `lastCredentialResetTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `passphrase`, `userName`
+**Contract fields unmatched in MCP request tools:** `creationTime`, `id`, `lastCredentialResetTime`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `passphrase`, `userName`
 
 **MCP request fields absent from the contract:** `username`
+
+**Contract fields absent from the Go SDK struct:** `nameWithoutTrim`
 
 **Go SDK fields absent from the contract:** `targetMicrotenantId`
 
 ## pra_portal
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praPortal` — contract 21 / Go 31 / TF 15 fields / Ansible 9 fields / Python 22 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praPortal` — contract 23 / Go 31 / TF 15 fields / Ansible 9 fields / Python 22 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -349,19 +368,19 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - `name`: contract required=True, TF required=False (contract stricter than TF)
 
-**Contract fields unmatched in the Ansible module:** `certificateName`, `creationTime`, `extDomain`, `extDomainName`, `extDomainTranslation`, `extLabel`, `getcName`, `microtenantName`, `modifiedBy`, `modifiedTime`, `userPortalGid`, `userPortalName`
+**Contract fields unmatched in the Ansible module:** `approvalReviewers`, `certificateName`, `creationTime`, `extDomain`, `extDomainName`, `extDomainTranslation`, `extLabel`, `getcName`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `userPortalGid`, `userPortalName`
 
-**Python SDK fields absent from the contract:** `approvalReviewers`
+**Contract fields unmatched in the Python SDK model/request surface:** `nameWithoutTrim`
 
-**Contract fields unmatched in MCP request tools:** `certificateName`, `creationTime`, `extDomain`, `extDomainName`, `extDomainTranslation`, `extLabel`, `getcName`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `userPortalGid`, `userPortalName`
+**Contract fields unmatched in MCP request tools:** `approvalReviewers`, `certificateName`, `creationTime`, `extDomain`, `extDomainName`, `extDomainTranslation`, `extLabel`, `getcName`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `userPortalGid`, `userPortalName`
 
-**Go SDK fields absent from the contract:** `action`, `approvalReviewers`, `cName`, `certManagedByZsRadio`, `hideInfoTooltip`, `isSRAPortal`, `managedByZs`, `objectType`, `restrictedEntity`, `scopeName`
+**Contract fields absent from the Go SDK struct:** `nameWithoutTrim`
 
-**Terraform provider corroborates these non-contract client fields:** `approvalReviewers`
+**Go SDK fields absent from the contract:** `action`, `cName`, `certManagedByZsRadio`, `hideInfoTooltip`, `isSRAPortal`, `managedByZs`, `objectType`, `restrictedEntity`, `scopeName`
 
 ## server_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup` — contract 18 / Go 20 / TF 13 fields / Ansible 8 fields / Python 20 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup` — contract 21 / Go 20 / TF 13 fields / Ansible 8 fields / Python 20 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -373,25 +392,23 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - `configSpace`: contract required=True, TF required=False (contract stricter than TF)
 
-**Contract fields unmatched in the Ansible module:** `appConnectorGroups`, `applications`, `configSpace`, `creationTime`, `extranetDTO`, `extranetEnabled`, `inconsistentConfigDetails`, `ipAnchored`, `microtenantName`, `modifiedBy`, `modifiedTime`, `servers`
+**Contract fields unmatched in the Ansible module:** `appConnectorGroups`, `applications`, `configSpace`, `creationTime`, `extranetDTO`, `extranetEnabled`, `inconsistentConfigDetails`, `ipAnchored`, `microtenantName`, `modifiedBy`, `modifiedTime`, `readOnly`, `restrictionType`, `servers`, `zscalerManaged`
 
 **Ansible module fields absent from the contract:** `appConnectorGroupIds`, `serverIds`
 
 **Contract fields unmatched in the Python SDK model/request surface:** `inconsistentConfigDetails`, `servers`
 
-**Python SDK fields absent from the contract:** `readOnly`, `restrictionType`, `weight`, `zscalerManaged`
+**Python SDK fields absent from the contract:** `weight`
 
-**Contract fields unmatched in MCP request tools:** `appConnectorGroups`, `applications`, `configSpace`, `creationTime`, `extranetDTO`, `extranetEnabled`, `id`, `inconsistentConfigDetails`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `servers`
+**Contract fields unmatched in MCP request tools:** `appConnectorGroups`, `applications`, `configSpace`, `creationTime`, `extranetDTO`, `extranetEnabled`, `id`, `inconsistentConfigDetails`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `readOnly`, `restrictionType`, `servers`, `zscalerManaged`
 
 **MCP request fields absent from the contract:** `appConnectorGroupIds`, `serverIds`
 
 **Contract fields absent from the Go SDK struct:** `inconsistentConfigDetails`
 
-**Go SDK fields absent from the contract:** `readOnly`, `restrictionType`, `zscalerManaged`
-
 ## segment_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — contract 15 / Go 16 / TF 6 fields / Ansible 5 fields / Python 11 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — contract 19 / Go 16 / TF 6 fields / Ansible 5 fields / Python 11 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -402,58 +419,68 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `modifiedTime`: contract `int32` vs Go `string`
 - `tcpKeepAliveEnabled`: contract `int32` vs Go `string`
 
-**Contract fields unmatched in the Ansible module:** `applicationNames`, `applications`, `configSpace`, `creationTime`, `microtenantName`, `modifiedBy`, `modifiedTime`, `policyMigrated`, `sharedMicrotenantIds`, `tcpKeepAliveEnabled`
+**Contract fields unmatched in the Ansible module:** `applicationNames`, `applications`, `configSpace`, `creationTime`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `policyMigrated`, `readOnly`, `restrictionType`, `sharedMicrotenantIds`, `tcpKeepAliveEnabled`, `zscalerManaged`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `applicationNames`, `creationTime`, `modifiedBy`, `modifiedTime`, `sharedMicrotenantIds`
+**Contract fields unmatched in the Python SDK model/request surface:** `applicationNames`, `creationTime`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `sharedMicrotenantIds`, `zscalerManaged`
 
 **Python SDK fields absent from the contract:** `skipDetailedAppInfo`
 
-**Contract fields unmatched in MCP request tools:** `applicationNames`, `applications`, `configSpace`, `creationTime`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `policyMigrated`, `sharedMicrotenantIds`, `tcpKeepAliveEnabled`
+**Contract fields unmatched in MCP request tools:** `applicationNames`, `applications`, `configSpace`, `creationTime`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `policyMigrated`, `readOnly`, `restrictionType`, `sharedMicrotenantIds`, `tcpKeepAliveEnabled`, `zscalerManaged`
 
-**Contract fields absent from the Go SDK struct:** `sharedMicrotenantIds`
+**Contract fields absent from the Go SDK struct:** `nameWithoutTrim`, `readOnly`, `restrictionType`, `sharedMicrotenantIds`, `zscalerManaged`
 
 **Go SDK fields absent from the contract:** `addedApps`, `deletedApps`
 
 ## provisioning_key
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — contract 8 / Go 24 / TF 15 fields / Ansible 6 fields / Python 13 fields / MCP 5 tools
-
-**Type drift** — contract and Go SDK disagree on the primitive field category:
-
-- `id`: contract `integer` vs Go `string`
-- `usageCount`: contract `integer` vs Go `string`
-
-**Required drift:**
-
-- `name`: contract required=False, TF required=True (TF stricter than API)
-
-**Contract fields unmatched in the Ansible module:** `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`, `usageCount`
-
-**Ansible module fields absent from the contract:** `componentId`, `keyType`, `maxUsage`, `microtenantId`
-
-**Contract fields unmatched in the Python SDK model/request surface:** `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`
-
-**Python SDK fields absent from the contract:** `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `maxUsage`, `modifiedBy`, `modifiedTime`, `provisioningKey`, `zcomponentId`, `zcomponentName`
-
-**Contract fields unmatched in MCP request tools:** `cloudName`, `id`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`, `usageCount`
-
-**MCP request fields absent from the contract:** `componentId`, `description`, `enrollmentCertId`, `keyType`, `maxUsage`
-
-**Contract fields absent from the Go SDK struct:** `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`
-
-**Go SDK fields absent from the contract:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`, `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `ipAcl`, `maxUsage`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
-
-**Terraform provider corroborates these non-contract client fields:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`, `enabled`, `enrollmentCertId`, `ipAcl`, `maxUsage`, `microtenantId`, `provisioningKey`, `uiConfig`, `zcomponentId`, `zcomponentName`
-
-## service_edge_group
-
-`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}` — contract 33 / Go 41 / TF 27 fields / Ansible 20 fields / Python 32 fields / MCP 5 tools
-
-**Contract coverage gap:** expected operation(s) absent from the current capture: `zpa/private-service-edge-group-management/add-private-broker-group`. Required-field comparison is unavailable until a create operation is captured.
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — contract 23 / Go 24 / TF 15 fields / Ansible 6 fields / Python 13 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
 - `creationTime`: contract `int32` vs Go `string`
+- `enrollmentCertId`: contract `int64` vs Go `string`
+- `expirationInEpochSec`: contract `int32` vs Go `string`
+- `id`: contract `int64` vs Go `string`
+- `maxUsage`: contract `int32` vs Go `string`
+- `microtenantId`: contract `int64` vs Go `string`
+- `modifiedBy`: contract `int64` vs Go `string`
+- `modifiedTime`: contract `int32` vs Go `string`
+- `usageCount`: contract `int32` vs Go `string`
+- `zcomponentId`: contract `int64` vs Go `string`
+
+**Required drift:**
+
+- `maxUsage`: contract required=False, TF required=True (TF stricter than API)
+- `zcomponentId`: contract required=False, TF required=True (TF stricter than API)
+
+**Ansible required drift:**
+
+- `name`: contract required=True, Ansible required=False (contract stricter than Ansible; zpacloud-ansible)
+
+**Contract fields unmatched in the Ansible module:** `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `ipAcl`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `usageCount`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
+
+**Ansible module fields absent from the contract:** `componentId`, `keyType`
+
+**Contract fields unmatched in the Python SDK model/request surface:** `expirationInEpochSec`, `exportable`, `ipAcl`, `microtenantId`, `microtenantName`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `uiConfig`, `zscalerManaged`
+
+**Contract fields unmatched in MCP request tools:** `creationTime`, `enabled`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `id`, `ipAcl`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `usageCount`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
+
+**MCP request fields absent from the contract:** `componentId`, `description`, `keyType`
+
+**Contract fields absent from the Go SDK struct:** `exportable`, `nameWithoutTrim`
+
+**Go SDK fields absent from the contract:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`
+
+**Terraform provider corroborates these non-contract client fields:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`
+
+## service_edge_group
+
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` — contract 40 / Go 41 / TF 27 fields / Ansible 20 fields / Python 33 fields / MCP 5 tools
+
+**Type drift** — contract and Go SDK disagree on the primitive field category:
+
+- `creationTime`: contract `int32` vs Go `string`
+- `enrollmentCertId`: contract `int64` vs Go `string`
 - `geoLocationId`: contract `int64` vs Go `string`
 - `graceDistanceValue`: contract `double` vs Go `string`
 - `id`: contract `int64` vs Go `string`
@@ -462,21 +489,27 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - `modifiedTime`: contract `int32` vs Go `string`
 - `versionProfileId`: contract `int64` vs Go `string`
 
-**Contract fields unmatched in the Ansible module:** `altCloud`, `city`, `creationTime`, `geoLocationId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `serviceEdges`, `siteId`, `siteName`, `trustedNetworks`, `upgradePriority`, `versionProfileName`, `versionProfileVisibilityScope`
+**Required drift:**
+
+- `latitude`: contract required=False, TF required=True (TF stricter than API)
+- `location`: contract required=False, TF required=True (TF stricter than API)
+- `longitude`: contract required=False, TF required=True (TF stricter than API)
+
+**Contract fields unmatched in the Ansible module:** `altCloud`, `city`, `creationTime`, `enrollmentCertId`, `exclusiveForBusinessContinuity`, `geoLocationId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `privateCloudId`, `readOnly`, `restrictionType`, `serviceEdges`, `siteName`, `trustedNetworks`, `upgradePriority`, `version`, `versionProfileName`, `versionProfileVisibilityScope`, `zscalerManaged`
 
 **Ansible module fields absent from the contract:** `trustedNetworkIds`
 
-**Contract fields unmatched in the Python SDK model/request surface:** `city`
+**Contract fields unmatched in the Python SDK model/request surface:** `city`, `exclusiveForBusinessContinuity`, `nameWithoutTrim`, `privateCloudId`, `readOnly`, `restrictionType`, `version`, `zscalerManaged`
 
-**Contract fields unmatched in MCP request tools:** `altCloud`, `city`, `creationTime`, `geoLocationId`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `serviceEdges`, `siteId`, `siteName`, `trustedNetworks`, `upgradePriority`, `useInDrMode`, `versionProfileVisibilityScope`
+**Python SDK fields absent from the contract:** `siteId`
+
+**Contract fields unmatched in MCP request tools:** `altCloud`, `city`, `creationTime`, `enrollmentCertId`, `exclusiveForBusinessContinuity`, `geoLocationId`, `id`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `privateCloudId`, `readOnly`, `restrictionType`, `serviceEdges`, `siteName`, `trustedNetworks`, `upgradePriority`, `useInDrMode`, `version`, `versionProfileVisibilityScope`, `zscalerManaged`
 
 **MCP request fields absent from the contract:** `serviceEdgeIds`, `trustedNetworkIds`
 
-**Contract fields absent from the Go SDK struct:** `upgradePriority`
+**Contract fields absent from the Go SDK struct:** `privateCloudId`, `upgradePriority`, `version`
 
-**Go SDK fields absent from the contract:** `enrollmentCertId`, `exclusiveForBusinessContinuity`, `nameWithoutTrim`, `objectType`, `readOnly`, `restrictedEntity`, `restrictionType`, `scopeName`, `zscalerManaged`
-
-**Terraform provider corroborates these non-contract client fields:** `enrollmentCertId`, `exclusiveForBusinessContinuity`
+**Go SDK fields absent from the contract:** `objectType`, `restrictedEntity`, `scopeName`, `siteId`
 
 ## Scope
 

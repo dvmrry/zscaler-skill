@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Implicit Policies",
+  "source": {
+    "url": "https://help.zscaler.com/microsegmentation/understanding-implicit-policies",
+    "node": "1547278",
+    "revision": "3257510",
+    "updated": "2026-11-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-19",
+  "blocks": [
+    {
+      "text": "Microsegmentation agents enforce your configured policies with the host's native firewall: Windows Filtering Platform on Windows and nftables on Linux. A restrictive policy, such as a perimeter policy or the default resource policy rule set to Block, can cut off the host from the basic services that it requires. As a result, the host can lose its DHCP lease, fail to resolve DNS names, drift out of time sync, or lose access to its cloud platform's services."
+    },
+    {
+      "text": "To prevent these issues, every agent applies a set of implicit policies that always allow essential infrastructure traffic. These policies are built into the agent—you don’t configure them, and they don’t appear on the Resource Policies or Perimeter Policies pages in the Zscaler Admin Console. Each implicit policy is limited to specific protocols, ports, and destinations."
+    },
+    {
+      "heading": "Evaluation Order",
+      "level": 1
+    },
+    {
+      "text": "The Microsegmentation agent evaluates implicit policies before any user-defined rules, including resource policies, perimeter policies, and the default resource policy rule. When a flow matches an implicit policy, the agent allows it immediately and evaluates no further rules."
+    },
+    {
+      "text": "By design, you can't override or disable implicit policies. These policies are required for Microsegmentation to work properly, and for core Windows and Linux infrastructure, such as DNS and DHCP. A Block or Sim Block rule that matches this traffic has no effect (i.e., the traffic is still allowed)."
+    },
+    {
+      "heading": "Implicit Policies",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the implicit policies that are built into Microsegmentation agents:"
+    },
+    {
+      "table": [
+        [
+          "Policy",
+          "Direction",
+          "Source Addresses",
+          "Destination Addresses",
+          "Protocol",
+          "Source Ports",
+          "Destination Ports"
+        ],
+        [
+          "Allow IMDS",
+          "Outbound",
+          "Any (local host)",
+          "169.254.169.254, fd00:ec2::254/128",
+          "TCP",
+          "Any",
+          "80"
+        ],
+        [
+          "Allow DNS",
+          "Outbound",
+          "Any (local host)",
+          "Any IPv4, Any IPv6",
+          "TCP, UDP",
+          "Any",
+          "53"
+        ],
+        [
+          "Allow Intra-Host",
+          "Outbound",
+          "Local host",
+          "127.0.0.0/8, all of the host's own addresses",
+          "TCP, UDP",
+          "Any",
+          "1–65535"
+        ],
+        [
+          "Allow Intra-Host",
+          "Inbound",
+          "127.0.0.0/8, all of the host's own addresses",
+          "Local host",
+          "TCP, UDP",
+          "1–65535",
+          "Any"
+        ],
+        [
+          "Allow DHCP",
+          "Outbound",
+          "Any (local host)",
+          "Any IPv4, Any IPv6",
+          "UDP",
+          "Any",
+          "67 (v4), 547 (v6)"
+        ],
+        [
+          "Allow DHCP",
+          "Inbound",
+          "Any IPv4, Any IPv6",
+          "Any (local host)",
+          "UDP",
+          "Any",
+          "68 (v4), 546 (v6)"
+        ],
+        [
+          "Allow NTP",
+          "Outbound",
+          "Any (local host)",
+          "Any IPv4, Any IPv6",
+          "UDP",
+          "Any",
+          "123"
+        ],
+        [
+          "Allow Azure Server",
+          "Outbound",
+          "Any (local host)",
+          "168.63.129.16/32",
+          "TCP",
+          "Any",
+          "80, 32526"
+        ]
+      ]
+    },
+    {
+      "text": "When viewing the information in the table, consider the following:"
+    },
+    {
+      "item": "IMDS: 169.254.169.254 is the instance metadata endpoint used by Amazon Web Services (AWS), Microsoft Azure, and Google Cloud. fd00:ec2::254 is the AWS IPv6 endpoint.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "DNS, DHCP, and NTP: Allowed to any destination address, but only on the listed protocol and port.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          15,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Azure Server: Applies to Microsoft Azure only. 168.63.129.16 is the Azure platform IP address (WireServer). The Azure VM agent uses it for provisioning, extensions, and health reporting. To learn more, refer to the Microsoft documentation.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "heading": "Traffic Flows",
+      "level": 1
+    },
+    {
+      "text": "Traffic flows allowed by an implicit policy appear on the Flow Logs page in the Zscaler Admin Console. You can identify them by the Action (Allow) and Rule Name (Infrastructure Traffic) columns."
+    },
+    {
+      "text": "Infrastructure traffic flows are expected on every enforced host and do not mean a policy is misconfigured."
+    },
+    {
+      "text": "To view traffic flows allowed by implicit policies:"
+    },
+    {
+      "item": "In the navigation menu, go to Data Explorer > Microsegmentation > Flow Logs.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          43
+        ],
+        [
+          46,
+          63
+        ],
+        [
+          66,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click the Gear icon to show the list of available columns for the table.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Check the Rule Name column, then click Apply.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          19
+        ],
+        [
+          39,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Narrow the results with available filters, such as the Destination IP or Destination Port.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          55,
+          69
+        ],
+        [
+          73,
+          89
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see About Flow Logs."
+    }
+  ]
+}

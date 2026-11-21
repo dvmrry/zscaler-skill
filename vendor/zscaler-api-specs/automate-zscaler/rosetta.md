@@ -25,168 +25,826 @@ This section carries true operation additions/removals, route corrections, and f
 
 | product | publication | current/previous ops | added | removed | route Δ | route-key Δ | schema Δ | schema annotation Δ | product metadata Δ | request +/−/Δ | response +/−/Δ |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `ai-security` | `current-public-route-table` | 114/108 | 10 | 4 | 0 | 0 | 7 | 6 | 0 | 0/0/0 | 58/10/10 |
-| `aiguard` | `current-public-route-table` | 47/47 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `easm` | `current-public-route-table` | 11/11 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `event-monitoring` | `current-public-route-table` | 15/15 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `urbac` | `current-public-route-table` | 6/0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zcc` | `current-public-route-table` | 50/54 | 0 | 4 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zcell` | `current-public-route-table` | 36/36 | 1 | 1 | 0 | 24 | 10 | 1 | 1 | 1/0/1 | 8/1/1 |
-| `zcloudconnector` | `current-public-route-table` | 165/165 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zdx` | `current-public-route-table` | 148/148 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zia` | `current-public-route-table` | 469/471 | 0 | 2 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zid` | `current-public-route-table` | 31/31 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zpa` | `current-public-route-table` | 220/208 | 12 | 0 | 0 | 0 | 8 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `ai-security` | `current-public-route-table` | 131/114 | 21 | 4 | 0 | 0 | 12 | 12 | 0 | 0/0/0 | 126/67/31 |
+| `event-monitoring` | `current-public-route-table` | 15/15 | 0 | 0 | 0 | 0 | 4 | 2 | 0 | 2/0/0 | 20/0/0 |
+| `risk360` | `current-public-route-table` | 1/0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `urbac` | `current-public-route-table` | 6/6 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zcloudconnector` | `current-public-route-table` | 190/165 | 25 | 0 | 0 | 4 | 6 | 0 | 0 | 2/0/0 | 6/0/0 |
+| `zia` | `current-public-route-table` | 637/469 | 168 | 0 | 0 | 2 | 75 | 0 | 0 | 462/24/13 | 1019/48/30 |
+| `zpa` | `current-public-route-table` | 448/220 | 230 | 2 | 7 | 29 | 202 | 151 | 0 | 5958/39/487 | 11750/107/806 |
 
 ### `ai-security` changes
 
-- Schema: `GET /v1/assets/identities/{id}` — `response_schema` +22 −1 Δ2; schema titles Δ11.
-- Schema: `GET /v1/assets/identities` — `query_params` +6 −0 Δ1; `response_schema` +8 −1 Δ2; schema titles Δ3.
-- Schema: `GET /v1/assets/mcpservers/{id}` — `response_schema` +25 −3 Δ2; schema titles Δ14.
-- Schema: `GET /v1/assets/mcpservers/{id}/tools` — `query_params` +4 −0 Δ0.
-- Schema: `GET /v1/assets/mcpservers` — `query_params` +2 −0 Δ2; `response_schema` +1 −3 Δ2; schema titles Δ1.
-- Schema: `GET /v1/issues/{id}` — `response_schema` +1 −1 Δ1; schema titles Δ2.
-- Schema: `GET /v1/issues` — `query_params` +4 −0 Δ2; `response_schema` +1 −1 Δ1; schema titles Δ3.
-- Removed from capture: `GET /v1/assets/datastores/{id}` (`ai-security/aisecurity/v1-assets-datastores/datastores-get-datastore`).
-- Removed from capture: `GET /v1/assets/datastores` (`ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores`).
-- Removed from capture: `GET /v1/assets/workloads/{id}` (`ai-security/aisecurity/v1-assets-workloads/workloads-get-workload`).
-- Removed from capture: `GET /v1/assets/workloads` (`ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads`).
-- Added: `GET /v1/assets/agents/{id}` (`ai-security/aisecurity/v1-assets-agents/agents-get-agent`).
-- Added: `GET /v1/assets/agents` (`ai-security/aisecurity/v1-assets-agents/agents-list-agents`).
-- Added: `GET /v1/resources/coderepositories/{id}` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository`).
-- Added: `GET /v1/resources/coderepositories` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories`).
-- Added: `GET /v1/resources/datastores/{id}` (`ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore`).
-- Added: `GET /v1/resources/datastores` (`ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores`).
-- Added: `GET /v1/resources/guardrails/{id}` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`).
-- Added: `GET /v1/resources/guardrails` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`).
-- Added: `GET /v1/resources/workloads/{id}` (`ai-security/aisecurity/v1-resources-workloads/workloads-get-workload`).
-- Added: `GET /v1/resources/workloads` (`ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads`).
-
-### `aiguard` changes
-
-- Route: `POST /v1/detections/policies/{id}/disable` → `POST /v1/detections/policies/{id}:disable`.
-- Route: `POST /v1/detections/policies/{id}/enable` → `POST /v1/detections/policies/{id}:enable`.
-- Route: `GET /v1/detections/policies/{id}/referential-check` → `GET /v1/detections/policies/{id}:referential-check`.
-- Route: `GET /v1/llm-application-credentials/{id}/referential-check` → `GET /v1/llm-application-credentials/{id}:referential-check`.
-- Route: `POST /v1/llm-application-credentials/{id}/regenerate` → `POST /v1/llm-application-credentials/{id}:regenerate`.
-- Route: `GET /v1/llm-applications/{id}/referential-check` → `GET /v1/llm-applications/{id}:referential-check`.
-- Route: `GET /v1/llm-provider-credentials/{id}/referential-check` → `GET /v1/llm-provider-credentials/{id}:referential-check`.
-- Route: `GET /v1/llm-providers/{id}/referential-check` → `GET /v1/llm-providers/{id}:referential-check`.
-
-### `easm` changes
-
-- Product metadata `title`: `Zscaler External Attack Surface Management API` → `External Attack Surface Management API`.
+- Schema: `GET /v1/assets/agents/{id}` — `response_schema` +11 −13 Δ4; schema titles Δ8.
+- Schema: `GET /v1/assets/agents` — `query_params` +4 −0 Δ2; `response_schema` +12 −2 Δ3; schema titles Δ6.
+- Schema: `GET /v1/assets/mcpservers/{id}` — `response_schema` +22 −13 Δ2; schema titles Δ7.
+- Schema: `GET /v1/assets/mcpservers` — `query_params` +2 −0 Δ2; `response_schema` +3 −0 Δ2; schema titles Δ1.
+- Schema: `GET /v1/issues/{id}` — `response_schema` +15 −0 Δ2; schema titles Δ11.
+- Schema: `GET /v1/issues` — `query_params` +1 −0 Δ3; `response_schema` +5 −0 Δ2; schema titles Δ1.
+- Schema: `GET /v1/resources/coderepositories/{id}` — `response_schema` +6 −3 Δ1; schema titles Δ4.
+- Schema: `GET /v1/resources/coderepositories` — `query_params` +3 −0 Δ1; `response_schema` +6 −0 Δ1; schema titles Δ2.
+- Schema: `GET /v1/resources/datastores/{id}` — `response_schema` +11 −16 Δ4; schema titles Δ9.
+- Schema: `GET /v1/resources/datastores` — `query_params` +5 −0 Δ2; `response_schema` +12 −2 Δ3; schema titles Δ6.
+- Schema: `GET /v1/resources/workloads/{id}` — `response_schema` +11 −16 Δ4; schema titles Δ9.
+- Schema: `GET /v1/resources/workloads` — `query_params` +5 −0 Δ2; `response_schema` +12 −2 Δ3; schema titles Δ6.
+- Removed from capture: `GET /v1/assets/identities/{id}` (`ai-security/aisecurity/v1-assets-identities/identities-get-identity`).
+- Removed from capture: `GET /v1/assets/identities` (`ai-security/aisecurity/v1-assets-identities/identities-list-identities`).
+- Removed from capture: `GET /v1/resources/guardrails/{id}` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`).
+- Removed from capture: `GET /v1/resources/guardrails` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`).
+- Added: `GET /v1/assets/agents/{id}/tools` (`ai-security/aisecurity/v1-assets-agents/agents-get-agent-tools`).
+- Added: `GET /v1/assets/agents/{id}/sensitivedatafindings` (`ai-security/aisecurity/v1-assets-agents/agents-list-agent-findings`).
+- Added: `GET /v1/assets/gateways/{id}` (`ai-security/aisecurity/v1-assets-gateways/gateways-get-gateway`).
+- Added: `GET /v1/assets/gateways/{id}/policies` (`ai-security/aisecurity/v1-assets-gateways/gateways-list-gateway-policies`).
+- Added: `GET /v1/assets/gateways/{id}/targets` (`ai-security/aisecurity/v1-assets-gateways/gateways-list-gateway-targets`).
+- Added: `GET /v1/assets/gateways` (`ai-security/aisecurity/v1-assets-gateways/gateways-list-gateways`).
+- Added: `GET /v1/assets/guardrails/{id}` (`ai-security/aisecurity/v1-assets-guardrails/guardrails-get-guardrail`).
+- Added: `GET /v1/assets/guardrails` (`ai-security/aisecurity/v1-assets-guardrails/guardrails-list-guardrails`).
+- Added: `GET /v1/assets/mcpservers/{id}/resources` (`ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-resources`).
+- Added: `GET /v1/assets/models/{id}` (`ai-security/aisecurity/v1-assets-models/models-get-model`).
+- Added: `GET /v1/assets/models/{id}/usagedata` (`ai-security/aisecurity/v1-assets-models/models-list-model-usage-data`).
+- Added: `GET /v1/assets/models` (`ai-security/aisecurity/v1-assets-models/models-list-models`).
+- Added: `GET /v1/dlp-dictionaries` (`ai-security/aisecurity/v1-dlp-dictionaries/dlp-dictionaries-list-dlp-dictionaries`).
+- Added: `GET /v1/dlp-engines` (`ai-security/aisecurity/v1-dlp-engines/dlp-engines-list-dlp-engines`).
+- Added: `GET /v1/document-types` (`ai-security/aisecurity/v1-document-types/document-types-list-document-types`).
+- Added: `GET /v1/identities/{id}` (`ai-security/aisecurity/v1-identities/identities-get-identity`).
+- Added: `GET /v1/identities` (`ai-security/aisecurity/v1-identities/identities-list-identities`).
+- Added: `GET /v1/resources/datastores/{id}/sensitivedatafindings` (`ai-security/aisecurity/v1-resources-datastores/datastores-list-datastore-findings`).
+- Added: `GET /v1/resources/softwarelibraries/{name}` (`ai-security/aisecurity/v1-resources-softwarelibraries/software-libraries-get-software-library`).
+- Added: `GET /v1/resources/softwarelibraries` (`ai-security/aisecurity/v1-resources-softwarelibraries/software-libraries-list-software-libraries`).
+- Added: `GET /v1/resources/workloads/{id}/sensitivedatafindings` (`ai-security/aisecurity/v1-resources-workloads/workloads-list-workload-findings`).
 
 ### `event-monitoring` changes
 
-- Route: `POST /subscriptions/channels/sns/verify` → `POST /subscriptions/channels/sns:verify`.
+- Schema: `POST /subscriptions` — `request_body` +1 −0 Δ0; `response_schema` +5 −0 Δ0; schema titles Δ1.
+- Schema: `GET /subscriptions/{subscriptionId}` — `response_schema` +5 −0 Δ0.
+- Schema: `GET /subscriptions` — `response_schema` +5 −0 Δ0.
+- Schema: `PUT /subscriptions/{subscriptionId}` — `request_body` +1 −0 Δ0; `response_schema` +5 −0 Δ0; schema titles Δ1.
+
+### `risk360` changes
+
+- Added: `GET /rest/v1/reports/download` (`risk360/reports/download-report`).
 
 ### `urbac` changes
 
-- Added: `POST /v1/auditlog/query` (`urbac/auditlogs/audit-log-resource-search-logs`).
-- Added: `POST /v1/roles` (`urbac/roles/urbac-resource-create-role`).
-- Added: `DELETE /v1/roles/{roleId}` (`urbac/roles/urbac-resource-delete-role`).
-- Added: `GET /v1/roles/{roleId}` (`urbac/roles/urbac-resource-get-role`).
-- Added: `POST /v1/roles/query` (`urbac/roles/urbac-resource-get-roles`).
-- Added: `PUT /v1/roles/{roleId}` (`urbac/roles/urbac-resource-update-role`).
-
-### `zcc` changes
-
-- Product metadata `title`: `Zscaler Client Connector API` → `Client Connector API`.
-- Removed from capture: `DELETE /papi/cred/v1/delete` (`zcc/credential-controller/deletes-api-credentials-for-the-company`).
-- Removed from capture: `GET /papi/cred/v1/getList` (`zcc/credential-controller/gets-the-list-of-api-credentials`).
-- Removed from capture: `POST /papi/cred/v1/save` (`zcc/credential-controller/saves-api-credentials-for-the-company`).
-- Removed from capture: `PUT /papi/cred/v1/update` (`zcc/credential-controller/updates-api-credentials-for-the-company`).
-
-### `zcell` changes
-
-- Product metadata `title`: `Zscaler Cellular API` → `Cellular API`.
-- Schema: `POST /api/v1/network-events/{id}/search/startTime/{startTime}/endTime/{endTime}` — `response_schema` +8 −0 Δ0.
-- Schema: `GET /api/v1/customers/{id}/sim-location-groups` — `query_params` +0 −0 Δ2.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-delete-policy` → `zcell/anomaly-policies/anomaly-policy-resource-delete-policy`; method/path unchanged.
-- Route-key rename: `zcell/customer-data-handling/customer-resource-get-by-zs-tid` → `zcell/customer-management/customer-resource-get-by-zs-tid`; method/path unchanged.
-- Schema: `GET /api/v1/customers/{id}` — `response_schema` +0 −0 Δ1; schema titles Δ12.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-all-anomaly-policies` → `zcell/anomaly-policies/anomaly-policy-resource-get-all-anomaly-policies`; method/path unchanged.
-- Schema: `GET /api/v1/customers/{id}/anomaly-policy` — `query_params` +0 −0 Δ2.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-anomaly-policy-logs` → `zcell/anomaly-policies/anomaly-policy-resource-get-anomaly-policy-logs`; method/path unchanged.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-violated-iccids` → `zcell/anomaly-policies/anomaly-policy-resource-get-violated-iccids`; method/path unchanged.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-violation-details-by-iccid` → `zcell/anomaly-policies/anomaly-policy-resource-get-violation-details-by-iccid`; method/path unchanged.
-- Schema: `GET /api/v1/customers/{id}/anomaly-policy/{policyId}/violations/{iccid}` — `query_params` +0 −0 Δ2.
-- Route-key rename: `zcell/customer-region-handling/region-resource-get-assigned-regions-by-zs-tid` → `zcell/customer-regions/region-resource-get-assigned-regions-by-zs-tid`; method/path unchanged.
-- Route-key rename: `zcell/customer-region-handling/region-resource-get-region-operational-status-by-zs-tid` → `zcell/customer-regions/region-resource-get-region-operational-status-by-zs-tid`; method/path unchanged.
-- Route-key rename: `zcell/sim-handling/sim-resource-get-sim-details-by-icc-id` → `zcell/sim-management/sim-resource-get-sim-details-by-icc-id`; method/path unchanged.
-- Route-key rename: `zcell/tag-handling/tag-resource-get-all-tags` → `zcell/tag-management/tag-resource-get-all-tags`; method/path unchanged.
-- Schema: `GET /api/v1/customers/{id}/tag` — `query_params` +0 −0 Δ2; `response_schema` +0 −1 Δ0.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-update-policy` → `zcell/anomaly-policies/anomaly-policy-resource-update-policy`; method/path unchanged.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-update-policy-status` → `zcell/anomaly-policies/anomaly-policy-resource-update-policy-status`; method/path unchanged.
-- Route-key rename: `zcell/sim-handling/sim-resource-assign-tag` → `zcell/sim-management/sim-resource-assign-tag`; method/path unchanged.
-- Route-key rename: `zcell/sim-handling/sim-resource-lock-sims` → `zcell/sim-management/sim-resource-lock-sims`; method/path unchanged.
-- Schema: `PATCH /api/v1/customers/{id}/sims/lock` — `request_body` +1 −0 Δ1.
-- Route-key rename: `zcell/sim-handling/sim-resource-update-sim-status` → `zcell/sim-management/sim-resource-update-sim-status`; method/path unchanged.
-- Route-key rename: `zcell/sim-handling/sim-resource-assign-esim` → `zcell/sim-management/sim-resource-assign-esim`; method/path unchanged.
-- Route-key rename: `zcell/sim-handling/sim-resource-refresh-esim-state` → `zcell/sim-management/sim-resource-refresh-esim-state`; method/path unchanged.
-- Route-key rename: `zcell/audit-data-handling/audit-resource-get-audit-log` → `zcell/audit-logs/audit-resource-get-audit-log`; method/path unchanged.
-- Schema: `POST /api/v1/audit/customers/{id}/search` — `query_params` +0 −0 Δ2.
-- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-create-policy` → `zcell/anomaly-policies/anomaly-policy-resource-create-policy`; method/path unchanged.
-- Route-key rename: `zcell/sim-handling/sim-resource-download-sims-csv` → `zcell/sim-management/sim-resource-download-sims-csv`; method/path unchanged.
-- Schema: `POST /api/v1/customers/{id}/sims/download` — `query_params` +0 −0 Δ2.
-- Route-key rename: `zcell/sim-handling/sim-resource-get-all-sims` → `zcell/sim-management/sim-resource-get-all-sims`; method/path unchanged.
-- Schema: `POST /api/v1/customers/{id}/sims/search` — `query_params` +0 −0 Δ2.
-- Route-key rename: `zcell/tag-handling/tag-resource-create-tag` → `zcell/tag-management/tag-resource-create-tag`; method/path unchanged.
-- Route-key rename: `zcell/customer-data-handling/customer-resource-activate-customer` → `zcell/customer-management/customer-resource-activate-customer`; method/path unchanged.
-- Route-key rename: `zcell/customer-region-handling/region-resource-deploy-regions` → `zcell/customer-regions/region-resource-deploy-regions`; method/path unchanged.
-- Removed from capture: `GET /api/v1/audit/metadata` (`zcell/audit-data-handling/audit-resource-get-audit-metadata`).
-- Added: `GET /api/v1/customers/{id}/sims/{iccid}/tower-locations` (`zcell/sim-management/sim-resource-get-tower-location-history`).
+- Product metadata `title`: `Unified RBAC` → `Unified RBAC API`.
 
 ### `zcloudconnector` changes
 
-- Product metadata `title`: `Zscaler Cloud & Branch Connector API` → `Cloud & Branch Connector API`.
-
-### `zdx` changes
-
-- Product metadata `title` values: removed `Zscaler Digital Experience API`; retained `Digital Experience API`; current operation distribution `Digital Experience API`=148.
+- Schema: `POST /publicCloudInfo` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `PUT /publicCloudInfo/{id}/changeState` — `response_schema` +1 −0 Δ0.
+- Schema: `GET /publicCloudInfo` — `response_schema` +1 −0 Δ0.
+- Schema: `GET /publicCloudInfo/{id}` — `response_schema` +1 −0 Δ0.
+- Schema: `GET /publicCloudInfo/supportedRegions` — `response_schema` +1 −0 Δ0.
+- Schema: `PUT /publicCloudInfo/{id}` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Route-key rename: `zcloudconnector/all/network-service-group-z-resource-delete-custom-network-service-group` → `zcloudconnector/policy-resources/network-service-group-z-resource-delete-custom-network-service-group`; method/path unchanged.
+- Route-key rename: `zcloudconnector/all/network-service-group-z-resource-get-network-service-group-by-id` → `zcloudconnector/policy-resources/network-service-group-z-resource-get-network-service-group-by-id`; method/path unchanged.
+- Route-key rename: `zcloudconnector/public/ec-group-z-resource-change-vm-status` → `zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-change-vm-status`; method/path unchanged.
+- Route-key rename: `zcloudconnector/all/network-service-group-z-resource-edit-network-service-group` → `zcloudconnector/policy-resources/network-service-group-z-resource-edit-network-service-group`; method/path unchanged.
+- Added: `GET /ecgroup/vmUpgradeMetrics` (`zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-vm-upgrade-metrics`).
+- Added: `PUT /ecgroup/releaseChannel` (`zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-update-release-channel`).
+- Added: `POST /ztGateway/trafficTest` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test`).
+- Added: `POST /ztGateway/trafficTest/env/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test-environment`).
+- Added: `POST /ztGateway` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-zt-gateway`).
+- Added: `DELETE /ztGateway/trafficTest/{testId}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test`).
+- Added: `DELETE /ztGateway/trafficTest/env/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test-environment`).
+- Added: `DELETE /ztGateway/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-zt-gateway`).
+- Added: `GET /ztGateway/trafficTest/{testId}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-by-id`).
+- Added: `GET /ztGateway/trafficTest/env/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-environment`).
+- Added: `GET /ztGateway/trafficTest` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-tests`).
+- Added: `GET /ztGateway/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-by-id`).
+- Added: `GET /ztGateway/config/compare/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-comparison`).
+- Added: `GET /ztGateway/config/status/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-status`).
+- Added: `GET /ztGateway/events/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-events`).
+- Added: `PUT /ztGateway/analytic/metrics/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-metrics`).
+- Added: `GET /ztGateway/status/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-status`).
+- Added: `GET /ztGateway/supportedRegions` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-supported-regions`).
+- Added: `GET /ztGateway` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways`).
+- Added: `GET /ztGateway/count` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-count`).
+- Added: `GET /ztGateway/licenseInfo` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-license-info`).
+- Added: `GET /ztGateway/lite` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-lite`).
+- Added: `POST /ztGateway/{gwId}/trafficTest/run` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-run-traffic-test`).
+- Added: `PUT /ztGateway/trafficTest/{testId}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-update-traffic-test`).
+- Added: `PUT /ztGateway/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-update-zt-gateway`).
 
 ### `zia` changes
 
-- Product metadata `title`: `Zscaler Internet Access API` → `Internet Access API`.
-- Removed from capture: `POST /zscsb/submit` (`zia/sandbox-submission-api/submit-file`).
-- Removed from capture: `POST /zscsb/discan` (`zia/sandbox-submission-api/submit-file-for-scan`).
-
-### `zid` changes
-
-- Route: `POST /users/{id}/setskipmfa` → `POST /users/{id}:setskipmfa`.
-- Route: `POST /users/{id}/resetpassword` → `POST /users/{id}:resetpassword`.
-- Route: `PUT /users/{id}/updatepassword` → `PUT /users/{id}:updatepassword`.
+- Schema: `GET /auditlogEntryReport/download` — `query_params` +0 −0 Δ1.
+- Schema: `GET /auditlogEntryReport` — `query_params` +0 −0 Δ1.
+- Schema: `POST /auditlogEntryReport` — `response_schema` +6 −0 Δ0.
+- Schema: `POST /adminUsers` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Schema: `POST /adminUsers/{userId}/convertToUser` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `GET /adminUsers/me` — `response_schema` +0 −0 Δ1.
+- Schema: `GET /adminUsers` — `response_schema` +0 −0 Δ1.
+- Schema: `PUT /adminUsers/{userId}` — `response_schema` +0 −0 Δ1.
+- Schema: `GET /advancedSettings` — `response_schema` +1 −0 Δ0.
+- Schema: `PUT /advancedSettings` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `POST /tenancyRestrictionProfile` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Schema: `GET /tenancyRestrictionProfile/app-item-count/{appType}/{itemType}` — `path_params` +0 −0 Δ1.
+- Schema: `GET /tenancyRestrictionProfile/{profileId}` — `response_schema` +0 −0 Δ1.
+- Schema: `GET /tenancyRestrictionProfile` — `response_schema` +0 −0 Δ1.
+- Schema: `PUT /tenancyRestrictionProfile/{profileId}` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Schema: `POST /nssFeeds` — `query_params` +1 −0 Δ0.
+- Schema: `DELETE /nssFeeds/{feedId}` — `query_params` +1 −0 Δ0.
+- Schema: `GET /nssFeeds` — `query_params` +1 −0 Δ0.
+- Schema: `PUT /nssFeeds/{feedId}` — `query_params` +1 −0 Δ0.
+- Schema: `GET /cloudToCloudIR` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `GET /cloudToCloudIR/count` — `query_params` +1 −0 Δ0.
+- Schema: `GET /cloudToCloudIR/lite` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `GET /cloudToCloudIR/{id}` — `response_schema` +1 −0 Δ0.
+- Schema: `POST /firewallDnsRules` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0.
+- Schema: `GET /firewallDnsRules/{ruleId}` — `response_schema` +68 −0 Δ0.
+- Schema: `GET /firewallDnsRules` — `response_schema` +68 −0 Δ0.
+- Schema: `PUT /firewallDnsRules/{ruleId}` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0.
+- Schema: `GET /eventlogEntryReport/download` — `query_params` +0 −0 Δ1.
+- Schema: `GET /eventlogEntryReport` — `query_params` +0 −0 Δ1.
+- Schema: `POST /eventlogEntryReport` — `response_schema` +6 −0 Δ0.
+- Schema: `POST /firewallFilteringRules` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0.
+- Schema: `GET /firewallFilteringRules/{ruleId}` — `response_schema` +68 −0 Δ0.
+- Schema: `GET /firewallFilteringRules` — `query_params` +1 −0 Δ0; `response_schema` +68 −0 Δ0.
+- Schema: `GET /firewallFilteringRules/count` — `query_params` +1 −0 Δ0; `response_schema` +68 −0 Δ0.
+- Schema: `PUT /firewallFilteringRules/{ruleId}` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0.
+- Schema: `POST /locations` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0.
+- Schema: `GET /locations/lite` — `response_schema` +4 −0 Δ0.
+- Schema: `GET /locations/{locationId}/sublocations` — `response_schema` +4 −0 Δ0.
+- Schema: `GET /locations` — `response_schema` +4 −0 Δ0.
+- Schema: `PUT /locations/{locationId}` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0.
+- Schema: `POST /casbDlpRules` — `request_body` +2 −0 Δ1; `response_schema` +2 −0 Δ1.
+- Schema: `GET /casbDlpRules/all` — `response_schema` +2 −0 Δ1.
+- Schema: `GET /casbDlpRules/{ruleId}` — `response_schema` +2 −0 Δ1.
+- Schema: `GET /casbDlpRules` — `response_schema` +2 −0 Δ1.
+- Schema: `PUT /casbDlpRules/{ruleId}` — `request_body` +2 −0 Δ1; `response_schema` +2 −0 Δ1.
+- Schema: `GET /casbTenant/scanInfo` — `response_schema` +3 −0 Δ0.
+- Schema: `POST /sandboxRules` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Schema: `GET /sandboxRules/{ruleId}` — `response_schema` +0 −0 Δ1.
+- Schema: `GET /sandboxRules` — `response_schema` +0 −0 Δ1.
+- Schema: `PUT /sandboxRules/{ruleId}` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Schema: `POST /virtualZenNodes` — `request_body` +12 −12 Δ2; `response_schema` +12 −12 Δ2.
+- Schema: `GET /virtualZenNodes/{virtualZenNodeId}` — `response_schema` +12 −12 Δ2.
+- Schema: `GET /virtualZenNodes` — `response_schema` +12 −12 Δ2.
+- Schema: `PUT /virtualZenNodes/{virtualZenNodeId}` — `request_body` +12 −12 Δ2; `response_schema` +12 −12 Δ2.
+- Schema: `POST /sslInspectionRules` — `request_body` +67 −0 Δ0; `response_schema` +67 −0 Δ0.
+- Schema: `GET /sslInspectionRules/{ruleId}` — `response_schema` +67 −0 Δ0.
+- Schema: `GET /sslInspectionRules` — `response_schema` +67 −0 Δ0.
+- Schema: `PUT /sslInspectionRules/{ruleId}` — `request_body` +67 −0 Δ0; `response_schema` +67 −0 Δ0.
+- Schema: `POST /urlCategories` — `request_body` +3 −0 Δ1; `response_schema` +3 −0 Δ1.
+- Schema: `GET /urlCategories/lite` — `response_schema` +3 −0 Δ1.
+- Schema: `GET /urlCategories/{categoryId}` — `response_schema` +3 −0 Δ1.
+- Schema: `GET /urlCategories` — `response_schema` +3 −0 Δ1.
+- Schema: `PUT /urlCategories/{categoryId}` — `request_body` +3 −0 Δ1; `response_schema` +3 −0 Δ1.
+- Schema: `GET /advancedUrlFilterAndCloudAppSettings` — `response_schema` +8 −0 Δ0.
+- Schema: `PUT /advancedUrlFilterAndCloudAppSettings` — `request_body` +8 −0 Δ0; `response_schema` +8 −0 Δ0.
+- Schema: `GET /urlFilteringRules` — `query_params` +2 −0 Δ0.
+- Schema: `POST /users` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `GET /groups` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `GET /users` — `response_schema` +1 −0 Δ0.
+- Schema: `POST /groups` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `GET /groups/{groupId}` — `response_schema` +1 −0 Δ0.
+- Schema: `GET /groups/lite/{groupId}` — `response_schema` +1 −0 Δ0.
+- Schema: `GET /groups/lite` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `PUT /groups/{groupId}` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Schema: `PUT /users/{userId}` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0.
+- Route-key rename: `zia/browser-control-policy/browser-control-settings-resource-get-config` → `zia/secure-browsing/browser-control-settings-resource-get-config`; method/path unchanged.
+- Route-key rename: `zia/browser-control-policy/browser-control-settings-resource-update-config` → `zia/secure-browsing/browser-control-settings-resource-update-config`; method/path unchanged.
+- Added: `GET /adaptiveAccessProfiles` (`zia/adaptive-access-profiles/adaptive-access-profile-resource-get-adaptive-access-profiles`).
+- Added: `GET /adaptiveAccessProfiles/profiles/rules` (`zia/adaptive-access-profiles/adaptive-access-profile-resource-get-rule-names-associated-with-profiles`).
+- Added: `POST /azure/virtualHubSync` (`zia/azure-integration/azure-resource-check-async`).
+- Added: `GET /azure/virtualHubSync` (`zia/azure-integration/azure-resource-get-async-status`).
+- Added: `GET /azure/refreshConnectionStatus` (`zia/azure-integration/azure-resource-get-refresh-connection-status`).
+- Added: `GET /azure/tunnelConfiguration` (`zia/azure-integration/azure-resource-get-tunnel-configuration-status`).
+- Added: `GET /azure/unConfigureTunnelStatus` (`zia/azure-integration/azure-resource-get-tunnel-un-configuration-status`).
+- Added: `GET /azure/virtualHubs` (`zia/azure-integration/azure-resource-get-virtual-hubs`).
+- Added: `POST /azure/refreshConnectionStatus` (`zia/azure-integration/azure-resource-start-refresh-connection-status`).
+- Added: `POST /azure/tunnelConfiguration` (`zia/azure-integration/azure-resource-start-tunnel-config`).
+- Added: `DELETE /azure/unConfigureTunnel/{hubId}` (`zia/azure-integration/azure-resource-unconfigure-tunnel`).
+- Added: `POST /nssCollectors` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-create-nss-collector`).
+- Added: `DELETE /nssCollectors/{id}` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-delete-rules`).
+- Added: `GET /nssCollectors` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-get-nss-collectors`).
+- Added: `PUT /nssCollectors/{id}` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-update-nss-collector`).
+- Added: `POST /domainProfiles` (`zia/data-loss-prevention/domain-profile-resource-create-domain-profile`).
+- Added: `DELETE /domainProfiles/{id}` (`zia/data-loss-prevention/domain-profile-resource-delete-domain-profile`).
+- Added: `GET /domainProfiles/{id}` (`zia/data-loss-prevention/domain-profile-resource-get-domain-profile-by-id`).
+- Added: `GET /domainProfiles` (`zia/data-loss-prevention/domain-profile-resource-get-domain-profiles`).
+- Added: `PUT /domainProfiles/{id}` (`zia/data-loss-prevention/domain-profile-resource-update-domain-profile`).
+- Added: `GET /webDlpGlobalOptions` (`zia/data-loss-prevention/web-dlp-global-options-resource-get-web-dlp-global-exception`).
+- Added: `PUT /webDlpGlobalOptions` (`zia/data-loss-prevention/web-dlp-global-options-resource-update-web-dlp-global-exception`).
+- Added: `GET /devices/{id}` (`zia/devices/user-devices-resource-get-user-device`).
+- Added: `GET /devices` (`zia/devices/user-devices-resource-get-user-devices`).
+- Added: `POST /emailRecipientProfile` (`zia/email-profiles/email-recipient-profile-resource-create-email-recipient-profile`).
+- Added: `DELETE /emailRecipientProfile/{profileId}` (`zia/email-profiles/email-recipient-profile-resource-delete-email-recipient-profile`).
+- Added: `GET /emailRecipientProfile/{profileId}` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profile-by-id`).
+- Added: `GET /emailRecipientProfile` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profiles`).
+- Added: `GET /emailRecipientProfile/count` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profiles-count`).
+- Added: `GET /emailRecipientProfile/lite` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profiles-lite`).
+- Added: `PUT /emailRecipientProfile/{profileId}` (`zia/email-profiles/email-recipient-profile-resource-update-email-recipient-profile`).
+- Added: `GET /eunTemplate/{templateType}/product/{product}` (`zia/end-user-notifications/eun-template-resource-get-eun-templates-by-product`).
+- Added: `GET /eunTemplate/{templateType}/featureEnablementStatus` (`zia/end-user-notifications/eun-template-resource-get-feature-enablement-status`).
+- Added: `GET /userConfirmation/{templateType}/featureEnablementStatus` (`zia/end-user-notifications/user-confirmation-resource-get-feature-enablement-status`).
+- Added: `GET /userConfirmation/globalDefaultTemplates` (`zia/end-user-notifications/user-confirmation-resource-get-global-default-templates`).
+- Added: `GET /userConfirmation/product/{product}` (`zia/end-user-notifications/user-confirmation-resource-get-user-confirmation-by-product`).
+- Added: `POST /endPointApplicationGroups` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-create-resource-group`).
+- Added: `DELETE /endPointApplicationGroups/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-delete-dlp-endpoint-resource`).
+- Added: `GET /endPointApplicationGroups` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-get-endpoint-application-groups`).
+- Added: `GET /endPointApplicationGroups/policies` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-get-policies-associated-with-groups`).
+- Added: `PUT /endPointApplicationGroups/resources/{groupId}` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-modify-group-association`).
+- Added: `PUT /endPointApplicationGroups/{groupId}` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-modify-resource-group`).
+- Added: `POST /endPointApplications/customApp` (`zia/endpoint-data-loss-prevention/end-point-application-resource-add-dlp-endpoint-resource`).
+- Added: `DELETE /endPointApplications/customApp/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-delete-dlp-endpoint-resource`).
+- Added: `GET /endPointApplications` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-applications`).
+- Added: `GET /endPointApplications/count` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-applications-count`).
+- Added: `GET /endPointApplications/lite` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-applications-lite`).
+- Added: `GET /endPointApplications/getCategoriesWithNonEmptyApps` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-categories-with-non-empty-apps`).
+- Added: `GET /endPointApplications/cloudApps/count` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-cloud-applications-count`).
+- Added: `GET /endPointApplications/customApps` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-custom-applications`).
+- Added: `GET /endPointApplications/customApps/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-custom-applications-by-id`).
+- Added: `GET /endPointApplications/customApps/lite` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-custom-applications-lite`).
+- Added: `GET /endPointApplications/policies` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-policies-associated-with-apps`).
+- Added: `GET /endPointApplications/cloudApps` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-zdp-applications`).
+- Added: `PUT /endPointApplications/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-update-application`).
+- Added: `PUT /endPointApplications/customApp/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-update-dlp-endpoint-resource`).
+- Added: `POST /endPointDlpResourceGroups` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-create-resource-group`).
+- Added: `DELETE /endPointDlpResourceGroups/{groupId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-delete-group`).
+- Added: `GET /endPointDlpResourceGroups/{channel}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-get-resource-groups`).
+- Added: `GET /endPointDlpResourceGroups/{groupId}/resources` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-get-resources-in-group-public`).
+- Added: `PUT /endPointDlpResourceGroups/{groupId}/resources` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-modify-group-resource-association-public`).
+- Added: `PUT /endPointDlpResourceGroups/{groupId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-modify-resource-group`).
+- Added: `POST /endPointDlpRules` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-add-endpoint-dlp-rule`).
+- Added: `POST /endPointDlpRules/{id}/subRule` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-add-sub-rule`).
+- Added: `DELETE /endPointDlpRules/{id}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-delete-endpoint-dlp-rule`).
+- Added: `DELETE /endPointDlpRules/{id}/subRule/{subRuleId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-delete-sub-rule`).
+- Added: `GET /endPointDlpRules/fileTypeCategories` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-fetch-file-type-categories`).
+- Added: `GET /endPointDlpRules/fileTypes` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-fetch-file-types-for-endpoint-dlp`).
+- Added: `GET /endPointDlpRules/{id}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-get-endpoint-dlp-rule-by-id`).
+- Added: `GET /endPointDlpRules` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-get-endpoint-dlp-rules`).
+- Added: `PUT /endPointDlpRules/{id}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-modify-endpoint-dlp-rule`).
+- Added: `PUT /endPointDlpRules/{id}/subRule/{subRuleId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-modify-sub-rule`).
+- Added: `POST /dlpEndpointResource` (`zia/endpoint-data-loss-prevention/endpoint-resource-add-dlp-endpoint-resource`).
+- Added: `DELETE /dlpEndpointResource/{id}` (`zia/endpoint-data-loss-prevention/endpoint-resource-delete-dlp-endpoint-resource`).
+- Added: `GET /dlpEndpointResource/{channel}` (`zia/endpoint-data-loss-prevention/endpoint-resource-get-dlp-endpoint-resources`).
+- Added: `GET /dlpEndpointResource/{channel}/{id}` (`zia/endpoint-data-loss-prevention/endpoint-resource-get-endpoint-by-id`).
+- Added: `GET /dlpEndpointResource/{id}/groups` (`zia/endpoint-data-loss-prevention/endpoint-resource-get-group-ids-by-resource`).
+- Added: `PUT /dlpEndpointResource/{id}` (`zia/endpoint-data-loss-prevention/endpoint-resource-update-dlp-endpoint-resource`).
+- Added: `POST /apps-services` (`zia/firewall-policies/custom-app-service-config-resource-add-app-service-configs`).
+- Added: `DELETE /apps-services/{appServiceId}` (`zia/firewall-policies/custom-app-service-config-resource-delete-app-service-config`).
+- Added: `GET /apps-services` (`zia/firewall-policies/custom-app-service-config-resource-get-all-app-service-config-for-org`).
+- Added: `GET /apps-services/{appServiceId}` (`zia/firewall-policies/custom-app-service-config-resource-get-app-service-config-for-org`).
+- Added: `PUT /apps-services/{appServiceId}` (`zia/firewall-policies/custom-app-service-config-resource-update-app-service-configs`).
+- Added: `DELETE /dnsApplicationGroups/{groupId}` (`zia/firewall-policies/dns-application-group-resource-delete-dns-application-group`).
+- Added: `GET /dnsApplicationGroups/{groupId}` (`zia/firewall-policies/dns-application-group-resource-get-dns-application-group-by-id`).
+- Added: `GET /dnsApplicationGroups/lite` (`zia/firewall-policies/dns-application-group-resource-get-dns-application-groups-lite`).
+- Added: `PUT /dnsApplicationGroups/{groupId}` (`zia/firewall-policies/dns-application-group-resource-update-dns-application-group`).
+- Added: `POST /httpHeaderActionProfile` (`zia/http-header-control/http-header-action-profile-resource-create-http-header-action-profile`).
+- Added: `DELETE /httpHeaderActionProfile/{id}` (`zia/http-header-control/http-header-action-profile-resource-delete-http-header-action-profile`).
+- Added: `GET /httpHeaderActionProfile` (`zia/http-header-control/http-header-action-profile-resource-get-http-header-action-profiles`).
+- Added: `PUT /httpHeaderActionProfile/{id}` (`zia/http-header-control/http-header-action-profile-resource-update-http-header-action-profile`).
+- Added: `POST /httpHeaderProfile` (`zia/http-header-control/http-header-profile-resource-create-http-header-profile`).
+- Added: `DELETE /httpHeaderProfile/{id}` (`zia/http-header-control/http-header-profile-resource-delete-http-header-profile`).
+- Added: `GET /httpHeaderProfile` (`zia/http-header-control/http-header-profile-resource-get-http-header-profiles`).
+- Added: `PUT /httpHeaderProfile/{id}` (`zia/http-header-control/http-header-profile-resource-update-http-header-profile`).
+- Added: `DELETE /sslCertificates/{certId}` (`zia/intermediate-ca-certificates/ssl-cert-resource-delete-cert`).
+- Added: `GET /sslCertificates/download/{certId}` (`zia/intermediate-ca-certificates/ssl-cert-resource-download-ssl-cert`).
+- Added: `GET /sslCertificates` (`zia/intermediate-ca-certificates/ssl-cert-resource-get-certs`).
+- Added: `GET /sslCertificates/certDetail/{certId}` (`zia/intermediate-ca-certificates/ssl-cert-resource-show-cert`).
+- Added: `POST /ipsSignatureRules` (`zia/ips-control-policy/ips-signature-rule-resource-add-ips-signature-rule`).
+- Added: `DELETE /ipsSignatureRules/{id}` (`zia/ips-control-policy/ips-signature-rule-resource-delete-ips-signature-rule`).
+- Added: `GET /ipsSignatureRules/export` (`zia/ips-control-policy/ips-signature-rule-resource-export-ips-sig-csv`).
+- Added: `GET /ipsSignatureRules/{id}` (`zia/ips-control-policy/ips-signature-rule-resource-get-ips-signature-rule-by-id`).
+- Added: `GET /ipsSignatureRules` (`zia/ips-control-policy/ips-signature-rule-resource-get-ips-signature-rules`).
+- Added: `GET /ipsSignatureRules/import` (`zia/ips-control-policy/ips-signature-rule-resource-import-ips-sig-rule-status`).
+- Added: `POST /ipsSignatureRules/import` (`zia/ips-control-policy/ips-signature-rule-resource-import-ips-sig-rules`).
+- Added: `PUT /ipsSignatureRules/{id}` (`zia/ips-control-policy/ips-signature-rule-resource-update-ips-signature-rule`).
+- Added: `POST /ipsSignatureRules/validateRuleText` (`zia/ips-control-policy/ips-signature-rule-resource-validate-rule-text`).
+- Added: `GET /malwarePolicy` (`zia/malware-protection-policy/malware-policy-resource-get-config`).
+- Added: `PUT /malwarePolicy` (`zia/malware-protection-policy/malware-policy-resource-update-config`).
+- Added: `POST /emailDlpRules` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-add-rule`).
+- Added: `DELETE /emailDlpRules/{ruleId}` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-delete-rule`).
+- Added: `GET /emailDlpRules/actions` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-email-dlp-policy-actions`).
+- Added: `GET /emailDlpRules/{ruleId}` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-rule-by-id`).
+- Added: `GET /emailDlpRules` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-rules`).
+- Added: `GET /emailDlpRules/lite` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-summary`).
+- Added: `PUT /emailDlpRules/{ruleId}` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-update-rule`).
+- Added: `POST /integrationPartners/crowdStrike/endpoints` (`zia/partner-integrations/integration-partner-resource-crowd-strike-end-points`).
+- Added: `GET /integrationPartners/crowdStrike/whitelistedBaseUrls` (`zia/partner-integrations/integration-partner-resource-get-crowd-strike-whietlisted-domains`).
+- Added: `GET /integrationPartners/crowdStrike/endpoints` (`zia/partner-integrations/integration-partner-resource-get-ioc-observed-devices`).
+- Added: `GET /integrationPartners/sandbox/report/{md5}` (`zia/partner-integrations/integration-partner-resource-get-md-5-detail`).
+- Added: `POST /integrationPartners/microsoftDefender/endpoints` (`zia/partner-integrations/integration-partner-resource-get-microsoft-defender-transactions`).
+- Added: `GET /integrationPartners` (`zia/partner-integrations/integration-partner-resource-get-partners`).
+- Added: `POST /rootCertificates` (`zia/root-certificates/root-certificate-resource-create-root-certificate`).
+- Added: `DELETE /rootCertificates/{rootCertId}` (`zia/root-certificates/root-certificate-resource-delete-cert`).
+- Added: `GET /rootCertificates` (`zia/root-certificates/root-certificate-resource-get-certs`).
+- Added: `GET /rootCertificates/certDetail/{rootCertId}` (`zia/root-certificates/root-certificate-resource-show-cert`).
+- Added: `PUT /rootCertificates/{rootCertId}` (`zia/root-certificates/root-certificate-resource-update-root-certificate`).
+- Added: `GET /ruleLabels/ruleType/{ruleType}` (`zia/rule-labels/rule-label-resource-get-rule-label-via-rule-type`).
+- Added: `GET /browserControlSettings/supportedBrowserVersions` (`zia/secure-browsing/browser-control-settings-resource-get-supported-browser-versions`).
+- Added: `PUT /browserControlSettings/smartIsolation` (`zia/secure-browsing/browser-control-settings-resource-update-smart-isolation`).
+- Added: `POST /alertDefinitions` (`zia/security-ueba-alerts/alert-definition-resource-add-alert-definition`).
+- Added: `DELETE /alertDefinitions/{alertDefinitionId}` (`zia/security-ueba-alerts/alert-definition-resource-delete-alert-definition`).
+- Added: `GET /alertDefinitions/{alertDefinitionId}` (`zia/security-ueba-alerts/alert-definition-resource-get-alert-definition`).
+- Added: `GET /alertDefinitions` (`zia/security-ueba-alerts/alert-definition-resource-get-alert-definitions`).
+- Added: `PUT /alertDefinitions/{alertDefinitionId}` (`zia/security-ueba-alerts/alert-definition-resource-update-alert-definition`).
+- Added: `POST /alertRuleConfiguration/rules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-create-alert-rule`).
+- Added: `POST /alertRuleConfiguration/uebaRules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-create-ueba-alert-rule`).
+- Added: `POST /alertRuleConfiguration/webhooks` (`zia/security-ueba-alerts/alert-rule-configuration-resource-create-webhook`).
+- Added: `DELETE /alertRuleConfiguration/rules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-delete-rules`).
+- Added: `DELETE /alertRuleConfiguration/uebaRules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-delete-ueba-rules`).
+- Added: `DELETE /alertRuleConfiguration/webhooks/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-delete-webhook`).
+- Added: `GET /alertRuleConfiguration/rules/{ruleId}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-alert-rule`).
+- Added: `GET /alertRuleConfiguration/uebaRules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-all-rules`).
+- Added: `GET /alertRuleConfiguration/rules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-all-security-alert-rules`).
+- Added: `GET /alertRuleConfiguration/webhooks` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-all-webhooks`).
+- Added: `GET /alertRuleConfiguration/rules/rulestatus` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-rule-status`).
+- Added: `GET /alertRuleConfiguration/uebaRules/{ruleId}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-ueba-alert-rule`).
+- Added: `POST /alertRuleConfiguration/webhooks/test` (`zia/security-ueba-alerts/alert-rule-configuration-resource-test-webhook`).
+- Added: `PUT /alertRuleConfiguration/rules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-update-rule`).
+- Added: `PUT /alertRuleConfiguration/uebaRules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-update-ueba-rule`).
+- Added: `PUT /alertRuleConfiguration/webhooks/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-update-webhook`).
+- Added: `GET /smpcInstance` (`zia/smpc-instance/smpc-instance-resource-get-smpc-instance-status`).
+- Added: `PUT /smpcInstance/dc` (`zia/smpc-instance/smpc-instance-resource-update-data-center-details`).
+- Added: `POST /trafficCaptureRules` (`zia/traffic-capture-policy/traffic-capture-rules-resource-create-pcap-traffic-capture-rule`).
+- Added: `DELETE /trafficCaptureRules/{ruleId}` (`zia/traffic-capture-policy/traffic-capture-rules-resource-delete-traffic-capture-rule`).
+- Added: `GET /trafficCaptureRules` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-packet-capture-rules`).
+- Added: `GET /trafficCaptureRules/ruleLabels` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-rule-label-info`).
+- Added: `GET /trafficCaptureRules/order` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-rule-order-info-forget-traffic-capture-rules`).
+- Added: `GET /trafficCaptureRules/{ruleId}` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-traffic-capture-rule`).
+- Added: `GET /trafficCaptureRules/count` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-traffic-capture-rules-count`).
+- Added: `PUT /trafficCaptureRules/{ruleId}` (`zia/traffic-capture-policy/traffic-capture-rules-resource-update-traffic-capture-rule`).
+- Added: `GET /endPointApplicationGroups/{id}` (`zia/untagged/end-point-application-group-resource-get-endpoint-application-group-by-id`).
+- Added: `GET /urlFilteringRules/count` (`zia/url-filtering-policy/url-filtering-rule-resource-get-rules-count`).
+- Added: `DELETE /isolationVotiroCdr/tokenConfig` (`zia/votiro-cdr/isolation-votiro-cdr-resource-delete-votiro-token-config`).
+- Added: `GET /isolationVotiroCdr/policies` (`zia/votiro-cdr/isolation-votiro-cdr-resource-get-votiro-cdr-policy-list`).
+- Added: `GET /isolationVotiroCdr/tokenConfig` (`zia/votiro-cdr/isolation-votiro-cdr-resource-get-votiro-token-config`).
+- Added: `PUT /isolationVotiroCdr/tokenConfig` (`zia/votiro-cdr/isolation-votiro-cdr-resource-update-votiro-token-config`).
 
 ### `zpa` changes
 
-- Product metadata `title`: `Zscaler Private Access API` → `Private Access API`.
-- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` — `query_params` +1 −0 Δ0.
-- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `query_params` +1 −0 Δ0.
-- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `query_params` +1 −0 Δ0.
-- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `query_params` +1 −0 Δ0.
-- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `query_params` +1 −0 Δ0.
-- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `query_params` +1 −0 Δ0.
-- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` — `query_params` +1 −0 Δ0.
-- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/visible/versionProfiles` — `query_params` +3 −0 Δ0.
-- Added: `PUT /mgmtconfig/v1/customers/{customerId}/application/federate` (`zpa/federate-applications/federate-application`).
-- Added: `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` (`zpa/federate-applications/get-federated-applications-from-host`).
-- Added: `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token` (`zpa/partner-federation-provisioning/create-federation-token`).
-- Added: `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` (`zpa/partner-federation-provisioning/delete-provisioning`).
-- Added: `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners` (`zpa/partner-federation-provisioning/get-active-federation-partners`).
-- Added: `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation` (`zpa/partner-federation-provisioning/get-provisionings`).
-- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/approval` (`zpa/partner-federation-provisioning/request-approval`).
-- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` (`zpa/partner-federation-provisioning/update-federation-state`).
-- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes` (`zpa/partner-federation-provisioning/update-notes`).
-- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` (`zpa/partner-federation-provisioning/update-provisioning-state`).
-- Added: `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify` (`zpa/partner-federation-provisioning/verify-token`).
-- Added: `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` (`zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps`).
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}` — `query_params` +0 −0 Δ1; `response_schema` +99 −1 Δ22; schema titles Δ37.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}` — `query_params` +0 −0 Δ1; `request_body` +99 −1 Δ22; schema titles Δ37.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` — `path_params` +0 −0 Δ1; `query_params` +0 −1 Δ3; `response_schema` +277 −1 Δ5; schema titles Δ43.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/connector/bulkDelete` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/connectorSchedule` — `query_params` +0 −0 Δ1; `response_schema` +0 −6 Δ0; schema titles Δ2.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/connectorSchedule` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/connector` — `query_params` +0 −0 Δ6; `response_schema` +60 −0 Δ15; schema titles Δ27.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}` — `query_params` +0 −0 Δ1; `response_schema` +59 −0 Δ15; schema titles Δ26.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}` — `query_params` +0 −0 Δ1; `request_body` +59 −0 Δ15; schema titles Δ26.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/application` — `query_params` +0 −0 Δ1; `request_body` +66 −0 Δ28; `response_schema` +66 −0 Δ28; schema titles Δ378.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}` — `query_params` +0 −0 Δ2.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/getAppsByType` — `query_params` +0 −0 Δ6; `response_schema` +1 −0 Δ1; schema titles Δ20.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/application` — `query_params` +0 −0 Δ4; `response_schema` +67 −0 Δ28; schema titles Δ189.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}` — `query_params` +0 −0 Δ1; `response_schema` +66 −0 Δ28; schema titles Δ189.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/move` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/share` — `query_params` +0 −0 Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}` — `query_params` +0 −0 Δ1; `request_body` +66 −0 Δ28; schema titles Δ189.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom` — `request_body` +2 −0 Δ2; `response_schema` +2 −0 Δ2; schema titles Δ20.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom` — `query_params` +0 −0 Δ4; `response_schema` +3 −0 Δ2; schema titles Δ10.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/predefined` — `query_params` +0 −0 Δ2; `response_schema` +3 −0 Δ1; schema titles Δ6.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom/{id}` — `response_schema` +2 −0 Δ2; schema titles Δ10.
+- Schema: `GET /mgmtconfig/v1/admin/inspectionControls/customControlTypes` — schema titles Δ2.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/predefined/adp` — `query_params` +0 −0 Δ2; `response_schema` +3 −0 Δ1; schema titles Δ6.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/predefined/api` — `query_params` +0 −0 Δ2; `response_schema` +3 −0 Δ1; schema titles Δ6.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/predefined/{id}` — `response_schema` +3 −0 Δ1; schema titles Δ6.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom/{id}/profiles` — `response_schema` +1 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom/{id}` — `request_body` +2 −0 Δ2; schema titles Δ10.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile` — `request_body` +21 −0 Δ7; `response_schema` +21 −0 Δ7; schema titles Δ84.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/associateAllPredefinedControls` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile` — `query_params` +0 −0 Δ3; `response_schema` +22 −0 Δ7; schema titles Δ42.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}` — `response_schema` +21 −0 Δ7; schema titles Δ42.
+- Schema: `PATCH /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}/patch` — `request_body` +21 −0 Δ7; schema titles Δ42.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile/{inspectionProfileId}` — `request_body` +21 −0 Δ7; schema titles Δ42.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/certificate` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ0.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/certificate/issued` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/clientlessCertificate/issued` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/certificate` — `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/clientlessCertificate/{certificateId}` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/cloudConnectorGroup/{id}` — `response_schema` +4 −0 Δ4; schema titles Δ3.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/cloudConnectorGroup` — `query_params` +0 −0 Δ3; `response_schema` +5 −0 Δ4; schema titles Δ4.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/authDomains` — schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/microtenants` — `request_body` +35 −0 Δ4; `response_schema` +28 −2 Δ2; schema titles Δ18.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/microtenants/search` — `request_body` +0 −0 Δ2; `response_schema` +29 −2 Δ2; schema titles Δ13.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/microtenants/{microtenantId}` — `response_schema` +28 −2 Δ2; schema titles Δ8.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/microtenants` — `query_params` +0 −0 Δ3; `response_schema` +29 −2 Δ2; schema titles Δ9.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/microtenants/summary` — `response_schema` +1 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/microtenants/{microtenantId}` — `request_body` +35 −0 Δ4; schema titles Δ10.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}/activate` — `query_params` +0 −0 Δ2.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user` — `query_params` +0 −0 Δ2; `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ2.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}/deactivate` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/users` — `query_params` +2 −0 Δ4; `response_schema` +0 −0 Δ1; schema titles Δ2.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}` — `query_params` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/emergencyAccess/user/{userId}` — `query_params` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/{enrollmentCertId}` — `response_schema` +4 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/customers/{customerId}/application/federate` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/idp` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ5; `response_schema` +7 −0 Δ4; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/idp/{idpId}` — `response_schema` +6 −0 Δ4; schema titles Δ1.
+- Schema: `POST /cbiconfig/cbi/api/customers/{customerId}/banner` — `request_body` +10 −0 Δ0; `response_schema` +10 −0 Δ0; schema titles Δ2.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/banners` — `response_schema` +10 −0 Δ0; schema titles Δ1.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/banners/{bannerId}` — `response_schema` +10 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /cbiconfig/cbi/api/customers/{customerId}/banners/{bannerId}` — `request_body` +10 −0 Δ0; `response_schema` +10 −0 Δ0; schema titles Δ2.
+- Schema: `POST /cbiconfig/cbi/api/customers/{customerId}/certificate` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0; schema titles Δ2.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/certificates` — `response_schema` +4 −0 Δ0; schema titles Δ1.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/certificates/{certificateId}` — `response_schema` +4 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /cbiconfig/cbi/api/customers/{customerId}/certificates/{certificateId}` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0; schema titles Δ2.
+- Schema: `POST /cbiconfig/cbi/api/customers/{customerId}/profiles` — `query_params` +0 −0 Δ1; `request_body` +50 −0 Δ0; `response_schema` +13 −0 Δ0; schema titles Δ12.
+- Schema: `DELETE /cbiconfig/cbi/api/customers/{customerId}/profiles/{profileId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/profiles` — `query_params` +0 −0 Δ1; `response_schema` +50 −0 Δ0; schema titles Δ10.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/zpaprofiles` — `query_params` +0 −0 Δ2; `response_schema` +10 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/isolation/profiles` — `query_params` +0 −0 Δ4; `response_schema` +2 −0 Δ0; schema titles Δ1.
+- Schema: `GET /cbiconfig/cbi/api/customers/{customerId}/profiles/{profileId}` — `query_params` +0 −0 Δ1; `response_schema` +50 −0 Δ0; schema titles Δ10.
+- Schema: `PUT /cbiconfig/cbi/api/customers/{customerId}/profiles/{profileId}` — `query_params` +0 −0 Δ1; `request_body` +50 −0 Δ0; `response_schema` +13 −0 Δ0; schema titles Δ12.
+- Schema: `DELETE /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ0.
+- Schema: `GET /mgmtconfig/v2/admin/lssConfig/statusCodes` — schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes` — `path_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/lssConfig/clientTypes` — schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/lssConfig/logType/formats` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/logType/formats` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ0; `response_schema` +1520 −3 Δ97; schema titles Δ499.
+- Schema: `PUT /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ0; `request_body` +1520 −3 Δ97; schema titles Δ499.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup` — `query_params` +0 −0 Δ4; `response_schema` +10 −0 Δ0; schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `path_params` +0 −0 Δ2; `query_params` +0 −1 Δ0; `request_body` +20 −5 Δ3; `response_schema` +20 −5 Δ3; schema titles Δ3.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `path_params` +0 −0 Δ3; `query_params` +0 −1 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `path_params` +0 −0 Δ2; `query_params` +0 −1 Δ3; `response_schema` +22 −5 Δ5; schema titles Δ4.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `path_params` +0 −0 Δ3; `query_params` +0 −1 Δ0; `response_schema` +20 −5 Δ3; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `path_params` +0 −0 Δ3; `query_params` +0 −1 Δ0; `request_body` +20 −5 Δ3; schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners` — `query_params` +0 −0 Δ6; schema titles Δ3.
+- Schema: `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation` — `query_params` +0 −0 Δ6; `response_schema` +0 −0 Δ1; schema titles Δ4.
+- Schema: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/approval` — `query_params` +0 −0 Δ1.
+- Schema: `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify` — `query_params` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ2.
+- Schema: `POST /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; `request_body` +629 −0 Δ20; `response_schema` +787 −2 Δ50; schema titles Δ443.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule` — `query_params` +0 −0 Δ1; `request_body` +787 −2 Δ50; `response_schema` +787 −2 Δ50; schema titles Δ520.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/reorder` — `query_params` +0 −0 Δ1.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/clientTypes` — schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/platform` — schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}` — `query_params` +0 −0 Δ4; `response_schema` +788 −2 Δ50; schema titles Δ260.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/{policyType}` — `query_params` +0 −0 Δ1; `response_schema` +788 −2 Δ50; schema titles Δ260.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}` — `query_params` +0 −0 Δ1; `response_schema` +787 −2 Δ50; schema titles Δ260.
+- Schema: `PUT /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; `request_body` +629 −0 Δ20; schema titles Δ182.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}` — `query_params` +0 −0 Δ1; `request_body` +787 −2 Δ50; schema titles Δ260.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/posture` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +7 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/posture/{id}` — `response_schema` +6 −0 Δ0.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}` — `query_params` +0 −0 Δ1; `response_schema` +51 −1 Δ19; schema titles Δ28.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}` — `query_params` +0 −0 Δ1; `request_body` +51 −1 Δ19; schema titles Δ28.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/serviceEdge/bulkDelete` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/serviceEdge/{serviceEdgeId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdge/{serviceEdgeId}` — `query_params` +0 −0 Δ1; `response_schema` +36 −0 Δ16; schema titles Δ24.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeSchedule` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdge` — `query_params` +0 −0 Δ6; `response_schema` +37 −0 Δ16; schema titles Δ25.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeSchedule` — `query_params` +0 −0 Δ1; `response_schema` +0 −6 Δ0; schema titles Δ2.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/serviceEdge/{serviceEdgeId}` — `query_params` +0 −0 Δ1; `request_body` +36 −0 Δ16; schema titles Δ24.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeSchedule/{id}` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/approval` — `query_params` +0 −0 Δ1; `request_body` +13 −0 Δ3; `response_schema` +13 −0 Δ3; schema titles Δ30.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/approval/expired` — `query_params` +0 −0 Δ1; schema titles Δ1.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}` — `query_params` +0 −0 Δ1; `response_schema` +13 −0 Δ3; schema titles Δ15.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/approval` — `query_params` +0 −0 Δ6; `response_schema` +14 −0 Δ3; schema titles Δ16.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}` — `query_params` +0 −0 Δ1; `request_body` +13 −0 Δ3; schema titles Δ15.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/praConsole/bulk` — `query_params` +0 −0 Δ1; `request_body` +4 −0 Δ2; `response_schema` +4 −0 Δ2; schema titles Δ38.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/praConsole` — `query_params` +0 −0 Δ1; `request_body` +4 −0 Δ2; `response_schema` +4 −0 Δ2; schema titles Δ38.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/praConsole/{id}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/praConsole/{id}` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ2; schema titles Δ19.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/praConsole/praPortal/{portalId}` — `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ2; schema titles Δ20.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/praConsole` — `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ2; schema titles Δ20.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/praConsole/{id}` — `query_params` +0 −0 Δ1; `request_body` +4 −0 Δ2; schema titles Δ19.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/credential` — `query_params` +0 −0 Δ1; `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0; schema titles Δ2.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/credential/{id}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/credential/{id}` — `query_params` +0 −0 Δ1; `response_schema` +1 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/credential` — `query_params` +0 −0 Δ6; `response_schema` +2 −0 Δ0; schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/credential/{id}/move` — `query_params` +0 −0 Δ2.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/credential/{id}` — `query_params` +0 −0 Δ1; `request_body` +1 −0 Δ0; schema titles Δ1.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/praPortal` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0; `response_schema` +2 −0 Δ0.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}` — `query_params` +0 −0 Δ1; `response_schema` +2 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/praPortal` — `query_params` +0 −0 Δ4; `response_schema` +3 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/praPortal/{id}` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/samlAttribute/idp/{idpId}` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +3 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/samlAttribute` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +3 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute/{attrId}` — `response_schema` +2 −0 Δ0.
+- Schema: `GET /userconfig/v1/customers/{customerId}/scimattribute/idpId/{idpId}/attributeId/{attributeId}` — `query_params` +0 −0 Δ3.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/idp/{idpId}/scimattribute` — `query_params` +0 −0 Δ3; `response_schema` +3 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/idp/{idpId}/scimattribute/{scimAttributeId}` — `response_schema` +2 −0 Δ0.
+- Schema: `GET /userconfig/v1/customers/{customerId}/scimgroup/idpId/{idpId}` — `query_params` +0 −0 Δ11; `response_schema` +1 −0 Δ0.
+- Schema: `GET /userconfig/v1/customers/{customerId}/scimgroup/{scimGroupId}` — `query_params` +0 −0 Δ1; `response_schema` +1 −0 Δ0.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — `query_params` +0 −0 Δ1; `request_body` +17 −0 Δ2; `response_schema` +17 −0 Δ2; schema titles Δ30.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup/{segmentGroupId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — `query_params` +0 −0 Δ5; `response_schema` +18 −0 Δ2; schema titles Δ16.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup/{segmentGroupId}` — `query_params` +0 −0 Δ2; `response_schema` +17 −0 Δ2; schema titles Δ15.
+- Schema: `PUT /mgmtconfig/v2/admin/customers/{customerId}/segmentGroup/{segmentGroupId}` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; schema titles Δ2.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup/{segmentGroupId}` — `query_params` +0 −0 Δ1; `request_body` +17 −0 Δ2; schema titles Δ15.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/serverGroup` — `query_params` +0 −0 Δ1; `request_body` +107 −1 Δ24; `response_schema` +107 −1 Δ24; schema titles Δ124.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serverGroup` — `query_params` +0 −0 Δ4; `response_schema` +108 −1 Δ24; schema titles Δ63.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}` — `query_params` +0 −0 Δ1; `response_schema` +107 −1 Δ24; schema titles Δ62.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}` — `query_params` +0 −0 Δ1; `request_body` +107 −1 Δ24; schema titles Δ62.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/server` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0; `response_schema` +2 −0 Δ0; schema titles Δ2.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/server/{serverId}` — `query_params` +0 −0 Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/server` — `query_params` +0 −0 Δ4; `response_schema` +3 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/server/{serverId}` — `query_params` +0 −0 Δ1; `response_schema` +2 −0 Δ0; schema titles Δ1.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/server/{serverId}` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0; schema titles Δ1.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` — `path_params` +0 −0 Δ1; `query_params` +0 −1 Δ3; `response_schema` +189 −1 Δ4; schema titles Δ34.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/lssConfig` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ3; `response_schema` +2341 −3 Δ4; schema titles Δ521.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/enrollmentCert` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +26 −3 Δ5; schema titles Δ5.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/network` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +2 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/network/{id}` — `response_schema` +1 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/visible/versionProfiles` — `path_params` +0 −0 Δ1; `response_schema` +52 −7 Δ0; schema titles Δ12.
+- Route-key rename: `zpa/business-continuity-settings/delete-business-continuity-settings` → `zpa/business-continuity-settings/business-continuity-settings-resource-delete-business-continuity-setting`; method/path unchanged.
+- Route-key rename: `zpa/site/delete-site` → `zpa/site/private-cloud-resource-delete-zpn-site`; method/path unchanged.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/privateCloud/{privateCloudId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0.
+- Route-key rename: `zpa/private-cloud-controller/delete-private-cloud-controller` → `zpa/private-cloud-controller/private-cloud-controller-resource-delete-private-cloud-controller`; method/path unchanged.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0.
+- Route-key rename: `zpa/private-cloud-controller-group/delete-private-cloud-controller-group` → `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-delete-private-cloud-controller-group`; method/path unchanged.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/{privateCloudControllerGroupId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0.
+- Route-key rename: `zpa/business-continuity-settings/get-business-continuity-settings` → `zpa/business-continuity-settings/business-continuity-settings-resource-get-all-ddil-config`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings` — `path_params` +0 −0 Δ1; `response_schema` +38 −4 Δ2; schema titles Δ6.
+- Route-key rename: `zpa/business-continuity-settings/download-sp-certificate` → `zpa/business-continuity-settings/business-continuity-settings-resource-download-sp-certificate`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/certificate` — `path_params` +0 −0 Δ1.
+- Route-key rename: `zpa/business-continuity-settings/download-sp-metadata` → `zpa/business-continuity-settings/business-continuity-settings-resource-download-meta-data`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/metadata` — `path_params` +0 −0 Δ1.
+- Route-key rename: `zpa/business-continuity-settings/get-business-continuity-settings-by-id` → `zpa/business-continuity-settings/business-continuity-settings-resource-get-by-id`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/{id}` — `response_schema` +38 −4 Δ2; schema titles Δ6.
+- Route-key rename: `zpa/site/get-all-sites` → `zpa/site/private-cloud-resource-get-all-sites`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloud` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ2; `response_schema` +43 −3 Δ4; schema titles Δ11.
+- Route-key rename: `zpa/site/get-site-by-id` → `zpa/site/private-cloud-resource-get-zpn-site`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloud/{privateCloudId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `response_schema` +41 −3 Δ2; schema titles Δ8.
+- Route-key rename: `zpa/private-cloud-controller/get-all-private-cloud-controllers` → `zpa/private-cloud-controller/private-cloud-controller-resource-get-all-private-cloud-controllers`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController` — `path_params` +0 −0 Δ1; `query_params` +3 −1 Δ2; `response_schema` +138 −2 Δ4; schema titles Δ28.
+- Route-key rename: `zpa/private-cloud-controller/get-private-cloud-controller-by-id` → `zpa/private-cloud-controller/private-cloud-controller-resource-get-private-cloud-controller`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `response_schema` +136 −2 Δ2; schema titles Δ25.
+- Route-key rename: `zpa/private-cloud-controller-group/get-all-private-cloud-controller-groups` → `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-get-private-cloud-controller-groups`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ2; `response_schema` +169 −1 Δ5; schema titles Δ31.
+- Route-key rename: `zpa/private-cloud-controller-group/get-private-cloud-controller-group-by-id` → `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-get-private-cloud-controller-group`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/{privateCloudControllerGroupId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `response_schema` +167 −1 Δ3; schema titles Δ28.
+- Route-key rename: `zpa/version-profile/get-version-profiles` → `zpa/version-profile/version-profile-resource-get-version-profile`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/versionProfile` — `path_params` +0 −0 Δ1; `response_schema` +12 −5 Δ0; schema titles Δ8.
+- Route-key rename: `zpa/business-continuity-settings/create-business-continuity-settings` → `zpa/business-continuity-settings/business-continuity-settings-resource-create-ddil-config`; method/path unchanged.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings` — `request_body` +38 −4 Δ2; `response_schema` +38 −4 Δ2; schema titles Δ12.
+- Route-key rename: `zpa/site/create-site` → `zpa/site/private-cloud-resource-add-zpn-site`; method/path unchanged.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/privateCloud` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ0; `request_body` +41 −3 Δ2; `response_schema` +41 −3 Δ2; schema titles Δ16.
+- Route-key rename: `zpa/private-cloud-controller-group/create-private-cloud-controller-group` → `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-create-private-cloud-controller-group`; method/path unchanged.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ0; `request_body` +167 −1 Δ3; `response_schema` +167 −1 Δ3; schema titles Δ56.
+- Route-key rename: `zpa/business-continuity-settings/update-business-continuity-settings` → `zpa/business-continuity-settings/business-continuity-settings-resource-update-business-continuity-setting`; method/path unchanged.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/{id}` — `path_params` +0 −0 Δ2; `request_body` +38 −4 Δ2; `response_schema` +38 −4 Δ2; schema titles Δ12.
+- Route-key rename: `zpa/site/update-site` → `zpa/site/private-cloud-resource-update-zpn-site`; method/path unchanged.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloud/{privateCloudId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +41 −3 Δ2; schema titles Δ8.
+- Route-key rename: `zpa/private-cloud-controller/update-private-cloud-controller` → `zpa/private-cloud-controller/private-cloud-controller-resource-update-private-cloud-controller`; method/path unchanged.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +136 −2 Δ2; schema titles Δ25.
+- Route-key rename: `zpa/private-cloud-controller-group/update-private-cloud-controller-group` → `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-update-private-cloud-controller-group`; method/path unchanged.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/{privateCloudControllerGroupId}` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +167 −1 Δ3; schema titles Δ28.
+- Route: `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` → `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}`.
+- Schema: `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}` — `path_params` +1 −1 Δ0.
+- Route: `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/{Id}` → `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/{machineGroupId}`.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/{machineGroupId}` — `path_params` +1 −1 Δ0; `response_schema` +9 −0 Δ0; schema titles Δ1.
+- Route: `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` → `GET /mgmtconfig/v1/customers/{customerId}/application/host/{hostId}`.
+- Schema: `GET /mgmtconfig/v1/customers/{customerId}/application/host/{hostId}` — `path_params` +1 −1 Δ0; `response_schema` +0 −0 Δ1; schema titles Δ4.
+- Route: `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` → `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guestId}`.
+- Schema: `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guestId}` — `path_params` +1 −1 Δ0; `response_schema` +788 −2 Δ50; schema titles Δ260.
+- Route: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` → `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/federation-state/{status}`.
+- Schema: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/federation-state/{status}` — `path_params` +1 −1 Δ0.
+- Route: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes` → `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/notes`.
+- Schema: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/notes` — `path_params` +1 −1 Δ0.
+- Route: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` → `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/provisioning-state/{status}`.
+- Schema: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/provisioning-state/{status}` — `path_params` +1 −1 Δ0.
+- Removed from capture: `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/exceptions` (`zpa/appprotection-control-management/get-app-protection-exceptions`).
+- Removed from capture: `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroup` (`zpa/browser-access-group/get-browser-access-groups`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/administrators` (`zpa/administrator-management/administrator-resource-create-user`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/administrators/{adminId}` (`zpa/administrator-management/administrator-resource-delete-user`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/administrators/{adminId}` (`zpa/administrator-management/administrator-resource-get-user`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/administrators` (`zpa/administrator-management/administrator-resource-get-users`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/administrators/{adminId}` (`zpa/administrator-management/administrator-resource-update-user`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/apiKeys` (`zpa/api-key-management/api-key-resource-create-api-key`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}` (`zpa/api-key-management/api-key-resource-delete-api-key`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/apiKeys` (`zpa/api-key-management/api-key-resource-get-all-api-keys`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}` (`zpa/api-key-management/api-key-resource-get-api-key-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}` (`zpa/api-key-management/api-key-resource-update-api-key`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` (`zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/summary` (`zpa/app-connector-group-management/app-connector-group-resource-get-app-connector-group-summary`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}/sg` (`zpa/app-connector-group-management/app-connector-group-resource-get-app-connector-with-server-group`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}/update` (`zpa/app-connector-management/connector-resource-restart-connector`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/connectorSchedule/{id}` (`zpa/app-connector-management/update-app-connector-schedule-frequency`).
+- Added: `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/topObservedUsers` (`zpa/application-recommendations/app-recommendation-resource-aggregate-top-observed-users`).
+- Added: `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/aggregateUserGroups` (`zpa/application-recommendations/app-recommendation-resource-aggregate-user-groups`).
+- Added: `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/aggregateAppTypes` (`zpa/application-recommendations/app-recommendation-resource-get-aggregate-app-types`).
+- Added: `POST /analyticsconfig/v2/customers/{customerId}/appRecommendation/search` (`zpa/application-recommendations/app-recommendation-resource-get-all-app-recommendations`).
+- Added: `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/attackSurfaceReduction` (`zpa/application-recommendations/app-recommendation-resource-get-attack-surface-reduction-details`).
+- Added: `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/groupingType/{groupingType}/synced` (`zpa/application-recommendations/app-recommendation-resource-is-grouping-type-synced`).
+- Added: `GET /analyticsconfig/v2/customers/{customerId}/appRecommendation/preferred/groupingType` (`zpa/application-recommendations/app-recommendation-user-preference-resource-get-preferred-sub-user-grouping`).
+- Added: `PUT /analyticsconfig/v2/customers/{customerId}/appRecommendation/preferred/groupingType/{groupingType}` (`zpa/application-recommendations/app-recommendation-user-preference-resource-update-preferred-user-grouping-type`).
+- Added: `PATCH /analyticsconfig/v1/customers/{customerId}/ignoreList` (`zpa/application-recommendations/ignore-list-resource-add-ignore-list`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/bulkUpdateMultiMatch` (`zpa/application-segment-management/application-resource-bulk-update-multimatch`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/deleteAppByType` (`zpa/application-segment-management/application-resource-delete-application-by-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/export` (`zpa/application-segment-management/application-resource-export-application`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/getAppsByType` (`zpa/application-segment-management/application-resource-get-application-apps-by-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/mappings` (`zpa/application-segment-management/application-resource-get-application-segment-mappings`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/summary` (`zpa/application-segment-management/application-resource-get-application-summary`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{appId}/getAppByType` (`zpa/application-segment-management/application-resource-get-ba-or-inspect-app`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/configured/count` (`zpa/application-segment-management/application-resource-get-configured-application-count`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/count/currentAndMaxLimit` (`zpa/application-segment-management/application-resource-get-current-and-max-count`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/application/multimatchUnsupportedReferences` (`zpa/application-segment-management/application-resource-get-multimatch-unsupported-references`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/weightedLbConfig` (`zpa/application-segment-management/application-resource-get-weighted-load-balancer-config`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/application/provision` (`zpa/application-segment-management/application-resource-provision-application`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/tags` (`zpa/application-segment-management/application-resource-update-application-tags`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/weightedLbConfig` (`zpa/application-segment-management/application-resource-update-weighted-load-balancer-config`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/application/validate` (`zpa/application-segment-management/application-resource-validate-wild-card-domain-name`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/application/{applicationId}` (`zpa/application-segment-management/policy-set-rule-resource-get-policy-rules-by-app-id-and-page`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/getDefaultInspectionProfile` (`zpa/appprotection-profile-management/default-inspection-profile-resource-get-default-inspection-profile`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/stepupauthlevel` (`zpa/authentication-settings/step-up-auth-level-resource-get-step-up-auth-levels`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/branchConnectorGroup/summary` (`zpa/branch-connector-management/branch-connector-group-resource-get-branch-connector-group-summary`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/branchConnectorGroup` (`zpa/branch-connector-management/branch-connector-group-resource-get-branch-connector-groups`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/branchConnector` (`zpa/branch-connector-management/branch-connector-resource-get-branch-connectors`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/activeBrowserProtectionProfile` (`zpa/browser-protection-management/active-browser-protection-profile-resource-get-active-clientless-session-protection-profile`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/browserProtectionProfile` (`zpa/browser-protection-management/browser-protection-profile-resource-get-browser-protection-profiles`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/browserProtectionProfile/setActive/{browserProtectionProfileId}` (`zpa/browser-protection-management/browser-protection-profile-resource-set-active-browser-protection-profile`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/managedBrowserProfile/search` (`zpa/browser-protection-management/managed-browser-profile-resource-get-all-managed-browser-profiles`).
+- Added: `GET /cbiconfig/cbi/api/customers/{customerId}/ztbrowser/extensions` (`zpa/browser-protection-management/zt-browser-extension-resource-get-extensions-catalog`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}` (`zpa/certificate-management/certificate-resource-update-certificate`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/clientSetting` (`zpa/client-settings-management/client-setting-resource-create-or-update-client-setting`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/clientSetting` (`zpa/client-settings-management/client-setting-resource-delete-client-setting`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/clientSetting/all` (`zpa/client-settings-management/client-setting-resource-get-all-client-settings`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/clientSetting` (`zpa/client-settings-management/client-setting-resource-get-client-setting`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/cloudConnectorGroup/summary` (`zpa/cloud-connector-management/cloud-connector-group-resource-get-all-edge-connector-group-name-ids`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/cloudConnector` (`zpa/cloud-connector-management/cloud-connector-resource-get-all-edge-connectors`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/configOverrides` (`zpa/configuration-overrides/config-override-resource-create-config-override`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/{id}` (`zpa/configuration-overrides/config-override-resource-get-config-override`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/configOverrides` (`zpa/configuration-overrides/config-override-resource-get-config-overrides`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/{id}` (`zpa/configuration-overrides/config-override-resource-update-config-override`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/config/ziaCloudConfig` (`zpa/customer-configuration/customer-config-resource-add-or-update-zia-cloud-config`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/config/sessionTerminationOnReauth` (`zpa/customer-configuration/customer-config-resource-add-session-termination-on-reauth`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/config/sessionTerminationOnReauth` (`zpa/customer-configuration/customer-config-resource-get-session-termination-on-reauth`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/config/ziaCloudConfig` (`zpa/customer-configuration/customer-config-resource-get-zia-cloud-config`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/config/isZiaCloudConfigAvailable` (`zpa/customer-configuration/customer-config-resource-is-zia-cloud-config-available`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/customerDRToolVersion` (`zpa/customer-configuration/customer-dr-tool-version-resource-get-latest-customer-dr-links`).
+- Added: `GET /intpolmasterconfig/customers/{customerId}/trigger` (`zpa/customer-configuration/customer-trigger-resource-get-trigger-details-for-a-customer`).
+- Added: `GET /mgmtconfig/v2/admin/customers/{customerId}/riskScoreValues` (`zpa/customer-configuration/risk-score-values-resource-get-list-of-risk-score-values-for-customer`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}` (`zpa/customers/customer-resource-get-customer-by-id`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/locationGroup/extranetResource/{zpnErId}` (`zpa/extranet-resource-management/extranet-location-group-resource-fetch-location-group-details-from-customer-id-and-extranet-resource-id`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/extranetResource/partner` (`zpa/extranet-resource-management/extranet-partner-resource-fetch-partner-details-from-customer-id`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/location/summary` (`zpa/extranet-resource-management/location-resource-get-location-summary`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/location/extranetResource/{zpnErId}` (`zpa/extranet-resource-management/location-resource-get-locations-by-extranet-resource`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/iamidpmapping` (`zpa/idp-management/iam-idp-mapping-resource-get-iam-idp-mapping`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/ssoLoginOptions` (`zpa/idp-management/sso-login-options-resource-get-sso-login`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/ssoLoginOptions` (`zpa/idp-management/sso-login-options-resource-update-sso-login`).
+- Added: `POST /mgmtconfig/v2/admin/customers/{customerId}/lssConfig` (`zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/summary` (`zpa/machine-groups/machine-group-resource-get-all-machine-group-name-ids`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges` (`zpa/network-platform-configuration/ip-range-resource-create-ip-ranges`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}` (`zpa/network-platform-configuration/ip-range-resource-delete-ip-range`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges` (`zpa/network-platform-configuration/ip-range-resource-get-all-ip-ranges`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}` (`zpa/network-platform-configuration/ip-range-resource-get-ip-range`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/search` (`zpa/network-platform-configuration/ip-range-resource-get-ip-ranges-by-page`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}` (`zpa/network-platform-configuration/ip-range-resource-update-ip-ranges`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/npassistant/{npAssistantId}/bgp/overrideConfig/download` (`zpa/network-platform-configuration/np-assistant-resource-download-override-config`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/npassistant/{npAssistantId}` (`zpa/network-platform-configuration/np-assistant-resource-update-np-assistant-state`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/bgpConfig/{instanceType}/default` (`zpa/network-platform-configuration/np-bgp-default-configuration-resource-get-default-bgp-config`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/bgpConfig/{instanceType}/default` (`zpa/network-platform-configuration/np-bgp-default-configuration-resource-update-default-config`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouters` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-create-customer-bgp-router`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouter/{routerId}` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-delete-customer-bgp-router`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouters` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-get-external-routers`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouter/{routerId}` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-update-customer-bgp-router`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/lansubnet` (`zpa/network-platform-configuration/np-lan-subnet-resource-add-lan-subnet`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/lansubnet/{lanSubnetId}` (`zpa/network-platform-configuration/np-lan-subnet-resource-delete-lan-subnet`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/lansubnet/{lanSubnetId}` (`zpa/network-platform-configuration/np-lan-subnet-resource-get-lan-subnet`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/lansubnets` (`zpa/network-platform-configuration/np-lan-subnet-resource-get-lan-subnets`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/lansubnet/{lanSubnetId}` (`zpa/network-platform-configuration/np-lan-subnet-resource-update-lan-subnet`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/npRegions/summary` (`zpa/network-platform-configuration/np-region-resource-get-customers-np-regions-name-ids`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway` (`zpa/network-platform-configuration/np-tenant-gateway-resource-add-np-tenant-gateway`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway/{npTenantGatewayId}` (`zpa/network-platform-configuration/np-tenant-gateway-resource-delete-np-tenant-gateway`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway` (`zpa/network-platform-configuration/np-tenant-gateway-resource-get-np-tenant-gateways`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway/{npTenantGatewayId}` (`zpa/network-platform-configuration/np-tenant-gateway-resource-update-np-tenant-gateway`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/vpnConnectedUsers` (`zpa/network-platform-configuration/vpn-connected-user-resource-get-all-vpn-connected-users`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-add-np-command-probe-session`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}/cancel` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-cancel-np-command-probe-session`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-delete-np-command-probe-session`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-get-command-probe-session-by-session-uuid`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}/entity/{entityId}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-get-command-probe-session-entity`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/output/{objectString}/download` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-get-np-command-output`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/search/startTime/{startTime}/endTime/{endTime}/pageNum/{pageNum}/pageSize/{pageSize}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-search-np-command-probe-session`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}/notes` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-update-notes-for-np-command-probe-session`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups` (`zpa/network-platform-policies/np-firewall-network-group-resource-create-network-group`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups/{groupId}` (`zpa/network-platform-policies/np-firewall-network-group-resource-delete-network-group`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups` (`zpa/network-platform-policies/np-firewall-network-group-resource-get-all-network-groups`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups/{groupId}` (`zpa/network-platform-policies/np-firewall-network-group-resource-get-network-group-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups/{groupId}` (`zpa/network-platform-policies/np-firewall-network-group-resource-update-network-group`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules` (`zpa/network-platform-policies/np-firewall-policy-resource-create-vpn-access-policy`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}` (`zpa/network-platform-policies/np-firewall-policy-resource-delete-vpn-access-policy`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}` (`zpa/network-platform-policies/np-firewall-policy-resource-get-vpn-access-policy-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}/reorder/{newOrder}` (`zpa/network-platform-policies/np-firewall-policy-resource-reorder-single-vpn-access-policy`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}` (`zpa/network-platform-policies/np-firewall-policy-resource-update-vpn-access-policy`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/firewallSettings/apply` (`zpa/network-platform-policies/np-firewall-setting-resource-apply-vpn-access-policy`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule` (`zpa/network-platform-policies/np-policy-set-resource-add-rule-to-np-policy-set`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule/{ruleId}` (`zpa/network-platform-policies/np-policy-set-resource-delete-rule-in-np-policy-set`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/rules/policyType/{policyType}` (`zpa/network-platform-policies/np-policy-set-resource-get-np-policy-rules-by-page`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/policyType/{policyType}` (`zpa/network-platform-policies/np-policy-set-resource-get-np-policy-set-by-policy-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule/{ruleId}` (`zpa/network-platform-policies/np-policy-set-resource-get-rule-in-np-policy-set`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule/{ruleId}` (`zpa/network-platform-policies/np-policy-set-resource-update-rule-to-np-policy-set`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains` (`zpa/nonce/association-type-resource-add-or-update-customer-domains-for-association-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains` (`zpa/nonce/association-type-resource-get-customer-domains-for-association-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/zcomponent/{zcomponentId}/provisioningKey` (`zpa/nonce/association-type-resource-get-provisioning-keys-by-z-component`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/{associationType}/usercodes/status` (`zpa/nonce/user-code-resource-get-user-code-status`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/{associationType}/usercodes` (`zpa/nonce/user-code-resource-verify-user-codes`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group` (`zpa/policy-management/policy-group-resource-add-policy-group`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/bulkMoveRulesToGroup` (`zpa/policy-management/policy-group-resource-bulk-move-rules-across-policy-groups`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}` (`zpa/policy-management/policy-group-resource-delete-policy-group`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/search` (`zpa/policy-management/policy-group-resource-get-all-policy-group-by-page`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/all` (`zpa/policy-management/policy-group-resource-get-all-policy-groups`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}` (`zpa/policy-management/policy-group-resource-get-policy-group`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}` (`zpa/policy-management/policy-group-resource-update-policy-group`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/reorder/{newOrder}` (`zpa/policy-management/policy-group-resource-update-policy-group-order`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{sourceGroupId}/rule/{ruleId}/moveTo/{targetGroupId}` (`zpa/policy-management/policy-group-rule-move-resource-move-rule-across-policy-groups`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule` (`zpa/policy-management/policy-group-rule-resource-add-rule-to-policy-group`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/bulkDelete` (`zpa/policy-management/policy-group-rule-resource-bulk-delete-policy-rules`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`zpa/policy-management/policy-group-rule-resource-delete-policy-rule`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule` (`zpa/policy-management/policy-group-rule-resource-get-all-policy-group-rules-by-page-with-advanced-filter-and-sort`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`zpa/policy-management/policy-group-rule-resource-get-policy-rule`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`zpa/policy-management/policy-group-rule-resource-update-rule-in-policy-group`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}/reorder/{newOrder}` (`zpa/policy-management/policy-group-rule-resource-update-rule-order-in-policy-group`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}` (`zpa/policy-management/policy-group-set-resource-delete-policy-group-set`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}` (`zpa/policy-management/policy-group-set-resource-get-or-add-policy-group-set-by-policy-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet` (`zpa/policy-management/policy-group-set-resource-get-or-create-policy-group-sets-all`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/groupNameSummary` (`zpa/policy-management/policy-group-set-resource-get-policy-group-names`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/rules` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set-all-rules`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/summary` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set-summary-by-policy-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/summaryStats` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set-summary-stats`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/search` (`zpa/policy-management/policy-group-set-resource-get-policy-group-sets-by-page`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}` (`zpa/policy-management/policy-group-set-resource-update-policy-group-set`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/count` (`zpa/policy-management/policy-set-rule-resource-get-policy-rules-count-by-policy-type`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/summary` (`zpa/private-cloud-controller-group/private-cloud-controller-group-resource-get-private-cloud-controller-group-name-ids`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}/restart` (`zpa/private-cloud-controller/private-cloud-controller-resource-restart-private-cloud-controller`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroups/{browserAccessGroupsId}` (`zpa/private-exporter-group-management/browser-access-groups-resource-get-browser-access-group`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroups` (`zpa/private-exporter-group-management/browser-access-groups-resource-get-browser-access-groups`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` (`zpa/private-service-edge-group-management/add-private-broker-group`).
+- Added: `POST /waap-pra-config/v1/admin/customers/{customerId}/credential-pool` (`zpa/privileged-credential-management/credential-pool-resource-create-credential-pool`).
+- Added: `DELETE /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}` (`zpa/privileged-credential-management/credential-pool-resource-delete-credential-pool`).
+- Added: `GET /waap-pra-config/v1/admin/customers/{customerId}/credential-pool` (`zpa/privileged-credential-management/credential-pool-resource-get-all-credential-pools`).
+- Added: `GET /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}/credential` (`zpa/privileged-credential-management/credential-pool-resource-get-credential-info`).
+- Added: `GET /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}` (`zpa/privileged-credential-management/credential-pool-resource-get-credential-pool`).
+- Added: `PUT /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}` (`zpa/privileged-credential-management/credential-pool-resource-update-credential-pool`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privilegedSessions/{sessionId}` (`zpa/privileged-session-management/privileged-session-resource-get-privileged-session`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privilegedSessions/{sessionId}/download-url` (`zpa/privileged-session-management/privileged-session-resource-get-recording-download-url`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/remote-assistance-config` (`zpa/remote-assistance-configuration/remote-assistance-config-resource-get-remote-assistance-config`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/remote-assistance-config` (`zpa/remote-assistance-configuration/remote-assistance-config-resource-upsert-remote-assistance-config`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/permissionGroups` (`zpa/role-management/permission-group-resource-get-default-group-permissions`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/roles` (`zpa/role-management/role-resource-create-role`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/roles/{roleId}` (`zpa/role-management/role-resource-delete-role`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/roles/{roleId}` (`zpa/role-management/role-resource-get-role`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/roles` (`zpa/role-management/role-resource-get-roles`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/roles/{roleId}` (`zpa/role-management/role-resource-update-role`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute` (`zpa/saml-attributes/saml-attribute-resource-create-saml-attribute`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute/{attrId}` (`zpa/saml-attributes/saml-attribute-resource-delete-saml-attribute`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute/{attrId}` (`zpa/saml-attributes/saml-attribute-resource-update-saml-attribute`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/summary` (`zpa/server-group-management/server-group-resource-get-server-group-summary`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/server/summary` (`zpa/server-management/server-resource-get-server-summary`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/csr/generate` (`zpa/signing-certificate/enrollment-cert-resource-create-csr-for-ca-cert`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert` (`zpa/signing-certificate/enrollment-cert-resource-create-enrollment-cert`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/selfsigned/generate` (`zpa/signing-certificate/enrollment-cert-resource-create-self-signed-enrollment-cert`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/{enrollmentCertId}` (`zpa/signing-certificate/enrollment-cert-resource-delete-enrollment-cert`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/{enrollmentCertId}` (`zpa/signing-certificate/enrollment-cert-resource-update-enrollment-cert`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/tagGroup` (`zpa/tag-management/tag-group-resource-add-tag-group`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}` (`zpa/tag-management/tag-group-resource-delete-tag-group`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/search` (`zpa/tag-management/tag-group-resource-get-all-tag-group`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}` (`zpa/tag-management/tag-group-resource-get-tag-group`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}` (`zpa/tag-management/tag-group-resource-update-tag-group`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey` (`zpa/tag-management/tag-key-resource-add-tag-key`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/bulkUpdateStatus` (`zpa/tag-management/tag-key-resource-bulk-update-status`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/{tagKeyId}` (`zpa/tag-management/tag-key-resource-delete-tag-key`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/search` (`zpa/tag-management/tag-key-resource-get-all-tag-key-dt-os`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/{tagKeyId}` (`zpa/tag-management/tag-key-resource-get-tag-key`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/{tagKeyId}` (`zpa/tag-management/tag-key-resource-update-tag-key`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace` (`zpa/tag-management/tag-namespace-resource-add-namespace`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}` (`zpa/tag-management/tag-namespace-resource-delete-namespace`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace/search` (`zpa/tag-management/tag-namespace-resource-get-all-namespace-dto-by-page`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}` (`zpa/tag-management/tag-namespace-resource-get-namespace`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}` (`zpa/tag-management/tag-namespace-resource-update-namespace`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/status` (`zpa/tag-management/tag-namespace-resource-update-predefined-namespace-status`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/tags/import` (`zpa/tag-management/tags-import-resource-bulk-import-tags`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/tags/import/validate` (`zpa/tag-management/tags-import-resource-validate-bulk-import-tags`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/workloadTagGroup/summary` (`zpa/tag-management/workload-tag-group-resource-get-all-name-ids`).
+- Added: `POST /mgmtconfig/v2/admin/customers/{customerId}/userPortalLink/bulk` (`zpa/user-portal-management/user-portal-link-resource-add-list-of-portal-links`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/userPortal` (`zpa/user-portal-management/user-portal-resource-create-user-portal`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup` (`zpa/user-portal-management/user-portal-resource-create-user-portal-aup`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink` (`zpa/user-portal-management/user-portal-resource-create-user-portal-link`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}` (`zpa/user-portal-management/user-portal-resource-delete-user-portal`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup/{id}` (`zpa/user-portal-management/user-portal-resource-delete-user-portal-aup`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}` (`zpa/user-portal-management/user-portal-resource-delete-user-portal-link`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink` (`zpa/user-portal-management/user-portal-resource-get-all-user-portal-links`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortal` (`zpa/user-portal-management/user-portal-resource-get-all-user-portals`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}` (`zpa/user-portal-management/user-portal-resource-get-user-portal`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup/{id}` (`zpa/user-portal-management/user-portal-resource-get-user-portal-aup`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup` (`zpa/user-portal-management/user-portal-resource-get-user-portal-aups`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}` (`zpa/user-portal-management/user-portal-resource-get-user-portal-link`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/userPortal/{portalId}` (`zpa/user-portal-management/user-portal-resource-get-user-portal-links-by-portal-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}` (`zpa/user-portal-management/user-portal-resource-update-user-portal`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup/{id}` (`zpa/user-portal-management/user-portal-resource-update-user-portal-aup`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}` (`zpa/user-portal-management/user-portal-resource-update-user-portal-link`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/versionProfiles/{versionProfileId}` (`zpa/version-profile/version-profile-resource-update-version-profile`).
 
 ## Boundaries
 
 - Postman: reference-only; not a constraint-bearing reconciliation leg.
 - Contract-only products:
-  - `ai-security` (AI Security): 114 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+  - `ai-security` (AI Security): 131 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `aiguard` (AI Guard): 47 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `bi` (Business Insights): 10 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `easm` (EASM): 11 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
@@ -195,14 +853,6 @@ This section carries true operation additions/removals, route corrections, and f
   - `zdx` (ZDX): 148 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zid` (Zidentity): 31 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
 - Official client/provider families outside the captured Automate contract:
-  - `zia.endpoint_application_catalog`: `/zia/api/v1/endPointApplications`; surfaces: `go`, `tf`.
-  - `zia.endpoint_custom_applications`: `/zia/api/v1/endPointApplications/customApps`; surfaces: `go`, `tf`.
-  - `zia.endpoint_application_groups`: `/zia/api/v1/endPointApplicationGroups`; surfaces: `go`, `tf`.
-  - `zia.endpoint_dlp_resources`: `/zia/api/v1/dlpEndpointResource`, `/zia/api/v1/endPointDlpResourceGroups`; surfaces: `go`, `tf`.
-  - `zia.endpoint_dlp_rules`: `/zia/api/v1/endPointDlpRules`; surfaces: `go`, `tf`.
-  - `zia.outbound_email_dlp`: `/zia/api/v1/emailDlpRules`; surfaces: `go`, `tf`.
-  - `zia.dns_application_groups`: `/zia/api/v1/dnsApplicationGroups`; surfaces: `go`, `tf`.
-  - `zia.eun_templates_and_status`: `/zia/api/v1/eunTemplate`, `/zia/api/v1/userConfirmation`; surfaces: `go`, `tf`.
   - `zia.ips_categories`: `/zia/api/v1/ipsCategories`; surfaces: `go`.
 
 ## ZCC
@@ -716,7 +1366,7 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `apiSessionTimeout` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `apiSessionTimeout` | Specifies the idle timeout duration for public API-initiated sessions. You can configure this field to any value ranging from 5 minutes to 20 minutes. The default value is 5 minutes. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `authBypassApps` | Cloud applications that are exempted from cookie authenticatio | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `authBypassUrlCategories` | URL categories that are exempted from cookie authentication | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `authBypassUrls` | Custom URLs that are exempted from cookie authentication for users | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1002,7 +1652,7 @@ This section carries true operation additions/removals, route corrections, and f
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | Access privilege of this rule based on the admin's Role Based Authorization (RBA) state | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `action` | The configured action for the policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `action` | The configured action for the policy rule | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
 | `auditor` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `auditorNotification` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `bucketOwner` | A user who inspect their buckets for sensitive data. When you choose a user, their buckets are available in the Buckets field. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1031,6 +1681,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `excludedDomainProfileIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `excludedDomainProfiles` | Name-ID pairs of domain profiles excluded in the criteria for the rule | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `externalAuditorEmail` | Email address of the external auditor to whom the DLP email alerts are sent | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `fileSharingExpiryTime` | Specifies the custom expiration period, in epoch format. This field is applicable when you select <b>OFLCASB_LINK_EXPIRY_TIME_PERIOD_CUSTOM_DATE</b> in the <b>fileSharingExpiryTimeType</b> field. | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `fileSharingExpiryTimeType` | Selects the file sharing expiration period | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `fileTypes` | File types for which the rule is applied. If not set, the rule is applied across all file types. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
 | `groups` | Name-ID pairs of groups for which the rule is applied. If not set, the rule is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | System-generated identifier for the SaaS Security Data at Rest Scanning DLP rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1372,10 +2024,11 @@ This section carries true operation additions/removals, route corrections, and f
 | `dnsRuleRequestTypes` | DNS request types to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ednsEcsObject` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endPointApplicationGroups` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `endPointApplications` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplicationGroups` | The endpoint application tags to which the rule applies | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplicationThreatLevels` | The threat levels of endpoint applications to which the rule applies | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `endPointApplications` | The endpoint applications to which the rule applies | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `eunTemplateId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `excludeContextShieldEndPoint` | A true value indicates that the selected endpoint applications and tags are excluded from the rule. A false value indicates that they are included. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `isDefaultRuleName` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
@@ -1427,10 +2080,11 @@ This section carries true operation additions/removals, route corrections, and f
 | `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies  devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableFullLogging` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endPointApplicationGroups` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `endPointApplications` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplicationGroups` | The endpoint application tags to which the rule applies | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplicationThreatLevels` | The threat levels of endpoint applications to which the rule applies | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `endPointApplications` | The endpoint applications to which the rule applies | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `eunTemplateId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `excludeContextShieldEndPoint` | A true value indicates that the selected endpoint applications and tags are excluded from the rule. A false value indicates that they are included. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `excludeSrcCountries` | Indicates whether the countries specified in the sourceCountries field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match.  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `groups` | The groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier for the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1675,10 +2329,10 @@ This section carries true operation additions/removals, route corrections, and f
 | `sslScanEnabled` | <p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Enable SSL Inspection. Set to true in order to apply your SSL Inspection policy to HTTPS traffic in the location and inspect HTTPS transactions for data leakage, malicious content, and viruses. </p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `state` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `staticLocationGroups` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
-| `subLocAccIds` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
-| `subLocScope` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
-| `subLocScopeEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `subLocScopeValues` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
+| `subLocAccIds` | Specifies one or more Amazon Web Services (AWS) account IDs. These AWS accounts are associated with the parent location of this sublocation created in the Zscaler Cloud & Branch Connector Admin Portal. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `subLocScope` | <p>Defines a scope for the sublocation from the available types to segregate workload traffic from a single sublocation to apply different Cloud Connector and ZIA security policies. This field is only available for the <b>Workload</b> traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. To learn about the different scope types supported, see <a href="https://help.zscaler.com/zia/configuring-sublocations" target="_blank">Configuring Sublocations</a>.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `subLocScopeEnabled` | <p>Indicates whether defining scopes is allowed for this sublocation. Sublocation scopes are available only for the <b>Workload</b> traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. This is a read-only field. To learn more, see <a href="https://help.zscaler.com/zia/configuring-sublocations" target="_blank">Configuring Sublocations</a>.</p> | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `subLocScopeValues` | Specifies values for the selected sublocation scope type | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `surrogateIP` | <p>Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses. .</p> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `surrogateIPEnforcedForKnownBrowsers` | <p>Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers. </p> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `surrogateIp` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
@@ -1907,7 +2561,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `deviceGroups` | The list of device groups to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `devices` | The list of devices to which the rule applies. This field specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `fileTypes` | The file types to which the rule applies | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum≠** | **—** |
+| `fileTypes` | The file types to which the rule applies | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req** | **—** |
 | `firstTimeEnable` | A Boolean value indicating whether a First-Time Action is specifically configured for the rule. The First-Time Action takes place when users download unknown files. The action to be applied is specified using the firstTimeOperation field. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `firstTimeOperation` | The action that must take place when users download unknown files for the first time | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1957,8 +2611,9 @@ This section carries true operation additions/removals, route corrections, and f
 | `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `devices` | Name-ID pairs of devices for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endPointApplicationGroups` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `endPointApplications` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplicationGroups` | The endpoint application tags to which the rule applies | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplicationThreatLevels` | The threat levels of endpoint applications to which the rule applies | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `endPointApplications` | The endpoint applications to which the rule applies | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `groups` | Name-ID pairs of groups for which the rule is applied. If not set, rule is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | System generated identifier for the SSL inspection rule | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
 | `labels` | Name-ID pairs of rule labels associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2023,13 +2678,13 @@ This section carries true operation additions/removals, route corrections, and f
 | `keywords` | <p>Custom keywords associated to a URL category. Up to 2048 custom keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `keywordsRetainingParentCategory` | <p>Retained custom keywords from the parent URL category that is associated to a URL category. Up to 2048 retained parent keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `regexPatterns` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
-| `regexPatternsRetainingParentCategory` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
+| `regexPatterns` | <p>Regex patterns associated with this custom category to support full or partial matches with URLs. Multiple patterns can be added to a category. A pattern must be between 3 and 255 characters, and a maximum of 256 patterns can be added across all categories. To learn more about regex pattern specifications, see <a href="https://help.zscaler.com/zia/configuring-custom-url-categories" target="_blank">Configuring Custom URL Categories</a>.</p><p><b>Note</b>: This field is applicable only when <b>Regex</b> is selected for <b>urlType</b>.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `regexPatternsRetainingParentCategory` | <p>This field specifies regex patterns for URLs that must be covered by policies directly referencing this custom category as well as by policies referencing its parent URL category (e.g., Corporate Marketing). Multiple patterns can be added to a category. A pattern must be between 3 and 255 characters, and a maximum of 256 patterns can be added across all categories.To learn more about regex pattern specifications, see <a href="https://help.zscaler.com/zia/configuring-custom-url-categories" target="_blank">Configuring Custom URL Categories</a>.</p><p><b>Note</b>: This field is applicable only when <b>Regex</b> is selected for <b>urlType</b>.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `scopes` | Scope of the custom categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `superCategory` | Super Category of the URL category. This field is required when creating custom URL categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
 | `type` | Type of the custom categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `urlKeywordCounts` | URL and keyword counts for the URL category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `urlType` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlType` | <p>Specifies the type of URL match, such as using exact URLs or regex patterns. For regex, the patterns can be specified using the <b>regexPatterns</b> and <b>regexPatternsRetainingParentCategory</b> fields. For exact URLs, specify the required URLs, keywords, or IP ranges using the appropriate fields.</p><p><b>Note</b>: To enable the Regex feature, contact Zscaler Support.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `urls` | <p>Custom URLs to add to a URL category. Up to 25,000 custom URLs can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `urlsRetainingParentCategoryCount` | The number of custom URLs associated to the URL category, that also need to be retained under the original parent category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `val` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
@@ -2046,18 +2701,18 @@ This section carries true operation additions/removals, route corrections, and f
 | `enableCIPACompliance` | A Boolean value indicating if the predefined CIPA Compliance Rule is enabled or not. . | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableChatGptPrompt` | A Boolean value indicating if the use of generative AI prompts with ChatGPT by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableCipaCompliance` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableClaudePrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableClaudePrompt` | A Boolean value indicating if the use of generative AI prompts with Claude by users should be categorized and logged | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `enableCreativeCommonsSearchResults` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableDeepSeekPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableDeepSeekPrompt` | A Boolean value indicating if the use of generative AI prompts with DeepSeek by users should be categorized and logged | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `enableDynamicContentCat` | A Boolean value that indicates if dynamic categorization of URLs by analyzing content of uncategorized websites using AI/ML tools is enabled or not. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableGeminiPrompt` | A Boolean value indicating if the use of generative AI prompts with Google Gemini by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableGoogleAIPrompt` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `enableGrammarlyPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `enableGrokPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableGoogleAIPrompt` | A Boolean value indicating whether the use of generative AI prompts with Google AI by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableGrammarlyPrompt` | A Boolean value indicating whether the use of generative AI prompts with Grammarly by users should be categorized and logged | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `enableGrokPrompt` | A Boolean value indicating if the use of generative AI prompts with Grok by users should be categorized and logged | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `enableMetaPrompt` | A Boolean value indicating if the use of generative AI prompts with Meta AI by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableMicrosoftCoPilotPrompt` | A Boolean value indicating if the use of generative AI prompts with Microsoft Copilot by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableMicrosoftCopilotPrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableMistralAIPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableMistralAIPrompt` | A Boolean value indicating if the use of generative AI prompts with Mistral by users should be categorized and logged | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `enableMsftO365` | <p>A Boolean value indicating if the Zscaler service is allowed to permit secure local breakout for Office 365 traffic automatically without any manual configuration needed. Enabling this option turns off SSL Interception for all Office 365 destinations as per Microsoft's recommendation. If you want to continue using existing granular controls for Office 365, disable this option and enable preexisting configuration. .</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableNewlyRegisteredDomains` | A Boolean value indicating whether newly registered and observed domains that are identified within hours of going live are allowed or blocked | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableOffice365` | <p>A Boolean value that enables or disables Microsoft Office 365 configuration. If you want to continue using existing granular controls for Office 365, then it is recommended to turn off the <b>enableMsftO365</b> option and enable this option instead. This is a legacy option used for backward compatibility.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2065,13 +2720,13 @@ This section carries true operation additions/removals, route corrections, and f
 | `enablePerPlexityPrompt` | A Boolean value indicating if the use of generative AI prompts with Perplexity by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enablePerplexityPrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `enablePoePrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableQuillbotAIPrompt` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `enableQuillbotAIPrompt` | A Boolean value indicating whether the use of generative AI prompts with QuillBot by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableUcaasLogMeIn` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for GoTo traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all GoTo destinations. To continue using existing granular controls for GoTo traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableUcaasRingCentral` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for RingCentral traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all RingCentral destinations. To continue using existing granular controls for RingCentral traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableUcaasTalkdesk` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Talkdesk traffic, with minimal or no manual configuration needed. When enabled, this option turns off SSL interception for all Talkdesk destinations. To continue using existing granular controls for Talkdesk traffic, disable this option and enable Cloud Application, DNS, and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableUcaasWebex` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Webex traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all Webex destinations. To continue using existing granular controls for Webex traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableUcaasZoom` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Zoom traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all Zoom destinations. To continue using existing granular controls for Zoom traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableWriterPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableWriterPrompt` | A Boolean value indicating if the use of generative AI prompts with WRITER by users should be categorized and logged | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `enforceSafeSearch` | <p>A Boolean value that indicates whether only safe content must be returned for web, image, and video search. Safe search is supported for specific search engines and other platforms.</p><p><b>Note</b>:  must be enabled for this option. .</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `safeSearchApps` | A list of applications for which the SafeSearch enforcement applies. You cannot modify this field when the enforceSafeSearch field is disabled. | ✓ | ✓ | **—** | **✓ enum1** | **—** | **—** |
 | `zveloDbLookupDisabled` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
@@ -2120,7 +2775,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `state` | Rule State | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `timeQuota` | Time quota in minutes, after which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `timeWindows` | Name-ID pairs of time interval during which rule must be enforced. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCategories` | <p>List of URL categories for which rule is be applied.</p> | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `urlCategories` | <p>List of URL categories for which rule is be applied.</p> | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ enum1** | **—** |
 | `urlCategories2` | <p>List of URL categories for which rule is applied.</p><p><b>Note</b>: The urlCategories and urlCategories2 parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected categories in both the URL Categories fields. .</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `userAgentTypes` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `userRiskScoreLevels` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2202,61 +2857,61 @@ This section carries true operation additions/removals, route corrections, and f
 
 ### `app_connector_group`
 
-`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}`
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup`
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `city` | The city of the App Connector group. | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `cityCountry` | The city and country of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `connectorGroupType` | Indicates if the App Connector group is an App Connector (APP) or Network Connector (NP). | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `city` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `connectorGroupType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `connectorIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `connectors` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `countryCode` | The country code of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `creationTime` | The time the App Connector group is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `dcHostingInfo` | Indicates the host data center information using a maximum of 64 characters. The Data Center Hosting information is used for the Quarterly Business Review Insights. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `description` | The description of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `dnsQueryType` | Whether IPv4, IPv6, or both, are enabled for DNS resolution of all applications in the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | Whether or not this App Connector group is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enrollmentCertId` |  | **—** | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `dcHostingInfo` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dnsQueryType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enrollmentCertId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
 | `enrollmentCertName` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `geoLocationId` | The unique identifier of the geographic location. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `id` | The unique identifier of the App Connector group. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` | The IP Access List (IP ACL) to allow App Connectors on a specific IP address or subnet. | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `latitude` | The latitude of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `location` | The location of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `longitude` | The longitude of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lssAppConnectorGroup` | Whether or not the App Connector group is configured to stream logs to a log receiver. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `microtenantId` | The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | The name of the Microtenant. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | The unique identifier of the tenant who modified the App Connector group. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | The time the App Connector group is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | The name of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nameWithoutTrim` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `npAssistantGroup` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `overrideVersionProfile` | Whether or not the default version profile of the App Connector group is applied. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `ipAcl` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `latitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `longitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `lssAppConnectorGroup` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `npAssistantGroup` | <p>Represents a network connector group. It contains fields such as <code>appConnectorGroupId</code> and <code>mtu</code>, along with its LAN subnets and external router mappings.</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `praEnabled` | praEnabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `privateCloudId` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `privateCloudId` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `readOnly` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `restrictionType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `serverGroupIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `serverGroups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteId` | The unique identifier of the Private Cloud to which this App Connector group belongs to. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteName` | The name of the Private Cloud. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `tcpQuickAckApp` | Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tcpQuickAckAssistant` | Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tcpQuickAckReadAssistant` | Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `upgradeDay` | Indicates the day the App Connectors in this group attempt to update to a newer version of the software. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `siteId` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `siteName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `tcpQuickAckApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tcpQuickAckAssistant` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tcpQuickAckReadAssistant` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `upgradeDay` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
 | `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `upgradeTimeInSecs` | App Connectors in this group attempt to update to a newer version of the software during this specified time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `useInDrMode` | use_in_dr_mode | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `userCodes` |  | **—** | **—** | **—** | ✓ | ✓ | **—** |
-| `version` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `version` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `versionProfile` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `versionProfileId` | The unique identifier of the version profile. | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
-| `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
+| `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
+| `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
 | `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `wafDisabled` | Whether or not AppProtection is disabled for the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `wafDisabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zscalerManaged` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `application_segment`
 
@@ -2264,19 +2919,19 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `adpEnabled` | adpEnabled | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `adpEnabled` | adp_enabled | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
 | `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `apiProtectionEnabled` | apiProtectionEnabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `apiProtectionEnabled` | api_protection_enabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `appRecommendationId` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `applicationGroup` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `applications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `autoAppProtectEnabled` | autoAppProtectEnabled | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `autoAppProtectEnabled` | auto_app_protect_enabled | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `bypassOnReauth` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `bypassType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `clientlessApps` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `commonAppsDto` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `commonAppsDto` | <p>Contains the application configuration lists used when provisioning applications, such as <code>appsConfig</code> and the deleted Browser Access, Inspection and PRA application lists.</p> | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `configSpace` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `creationTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `defaultIdleTimeout` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `defaultMaxAge` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -2284,14 +2939,14 @@ This section carries true operation additions/removals, route corrections, and f
 | `doubleEncrypt` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `extranetEnabled` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `fqdnDnsCheck` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `guestDetails` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `hbrEnabled` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `fqdnDnsCheck` | fqdn_dns_check | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `guestDetails` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `hbrEnabled` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `healthCheckType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
 | `healthReporting` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `icmpAccessType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
-| `id` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `inconsistentConfigDetails` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `inconsistentConfigDetails` | <p>Contains lists of configuration items found to be inconsistent, grouped by type such as <code>application</code>, <code>segmentGroup</code>, <code>serverGroup</code> and <code>appConnectorGroup</code>.</p> | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `inspectTrafficWithZia` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `inspectionApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `ipAnchored` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2300,24 +2955,24 @@ This section carries true operation additions/removals, route corrections, and f
 | `matchStyle` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `passiveHealthEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `policyStyle` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
+| `policyStyle` |  | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
 | `praApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `readOnly` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `restrictionType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `segmentGroupId` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `segmentGroupName` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `selectConnectorCloseToApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `serverGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `serverGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `shareToMicrotenants` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `sharedMicrotenantDetails` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `stickyEntity` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `stickyGroup` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `tags` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `sharedMicrotenantDetails` | <p>Contains the microtenant sharing details of an application. Includes <code>sharedToMicrotenants</code> and <code>sharedFromMicrotenant</code>.</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `stickyEntity` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `stickyGroup` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `tags` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `tcpKeepAlive` |  | ✓ | **✓ type** | ✓ | **✓ enum1** | ✓ | **—** |
 | `tcpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `tcpPortRanges` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -2327,8 +2982,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `udpProtocols` |  | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
 | `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `weightedLoadBalancing` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpnErId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `zpnErId` | <p>Represents an extranet resource with the required <code>ziaErId</code>, <code>ziaErName</code>, <code>ziaCloud</code> and <code>ziaOrgId</code>. It is used within Server Groups and applications.</p> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zscalerManaged` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `application_server`
 
@@ -2337,6 +2992,7 @@ This section carries true operation additions/removals, route corrections, and f
 | field | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- |
 | `address` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `appServerGroupAssociations` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `appServerGroupIds` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `configSpace` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `creationTime` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
@@ -2348,6 +3004,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `modifiedTime` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` | ✓ | **—** | **—** | **—** | **—** | **—** |
 
 ### `ba_certificate`
 
@@ -2369,12 +3026,16 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `publicKey` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `readOnly` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `restrictionType` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `san` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `serialNo` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `status` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `validFromInEpochSec` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `validToInEpochSec` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `zscalerManaged` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 
 ### `emergency_access`
 
@@ -2391,7 +3052,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `lastLoginTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `lastName` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
 | `updateEnabled` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `userId` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `userId` | ✓ ro | ✓ | ✓ | **✓ ro** | **—** | **—** |
 | `userStatus` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `inspection_custom_control`
@@ -2403,7 +3064,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `action` | The action of the custom control. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `actionValue` | Denotes the action. Supports any string. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `associatedInspectionProfileNames` | The names of the AppProtection profiles. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `controlException` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `controlException` | <p>Contains the exceptions configured for an inspection control. It includes <code>variables</code>, <code>domains</code> and <code>paths</code> along with a <code>version</code>.</p> | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `controlNumber` | The AppProtection control number. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `controlRuleJson` | The AppProtection control rule. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `controlType` | The control type of the custom control. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
@@ -2415,6 +3076,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` | The unique identifier of the tenant who modified the custom control. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedTime` | The time the custom control is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` | The name of the custom control. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `nameWithoutTrim` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `paranoiaLevel` | The OWASP Predefined Paranoia Level. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-appprotection-profiles#paranoia-execution" target= _blank>Configuring AppProtection Profiles</a>. | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
 | `protocolType` | The protocol type of the custom control. | ✓ | ✓ | ✓ | **✓ enum≠** | **—** | **—** |
 | `rules` | The rules of the custom controls applied as conditions. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -2428,7 +3090,7 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `apiDiscoveryEnabled` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `apiDiscoveryEnabled` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `apiProfile` | If set to true, API protection provides inspection of API traffic by flagging transactions that include security violations. To learn more, see <a href="https://help.zscaler.com/zpa/about-api-protection-controls">About API Protection Controls</a>. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `checkControlDeploymentStatus` | Indicates whether or not the service needs to perform additional validations. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `commonGlobalOverrideActionsConfig` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
@@ -2438,83 +3100,88 @@ This section carries true operation additions/removals, route corrections, and f
 | `description` | The description of the application. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `exceptionsVersion` | The control exception version. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-appprotection-profiles-using-api">Configuring AppProtection Profiles Using API</a>. | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `globalControlActions` | The actions of the predefined, custom, or override controls. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `hasRecommendedOwaspControls` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `hasRecommendedThreatlabzControls` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `id` | The unique identifier of the application. | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
 | `incarnationNumber` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedBy` | The unique identifier of the tenant who modified the AppProtection profile. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedTime` | The time the AppProtection profile is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` | The name of the application. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `nameWithoutTrim` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `overrideAction` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `paranoiaLevel` | The OWASP Predefined Paranoia Level. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-appprotection-profiles#paranoia-execution" target= _blank>Configuring AppProtection Profiles</a>. | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
 | `predefinedADPControls` | The predefined Active Directory controls. To learn more, see <a href="https://help.zscaler.com/zpa/about-active-directory-controls">About Active Directory Controls</a>. | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `predefinedApiControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `predefinedControls` | The predefined controls. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `predefinedControlsVersion` | The protocol for the AppProtection application. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `profileSource` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `threatlabzControls` | The ThreatLabZ predefined controls. To learn more, see <a href="https://help.zscaler.com/zpa/about-threatlabz-controls">About ThreatLabZ Controls</a>. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `websocketControls` | The WebSocket controls. To learn more, see <a href="https://help.zscaler.com/zpa/about-websocket-controls">About WebSocket Controls</a>. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `zsDefinedControlChoice` | Indicates the user's choice for the ThreatLabZ Controls. The supported values are<ul><li><code>ALL</code>: Zscaler handles the ThreatLabZ Controls for the AppProtection profile.<li><code>SPECIFIC</code>: User handles the ThreatLabZ Controls for the AppProtection profile.</ul> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `lss_config`
 
-`GET /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}`
+`POST /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `appConnectorGroupIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `conditions` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `config` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `connectorGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `inconsistentConfigDetails` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `name` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `policyRule` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `policyRuleResource` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `policySetId` | **—** | **—** | ✓ | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `appConnectorGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `conditions` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `config` | <p>Represents a Log Streaming Service (LSS) configuration entity. It contains fields such as <code>id</code>, <code>name</code> and <code>microtenantId</code>.</p> | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `connectorGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `inconsistentConfigDetails` | <p>Contains lists of configuration items found to be inconsistent, grouped by type such as <code>application</code>, <code>segmentGroup</code>, <code>serverGroup</code> and <code>appConnectorGroup</code>.</p> | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `name` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `policyRule` | <p>Represents a version 2 policy rule in a policy set. Contains <code>name</code>, <code>policyType</code>, <code>operator</code>, and <code>action</code> (all required); used by the v2 policy rule create call.</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `policyRuleResource` | <p>Represents a version 2 policy rule resource. Contains <code>name</code> and <code>action</code> (required) and is used as the body of the v2 policy rule create and update calls.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `policySetId` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 
 ### `pra_approval`
 
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/approval`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `applicationIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `applications` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `days` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `emailIds` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `endTime` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `endTimeCron` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantId` | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
-| `microtenantName` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `startTime` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `startTimeCron` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `status` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeZone` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `workingHours` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `applicationIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `applications` |  | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `days` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `emailIds` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `endTime` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `endTimeCron` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantId` |  | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
+| `microtenantName` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `startTime` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `startTimeCron` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `status` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeZone` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
+| `workingHours` | <p>Defines the work hours for a privileged approval. Contains fields such as <code>startTime</code>, <code>endTime</code>, <code>days</code> and <code>timeZone</code>.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `pra_console`
 
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enabled` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `iconText` | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `inconsistentConfigDetails` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `microtenantId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `praApplication` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `praApplicationId` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `praPortalIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `praPortals` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `iconText` |  | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `inconsistentConfigDetails` | <p>Contains lists of configuration items found to be inconsistent, grouped by type such as <code>application</code>, <code>segmentGroup</code>, <code>serverGroup</code> and <code>appConnectorGroup</code>.</p> | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
+| `nameWithoutTrim` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `praApplication` | <p>Represents a PRA application used by a PRA console. Contains <code>name</code> and <code>domain</code> (required), <code>enabled</code>, and microtenant details.</p> | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
+| `praApplicationId` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `praPortalIds` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `praPortals` |  | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
 
 ### `pra_credential`
 
@@ -2532,6 +3199,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `modifiedTime` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `nameWithoutTrim` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `passphrase` | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
 | `password` | ✓ | ✓ | **—** | ✓ | ✓ | ✓ |
 | `privateKey` | ✓ | ✓ | **—** | ✓ | ✓ | ✓ |
@@ -2548,7 +3216,7 @@ This section carries true operation additions/removals, route corrections, and f
 | field | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- |
 | `action` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `approvalReviewers` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `approvalReviewers` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `cName` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `certManagedByZsRadio` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `certificateId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
@@ -2571,6 +3239,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `nameWithoutTrim` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `objectType` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `restrictedEntity` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `scopeName` | **—** | ✓ | **—** | **—** | **—** | **—** |
@@ -2583,40 +3252,37 @@ This section carries true operation additions/removals, route corrections, and f
 
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey`
 
-| field | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- |
-| `appConnectorGroupId` | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `appConnectorGroupName` | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `associationType` | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `cloudName` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `componentId` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `creationTime` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `description` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `enabled` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
-| `enrollmentCertId` | **—** | ✓ | ✓ | ✓ | **—** | ✓ |
-| `enrollmentCertName` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `expirationInEpochSec` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `keyType` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `maxUsage` | **—** | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `maxUsageCount` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `microtenantId` | **—** | ✓ | **—** | ✓ | ✓ | **—** |
-| `microtenantName` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `modifiedBy` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `nonceAssociationType` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `nonceValue` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `provisioningKey` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
-| `readOnly` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `restrictionType` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `scopeId` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `uiConfig` | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `usageCount` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `zcomponentId` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
-| `zcomponentName` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
-| `zscalerManaged` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | description | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `appConnectorGroupId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `appConnectorGroupName` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `associationType` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `componentId` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enrollmentCertId` |  | ✓ | **✓ type** | ✓ | ✓ | **—** | ✓ |
+| `enrollmentCertName` | Read only property. Applicable only for GET calls, ignored in PUT/POST calls. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `expirationInEpochSec` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `exportable` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `ipAcl` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `keyType` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `maxUsage` |  | ✓ | **✓ type** | ✓ | **✓ req** | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
+| `nameWithoutTrim` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `provisioningKey` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `readOnly` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `restrictionType` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `uiConfig` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `usageCount` | defaults to 0 | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `zcomponentId` |  | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
+| `zcomponentName` | Read only property. Applicable only for GET calls, ignored in PUT/POST calls. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zscalerManaged` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 
 ### `segment_group`
 
@@ -2638,10 +3304,14 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `modifiedTime` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `name` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `policyMigrated` | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `readOnly` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `restrictionType` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `sharedMicrotenantIds` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `skipDetailedAppInfo` | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `tcpKeepAliveEnabled` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `zscalerManaged` | ✓ | **—** | **—** | **—** | **—** | **—** |
 
 ### `server_group`
 
@@ -2653,74 +3323,76 @@ This section carries true operation additions/removals, route corrections, and f
 | `appConnectorGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `applications` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `configSpace` |  | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `creationTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `dynamicDiscovery` | Defaults to false. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `extranetDTO` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `extranetDTO` | <p>Represents an extranet entry linking a ZIA extranet resource and a ZPN one, using <code>ziaErName</code> and <code>zpnErId</code>, with location group and location details. It is used within policy rules.</p> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `extranetEnabled` | Defaults to false. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `id` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `inconsistentConfigDetails` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `id` |  | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
+| `inconsistentConfigDetails` | <p>Contains lists of configuration items found to be inconsistent, grouped by type such as <code>application</code>, <code>segmentGroup</code>, <code>serverGroup</code> and <code>appConnectorGroup</code>.</p> | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `ipAnchored` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
 | `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `readOnly` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `restrictionType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `serverIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `servers` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
 | `weight` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `zscalerManaged` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `service_edge_group`
 
-`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}`
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup`
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `altCloud` | The alternative cloud of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `city` | The city of the ZPA Private Service Edge group. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `cityCountry` | The city and country of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `countryCode` | The country code of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `creationTime` | The time the ZPA Private Service Edge group is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` | The description of the ZPA Private Service Edge. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` | Whether or not this ZPA Private Service Edge group is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enrollmentCertId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `exclusiveForBusinessContinuity` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `geoLocationId` | The unique identifier for the geographic location of the ZPA Private Service Edge. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `graceDistanceEnabled` | If enabled, allows ZPA Private Service Edge groups within the specified distance to be prioritized over a closer ZPA Public Service Edge. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-redirection-policies-using-api" target= _blank>Configuring Redirection Policies Using API</a>. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `graceDistanceValue` | Indicates the maximum distance in miles or kilometers to ZPA Private Service Edge groups that would override a ZPA Public Service Edge. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-redirection-policies-using-api" target= _blank>Configuring Redirection Policies Using API</a>. | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
-| `graceDistanceValueUnit` | Indicates the grace distance unit of measure in miles or kilometers. This value is only required if <code>graceDistanceEnabled</code> is set to <code>true</code>. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-redirection-policies-using-api" target= _blank>Configuring Redirection Policies Using API</a>. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` | The unique identifier of the ZPA Private Service Edge group. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `isPublic` | Whether or not the ZPA Private Service Edge group is public. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `latitude` | The latitude of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `location` | The location of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `longitude` | The longitude of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `microtenantId` | The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` | The name of the Microtenant. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` | The unique identifier of the tenant who modified the ZPA Private Service Edge group. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` | The time the ZPA Private Service Edge group is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` | The name of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nameWithoutTrim` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `altCloud` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `city` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enrollmentCertId` |  | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `exclusiveForBusinessContinuity` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `graceDistanceEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `graceDistanceValue` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
+| `graceDistanceValueUnit` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `isPublic` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `latitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `longitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nameWithoutTrim` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `objectType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `overrideVersionProfile` | Whether or not the default version profile of the ZPA Private Service Edge group is applied or overridden. By default, this is set to <code>false</code>. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `readOnly` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `privateCloudId` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `readOnly` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `restrictedEntity` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `restrictionType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `restrictionType` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `scopeName` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `serviceEdgeIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `serviceEdges` | The list of the ZPA Private Service Edges in the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `siteId` | The unique identifier of the Private Cloud to which this ZPA Private Service Edge group belongs to. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteName` | The name of the Private Cloud. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `serviceEdges` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `siteId` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `siteName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `trustedNetworkIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `trustedNetworks` | The list of trusted networks in the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `upgradeDay` | Indicates the day the ZPA Private Service Edges in this group attempt to update to a newer version of the software. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `trustedNetworks` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `upgradeDay` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
 | `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `upgradeTimeInSecs` | Indicates the time in seconds that the Private Service Edges in this group attempt to update to a newer version of the software. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `useInDrMode` | Whether or not the ZPA Private Service Edge group is designated for disaster recovery. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `versionProfileId` | The unique identifier of the version profile. | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | ✓ |
-| `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | ✓ |
-| `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
-| `zscalerManaged` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `version` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | ✓ |
+| `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | ✓ |
+| `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
+| `zscalerManaged` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
