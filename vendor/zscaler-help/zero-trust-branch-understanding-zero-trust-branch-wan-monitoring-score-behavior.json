@@ -1,0 +1,932 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Zero Trust Branch WAN Link Monitoring Score Behavior",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/understanding-zero-trust-branch-wan-monitoring-score-behavior",
+    "node": "1547011",
+    "revision": "3258600",
+    "updated": "2026-11-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-22",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch uses WAN Link Monitoring (WANMon) to dynamically assess the path quality of active ISP links at the WAN edge. By continuously measuring packet loss, latency, and jitter, the Zero Trust Branch appliance calculates a real-time WANMon score ranging from 0 to 30, where a higher score indicates better link quality."
+    },
+    {
+      "text": "During a WAN connectivity issue (e.g., a Routing Information Base (RIB) failure, an immediate or silent interface outage, or delayed convergence), subscribed system modules, such as policy-based routing (PBR), use these link scores to adjust routing table metrics and steer traffic over the best available WAN link. Actual failover behavior and protection against silent traffic drops during upstream link degradation depend on the configured traffic steering mode and appliance software version (e.g., Internet & SaaS (ZIA) IPSec tunnel selection does not use the WANMon score)."
+    },
+    {
+      "text": "The behavior and configurations described in this article apply to Zero Trust Branch appliance software versions 8.0.8P5 and later, 8.1.2 and later, and 8.3.0 and later."
+    },
+    {
+      "heading": "How WAN Monitoring Works",
+      "level": 1
+    },
+    {
+      "text": "On active and standby Zero Trust Branch appliances, the WAN monitoring module runs as part of the system process and continuously monitors the health of WAN links using the following process:"
+    },
+    {
+      "item": "Locates the nearest Internet & SaaS proxy: At each periodic interval (10 seconds by default), the appliance sends a location API request (https://gateway.<zscloud-name>.net/get_loc) based on the geographical location of the public IP address of the appliance to retrieve the nearest Internet & SaaS proxy Virtual IP (VIP) address.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Sends TCP probes: In default mode, the appliance sends 10 probes within 1 second, repeated every 10 seconds, to port 443 on the designated Internet & SaaS proxy VIP using its active ISP links.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Maintains a sliding window: The appliance maintains a sliding window of 30 slots per WAN link to track the average of the last 30 samples and compute final statistics (loss, latency, jitter, and the normalized link score).",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Default Score Calculation Methodology",
+      "level": 1
+    },
+    {
+      "text": "In default mode, the Zero Trust Branch appliance uses an algorithm that evaluates and weighs three core metrics from probe results, which are packet loss, latency, and jitter, to compute a composite WAN link score ranging from 0 to 30 (where 30 represents optimal path quality)."
+    },
+    {
+      "item": "Metric Calculations",
+      "depth": 0
+    },
+    {
+      "item": "The Zero Trust Branch appliance calculates the three core metrics as follows:",
+      "depth": 0
+    },
+    {
+      "item": "Loss:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Loss = (Iterations where latency is unavailable ÷ Total iterations done) * 100",
+      "depth": 1
+    },
+    {
+      "item": "Latency:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Latency = Sum of all available latencies in probes ÷ Total iterations where latency is available",
+      "depth": 1
+    },
+    {
+      "item": "Jitter: The average of the absolute differences between successive latencies. A minimum of three latency values is required; otherwise, the appliance flags jitter as invalid (-1.0).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Jitter = (|X2 - X1| + |X3 - X2| + ... + |Xn - Xn-1|) ÷ (Total iterations where latency is available - 1)",
+      "depth": 1
+    },
+    {
+      "item": "Score Normalization",
+      "depth": 0
+    },
+    {
+      "item": "Because these measurements use different units, the Zero Trust Branch appliance uses min-max scaling during each probe iteration to map latency and jitter into a uniform 0 to 1 range:",
+      "depth": 0
+    },
+    {
+      "item": "Normalized Latency = (Current Latency - Min Latency) ÷ (Max Latency - Min Latency)",
+      "depth": 1
+    },
+    {
+      "item": "Normalized Jitter = (Current Jitter - Min Jitter) ÷ (Max Jitter - Min Jitter)",
+      "depth": 1
+    },
+    {
+      "item": "Normalized Loss: Loss is natively normalized on a 0 to 1 scale.",
+      "depth": 1
+    },
+    {
+      "item": "WAN Score Modifier and SLA Metrics",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, you can customize WAN monitoring behavior by going to Zero Trust Branch > Deployments > Sites > [select a site] > Forwarding Policy, then clicking Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          80,
+          97
+        ],
+        [
+          100,
+          111
+        ],
+        [
+          114,
+          119
+        ],
+        [
+          140,
+          157
+        ],
+        [
+          173,
+          181
+        ]
+      ]
+    },
+    {
+      "item": "Switchover Threshold: If there is a score difference ≥ 6 between two WAN links, or 100% packet loss after 6 probe iterations (60 seconds), the appliance updates the route metric in the routing table.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Performance SLA Metrics: By default, packet loss, latency, and jitter are all enabled for link score calculation (score range 0 to 30). If you deselect specific SLA metrics, the appliance automatically adjusts the maximum configurable switchover threshold:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "All 3 SLA metrics selected: Maximum switchover threshold is 30.",
+      "depth": 2
+    },
+    {
+      "item": "1 SLA metric deselected: Maximum switchover threshold is 20.",
+      "depth": 2
+    },
+    {
+      "item": "2 SLA metrics deselected: Maximum switchover threshold is 10.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Fast Mode Convergence",
+      "level": 1
+    },
+    {
+      "text": "Fast convergence enables WANMon to detect a 100% packet-loss condition more quickly. With default WAN monitoring settings (10 probes within 1 second, repeated every 10 seconds), WAN failover convergence can take approximately 60 to 90 seconds after a failure. The appliance updates route metrics in the routing table for Best or Balanced routing options after three consecutive probe intervals (10 probes within 1 second, repeated every 10 seconds) show 100% packet loss, reducing convergence time to approximately 45 seconds."
+    },
+    {
+      "text": "For faster recovery (approximately 20 seconds), you can enable Fast Mode Convergence, which adjusts the probe interval to 5 seconds and 5 probe packets per interval."
+    },
+    {
+      "text": "In versions 8.1.2-P2 and 8.3.0 and later, you can enable or disable WAN monitoring fast convergence on supported isolation appliances using the Zero Trust Branch Command Line Interface (zcli) while logged in as the admin user:"
+    },
+    {
+      "item": "To apply the change immediately using the optional --restart flag:",
+      "depth": 0
+    },
+    {
+      "item": "config wanmon fast-convergence enable --restart config wanmon fast-convergence disable --restart",
+      "depth": 0
+    },
+    {
+      "item": "Using the --restart flag restarts other appliance services in addition to WAN monitoring. Use caution when running this command on active production appliances.",
+      "depth": 0
+    },
+    {
+      "item": "To verify the current fast-convergence status:",
+      "depth": 0
+    },
+    {
+      "item": "show wanmon status",
+      "depth": 0
+    },
+    {
+      "text": "Fast convergence applies only to isolation appliances. These commands are hidden on hub appliances because WAN monitoring does not run on hubs."
+    },
+    {
+      "heading": "WAN Score Impact on Traffic Steering",
+      "level": 1
+    },
+    {
+      "text": "The WAN monitoring score affects routing table metrics and traffic forwarding across different configurations:"
+    },
+    {
+      "item": "Routing Table Population and Default Policies",
+      "depth": 0
+    },
+    {
+      "item": "When WAN path scores are equal, the default routing table populates both nexthops with different metrics (e.g., metric 100 and metric 110). If two WAN interfaces have equal metrics, the appliance selects the first route in the routing table.",
+      "depth": 0
+    },
+    {
+      "item": "ip route default via 10.75.38.254 dev ge8 proto static metric 100 onlink default via 10.75.37.254 dev ge7 proto static metric 110 onlink",
+      "depth": 0
+    },
+    {
+      "item": "The following table details how services and default policies use the routing tables:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Service or Default Policy",
+          "Traffic or Destination",
+          "Routing Mechanism"
+        ],
+        [
+          "Local Interface Traffic",
+          "Zero Trust Branch control traffic",
+          "Default Routing Table"
+        ],
+        [
+          "App Connector (Inbound Private Access)",
+          "App Connector bring-up and inbound traffic",
+          "Default Routing Table (selects lowest-metric default route)"
+        ],
+        [
+          "Branch ZCC (Outbound Private Access)",
+          "Outbound Private Access traffic",
+          "Default Routing Table (selects lowest-metric default route, adjusted by WANMon score)"
+        ],
+        [
+          "Routed Tunnel (Default)",
+          "Site-to-site or data center (DC) traffic without a static route",
+          "Default Routing Table (selects lowest-metric default route)"
+        ],
+        [
+          "Routed Tunnel (Static Route Pinning)",
+          "Pinned tunnel traffic (configured with a static route for the user-reachable IP address to a specific WAN interface)",
+          "Forwards over the specific configured nexthop"
+        ],
+        [
+          "Default-ZPA-PBR",
+          "Private Access Application Segments (Client)",
+          "Default Routing Table (programmed with the best metric)"
+        ],
+        [
+          "Default-App-Segment-PBR",
+          "Private Access Application Segments (Appliance)",
+          "Default Routing Table (programmed with the best metric)"
+        ],
+        [
+          "Default Zscaler Rule",
+          "Zscaler IP (Zscaler Cloud Connector Client)",
+          "Primary Provisioned WAN"
+        ],
+        [
+          "Default Internet & SaaS Rule",
+          "Catch-all policy for non-RFC 1918 address space",
+          "IPSec interface (first port listed under the interfaces that is in an Up state)"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          23
+        ],
+        [
+          2,
+          0,
+          0,
+          38
+        ],
+        [
+          3,
+          0,
+          0,
+          36
+        ],
+        [
+          4,
+          0,
+          0,
+          23
+        ],
+        [
+          5,
+          0,
+          0,
+          36
+        ],
+        [
+          6,
+          0,
+          0,
+          15
+        ],
+        [
+          7,
+          0,
+          0,
+          23
+        ],
+        [
+          8,
+          0,
+          0,
+          20
+        ],
+        [
+          9,
+          0,
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Traffic Steering Options",
+      "depth": 0
+    },
+    {
+      "item": "The following table details how the WAN monitoring score affects routing behavior:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Service or Option",
+          "Routing Behavior"
+        ],
+        [
+          "PBR - Best",
+          "If the score difference between two WAN links is ≥ the configured switchover threshold (6 by default) in the Zscaler Admin Console, or 100% packet loss (after 6 probe iterations or 60 seconds), the appliance updates the route metric in the routing table. At the default 10-second interval, 6 iterations take approximately 60 seconds."
+        ],
+        [
+          "PBR - Balanced",
+          "If there is a score difference ≥ the configured failover threshold for loss (6 by default), latency, or jitter in the Zscaler Admin Console), or an ISP outage or WAN nexthop down event, the appliance removes the degraded WAN routes from the PBR-balanced routing tables based on WANMon feedback to prevent traffic blackholing."
+        ],
+        [
+          "PBR - None",
+          "Uses primary and secondary nexthops. If there is 100% loss on the primary WAN link due to a WAN nexthop down event or ISP issue (after 6 probe iterations, which is 60 seconds), the route metric is updated in the routing table and the secondary WAN link takes over the traffic. After the primary WAN link recovers and its score is ≥ 15, the route metric is updated in the routing table and the primary WAN link takes over the traffic."
+        ],
+        [
+          "Internet & SaaS IPSec",
+          "Selects the first WAN interface that is in an UP state in sequential order (e.g., if both GE7 and GE8 are up, Internet & SaaS IPSec uses GE7 regardless of bandwidth or activation interface). The appliance does not consider the WANMon score. However, you can define an ordered list of WAN interfaces in /etc/airgap/ipsec.yml for deterministic WAN-to-IPSec tunnel mapping. To learn more, see IPSec Interface Selection and Deterministic Ordering."
+        ],
+        [
+          "Internet & SaaS DTLS",
+          "Follows the routing table and selects the lowest-metric default route to forward traffic over the best available WAN link based on the WANMon score. If the score difference between two WAN links is ≥ the configured switchover threshold (6 by default) or if 100% packet loss occurs, the appliance updates the route metric and switches traffic to the alternate DTLS tunnel."
+        ],
+        [
+          "Branch ZCC (Outbound Private Access)",
+          "Follows the routing table and selects the lowest-metric default route. The appliance considers the WANMon score and dynamically adjusts the WAN interface metric based on the score."
+        ],
+        [
+          "App Connector (Inbound Private Access)",
+          "Follows the routing table and selects a route according to its metrics."
+        ],
+        [
+          "Direct",
+          "Follows the routing table and selects a route according to its metrics."
+        ],
+        [
+          "Routed Tunnel",
+          "Follows static routes if present; otherwise, the appliance uses the routing table and selects the lowest-metric default route. If the ISP goes down but the static route nexthop remains available, traffic blackholes."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          10
+        ],
+        [
+          2,
+          0,
+          0,
+          14
+        ],
+        [
+          3,
+          0,
+          0,
+          10
+        ],
+        [
+          4,
+          0,
+          0,
+          21
+        ],
+        [
+          5,
+          0,
+          0,
+          20
+        ],
+        [
+          6,
+          0,
+          0,
+          36
+        ],
+        [
+          7,
+          0,
+          0,
+          38
+        ],
+        [
+          8,
+          0,
+          0,
+          6
+        ],
+        [
+          9,
+          0,
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "IPSec Interface Selection and Deterministic Ordering",
+      "depth": 0
+    },
+    {
+      "item": "By default, Internet & SaaS IPSec tunnels are provisioned using the following sequential port order per hardware model:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Appliance Model",
+          "Sequential WAN Port Order for IPSec"
+        ],
+        [
+          "ZT 400",
+          "GE3"
+        ],
+        [
+          "ZT 600",
+          "GE5, GE6"
+        ],
+        [
+          "ZT 800",
+          "GE2, GE7, GE8"
+        ],
+        [
+          "ZT 8010",
+          "GE2, XE7, XE8, XE9, XE10"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          6
+        ],
+        [
+          2,
+          0,
+          0,
+          6
+        ],
+        [
+          3,
+          0,
+          0,
+          6
+        ],
+        [
+          4,
+          0,
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "You can define an ordered list of WAN interfaces for IPSec tunnel creation in the /etc/airgap/ipsec.yml file. The appliance reads the configured ordered_wan_interfaces list and establishes tunnels in the specified order.",
+      "depth": 0
+    },
+    {
+      "item": "If the appliance is deployed as a high availability (HA) pair, you must run this configuration on both the active and standby appliances.",
+      "depth": 0
+    },
+    {
+      "item": "To configure deterministic WAN interface ordering for IPSec:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click the target site, then go to Troubleshooting > Console and run the following command (e.g., to prefer tunnel ipsec1 built using GE8 over ipsec0 built using GE7):",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          49
+        ],
+        [
+          52,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "echo \"ordered_wan_interfaces: [ge8,ge7]\" > /etc/airgap/ipsec.yml",
+      "depth": 1
+    },
+    {
+      "item": "Verify the routing table metrics and IPSec tunnel status using the following commands:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "ip route show table zia_ipsec_rt",
+      "depth": 1
+    },
+    {
+      "item": "Sample output:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "default dev ipsec1 scope link metric 100 default dev ipsec0 scope link metric 200",
+      "depth": 1
+    },
+    {
+      "item": "As shown in the sample output, the metric for ipsec0 has been increased, meaning ipsec1 (via GE8) is being used.",
+      "depth": 1
+    },
+    {
+      "heading": "Failover and Path Selection Examples",
+      "level": 1
+    },
+    {
+      "text": "The following scenarios illustrate how an appliance (with WAN interfaces GE2, GE7, and GE8 and the default WAN switchover threshold configuration of 6) selects traffic paths under various link conditions:"
+    },
+    {
+      "item": "Scenario 1: PBR - Best Path Degradation",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "WAN-A Score",
+          "WAN-B Score",
+          "Selected Active Path",
+          "Behavior Explanation (Default Threshold = 6)"
+        ],
+        [
+          "30",
+          "29",
+          "WAN-A",
+          "WAN-A is the initial best path."
+        ],
+        [
+          "24",
+          "29",
+          "WAN-A",
+          "Score difference is 5 (less than the threshold of 6), so traffic remains on WAN-A."
+        ],
+        [
+          "23",
+          "29",
+          "WAN-B",
+          "Score difference reaches 6 (meets the switchover threshold of 6), so the appliance switches active traffic to WAN-B."
+        ],
+        [
+          "30",
+          "29",
+          "WAN-B",
+          "Even after WAN-A recovers to 30, the score difference is 1 (less than 6), so traffic stays on WAN-B."
+        ]
+      ]
+    },
+    {
+      "item": "Scenario 2: PBR - Best Path Recovery",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "WAN-A Score",
+          "WAN-B Score",
+          "Selected Active Path",
+          "Behavior Explanation (Default Threshold = 6)"
+        ],
+        [
+          "22",
+          "22",
+          "WAN-A",
+          "Both links have equal scores; traffic uses WAN-A, which is listed first on the routing table."
+        ],
+        [
+          "22",
+          "28",
+          "WAN-B",
+          "WAN-B improves to 28 (score difference of 6), so traffic switches to WAN-B."
+        ],
+        [
+          "30",
+          "28",
+          "WAN-B",
+          "WAN-A improves to 30, but the difference is only 2 (less than 6), so traffic remains on WAN-B."
+        ],
+        [
+          "30",
+          "24",
+          "WAN-A",
+          "WAN-B degrades to 24 (score difference reaches 6), so traffic switches back to WAN-A."
+        ],
+        [
+          "30",
+          "30",
+          "WAN-A",
+          "Both links are at 30; traffic continues on WAN-A."
+        ]
+      ]
+    },
+    {
+      "item": "Scenario 3: PBR - Balanced Path Link Score Changes",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "WAN-A Score",
+          "WAN-B Score",
+          "Active Load-Balanced Paths",
+          "Behavior Explanation (Default Threshold = 6)"
+        ],
+        [
+          "30",
+          "28",
+          "WAN-A, WAN-B",
+          "Score difference is 2 (less than 6); traffic is load-balanced across both links."
+        ],
+        [
+          "30",
+          "24",
+          "WAN-A, WAN-B",
+          "Score difference is 5 (within threshold); traffic remains load-balanced across both links."
+        ],
+        [
+          "30",
+          "23 (down to 0)",
+          "WAN-A Only",
+          "Score difference is 6 or greater; WAN-B is removed from the balanced routing table."
+        ],
+        [
+          "30",
+          "25",
+          "WAN-A, WAN-B",
+          "WAN-B recovers to within 6 points of WAN-A; load balancing resumes across both links."
+        ]
+      ]
+    },
+    {
+      "item": "Scenario 4: PBR - None Primary or Secondary Failover",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "WAN-A (Primary) Status",
+          "WAN-B (Secondary) Status",
+          "Selected Active Path",
+          "Behavior Explanation"
+        ],
+        [
+          "Link Up",
+          "Link Down",
+          "WAN-A",
+          "Primary link is up and forwarding traffic."
+        ],
+        [
+          "Link Down",
+          "Link Up",
+          "WAN-B",
+          "Primary interface is physically down; traffic fails over to Secondary (WAN-B)."
+        ],
+        [
+          "Link Up (Upstream ISP Unreachable or 100% Loss)",
+          "Link Up (Reachable)",
+          "WAN-B",
+          "If WANMon detects 100% packet loss after 60 seconds, it switches traffic to reachable WAN-B until WAN-A recovers with a score ≥ 15, at which point the appliance begins considering the WAN-A score."
+        ]
+      ]
+    },
+    {
+      "item": "Scenarios 5 and 6: IPSec Link Failure and DPD SA Failure",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "GE2 Tunnel",
+          "GE7 Tunnel (ipsec0)",
+          "GE8 Tunnel (ipsec1)",
+          "Active IPSec Interface",
+          "Scenario Event"
+        ],
+        [
+          "Not Configured",
+          "ipsec0 (Up)",
+          "ipsec1 (Up)",
+          "ipsec0 (GE7)",
+          "Both GE7 and GE8 are up; appliance selects the first sequential interface (ipsec0 on GE7)."
+        ],
+        [
+          "Not Configured",
+          "ipsec0 (Up)",
+          "ipsec1 (Down)",
+          "ipsec0 (GE7)",
+          "Secondary link GE8 goes down; traffic continues on ipsec0 (GE7)."
+        ],
+        [
+          "Not Configured",
+          "ipsec0 (Down - Link or DPD SA Failure)",
+          "ipsec1 (Up)",
+          "ipsec1 (GE8)",
+          "Link Failure or DPD SA Failure: When GE7 goes down or ipsec0 Security Association (SA) fails after Dead Peer Detection (DPD) timeout, traffic fails over to ipsec1 (GE8)."
+        ],
+        [
+          "Not Configured",
+          "ipsec0 (Recovered or SA Up)",
+          "ipsec1 (Up)",
+          "ipsec1 (GE8)",
+          "When ipsec0 recovers, traffic switches back to the ipsec0 interface."
+        ]
+      ],
+      "strong": [
+        [
+          3,
+          4,
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "heading": "Verifying WAN Monitoring Scores",
+      "level": 1
+    },
+    {
+      "text": "WAN monitoring is enabled by default when a WAN link is configured on the appliance. You can verify WAN monitoring scores in the Zscaler Admin Console or using the CLI:"
+    },
+    {
+      "item": "In the Zscaler Admin Console: Go to Zero Trust Branch > Deployments > Sites > [select a site] > Interfaces and filter the Interface Type by WAN to view the live link score.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          36,
+          53
+        ],
+        [
+          56,
+          67
+        ],
+        [
+          70,
+          75
+        ],
+        [
+          96,
+          106
+        ],
+        [
+          122,
+          136
+        ],
+        [
+          140,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Debug Console: Go to Zero Trust Branch > Deployments > Sites > [select a site] > Troubleshooting > Console and run tail -f /var/log/wan-monitor.log.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          28,
+          45
+        ],
+        [
+          48,
+          59
+        ],
+        [
+          62,
+          67
+        ],
+        [
+          88,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "In version 8.1.2 and later, WAN monitoring logs are recorded in /var/log/wan-monitor.log.",
+      "depth": 0
+    },
+    {
+      "item": "site1-[site-name]# tail -f /var/log/wan-monitor.log",
+      "depth": 0
+    },
+    {
+      "item": "Sample output:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "2026-11-12 12:09:21,670 - wan-monitor - module_wanmon.py:1251 - INFO - WAN interfaces: ['ge2', 'ge7', 'ge8'] 2026-11-12 12:09:21,696 - wan-monitor - module_wanmon.py:1340 - INFO - Final wan intfs [{'name': 'ge8', 'ip': '10.75.38.131', 'default_gw': '10.75.38.254'}, {'name': 'ge7', 'ip': '10.75.37.131', 'default_gw': '10.75.37.254'}] 2026-11-12 12:19:25,756 - wan-monitor - module_wanmon.py:1251 - INFO - WAN interfaces: ['ge2', 'ge7', 'ge8'] 2026-11-12 12:19:25,774 - wan-monitor - module_wanmon.py:1340 - INFO - Final wan intfs [{'name': 'ge8', 'ip': '10.75.38.131', 'default_gw': '10.75.38.254'}, {'name': 'ge7', 'ip': '10.75.37.131', 'default_gw': '10.75.37.254'}]",
+      "depth": 0
+    },
+    {
+      "item": "In the Debug Console: Run the following command:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "cat /var/log/syslog | grep wan-mon",
+      "depth": 0
+    },
+    {
+      "item": "Sample output (Score Calculation per Iteration):",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "{ 'appliance_id': '8f6e47e5-3b99-4199-8063-1da6d6661b39', 'int_status': [ { 'interface_name': 'ge8', 'status': 'Connected', 'loss': '0.03', 'latency': '72.91', 'jitter': '3.88', 'norm_loss': '0.03', 'norm_latency': '0.13', 'norm_jitter': '0.05', 'score': '27' }, { 'interface_name': 'ge7', 'status': 'Connected', 'loss': '0.03', 'latency': '75.03', 'jitter': '5.43', 'norm_loss': '0.03', 'norm_latency': '0.15', 'norm_jitter': '0.07', 'score': '27' } ] }",
+      "depth": 0
+    }
+  ]
+}
