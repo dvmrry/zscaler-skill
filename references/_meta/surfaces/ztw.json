@@ -5,9 +5,9 @@
  "base": "/ztw/api/v1",
  "inputs": {
   "zscaler-api-specs/automate-zscaler/openapi/zcloudconnector.openapi.json": "sha256:7790adc29fcdb6914107e8f6d1d3a82afb9a3b28259255f88285dba2bb864c4a",
-  "zscaler-sdk-go": "b2195e7390b77ebd0f08bfe1d2de1e73043e754b",
+  "zscaler-sdk-go": "8bb5c134ac71982b113d978393a497daaad8f0cc",
   "zscaler-sdk-python": "21fdc64fd599c471d233b2d4e73d335b08a44d14",
-  "terraform-provider-ztc": "6516b4a032ef4a5ece183a0f42a5026b11ac94ca",
+  "terraform-provider-ztc": "80fb80e99695232359f298b25dd3058a189be16b",
   "zscaler-help/legacy-apis": "sha256:c2759a32b4e0aeca8559be36ec902272870055e4055c4a13e4e15947258e44d8"
  },
  "api": {
@@ -4529,7 +4529,7 @@
     "max_retries": {
      "type": "int",
      "optional": true,
-     "description": "maximum number of retries to attempt before erroring out.",
+     "description": "Maximum number of times a rate-limited or transiently failing request is retried before the operation fails. Default: 30. Maximum: 100. Does not affect request throughput; lowering it only makes runs fail sooner under sustained rate limiting.",
      "validate": {
       "func": "intAtMost(100)"
      }
@@ -4537,7 +4537,8 @@
     "parallelism": {
      "type": "int",
      "optional": true,
-     "description": "Number of concurrent requests to make within a resource where bulk operations are not possible. Take note of https://help.zscaler.com/oneapi/understanding-rate-limiting."
+     "deprecated": "This attribute no longer has any effect and will be removed in a future major release. Remove it from the provider block. API rate limits are handled automatically: the provider honours the Retry-After header returned on a 429 response and retries transparently.",
+     "description": "Deprecated and ignored. Previously limited the number of concurrent API requests. Rate limiting is now handled automatically and this attribute has no effect."
     },
     "password": {
      "type": "string",
@@ -4556,10 +4557,15 @@
     "request_timeout": {
      "type": "int",
      "optional": true,
-     "description": "Timeout for single request (in seconds) which is made to Zscaler, the default is `0` (means no limit is set). The maximum value can be `300`.",
+     "description": "Timeout in seconds for a single HTTP request to the Zscaler API. Default: 0, which selects the SDK's built-in 60-second timeout. Accepted values: 0-300. Does not affect request throughput.",
      "validate": {
       "func": "intBetween(0, 300)"
      }
+    },
+    "skip_credentials_validation": {
+     "type": "bool",
+     "optional": true,
+     "description": "Skip credentials validation and API client initialization entirely. Intended for configurations where every ztc_* resource and data source is conditionally disabled (e.g., count = 0) and no API call will ever be made, such as multi-environment deployments where Zscaler is not present in every environment. Any resource or data source that does attempt an API call will fail with an explanatory error. Can also be sourced from the ZSCALER_SKIP_CREDENTIALS_VALIDATION environment variable."
     },
     "use_legacy_client": {
      "type": "bool",
