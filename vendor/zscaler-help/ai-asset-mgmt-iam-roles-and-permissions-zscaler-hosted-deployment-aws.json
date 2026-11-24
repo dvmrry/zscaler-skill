@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IAM Roles and Permissions for Zscaler-Hosted Deployment on AWS",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/iam-roles-and-permissions-zscaler-hosted-deployment-aws",
+    "node": "1547856",
+    "revision": "3259694",
+    "updated": "2026-11-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-24",
+  "blocks": [
+    {
+      "text": "As part of the onboarding process, you must deploy the AI Security templates in AWS. These templates create custom roles in AWS. AI Security requires these roles to connect to the AWS, discover resources, and collect metadata."
+    },
+    {
+      "text": "AI Security creates the following IAM roles to access the AWS accounts:"
+    },
+    {
+      "item": "Scanning",
+      "depth": 0
+    },
+    {
+      "item": "The scanning role is used to initiate and manage data scanning operations across AWS resources and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Services",
+          "Effect",
+          "Action",
+          "Resource",
+          "Purpose"
+        ],
+        [
+          "ECR",
+          "Allow",
+          "ecr:GetAuthorizationToken ecr:DescribeRepositories ecr:ListImages ecr:DescribeImages ecr:BatchGetImage ecr:GetDownloadUrlForLayer ecr:BatchCheckLayerAvailability ecr:GetRepositoryPolicy",
+          "*",
+          "To authenticate to ECR and read and pull image metadata and layers, so scanners can access container images for inspection (read-only, pull, no push)."
+        ],
+        [
+          "S3",
+          "Allow",
+          "s3:GetObject s3:GetObjectVersion s3:GetObjectVersionForReplication s3:GetBucketLocation s3:GetBucketAcl s3:GetBucketPolicys3:ListBucket",
+          "*",
+          "To discover buckets and read S3 objects/versions for scanning, and to inspect bucket policy or ACL and determine region during assessment."
+        ],
+        [
+          "DYNAMODB",
+          "Allow",
+          "dynamodb:ExportTableToPointInTime dynamodb:DescribeExport",
+          "*",
+          "To export DynamoDB table data to S3 (PITR export) so it can be scanned without direct table reads."
+        ],
+        [
+          "DYNAMODB",
+          "Allow",
+          "s3:AbortMultipartUpload s3:PutObjectAc s3:PutObject",
+          "arn:aws:s3:::z-ais-export-* arn:aws:s3:::z-ais-export-*/*",
+          "To write DynamoDB export output into the designated export bucket(s) (including multipart upload handling)."
+        ],
+        [
+          "RDS",
+          "Allow",
+          "rds:CreateDBClusterSnapshot, rds:CreateDBSnapshot rds:CopyDBSnapshot rds:CopyDBClusterSnapshot rds:RestoreDBInstanceFromDBSnapshot rds:AddTagsToResource rds:List* rds:Describe*",
+          "*",
+          "To create, copy, or restore from RDS snapshots for scanning, plus list or describe RDS inventory and tag resources used by the workflow."
+        ],
+        [
+          "RDS",
+          "Allow",
+          "rds:ModifyDBClusterSnapshotAttribute rds:ModifyDBSnapshotAttribute rds:DeleteDBClusterSnapshot rds:DeleteDBSnapshot rds:DeleteDBInstance",
+          "\"Condition\": { \"StringEquals\": { \"aws:ResourceTag/z-aisecurity-resource\": \"true\" } }, \"Resource\": \"*\"",
+          "To modify sharing attributes and clean up only the scanner-created (tagged) snapshots or instances, preventing deletion of customer resources."
+        ],
+        [
+          "EC2",
+          "Allow",
+          "ec2:CreateSnapshot* ec2:CreateTags ec2:List* ec2:Describe* ec2:Get* ec2:CopySnapshot",
+          "*",
+          "To discover EBS volumes/instances and create/copy snapshots used for scanning, and tag scanner-created artifacts."
+        ],
+        [
+          "EC2",
+          "",
+          "ec2:ModifySnapshotAttribute ec2:DeleteSnapshot",
+          "\"Condition\": { \"StringEquals\": { \"aws:ResourceTag/z-aisecurity-resource\": \"true\" } }, \"Resource\": \"*\"",
+          "To set snapshot attributes and delete snapshots created by the scanner (tag-scoped cleanup)."
+        ],
+        [
+          "Required for Encrypted Resources",
+          "",
+          "kms:List* kms:Get* kms:Describe* kms:Decrypt kms:Encrypt kms:ReEncrypt* kms:CreateGrant kms:RetireGrant kms:GenerateDataKeyWithoutPlaintext kms:GenerateDataKey",
+          "*",
+          "To access encrypted data during scanning: decrypt/encrypt as needed, and create grants/data keys so services (RDS/EC2/S3 exports) can use KMS-protected data."
+        ],
+        [
+          "Required for RDS Encrypted Resources",
+          "",
+          "kms:CreateKey",
+          "\"Condition\": { \"StringEquals\": { \"aws:RequestTag/z-aisecurity-resource\": \"true\" } }, \"Resource\": \"*\"",
+          "To create KMS keys specifically for scanner-created (tagged) resources when required by the RDS encrypted snapshot/restore workflow."
+        ],
+        [
+          "Required for RDS Encrypted Resources",
+          "",
+          "kms:TagResource",
+          "\"Condition\": { \"StringEquals\": { \"aws:RequestTag/z-aisecurity-resource\": \"true\" } }, \"Resource\": \"*\"",
+          "To tag newly created KMS keys so they’re identifiable/manageable and restricted to scanner workflow resources."
+        ]
+      ]
+    },
+    {
+      "item": "Metadatascan",
+      "depth": 0
+    },
+    {
+      "item": "The metadata scan role is used to retrieve object and bucket metadata, such as size, creation date, encryption status, and tags without accessing actual file content and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Effect",
+          "Action",
+          "Resource",
+          "Purpose"
+        ],
+        [
+          "Allow",
+          "logs:ListLogDeliveries bedrock:List* bedrock:Get* bedrock-agentcore:List* bedrock-agentcore:Get* s3:GetReplicationConfiguration*",
+          "*",
+          "To list the log delivery settings for a specific log group. To view Amazon Bedrock resources and configuration (list or get only; no create or update). To view Bedrock AgentCore resources and configuration (list or get only; no create or update). To view an S3 bucket’s replication configuration (needed for inventory/assessment of replication settings)."
+        ],
+        [
+          "Allow",
+          "ReadOnlyAccess",
+          "Managed Policy",
+          "To retrieve resource configuration and status across AWS services in console/CLI without allowing changes."
+        ],
+        [
+          "Deny",
+          "s3:GetObject",
+          "\"NotResource\": [ \"*\" ]\"",
+          "To explicitly block reading/downloading S3 objects (prevents access to any file contents in S3)."
+        ],
+        [
+          "Deny",
+          "dynamodb:BatchGetItem dynamodb:GetItem dynamodb:Query dynamodb:Scan",
+          "",
+          "To explicitly block reading data from DynamoDB tables (prevents item reads/queries/scans)."
+        ]
+      ]
+    },
+    {
+      "item": "Tree Discovery",
+      "depth": 0
+    },
+    {
+      "item": "The Tree Discovery role is used to discover and map the structure of AWS resources — such as accounts, S3 buckets, and folder/prefix hierarchies — within the organization and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Effect",
+          "Action",
+          "Resource",
+          "Purpose"
+        ],
+        [
+          "Allow",
+          "logs:ListLogDeliveries",
+          "*",
+          "To list the log delivery settings for a specific log group."
+        ],
+        [
+          "Allow",
+          "ReadOnlyAccess",
+          "Managed Policy",
+          "To retrieve resource configuration and status across AWS services in console/CLI without allowing changes."
+        ],
+        [
+          "Deny",
+          "s3:GetObject",
+          "\"NotResource\": [ \"*\" ]\"",
+          "To prevent downloading/reading any objects (files) from S3 buckets (blocks access to state files, templates, artifacts)."
+        ],
+        [
+          "Deny",
+          "\"dynamodb:BatchGetItem\" \"dynamodb:GetItem\" \"dynamodb:Query\" \"dynamodb:Scan\"",
+          "",
+          "To prevent reading any records from DynamoDB tables (blocks data reads, including common backend or locking reads if DynamoDB is used)."
+        ]
+      ]
+    },
+    {
+      "item": "CloudTrail",
+      "depth": 0
+    },
+    {
+      "item": "The CloudTrail role is used to access and read AWS CloudTrail activity logs for auditing data access and usage and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Effect",
+          "Action",
+          "Resource",
+          "Purpose"
+        ],
+        [
+          "Allow",
+          "kms:Decrypt",
+          "arn:aws:kms:*:<bucket-account>:key*",
+          "To decrypt KMS-encrypted objects (SSE-KMS) stored in the S3 bucket so the user/service can read the file contents."
+        ],
+        [
+          "Allow",
+          "s3:GetObject s3:GetObjectAcl s3:ListBucket s3:GetBucketLocation",
+          "arn:aws:s3:::cloudtrail-bucket arn:aws:s3:::cloudtrail-bucket/*\"",
+          "To download/read CloudTrail log files from the bucket and (if needed) read the object ACL metadata. To list objects under the CloudTrail bucke or prefix and to determine the bucket’s region (used by console/SDKs before fetching objects)"
+        ]
+      ]
+    },
+    {
+      "item": "Evidence",
+      "depth": 0
+    },
+    {
+      "item": "The evidence role is used to store, retrieve, and manage scan findings (evidence) generated during data scanning and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Effect",
+          "Action",
+          "Resource",
+          "Purpose"
+        ],
+        [
+          "Allow",
+          "s3:GetObject s3:GetObjectAcl s3:GetBucketAcl s3:GetBucketLocation s3:ListBucket s3:PutObject s3:PutObjectAcl s3:DeleteObject",
+          "\"arn:aws:s3:::evidence-bucket\" \"arn:aws:s3:::evidence-bucket\"/*\"",
+          "To manage evidence files in the evidence bucket: list the bucket, read/download objects, upload/write objects, update object ACLs (if required), and delete objects; also to read bucket/object ACL and determine bucket region for correct access."
+        ],
+        [
+          "",
+          "iam:GetRole iam:GetPolicy iam:GetRolePolicy iam:ListRolePolicies iam:ListAttachedRolePolicies",
+          "*",
+          "To read IAM role and policy configuration: retrieve role details and inspect inline/attached policies for validation/auditing/troubleshooting (read-only; no IAM modifications)."
+        ]
+      ]
+    }
+  ]
+}
