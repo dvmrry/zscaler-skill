@@ -5,20 +5,20 @@
   "source": {
     "url": "https://help.zscaler.com/zero-trust-branch/understanding-zero-trust-branch-wan-monitoring-score-behavior",
     "node": "1547011",
-    "revision": "3258600",
-    "updated": "2026-11-21",
+    "revision": "3259718",
+    "updated": "2026-11-24",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-22",
+  "captured_at": "2026-11-25",
   "blocks": [
     {
       "text": "Zero Trust Branch uses WAN Link Monitoring (WANMon) to dynamically assess the path quality of active ISP links at the WAN edge. By continuously measuring packet loss, latency, and jitter, the Zero Trust Branch appliance calculates a real-time WANMon score ranging from 0 to 30, where a higher score indicates better link quality."
     },
     {
-      "text": "During a WAN connectivity issue (e.g., a Routing Information Base (RIB) failure, an immediate or silent interface outage, or delayed convergence), subscribed system modules, such as policy-based routing (PBR), use these link scores to adjust routing table metrics and steer traffic over the best available WAN link. Actual failover behavior and protection against silent traffic drops during upstream link degradation depend on the configured traffic steering mode and appliance software version (e.g., Internet & SaaS (ZIA) IPSec tunnel selection does not use the WANMon score)."
+      "text": "During a WAN connectivity issue (e.g., an immediate or silent interface outage, or delayed convergence), subscribed system modules, such as policy-based routing (PBR), use these link scores to adjust routing table metrics and steer traffic over the best available WAN link. Actual failover behavior and protection against silent traffic drops during upstream link degradation depend on the configured traffic steering mode and appliance software version (e.g., Internet & SaaS (ZIA) IPSec tunnel selection does not use the WANMon score)."
     },
     {
-      "text": "The behavior and configurations described in this article apply to Zero Trust Branch appliance software versions 8.0.8P5 and later, 8.1.2 and later, and 8.3.0 and later."
+      "text": "The behavior and configurations described in this article apply to Zero Trust Branch appliance software versions 8.0.8P5 and later."
     },
     {
       "heading": "How WAN Monitoring Works",
@@ -386,7 +386,7 @@
         ],
         [
           "Internet & SaaS DTLS",
-          "Follows the routing table and selects the lowest-metric default route to forward traffic over the best available WAN link based on the WANMon score. If the score difference between two WAN links is ≥ the configured switchover threshold (6 by default) or if 100% packet loss occurs, the appliance updates the route metric and switches traffic to the alternate DTLS tunnel."
+          "Uses its own built-in WANMon score detection and selects the DTLS tunnel on the WAN link with the best WANMon score to forward traffic."
         ],
         [
           "Branch ZCC (Outbound Private Access)",

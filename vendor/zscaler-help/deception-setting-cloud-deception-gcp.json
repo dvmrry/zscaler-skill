@@ -5,11 +5,11 @@
   "source": {
     "url": "https://help.zscaler.com/deception/setting-cloud-deception-gcp",
     "node": "1545999",
-    "revision": "3258735",
-    "updated": "2026-11-18",
+    "revision": "3260096",
+    "updated": "2026-11-24",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-19",
+  "captured_at": "2026-11-25",
   "blocks": [
     {
       "text": "This integration guide provides information on prerequisites and how to integrate Google Cloud Platform (GCP) with Zscaler Deception to set up Cloud Deception by deploying various GCP-specific decoy resources."
@@ -26,7 +26,7 @@
       "depth": 0
     },
     {
-      "item": "See minimum project-level IAM roles and steps to create a custom deployer service account",
+      "item": "See instructions.",
       "depth": 0
     },
     {
@@ -41,7 +41,7 @@
         ],
         [
           "roles/resourcemanager.projectIamAdmin",
-          "Creates project-level IAM bindings and configures audit logging using the ProjectIamAuditConfig resource"
+          "Creates project-level IAM bindings and configures audit logging using the ProjectIamAuditConfig resource."
         ],
         [
           "roles/iam.serviceAccountAdmin",
@@ -85,11 +85,19 @@
         ],
         [
           "roles/compute.networkViewer",
-          "Required for private Cloud SQL decoys to read VPC network information. The Terraform deployment does not create the required network peering. Private Services Access, including the allocated IP range and Service Networking peering, must already be configured for the project and network"
+          "Required for private Cloud SQL decoys to read VPC network information. The Terraform deployment does not create the required network peering. Private Services Access, including the allocated IP address range and Service Networking peering, must already be configured for the project and network."
         ],
         [
           "roles/servicenetworking.networksAdmin",
           "Required only if the deployer must configure Private Services Access for private Cloud SQL instances."
+        ]
+      ],
+      "strong": [
+        [
+          12,
+          0,
+          0,
+          8
         ]
       ]
     },
@@ -99,6 +107,10 @@
     },
     {
       "item": "You can create a dedicated service account and assign the required project-level IAM roles to deploy Cloud Deception resources in GCP.",
+      "depth": 0
+    },
+    {
+      "item": "The account running the following commands must have permissions to create service accounts and modify project-level IAM policies.",
       "depth": 0
     },
     {
@@ -142,11 +154,7 @@
       "depth": 0
     },
     {
-      "item": "The account running these commands must have permissions to create service accounts and modify project-level IAM policies.",
-      "depth": 0
-    },
-    {
-      "item": "No organization policy restrictions that prevent the following operations:",
+      "item": "Organization policies that do not hinder decoy deployment or operations:",
       "depth": 0
     },
     {
@@ -196,7 +204,7 @@
         ],
         [
           "sqladmin.googleapis.com",
-          "Deploys Clloud SQL decoy instances."
+          "Deploys Cloud SQL decoy instances."
         ],
         [
           "compute.googleapis.com",
@@ -208,7 +216,7 @@
         ],
         [
           "secretmanager.googleapis.com",
-          "Deploys Secrennt Manager decoys."
+          "Deploys Secret Manager decoys."
         ],
         [
           "artifactregistry.googleapis.com",
@@ -229,7 +237,20 @@
       ]
     },
     {
-      "text": "Removing the GCP decoys and associated project from the Zscaler Deception Admin Portal removes the decoy resources through Terraform. However, the Google Cloud APIs enabled during deployment remain enabled."
+      "item": "Removing the GCP decoys and associated project from the Zscaler Deception Admin Portal removes the decoy resources through Terraform. However, the Google Cloud APIs enabled during deployment remain enabled.",
+      "depth": 0
+    },
+    {
+      "item": "When you deploy GCP decoys, the Deception Terraform stack enables Admin Activity and Data Access (DATA_READ, DATA_WRITE) audit logs only for the GCP services on which you have deployed decoys (i.e., cloud storage for bucket decoys, secret manager for secret decoys, artifact registry for repository decoys, and IAM for service-account decoys). The audit configuration for these services is managed by the stack. If you have existing Data Access audit settings for a service where a decoy is deployed, they are replaced by the stack's configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Removing all decoys of a certain type, or decommissioning the deployment, removes the corresponding audit configuration and does not restore any previously configured settings.",
+      "depth": 0
+    },
+    {
+      "item": "Data Access logging can increase your Cloud Logging costs in proportion to activity on those services.",
+      "depth": 0
     },
     {
       "heading": "Setting Up Cloud Deception with GCP",

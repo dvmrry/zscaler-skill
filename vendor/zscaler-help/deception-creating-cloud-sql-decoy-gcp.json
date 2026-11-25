@@ -5,36 +5,40 @@
   "source": {
     "url": "https://help.zscaler.com/deception/creating-cloud-sql-decoy-gcp",
     "node": "1545991",
-    "revision": "3258739",
-    "updated": "2026-11-18",
+    "revision": "3260333",
+    "updated": "2026-11-24",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-19",
+  "captured_at": "2026-11-25",
   "blocks": [
     {
-      "text": "The cloud SQL in Google Cloud Platform (GCP) is a service that allows you to set up and host relational databases (MySQL or PostgreSQL). You can create cloud SQL decoy databases (public or private) based on MySQL or PostgreSQL to lure adversaries that are looking for databases to disrupt services or steal data. Optionally, the credentials of the master user (or root) of the database along with the URL can be added to a landmine policy as a lure. You can view and analyze the attack details from the Zscaler Deception dashboard."
+      "text": "The Cloud SQL in Google Cloud Platform (GCP) is a service that allows you to set up and host relational databases (MySQL or PostgreSQL). You can create Cloud SQL decoy databases (public or private) based on MySQL or PostgreSQL to lure adversaries that are looking for databases to disrupt services or steal data. Optionally, the credentials of the master user (or root) of the database along with the URL can be added to a landmine policy as a lure. You can view and analyze the attack details from the Zscaler Deception dashboard."
     },
     {
       "heading": "Prerequisites",
       "level": 1
     },
     {
-      "text": "Before creating a cloud SQL decoy in GCP, ensure that you have:"
+      "text": "Before creating a Cloud SQL decoy in GCP, ensure that you have:"
     },
     {
       "item": "Configured the integration between GCP and Deception.",
       "depth": 0
     },
     {
-      "item": "(Optional) Configured Private Services Access (PSA) in your GCP project if you want to create a Cloud SQL decoy with a private IP address.",
+      "item": "(Optional) Configured Private Services Access in your GCP project if you want to create a Cloud SQL decoy with a private IP address.",
       "depth": 0
     },
     {
-      "item": "See Configuring Private Services Access for Cloud SQL Decoys",
+      "item": "See instructions.",
       "depth": 0
     },
     {
-      "item": "To deploy a Cloud SQL decoy with a private IP address, you must configure Private Services Access (PSA) in your GCP project before deploying the decoy. The Terraform deployment does not create the Virtual Private Cloud (VPC) network, allocate the IP address range, or configure the required network peering.",
+      "item": "To deploy a Cloud SQL decoy with a private IP address, you must configure Private Services Access in your GCP project before deploying the decoy. The Terraform deployment does not create the Virtual Private Cloud (VPC) network, allocate the IP address range, or configure the required network peering.",
+      "depth": 0
+    },
+    {
+      "item": "If your organization restricts Private Services Access, you cannot deploy Cloud SQL decoys with private IP addresses. Use a Cloud SQL decoy with a public IP address instead.",
       "depth": 0
     },
     {
@@ -66,7 +70,7 @@
       "depth": 0
     },
     {
-      "item": "Open the Google Cloud CLI and run the following command to specify your GCP project ID:",
+      "item": "Open the terminal and run the following command to specify your GCP project ID:",
       "depth": 1,
       "number": 1
     },
@@ -110,15 +114,11 @@
       "depth": 1
     },
     {
-      "item": "If your organization restricts Private Services Access, you cannot deploy Cloud SQL decoys with private IP addresses. Use a Cloud SQL decoy with a public IP address instead.",
-      "depth": 0
-    },
-    {
       "heading": "Creating a Cloud SQL Decoy",
       "level": 1
     },
     {
-      "text": "To create a cloud SQL decoy:"
+      "text": "To create a Cloud SQL decoy:"
     },
     {
       "item": "Go to Deceive > Cloud Deception > GCP > Cloud SQL.",
@@ -191,7 +191,7 @@
       ]
     },
     {
-      "item": "Name: Enter a name for the cloud SQL database decoy.",
+      "item": "Name: Enter a name for the Cloud SQL database decoy.",
       "depth": 1,
       "number": 2,
       "strong": [
@@ -202,7 +202,7 @@
       ]
     },
     {
-      "item": "Description: Enter a description for the cloud SQL database decoy.",
+      "item": "Description: Enter a description for the Cloud SQL database decoy.",
       "depth": 1,
       "number": 3,
       "strong": [
@@ -224,7 +224,7 @@
       ]
     },
     {
-      "item": "ACL: Choose your preferred access control list for the cloud SQL database decoy:",
+      "item": "ACL: Choose your preferred access control list for the Cloud SQL database decoy:",
       "depth": 1,
       "number": 5,
       "strong": [
@@ -235,7 +235,7 @@
       ]
     },
     {
-      "item": "Select Public if you want the cloud SQL database decoy to be accessible to anyone.",
+      "item": "Select Public if you want the Cloud SQL database decoy to be accessible to anyone.",
       "depth": 2,
       "strong": [
         [
@@ -245,7 +245,7 @@
       ]
     },
     {
-      "item": "Select Private if you want the cloud SQL database decoy to be accessible only to internal adversaries. Ensure that Private Services Access is configured in your GCP project before deploying the decoy.",
+      "item": "Select Private if you want the Cloud SQL database decoy to be accessible only to internal adversaries. Ensure that Private Services Access is configured in your GCP project before deploying the decoy.",
       "depth": 2,
       "strong": [
         [
@@ -281,7 +281,7 @@
       ]
     },
     {
-      "item": "VPC Network Name: Enter the name of the network in the VPC where you want to place the decoy. This option appears only if the ACL value is set to Private.",
+      "item": "VPC Network Name: Enter the name of the network in the VPC where you want to place the decoy. This option appears only if ACL is set to Private. The Terraform deployment provisions the Cloud SQL decoy instance with a private IP address from the configured private services range.",
       "depth": 1,
       "number": 8,
       "strong": [
@@ -290,18 +290,14 @@
           16
         ],
         [
-          126,
-          129
+          122,
+          125
         ],
         [
-          146,
-          153
+          136,
+          143
         ]
       ]
-    },
-    {
-      "item": "The Terraform deployment provisions the Cloud SQL decoy instance with a private IP address from the configured private services range.",
-      "depth": 1
     },
     {
       "item": "See image.",
@@ -319,7 +315,7 @@
       ]
     },
     {
-      "item": "If you want to add multiple cloud SQL decoys to GCP, repeat the previous steps for each decoy and then deploy all decoys simultaneously.",
+      "item": "If you want to add multiple Cloud SQL decoys to GCP, repeat the previous steps for each decoy and then deploy all decoys simultaneously.",
       "depth": 0
     },
     {
@@ -483,11 +479,11 @@
       "number": 16
     },
     {
-      "item": "Upon successful execution of the script, the cloud SQL database decoy is added to GCP. The deployment status is indicated by the icon next to the name of the decoy in the cloud SQL decoys table (Deceive > Cloud Deception > GCP > Cloud SQL) within the Deception Admin Portal. To learn how to configure lures using cloud SQL database decoys, see Configuring Lures Using GCP Decoys.",
+      "item": "Upon successful execution of the script, the Cloud SQL database decoy is added to GCP. The deployment status is indicated by the icon next to the name of the decoy in the Cloud SQL decoys table (Deceive > Cloud Deception > GCP > Cloud SQL) within the Deception Admin Portal. To learn how to configure lures using Cloud SQL database decoys, see Configuring Lures Using GCP Decoys.",
       "depth": 0
     },
     {
-      "item": "If you have configured Cloud SQL decoys with a private IP address, verify that the decoy is reachable:",
+      "item": "If you configured Cloud SQL decoys with a private IP address, verify that the decoy is reachable:",
       "depth": 0,
       "number": 17
     },
