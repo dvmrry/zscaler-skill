@@ -6,23 +6,24 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 
 | product | operations | paths | issues | publication |
 |---|---:|---:|---:|---|
-| `ai-security` | 114 | 105 | 0 | current public route table |
+| `ai-security` | 131 | 122 | 0 | current public route table |
 | `aiguard` | 47 | 29 | 0 | current public route table |
 | `bi` | 10 | 6 | 0 | current public route table |
 | `easm` | 11 | 11 | 0 | current public route table |
 | `event-monitoring` | 15 | 12 | 0 | current public route table |
+| `risk360` | 1 | 1 | 0 | current public route table |
 | `urbac` | 6 | 4 | 0 | current public route table |
 | `zcc` | 50 | 49 | 0 | current public route table |
 | `zcell` | 36 | 28 | 0 | current public route table |
-| `zcloudconnector` | 165 | 96 | 124 | current public route table |
+| `zcloudconnector` | 190 | 113 | 145 | current public route table |
 | `zdx` | 148 | 121 | 2 | current public route table |
-| `zia` | 469 | 293 | 0 | current public route table |
+| `zia` | 637 | 405 | 0 | current public route table |
 | `zid` | 31 | 18 | 0 | current public route table |
-| `zpa` | 220 | 149 | 0 | current public route table |
+| `zpa` | 448 | 307 | 0 | current public route table |
 
 ## Issue Counts
 
-- `default_response_as_success`: 124
+- `default_response_as_success`: 145
 - `path_prefix_anomaly`: 2
 
 ## Issues
@@ -31,8 +32,6 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/activation/ec-activate-z-resource-force-activate", "path": "/ecAdminActivateStatus/forcedActivate", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/activation/ec-activate-z-resource-get-org-edit-activate-status", "path": "/ecAdminActivateStatus", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/admin-and-role-management/admin-role-z-resource-add-role", "path": "/adminRoles", "product": "zcloudconnector"}
-- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/all/network-service-group-z-resource-edit-network-service-group", "path": "/networkServiceGroups/{serviceGroupId}", "product": "zcloudconnector"}
-- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/all/network-service-group-z-resource-get-network-service-group-by-id", "path": "/networkServiceGroups/{serviceGroupId}", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "delete", "operation": "zcloudconnector/authentication/auth-session-z-resource-delete-authenticated-session", "path": "/auth", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-create-ec-route", "path": "/ecgroup/{ecgroupId}/vm/{vmId}/route", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-ec-route", "path": "/ecgroup/{ecgroupId}/vm/{vmId}/route", "product": "zcloudconnector"}
@@ -50,6 +49,7 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/public/ec-group-z-resource-create-ec-group", "path": "/ecgroup", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-ec-groups-lite", "path": "/ecgroup/lite", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/public/ec-group-z-resource-create-ec-group-lite", "path": "/ecgroup/lite", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-vm-upgrade-metrics", "path": "/ecgroup/vmUpgradeMetrics", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/cloud-branch-connector-groups/ec-instance-z-resource-get-ec-vm-list", "path": "/ecInstance/lite", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/cloud-branch-connector-groups/ec-vm-z-resource-get-ec-vm-by-instance-id", "path": "/ecVm/uuid/{vmInstanceId}", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/dns-control-forwarding-rule/ec-rule-z-resource-create-ec-dns-forwarding-rule", "path": "/ecRules/ecDns", "product": "zcloudconnector"}
@@ -119,6 +119,8 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/policy-resources/ip-source-group-z-resource-get-source-ip-groups-lite", "path": "/ipSourceGroups/lite", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/policy-resources/network-service-group-z-resource-add-custom-network-service-group", "path": "/networkServiceGroups", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/policy-resources/network-service-group-z-resource-get-network-service-groups", "path": "/networkServiceGroups", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/policy-resources/network-service-group-z-resource-edit-network-service-group", "path": "/networkServiceGroups/{serviceGroupId}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/policy-resources/network-service-group-z-resource-get-network-service-group-by-id", "path": "/networkServiceGroups/{serviceGroupId}", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/policy-resources/network-service-resource-add-custom-network-service", "path": "/networkServices", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/policy-resources/network-service-resource-get-network-services", "path": "/networkServices", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/policy-resources/network-service-resource-edit-network-service", "path": "/networkServices/{serviceid}", "product": "zcloudconnector"}
@@ -151,6 +153,26 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/public/ec-vm-z-resource-get-ec-vm-list", "path": "/ecVm/lite", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/workload-groups/workload-group-z-resource-get-workload-groups", "path": "/workloadGroups", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/workload-groups/workload-group-z-resource-get-workload-groups-lite", "path": "/workloadGroups/lite", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test", "path": "/ztGateway/trafficTest", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-tests", "path": "/ztGateway/trafficTest", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test-environment", "path": "/ztGateway/trafficTest/env/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "delete", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test-environment", "path": "/ztGateway/trafficTest/env/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-environment", "path": "/ztGateway/trafficTest/env/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-zt-gateway", "path": "/ztGateway", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways", "path": "/ztGateway", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-by-id", "path": "/ztGateway/trafficTest/{testId}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-update-traffic-test", "path": "/ztGateway/trafficTest/{testId}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-by-id", "path": "/ztGateway/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-update-zt-gateway", "path": "/ztGateway/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-comparison", "path": "/ztGateway/config/compare/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-status", "path": "/ztGateway/config/status/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-events", "path": "/ztGateway/events/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-metrics", "path": "/ztGateway/analytic/metrics/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-status", "path": "/ztGateway/status/{id}", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-supported-regions", "path": "/ztGateway/supportedRegions", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-count", "path": "/ztGateway/count", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-lite", "path": "/ztGateway/lite", "product": "zcloudconnector"}
+- `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "post", "operation": "zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-run-traffic-test", "path": "/ztGateway/{gwId}/trafficTest/run", "product": "zcloudconnector"}
 - `zdx` `path_prefix_anomaly` {"expected_prefix": "/v1", "issue": "path_prefix_anomaly", "path": "/snapshot/alert", "product": "zdx"}
 - `zdx` `path_prefix_anomaly` {"expected_prefix": "/v1", "issue": "path_prefix_anomaly", "path": "/snapshot/user", "product": "zdx"}
 

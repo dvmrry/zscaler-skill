@@ -1,20 +1,20 @@
 # Automate Docusaurus Snapshot
 
-Captured at: `2026-09-07T13:58:58.314959+00:00`
-Main JS: `https://automate.zscaler.com/assets/js/main.ee13ae7b.js`
-Runtime JS: `https://automate.zscaler.com/assets/js/runtime~main.f2f463b9.js`
+Captured at: `2026-11-20T15:30:07.845457+00:00`
+Main JS: `https://automate.zscaler.com/assets/js/main.96b7829b.js`
+Runtime JS: `https://automate.zscaler.com/assets/js/runtime~main.61d18150.js`
 
 ## Summary
 
-- Routes discovered: **1322**
-- API MDX route candidates matched: **1322 / 1322**
-- API blobs decoded: **1322**
+- Routes discovered: **1761**
+- API MDX route candidates matched: **1761 / 1761**
+- API blobs decoded: **1761**
 - Decode failures: **0**
-- Existing committed contract ops: **1304**
-- Live-only route keys: **53**
-- Existing-only route keys: **35**
-- Live-only loose method/path signatures: **38**
-- Existing-only loose method/path signatures: **23**
+- Existing committed contract ops: **1322**
+- Live-only route keys: **480**
+- Existing-only route keys: **41**
+- Live-only loose method/path signatures: **445**
+- Existing-only loose method/path signatures: **6**
 
 ## Retained Publication Absences
 
@@ -24,19 +24,20 @@ Runtime JS: `https://automate.zscaler.com/assets/js/runtime~main.f2f463b9.js`
 
 | product | live blobs | existing scrape | route-key common ops | loose path common sigs | live-only route keys | existing-only route keys | request nested | response nested |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `ai-security` | 114 | 108 | 104 | 104 | 10 | 4 | 157 | 804 |
-| `aiguard` | 47 | 47 | 47 | 39 | 0 | 0 | 24 | 132 |
+| `ai-security` | 131 | 114 | 110 | 110 | 21 | 4 | 157 | 995 |
+| `aiguard` | 47 | 47 | 47 | 46 | 0 | 0 | 24 | 132 |
 | `bi` | 10 | 10 | 10 | 10 | 0 | 0 | 48 | 116 |
 | `easm` | 11 | 11 | 11 | 11 | 0 | 0 | 0 | 79 |
-| `event-monitoring` | 15 | 15 | 15 | 14 | 0 | 0 | 22 | 69 |
-| `urbac` | 6 | 0 | 0 | 0 | 6 | 0 | 0 | 0 |
-| `zcc` | 50 | 54 | 50 | 50 | 0 | 4 | 481 | 546 |
-| `zcell` | 36 | 36 | 11 | 35 | 25 | 25 | 15 | 196 |
-| `zcloudconnector` | 165 | 165 | 165 | 165 | 0 | 0 | 2358 | 5678 |
+| `event-monitoring` | 15 | 15 | 15 | 15 | 0 | 0 | 22 | 86 |
+| `risk360` | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 |
+| `urbac` | 6 | 6 | 6 | 6 | 0 | 0 | 29 | 46 |
+| `zcc` | 50 | 50 | 50 | 50 | 0 | 0 | 481 | 546 |
+| `zcell` | 36 | 36 | 36 | 36 | 0 | 0 | 15 | 205 |
+| `zcloudconnector` | 190 | 165 | 161 | 165 | 29 | 4 | 2360 | 5684 |
 | `zdx` | 148 | 148 | 148 | 129 | 0 | 0 | 562 | 5947 |
-| `zia` | 469 | 471 | 469 | 469 | 0 | 2 | 3249 | 9699 |
-| `zid` | 31 | 31 | 31 | 28 | 0 | 0 | 24 | 265 |
-| `zpa` | 220 | 208 | 208 | 208 | 12 | 0 | 5390 | 9104 |
+| `zia` | 637 | 469 | 467 | 469 | 170 | 2 | 3636 | 10570 |
+| `zid` | 31 | 31 | 31 | 29 | 0 | 0 | 24 | 265 |
+| `zpa` | 448 | 220 | 189 | 218 | 259 | 31 | 10869 | 20679 |
 
 ## Contract Change Radar
 
@@ -44,352 +45,1744 @@ Route-key renames are paired by method/path before additions and removals are co
 
 | product | matched | added ops | removed ops | route changes | route-key changes | schema-changed ops | schema annotation Δ | product metadata Δ | request +/−/Δ | response +/−/Δ |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `ai-security` | 104 | 10 | 4 | 0 | 0 | 7 | 6 | 0 | 0/0/0 | 58/10/10 |
-| `aiguard` | 47 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `ai-security` | 110 | 21 | 4 | 0 | 0 | 12 | 12 | 0 | 0/0/0 | 126/67/31 |
+| `aiguard` | 47 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
 | `bi` | 10 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `easm` | 11 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `event-monitoring` | 15 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `urbac` | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zcc` | 50 | 0 | 4 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zcell` | 35 | 1 | 1 | 0 | 24 | 10 | 1 | 1 | 1/0/1 | 8/1/1 |
-| `zcloudconnector` | 165 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zdx` | 148 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zia` | 469 | 0 | 2 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
-| `zid` | 31 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zpa` | 208 | 12 | 0 | 0 | 0 | 8 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `easm` | 11 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `event-monitoring` | 15 | 0 | 0 | 0 | 0 | 4 | 2 | 0 | 2/0/0 | 20/0/0 |
+| `risk360` | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `urbac` | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zcc` | 50 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zcell` | 36 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zcloudconnector` | 165 | 25 | 0 | 0 | 4 | 6 | 0 | 0 | 2/0/0 | 6/0/0 |
+| `zdx` | 148 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zia` | 469 | 168 | 0 | 0 | 2 | 75 | 0 | 0 | 462/24/13 | 1019/48/30 |
+| `zid` | 31 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zpa` | 218 | 230 | 2 | 7 | 29 | 202 | 151 | 0 | 5958/39/487 | 11750/107/806 |
 
 ### Product metadata changes
 
-- `easm` `title`: `Zscaler External Attack Surface Management API` → `External Attack Surface Management API`.
-- `zcc` `title`: `Zscaler Client Connector API` → `Client Connector API`.
-- `zcell` `title`: `Zscaler Cellular API` → `Cellular API`.
-- `zcloudconnector` `title`: `Zscaler Cloud & Branch Connector API` → `Cloud & Branch Connector API`.
-- `zdx` `title` values: removed `Zscaler Digital Experience API`; retained `Digital Experience API`; current operation distribution `Digital Experience API`=148.
-- `zia` `title`: `Zscaler Internet Access API` → `Internet Access API`.
-- `zpa` `title`: `Zscaler Private Access API` → `Private Access API`.
+- `urbac` `title`: `Unified RBAC` → `Unified RBAC API`.
 
 ### Added operations
 
-- `ai-security` — `GET /v1/assets/agents/{id}` (`ai-security/aisecurity/v1-assets-agents/agents-get-agent`)
-- `ai-security` — `GET /v1/assets/agents` (`ai-security/aisecurity/v1-assets-agents/agents-list-agents`)
-- `ai-security` — `GET /v1/resources/coderepositories/{id}` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository`)
-- `ai-security` — `GET /v1/resources/coderepositories` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories`)
-- `ai-security` — `GET /v1/resources/datastores/{id}` (`ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore`)
-- `ai-security` — `GET /v1/resources/datastores` (`ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores`)
-- `ai-security` — `GET /v1/resources/guardrails/{id}` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`)
-- `ai-security` — `GET /v1/resources/guardrails` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`)
-- `ai-security` — `GET /v1/resources/workloads/{id}` (`ai-security/aisecurity/v1-resources-workloads/workloads-get-workload`)
-- `ai-security` — `GET /v1/resources/workloads` (`ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads`)
-- `urbac` — `POST /v1/auditlog/query` (`urbac/auditlogs/audit-log-resource-search-logs`)
-- `urbac` — `POST /v1/roles` (`urbac/roles/urbac-resource-create-role`)
-- `urbac` — `DELETE /v1/roles/{roleId}` (`urbac/roles/urbac-resource-delete-role`)
-- `urbac` — `GET /v1/roles/{roleId}` (`urbac/roles/urbac-resource-get-role`)
-- `urbac` — `POST /v1/roles/query` (`urbac/roles/urbac-resource-get-roles`)
-- `urbac` — `PUT /v1/roles/{roleId}` (`urbac/roles/urbac-resource-update-role`)
-- `zcell` — `GET /api/v1/customers/{id}/sims/{iccid}/tower-locations` (`zcell/sim-management/sim-resource-get-tower-location-history`)
-- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/application/federate` (`zpa/federate-applications/federate-application`)
-- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` (`zpa/federate-applications/get-federated-applications-from-host`)
-- `zpa` — `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token` (`zpa/partner-federation-provisioning/create-federation-token`)
-- `zpa` — `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` (`zpa/partner-federation-provisioning/delete-provisioning`)
-- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners` (`zpa/partner-federation-provisioning/get-active-federation-partners`)
-- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation` (`zpa/partner-federation-provisioning/get-provisionings`)
-- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/approval` (`zpa/partner-federation-provisioning/request-approval`)
-- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` (`zpa/partner-federation-provisioning/update-federation-state`)
-- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes` (`zpa/partner-federation-provisioning/update-notes`)
-- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` (`zpa/partner-federation-provisioning/update-provisioning-state`)
-- `zpa` — `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify` (`zpa/partner-federation-provisioning/verify-token`)
-- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` (`zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps`)
+- `ai-security` — `GET /v1/assets/agents/{id}/tools` (`ai-security/aisecurity/v1-assets-agents/agents-get-agent-tools`)
+- `ai-security` — `GET /v1/assets/agents/{id}/sensitivedatafindings` (`ai-security/aisecurity/v1-assets-agents/agents-list-agent-findings`)
+- `ai-security` — `GET /v1/assets/gateways/{id}` (`ai-security/aisecurity/v1-assets-gateways/gateways-get-gateway`)
+- `ai-security` — `GET /v1/assets/gateways/{id}/policies` (`ai-security/aisecurity/v1-assets-gateways/gateways-list-gateway-policies`)
+- `ai-security` — `GET /v1/assets/gateways/{id}/targets` (`ai-security/aisecurity/v1-assets-gateways/gateways-list-gateway-targets`)
+- `ai-security` — `GET /v1/assets/gateways` (`ai-security/aisecurity/v1-assets-gateways/gateways-list-gateways`)
+- `ai-security` — `GET /v1/assets/guardrails/{id}` (`ai-security/aisecurity/v1-assets-guardrails/guardrails-get-guardrail`)
+- `ai-security` — `GET /v1/assets/guardrails` (`ai-security/aisecurity/v1-assets-guardrails/guardrails-list-guardrails`)
+- `ai-security` — `GET /v1/assets/mcpservers/{id}/resources` (`ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-resources`)
+- `ai-security` — `GET /v1/assets/models/{id}` (`ai-security/aisecurity/v1-assets-models/models-get-model`)
+- `ai-security` — `GET /v1/assets/models/{id}/usagedata` (`ai-security/aisecurity/v1-assets-models/models-list-model-usage-data`)
+- `ai-security` — `GET /v1/assets/models` (`ai-security/aisecurity/v1-assets-models/models-list-models`)
+- `ai-security` — `GET /v1/dlp-dictionaries` (`ai-security/aisecurity/v1-dlp-dictionaries/dlp-dictionaries-list-dlp-dictionaries`)
+- `ai-security` — `GET /v1/dlp-engines` (`ai-security/aisecurity/v1-dlp-engines/dlp-engines-list-dlp-engines`)
+- `ai-security` — `GET /v1/document-types` (`ai-security/aisecurity/v1-document-types/document-types-list-document-types`)
+- `ai-security` — `GET /v1/identities/{id}` (`ai-security/aisecurity/v1-identities/identities-get-identity`)
+- `ai-security` — `GET /v1/identities` (`ai-security/aisecurity/v1-identities/identities-list-identities`)
+- `ai-security` — `GET /v1/resources/datastores/{id}/sensitivedatafindings` (`ai-security/aisecurity/v1-resources-datastores/datastores-list-datastore-findings`)
+- `ai-security` — `GET /v1/resources/softwarelibraries/{name}` (`ai-security/aisecurity/v1-resources-softwarelibraries/software-libraries-get-software-library`)
+- `ai-security` — `GET /v1/resources/softwarelibraries` (`ai-security/aisecurity/v1-resources-softwarelibraries/software-libraries-list-software-libraries`)
+- `ai-security` — `GET /v1/resources/workloads/{id}/sensitivedatafindings` (`ai-security/aisecurity/v1-resources-workloads/workloads-list-workload-findings`)
+- `risk360` — `GET /rest/v1/reports/download` (`risk360/reports/download-report`)
+- `zcloudconnector` — `GET /ecgroup/vmUpgradeMetrics` (`zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-vm-upgrade-metrics`)
+- `zcloudconnector` — `PUT /ecgroup/releaseChannel` (`zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-update-release-channel`)
+- `zcloudconnector` — `POST /ztGateway/trafficTest` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test`)
+- `zcloudconnector` — `POST /ztGateway/trafficTest/env/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test-environment`)
+- `zcloudconnector` — `POST /ztGateway` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-zt-gateway`)
+- `zcloudconnector` — `DELETE /ztGateway/trafficTest/{testId}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test`)
+- `zcloudconnector` — `DELETE /ztGateway/trafficTest/env/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test-environment`)
+- `zcloudconnector` — `DELETE /ztGateway/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-zt-gateway`)
+- `zcloudconnector` — `GET /ztGateway/trafficTest/{testId}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-by-id`)
+- `zcloudconnector` — `GET /ztGateway/trafficTest/env/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-environment`)
+- `zcloudconnector` — `GET /ztGateway/trafficTest` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-tests`)
+- `zcloudconnector` — `GET /ztGateway/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-by-id`)
+- `zcloudconnector` — `GET /ztGateway/config/compare/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-comparison`)
+- `zcloudconnector` — `GET /ztGateway/config/status/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-status`)
+- `zcloudconnector` — `GET /ztGateway/events/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-events`)
+- `zcloudconnector` — `PUT /ztGateway/analytic/metrics/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-metrics`)
+- `zcloudconnector` — `GET /ztGateway/status/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-status`)
+- `zcloudconnector` — `GET /ztGateway/supportedRegions` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-supported-regions`)
+- `zcloudconnector` — `GET /ztGateway` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways`)
+- `zcloudconnector` — `GET /ztGateway/count` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-count`)
+- `zcloudconnector` — `GET /ztGateway/licenseInfo` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-license-info`)
+- `zcloudconnector` — `GET /ztGateway/lite` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateways-lite`)
+- `zcloudconnector` — `POST /ztGateway/{gwId}/trafficTest/run` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-run-traffic-test`)
+- `zcloudconnector` — `PUT /ztGateway/trafficTest/{testId}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-update-traffic-test`)
+- `zcloudconnector` — `PUT /ztGateway/{id}` (`zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-update-zt-gateway`)
+- `zia` — `GET /adaptiveAccessProfiles` (`zia/adaptive-access-profiles/adaptive-access-profile-resource-get-adaptive-access-profiles`)
+- `zia` — `GET /adaptiveAccessProfiles/profiles/rules` (`zia/adaptive-access-profiles/adaptive-access-profile-resource-get-rule-names-associated-with-profiles`)
+- `zia` — `POST /azure/virtualHubSync` (`zia/azure-integration/azure-resource-check-async`)
+- `zia` — `GET /azure/virtualHubSync` (`zia/azure-integration/azure-resource-get-async-status`)
+- `zia` — `GET /azure/refreshConnectionStatus` (`zia/azure-integration/azure-resource-get-refresh-connection-status`)
+- `zia` — `GET /azure/tunnelConfiguration` (`zia/azure-integration/azure-resource-get-tunnel-configuration-status`)
+- `zia` — `GET /azure/unConfigureTunnelStatus` (`zia/azure-integration/azure-resource-get-tunnel-un-configuration-status`)
+- `zia` — `GET /azure/virtualHubs` (`zia/azure-integration/azure-resource-get-virtual-hubs`)
+- `zia` — `POST /azure/refreshConnectionStatus` (`zia/azure-integration/azure-resource-start-refresh-connection-status`)
+- `zia` — `POST /azure/tunnelConfiguration` (`zia/azure-integration/azure-resource-start-tunnel-config`)
+- `zia` — `DELETE /azure/unConfigureTunnel/{hubId}` (`zia/azure-integration/azure-resource-unconfigure-tunnel`)
+- `zia` — `POST /nssCollectors` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-create-nss-collector`)
+- `zia` — `DELETE /nssCollectors/{id}` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-delete-rules`)
+- `zia` — `GET /nssCollectors` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-get-nss-collectors`)
+- `zia` — `PUT /nssCollectors/{id}` (`zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-update-nss-collector`)
+- `zia` — `POST /domainProfiles` (`zia/data-loss-prevention/domain-profile-resource-create-domain-profile`)
+- `zia` — `DELETE /domainProfiles/{id}` (`zia/data-loss-prevention/domain-profile-resource-delete-domain-profile`)
+- `zia` — `GET /domainProfiles/{id}` (`zia/data-loss-prevention/domain-profile-resource-get-domain-profile-by-id`)
+- `zia` — `GET /domainProfiles` (`zia/data-loss-prevention/domain-profile-resource-get-domain-profiles`)
+- `zia` — `PUT /domainProfiles/{id}` (`zia/data-loss-prevention/domain-profile-resource-update-domain-profile`)
+- `zia` — `GET /webDlpGlobalOptions` (`zia/data-loss-prevention/web-dlp-global-options-resource-get-web-dlp-global-exception`)
+- `zia` — `PUT /webDlpGlobalOptions` (`zia/data-loss-prevention/web-dlp-global-options-resource-update-web-dlp-global-exception`)
+- `zia` — `GET /devices/{id}` (`zia/devices/user-devices-resource-get-user-device`)
+- `zia` — `GET /devices` (`zia/devices/user-devices-resource-get-user-devices`)
+- `zia` — `POST /emailRecipientProfile` (`zia/email-profiles/email-recipient-profile-resource-create-email-recipient-profile`)
+- `zia` — `DELETE /emailRecipientProfile/{profileId}` (`zia/email-profiles/email-recipient-profile-resource-delete-email-recipient-profile`)
+- `zia` — `GET /emailRecipientProfile/{profileId}` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profile-by-id`)
+- `zia` — `GET /emailRecipientProfile` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profiles`)
+- `zia` — `GET /emailRecipientProfile/count` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profiles-count`)
+- `zia` — `GET /emailRecipientProfile/lite` (`zia/email-profiles/email-recipient-profile-resource-get-email-recipient-profiles-lite`)
+- `zia` — `PUT /emailRecipientProfile/{profileId}` (`zia/email-profiles/email-recipient-profile-resource-update-email-recipient-profile`)
+- `zia` — `GET /eunTemplate/{templateType}/product/{product}` (`zia/end-user-notifications/eun-template-resource-get-eun-templates-by-product`)
+- `zia` — `GET /eunTemplate/{templateType}/featureEnablementStatus` (`zia/end-user-notifications/eun-template-resource-get-feature-enablement-status`)
+- `zia` — `GET /userConfirmation/{templateType}/featureEnablementStatus` (`zia/end-user-notifications/user-confirmation-resource-get-feature-enablement-status`)
+- `zia` — `GET /userConfirmation/globalDefaultTemplates` (`zia/end-user-notifications/user-confirmation-resource-get-global-default-templates`)
+- `zia` — `GET /userConfirmation/product/{product}` (`zia/end-user-notifications/user-confirmation-resource-get-user-confirmation-by-product`)
+- `zia` — `POST /endPointApplicationGroups` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-create-resource-group`)
+- `zia` — `DELETE /endPointApplicationGroups/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-delete-dlp-endpoint-resource`)
+- `zia` — `GET /endPointApplicationGroups` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-get-endpoint-application-groups`)
+- `zia` — `GET /endPointApplicationGroups/policies` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-get-policies-associated-with-groups`)
+- `zia` — `PUT /endPointApplicationGroups/resources/{groupId}` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-modify-group-association`)
+- `zia` — `PUT /endPointApplicationGroups/{groupId}` (`zia/endpoint-data-loss-prevention/end-point-application-group-resource-modify-resource-group`)
+- `zia` — `POST /endPointApplications/customApp` (`zia/endpoint-data-loss-prevention/end-point-application-resource-add-dlp-endpoint-resource`)
+- `zia` — `DELETE /endPointApplications/customApp/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-delete-dlp-endpoint-resource`)
+- `zia` — `GET /endPointApplications` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-applications`)
+- `zia` — `GET /endPointApplications/count` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-applications-count`)
+- `zia` — `GET /endPointApplications/lite` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-applications-lite`)
+- `zia` — `GET /endPointApplications/getCategoriesWithNonEmptyApps` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-categories-with-non-empty-apps`)
+- `zia` — `GET /endPointApplications/cloudApps/count` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-cloud-applications-count`)
+- `zia` — `GET /endPointApplications/customApps` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-custom-applications`)
+- `zia` — `GET /endPointApplications/customApps/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-custom-applications-by-id`)
+- `zia` — `GET /endPointApplications/customApps/lite` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-custom-applications-lite`)
+- `zia` — `GET /endPointApplications/policies` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-policies-associated-with-apps`)
+- `zia` — `GET /endPointApplications/cloudApps` (`zia/endpoint-data-loss-prevention/end-point-application-resource-get-zdp-applications`)
+- `zia` — `PUT /endPointApplications/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-update-application`)
+- `zia` — `PUT /endPointApplications/customApp/{id}` (`zia/endpoint-data-loss-prevention/end-point-application-resource-update-dlp-endpoint-resource`)
+- `zia` — `POST /endPointDlpResourceGroups` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-create-resource-group`)
+- `zia` — `DELETE /endPointDlpResourceGroups/{groupId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-delete-group`)
+- `zia` — `GET /endPointDlpResourceGroups/{channel}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-get-resource-groups`)
+- `zia` — `GET /endPointDlpResourceGroups/{groupId}/resources` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-get-resources-in-group-public`)
+- `zia` — `PUT /endPointDlpResourceGroups/{groupId}/resources` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-modify-group-resource-association-public`)
+- `zia` — `PUT /endPointDlpResourceGroups/{groupId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-resource-groups-resource-modify-resource-group`)
+- `zia` — `POST /endPointDlpRules` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-add-endpoint-dlp-rule`)
+- `zia` — `POST /endPointDlpRules/{id}/subRule` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-add-sub-rule`)
+- `zia` — `DELETE /endPointDlpRules/{id}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-delete-endpoint-dlp-rule`)
+- `zia` — `DELETE /endPointDlpRules/{id}/subRule/{subRuleId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-delete-sub-rule`)
+- `zia` — `GET /endPointDlpRules/fileTypeCategories` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-fetch-file-type-categories`)
+- `zia` — `GET /endPointDlpRules/fileTypes` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-fetch-file-types-for-endpoint-dlp`)
+- `zia` — `GET /endPointDlpRules/{id}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-get-endpoint-dlp-rule-by-id`)
+- `zia` — `GET /endPointDlpRules` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-get-endpoint-dlp-rules`)
+- `zia` — `PUT /endPointDlpRules/{id}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-modify-endpoint-dlp-rule`)
+- `zia` — `PUT /endPointDlpRules/{id}/subRule/{subRuleId}` (`zia/endpoint-data-loss-prevention/endpoint-dlp-rules-resource-modify-sub-rule`)
+- `zia` — `POST /dlpEndpointResource` (`zia/endpoint-data-loss-prevention/endpoint-resource-add-dlp-endpoint-resource`)
+- `zia` — `DELETE /dlpEndpointResource/{id}` (`zia/endpoint-data-loss-prevention/endpoint-resource-delete-dlp-endpoint-resource`)
+- `zia` — `GET /dlpEndpointResource/{channel}` (`zia/endpoint-data-loss-prevention/endpoint-resource-get-dlp-endpoint-resources`)
+- `zia` — `GET /dlpEndpointResource/{channel}/{id}` (`zia/endpoint-data-loss-prevention/endpoint-resource-get-endpoint-by-id`)
+- `zia` — `GET /dlpEndpointResource/{id}/groups` (`zia/endpoint-data-loss-prevention/endpoint-resource-get-group-ids-by-resource`)
+- `zia` — `PUT /dlpEndpointResource/{id}` (`zia/endpoint-data-loss-prevention/endpoint-resource-update-dlp-endpoint-resource`)
+- `zia` — `POST /apps-services` (`zia/firewall-policies/custom-app-service-config-resource-add-app-service-configs`)
+- `zia` — `DELETE /apps-services/{appServiceId}` (`zia/firewall-policies/custom-app-service-config-resource-delete-app-service-config`)
+- `zia` — `GET /apps-services` (`zia/firewall-policies/custom-app-service-config-resource-get-all-app-service-config-for-org`)
+- `zia` — `GET /apps-services/{appServiceId}` (`zia/firewall-policies/custom-app-service-config-resource-get-app-service-config-for-org`)
+- `zia` — `PUT /apps-services/{appServiceId}` (`zia/firewall-policies/custom-app-service-config-resource-update-app-service-configs`)
+- `zia` — `DELETE /dnsApplicationGroups/{groupId}` (`zia/firewall-policies/dns-application-group-resource-delete-dns-application-group`)
+- `zia` — `GET /dnsApplicationGroups/{groupId}` (`zia/firewall-policies/dns-application-group-resource-get-dns-application-group-by-id`)
+- `zia` — `GET /dnsApplicationGroups/lite` (`zia/firewall-policies/dns-application-group-resource-get-dns-application-groups-lite`)
+- `zia` — `PUT /dnsApplicationGroups/{groupId}` (`zia/firewall-policies/dns-application-group-resource-update-dns-application-group`)
+- `zia` — `POST /httpHeaderActionProfile` (`zia/http-header-control/http-header-action-profile-resource-create-http-header-action-profile`)
+- `zia` — `DELETE /httpHeaderActionProfile/{id}` (`zia/http-header-control/http-header-action-profile-resource-delete-http-header-action-profile`)
+- `zia` — `GET /httpHeaderActionProfile` (`zia/http-header-control/http-header-action-profile-resource-get-http-header-action-profiles`)
+- `zia` — `PUT /httpHeaderActionProfile/{id}` (`zia/http-header-control/http-header-action-profile-resource-update-http-header-action-profile`)
+- `zia` — `POST /httpHeaderProfile` (`zia/http-header-control/http-header-profile-resource-create-http-header-profile`)
+- `zia` — `DELETE /httpHeaderProfile/{id}` (`zia/http-header-control/http-header-profile-resource-delete-http-header-profile`)
+- `zia` — `GET /httpHeaderProfile` (`zia/http-header-control/http-header-profile-resource-get-http-header-profiles`)
+- `zia` — `PUT /httpHeaderProfile/{id}` (`zia/http-header-control/http-header-profile-resource-update-http-header-profile`)
+- `zia` — `DELETE /sslCertificates/{certId}` (`zia/intermediate-ca-certificates/ssl-cert-resource-delete-cert`)
+- `zia` — `GET /sslCertificates/download/{certId}` (`zia/intermediate-ca-certificates/ssl-cert-resource-download-ssl-cert`)
+- `zia` — `GET /sslCertificates` (`zia/intermediate-ca-certificates/ssl-cert-resource-get-certs`)
+- `zia` — `GET /sslCertificates/certDetail/{certId}` (`zia/intermediate-ca-certificates/ssl-cert-resource-show-cert`)
+- `zia` — `POST /ipsSignatureRules` (`zia/ips-control-policy/ips-signature-rule-resource-add-ips-signature-rule`)
+- `zia` — `DELETE /ipsSignatureRules/{id}` (`zia/ips-control-policy/ips-signature-rule-resource-delete-ips-signature-rule`)
+- `zia` — `GET /ipsSignatureRules/export` (`zia/ips-control-policy/ips-signature-rule-resource-export-ips-sig-csv`)
+- `zia` — `GET /ipsSignatureRules/{id}` (`zia/ips-control-policy/ips-signature-rule-resource-get-ips-signature-rule-by-id`)
+- `zia` — `GET /ipsSignatureRules` (`zia/ips-control-policy/ips-signature-rule-resource-get-ips-signature-rules`)
+- `zia` — `GET /ipsSignatureRules/import` (`zia/ips-control-policy/ips-signature-rule-resource-import-ips-sig-rule-status`)
+- `zia` — `POST /ipsSignatureRules/import` (`zia/ips-control-policy/ips-signature-rule-resource-import-ips-sig-rules`)
+- `zia` — `PUT /ipsSignatureRules/{id}` (`zia/ips-control-policy/ips-signature-rule-resource-update-ips-signature-rule`)
+- `zia` — `POST /ipsSignatureRules/validateRuleText` (`zia/ips-control-policy/ips-signature-rule-resource-validate-rule-text`)
+- `zia` — `GET /malwarePolicy` (`zia/malware-protection-policy/malware-policy-resource-get-config`)
+- `zia` — `PUT /malwarePolicy` (`zia/malware-protection-policy/malware-policy-resource-update-config`)
+- `zia` — `POST /emailDlpRules` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-add-rule`)
+- `zia` — `DELETE /emailDlpRules/{ruleId}` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-delete-rule`)
+- `zia` — `GET /emailDlpRules/actions` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-email-dlp-policy-actions`)
+- `zia` — `GET /emailDlpRules/{ruleId}` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-rule-by-id`)
+- `zia` — `GET /emailDlpRules` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-rules`)
+- `zia` — `GET /emailDlpRules/lite` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-get-summary`)
+- `zia` — `PUT /emailDlpRules/{ruleId}` (`zia/outbound-email-dlp-policy/email-dlp-rule-resource-update-rule`)
+- `zia` — `POST /integrationPartners/crowdStrike/endpoints` (`zia/partner-integrations/integration-partner-resource-crowd-strike-end-points`)
+- `zia` — `GET /integrationPartners/crowdStrike/whitelistedBaseUrls` (`zia/partner-integrations/integration-partner-resource-get-crowd-strike-whietlisted-domains`)
+- `zia` — `GET /integrationPartners/crowdStrike/endpoints` (`zia/partner-integrations/integration-partner-resource-get-ioc-observed-devices`)
+- `zia` — `GET /integrationPartners/sandbox/report/{md5}` (`zia/partner-integrations/integration-partner-resource-get-md-5-detail`)
+- `zia` — `POST /integrationPartners/microsoftDefender/endpoints` (`zia/partner-integrations/integration-partner-resource-get-microsoft-defender-transactions`)
+- `zia` — `GET /integrationPartners` (`zia/partner-integrations/integration-partner-resource-get-partners`)
+- `zia` — `POST /rootCertificates` (`zia/root-certificates/root-certificate-resource-create-root-certificate`)
+- `zia` — `DELETE /rootCertificates/{rootCertId}` (`zia/root-certificates/root-certificate-resource-delete-cert`)
+- `zia` — `GET /rootCertificates` (`zia/root-certificates/root-certificate-resource-get-certs`)
+- `zia` — `GET /rootCertificates/certDetail/{rootCertId}` (`zia/root-certificates/root-certificate-resource-show-cert`)
+- `zia` — `PUT /rootCertificates/{rootCertId}` (`zia/root-certificates/root-certificate-resource-update-root-certificate`)
+- `zia` — `GET /ruleLabels/ruleType/{ruleType}` (`zia/rule-labels/rule-label-resource-get-rule-label-via-rule-type`)
+- `zia` — `GET /browserControlSettings/supportedBrowserVersions` (`zia/secure-browsing/browser-control-settings-resource-get-supported-browser-versions`)
+- `zia` — `PUT /browserControlSettings/smartIsolation` (`zia/secure-browsing/browser-control-settings-resource-update-smart-isolation`)
+- `zia` — `POST /alertDefinitions` (`zia/security-ueba-alerts/alert-definition-resource-add-alert-definition`)
+- `zia` — `DELETE /alertDefinitions/{alertDefinitionId}` (`zia/security-ueba-alerts/alert-definition-resource-delete-alert-definition`)
+- `zia` — `GET /alertDefinitions/{alertDefinitionId}` (`zia/security-ueba-alerts/alert-definition-resource-get-alert-definition`)
+- `zia` — `GET /alertDefinitions` (`zia/security-ueba-alerts/alert-definition-resource-get-alert-definitions`)
+- `zia` — `PUT /alertDefinitions/{alertDefinitionId}` (`zia/security-ueba-alerts/alert-definition-resource-update-alert-definition`)
+- `zia` — `POST /alertRuleConfiguration/rules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-create-alert-rule`)
+- `zia` — `POST /alertRuleConfiguration/uebaRules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-create-ueba-alert-rule`)
+- `zia` — `POST /alertRuleConfiguration/webhooks` (`zia/security-ueba-alerts/alert-rule-configuration-resource-create-webhook`)
+- `zia` — `DELETE /alertRuleConfiguration/rules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-delete-rules`)
+- `zia` — `DELETE /alertRuleConfiguration/uebaRules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-delete-ueba-rules`)
+- `zia` — `DELETE /alertRuleConfiguration/webhooks/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-delete-webhook`)
+- `zia` — `GET /alertRuleConfiguration/rules/{ruleId}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-alert-rule`)
+- `zia` — `GET /alertRuleConfiguration/uebaRules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-all-rules`)
+- `zia` — `GET /alertRuleConfiguration/rules` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-all-security-alert-rules`)
+- `zia` — `GET /alertRuleConfiguration/webhooks` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-all-webhooks`)
+- `zia` — `GET /alertRuleConfiguration/rules/rulestatus` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-rule-status`)
+- `zia` — `GET /alertRuleConfiguration/uebaRules/{ruleId}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-get-ueba-alert-rule`)
+- `zia` — `POST /alertRuleConfiguration/webhooks/test` (`zia/security-ueba-alerts/alert-rule-configuration-resource-test-webhook`)
+- `zia` — `PUT /alertRuleConfiguration/rules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-update-rule`)
+- `zia` — `PUT /alertRuleConfiguration/uebaRules/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-update-ueba-rule`)
+- `zia` — `PUT /alertRuleConfiguration/webhooks/{id}` (`zia/security-ueba-alerts/alert-rule-configuration-resource-update-webhook`)
+- `zia` — `GET /smpcInstance` (`zia/smpc-instance/smpc-instance-resource-get-smpc-instance-status`)
+- `zia` — `PUT /smpcInstance/dc` (`zia/smpc-instance/smpc-instance-resource-update-data-center-details`)
+- `zia` — `POST /trafficCaptureRules` (`zia/traffic-capture-policy/traffic-capture-rules-resource-create-pcap-traffic-capture-rule`)
+- `zia` — `DELETE /trafficCaptureRules/{ruleId}` (`zia/traffic-capture-policy/traffic-capture-rules-resource-delete-traffic-capture-rule`)
+- `zia` — `GET /trafficCaptureRules` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-packet-capture-rules`)
+- `zia` — `GET /trafficCaptureRules/ruleLabels` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-rule-label-info`)
+- `zia` — `GET /trafficCaptureRules/order` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-rule-order-info-forget-traffic-capture-rules`)
+- `zia` — `GET /trafficCaptureRules/{ruleId}` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-traffic-capture-rule`)
+- `zia` — `GET /trafficCaptureRules/count` (`zia/traffic-capture-policy/traffic-capture-rules-resource-get-traffic-capture-rules-count`)
+- `zia` — `PUT /trafficCaptureRules/{ruleId}` (`zia/traffic-capture-policy/traffic-capture-rules-resource-update-traffic-capture-rule`)
+- `zia` — `GET /endPointApplicationGroups/{id}` (`zia/untagged/end-point-application-group-resource-get-endpoint-application-group-by-id`)
+- `zia` — `GET /urlFilteringRules/count` (`zia/url-filtering-policy/url-filtering-rule-resource-get-rules-count`)
+- `zia` — `DELETE /isolationVotiroCdr/tokenConfig` (`zia/votiro-cdr/isolation-votiro-cdr-resource-delete-votiro-token-config`)
+- `zia` — `GET /isolationVotiroCdr/policies` (`zia/votiro-cdr/isolation-votiro-cdr-resource-get-votiro-cdr-policy-list`)
+- `zia` — `GET /isolationVotiroCdr/tokenConfig` (`zia/votiro-cdr/isolation-votiro-cdr-resource-get-votiro-token-config`)
+- `zia` — `PUT /isolationVotiroCdr/tokenConfig` (`zia/votiro-cdr/isolation-votiro-cdr-resource-update-votiro-token-config`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/administrators` (`zpa/administrator-management/administrator-resource-create-user`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/administrators/{adminId}` (`zpa/administrator-management/administrator-resource-delete-user`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/administrators/{adminId}` (`zpa/administrator-management/administrator-resource-get-user`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/administrators` (`zpa/administrator-management/administrator-resource-get-users`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/administrators/{adminId}` (`zpa/administrator-management/administrator-resource-update-user`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/apiKeys` (`zpa/api-key-management/api-key-resource-create-api-key`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}` (`zpa/api-key-management/api-key-resource-delete-api-key`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/apiKeys` (`zpa/api-key-management/api-key-resource-get-all-api-keys`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}` (`zpa/api-key-management/api-key-resource-get-api-key-by-id`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}` (`zpa/api-key-management/api-key-resource-update-api-key`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` (`zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/summary` (`zpa/app-connector-group-management/app-connector-group-resource-get-app-connector-group-summary`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}/sg` (`zpa/app-connector-group-management/app-connector-group-resource-get-app-connector-with-server-group`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/connector/{connectorId}/update` (`zpa/app-connector-management/connector-resource-restart-connector`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/connectorSchedule/{id}` (`zpa/app-connector-management/update-app-connector-schedule-frequency`)
+- `zpa` — `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/topObservedUsers` (`zpa/application-recommendations/app-recommendation-resource-aggregate-top-observed-users`)
+- `zpa` — `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/aggregateUserGroups` (`zpa/application-recommendations/app-recommendation-resource-aggregate-user-groups`)
+- `zpa` — `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/aggregateAppTypes` (`zpa/application-recommendations/app-recommendation-resource-get-aggregate-app-types`)
+- `zpa` — `POST /analyticsconfig/v2/customers/{customerId}/appRecommendation/search` (`zpa/application-recommendations/app-recommendation-resource-get-all-app-recommendations`)
+- `zpa` — `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/attackSurfaceReduction` (`zpa/application-recommendations/app-recommendation-resource-get-attack-surface-reduction-details`)
+- `zpa` — `GET /analyticsconfig/v1/customers/{customerId}/appRecommendation/groupingType/{groupingType}/synced` (`zpa/application-recommendations/app-recommendation-resource-is-grouping-type-synced`)
+- `zpa` — `GET /analyticsconfig/v2/customers/{customerId}/appRecommendation/preferred/groupingType` (`zpa/application-recommendations/app-recommendation-user-preference-resource-get-preferred-sub-user-grouping`)
+- `zpa` — `PUT /analyticsconfig/v2/customers/{customerId}/appRecommendation/preferred/groupingType/{groupingType}` (`zpa/application-recommendations/app-recommendation-user-preference-resource-update-preferred-user-grouping-type`)
+- `zpa` — `PATCH /analyticsconfig/v1/customers/{customerId}/ignoreList` (`zpa/application-recommendations/ignore-list-resource-add-ignore-list`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/bulkUpdateMultiMatch` (`zpa/application-segment-management/application-resource-bulk-update-multimatch`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/deleteAppByType` (`zpa/application-segment-management/application-resource-delete-application-by-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/export` (`zpa/application-segment-management/application-resource-export-application`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/getAppsByType` (`zpa/application-segment-management/application-resource-get-application-apps-by-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/mappings` (`zpa/application-segment-management/application-resource-get-application-segment-mappings`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/summary` (`zpa/application-segment-management/application-resource-get-application-summary`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{appId}/getAppByType` (`zpa/application-segment-management/application-resource-get-ba-or-inspect-app`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/configured/count` (`zpa/application-segment-management/application-resource-get-configured-application-count`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/count/currentAndMaxLimit` (`zpa/application-segment-management/application-resource-get-current-and-max-count`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/application/multimatchUnsupportedReferences` (`zpa/application-segment-management/application-resource-get-multimatch-unsupported-references`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/weightedLbConfig` (`zpa/application-segment-management/application-resource-get-weighted-load-balancer-config`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/application/provision` (`zpa/application-segment-management/application-resource-provision-application`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/tags` (`zpa/application-segment-management/application-resource-update-application-tags`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/weightedLbConfig` (`zpa/application-segment-management/application-resource-update-weighted-load-balancer-config`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/application/validate` (`zpa/application-segment-management/application-resource-validate-wild-card-domain-name`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/application/{applicationId}` (`zpa/application-segment-management/policy-set-rule-resource-get-policy-rules-by-app-id-and-page`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/getDefaultInspectionProfile` (`zpa/appprotection-profile-management/default-inspection-profile-resource-get-default-inspection-profile`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/stepupauthlevel` (`zpa/authentication-settings/step-up-auth-level-resource-get-step-up-auth-levels`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/branchConnectorGroup/summary` (`zpa/branch-connector-management/branch-connector-group-resource-get-branch-connector-group-summary`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/branchConnectorGroup` (`zpa/branch-connector-management/branch-connector-group-resource-get-branch-connector-groups`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/branchConnector` (`zpa/branch-connector-management/branch-connector-resource-get-branch-connectors`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/activeBrowserProtectionProfile` (`zpa/browser-protection-management/active-browser-protection-profile-resource-get-active-clientless-session-protection-profile`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/browserProtectionProfile` (`zpa/browser-protection-management/browser-protection-profile-resource-get-browser-protection-profiles`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/browserProtectionProfile/setActive/{browserProtectionProfileId}` (`zpa/browser-protection-management/browser-protection-profile-resource-set-active-browser-protection-profile`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/managedBrowserProfile/search` (`zpa/browser-protection-management/managed-browser-profile-resource-get-all-managed-browser-profiles`)
+- `zpa` — `GET /cbiconfig/cbi/api/customers/{customerId}/ztbrowser/extensions` (`zpa/browser-protection-management/zt-browser-extension-resource-get-extensions-catalog`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}` (`zpa/certificate-management/certificate-resource-update-certificate`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/clientSetting` (`zpa/client-settings-management/client-setting-resource-create-or-update-client-setting`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/clientSetting` (`zpa/client-settings-management/client-setting-resource-delete-client-setting`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/clientSetting/all` (`zpa/client-settings-management/client-setting-resource-get-all-client-settings`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/clientSetting` (`zpa/client-settings-management/client-setting-resource-get-client-setting`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/cloudConnectorGroup/summary` (`zpa/cloud-connector-management/cloud-connector-group-resource-get-all-edge-connector-group-name-ids`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/cloudConnector` (`zpa/cloud-connector-management/cloud-connector-resource-get-all-edge-connectors`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/configOverrides` (`zpa/configuration-overrides/config-override-resource-create-config-override`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/{id}` (`zpa/configuration-overrides/config-override-resource-get-config-override`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/configOverrides` (`zpa/configuration-overrides/config-override-resource-get-config-overrides`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/configOverrides/{id}` (`zpa/configuration-overrides/config-override-resource-update-config-override`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/config/ziaCloudConfig` (`zpa/customer-configuration/customer-config-resource-add-or-update-zia-cloud-config`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/config/sessionTerminationOnReauth` (`zpa/customer-configuration/customer-config-resource-add-session-termination-on-reauth`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/config/sessionTerminationOnReauth` (`zpa/customer-configuration/customer-config-resource-get-session-termination-on-reauth`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/config/ziaCloudConfig` (`zpa/customer-configuration/customer-config-resource-get-zia-cloud-config`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/config/isZiaCloudConfigAvailable` (`zpa/customer-configuration/customer-config-resource-is-zia-cloud-config-available`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/customerDRToolVersion` (`zpa/customer-configuration/customer-dr-tool-version-resource-get-latest-customer-dr-links`)
+- `zpa` — `GET /intpolmasterconfig/customers/{customerId}/trigger` (`zpa/customer-configuration/customer-trigger-resource-get-trigger-details-for-a-customer`)
+- `zpa` — `GET /mgmtconfig/v2/admin/customers/{customerId}/riskScoreValues` (`zpa/customer-configuration/risk-score-values-resource-get-list-of-risk-score-values-for-customer`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}` (`zpa/customers/customer-resource-get-customer-by-id`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/locationGroup/extranetResource/{zpnErId}` (`zpa/extranet-resource-management/extranet-location-group-resource-fetch-location-group-details-from-customer-id-and-extranet-resource-id`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/extranetResource/partner` (`zpa/extranet-resource-management/extranet-partner-resource-fetch-partner-details-from-customer-id`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/location/summary` (`zpa/extranet-resource-management/location-resource-get-location-summary`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/location/extranetResource/{zpnErId}` (`zpa/extranet-resource-management/location-resource-get-locations-by-extranet-resource`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/iamidpmapping` (`zpa/idp-management/iam-idp-mapping-resource-get-iam-idp-mapping`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/ssoLoginOptions` (`zpa/idp-management/sso-login-options-resource-get-sso-login`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/ssoLoginOptions` (`zpa/idp-management/sso-login-options-resource-update-sso-login`)
+- `zpa` — `POST /mgmtconfig/v2/admin/customers/{customerId}/lssConfig` (`zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/summary` (`zpa/machine-groups/machine-group-resource-get-all-machine-group-name-ids`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges` (`zpa/network-platform-configuration/ip-range-resource-create-ip-ranges`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}` (`zpa/network-platform-configuration/ip-range-resource-delete-ip-range`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges` (`zpa/network-platform-configuration/ip-range-resource-get-all-ip-ranges`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}` (`zpa/network-platform-configuration/ip-range-resource-get-ip-range`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/search` (`zpa/network-platform-configuration/ip-range-resource-get-ip-ranges-by-page`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/v2/ipRanges/{ipRangeId}` (`zpa/network-platform-configuration/ip-range-resource-update-ip-ranges`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/npassistant/{npAssistantId}/bgp/overrideConfig/download` (`zpa/network-platform-configuration/np-assistant-resource-download-override-config`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/npassistant/{npAssistantId}` (`zpa/network-platform-configuration/np-assistant-resource-update-np-assistant-state`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/bgpConfig/{instanceType}/default` (`zpa/network-platform-configuration/np-bgp-default-configuration-resource-get-default-bgp-config`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/bgpConfig/{instanceType}/default` (`zpa/network-platform-configuration/np-bgp-default-configuration-resource-update-default-config`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouters` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-create-customer-bgp-router`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouter/{routerId}` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-delete-customer-bgp-router`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouters` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-get-external-routers`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/bgp/externalRouter/{routerId}` (`zpa/network-platform-configuration/np-bgp-external-router-config-resource-update-customer-bgp-router`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/lansubnet` (`zpa/network-platform-configuration/np-lan-subnet-resource-add-lan-subnet`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/lansubnet/{lanSubnetId}` (`zpa/network-platform-configuration/np-lan-subnet-resource-delete-lan-subnet`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/lansubnet/{lanSubnetId}` (`zpa/network-platform-configuration/np-lan-subnet-resource-get-lan-subnet`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/lansubnets` (`zpa/network-platform-configuration/np-lan-subnet-resource-get-lan-subnets`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/lansubnet/{lanSubnetId}` (`zpa/network-platform-configuration/np-lan-subnet-resource-update-lan-subnet`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/npRegions/summary` (`zpa/network-platform-configuration/np-region-resource-get-customers-np-regions-name-ids`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway` (`zpa/network-platform-configuration/np-tenant-gateway-resource-add-np-tenant-gateway`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway/{npTenantGatewayId}` (`zpa/network-platform-configuration/np-tenant-gateway-resource-delete-np-tenant-gateway`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway` (`zpa/network-platform-configuration/np-tenant-gateway-resource-get-np-tenant-gateways`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/nptenantgateway/{npTenantGatewayId}` (`zpa/network-platform-configuration/np-tenant-gateway-resource-update-np-tenant-gateway`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/vpnConnectedUsers` (`zpa/network-platform-configuration/vpn-connected-user-resource-get-all-vpn-connected-users`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-add-np-command-probe-session`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}/cancel` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-cancel-np-command-probe-session`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-delete-np-command-probe-session`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-get-command-probe-session-by-session-uuid`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}/entity/{entityId}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-get-command-probe-session-entity`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/output/{objectString}/download` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-get-np-command-output`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/search/startTime/{startTime}/endTime/{endTime}/pageNum/{pageNum}/pageSize/{pageSize}` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-search-np-command-probe-session`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/npCommandProbeSession/{sessionUuid}/notes` (`zpa/network-platform-diagnostics/np-command-probe-session-resource-update-notes-for-np-command-probe-session`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups` (`zpa/network-platform-policies/np-firewall-network-group-resource-create-network-group`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups/{groupId}` (`zpa/network-platform-policies/np-firewall-network-group-resource-delete-network-group`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups` (`zpa/network-platform-policies/np-firewall-network-group-resource-get-all-network-groups`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups/{groupId}` (`zpa/network-platform-policies/np-firewall-network-group-resource-get-network-group-by-id`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/networkGroups/{groupId}` (`zpa/network-platform-policies/np-firewall-network-group-resource-update-network-group`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules` (`zpa/network-platform-policies/np-firewall-policy-resource-create-vpn-access-policy`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}` (`zpa/network-platform-policies/np-firewall-policy-resource-delete-vpn-access-policy`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}` (`zpa/network-platform-policies/np-firewall-policy-resource-get-vpn-access-policy-by-id`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}/reorder/{newOrder}` (`zpa/network-platform-policies/np-firewall-policy-resource-reorder-single-vpn-access-policy`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/firewall/policy/rules/{ruleId}` (`zpa/network-platform-policies/np-firewall-policy-resource-update-vpn-access-policy`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/firewallSettings/apply` (`zpa/network-platform-policies/np-firewall-setting-resource-apply-vpn-access-policy`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule` (`zpa/network-platform-policies/np-policy-set-resource-add-rule-to-np-policy-set`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule/{ruleId}` (`zpa/network-platform-policies/np-policy-set-resource-delete-rule-in-np-policy-set`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/rules/policyType/{policyType}` (`zpa/network-platform-policies/np-policy-set-resource-get-np-policy-rules-by-page`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/policyType/{policyType}` (`zpa/network-platform-policies/np-policy-set-resource-get-np-policy-set-by-policy-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule/{ruleId}` (`zpa/network-platform-policies/np-policy-set-resource-get-rule-in-np-policy-set`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/np/policySet/{policySetId}/rule/{ruleId}` (`zpa/network-platform-policies/np-policy-set-resource-update-rule-to-np-policy-set`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains` (`zpa/nonce/association-type-resource-add-or-update-customer-domains-for-association-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains` (`zpa/nonce/association-type-resource-get-customer-domains-for-association-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/zcomponent/{zcomponentId}/provisioningKey` (`zpa/nonce/association-type-resource-get-provisioning-keys-by-z-component`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/{associationType}/usercodes/status` (`zpa/nonce/user-code-resource-get-user-code-status`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/{associationType}/usercodes` (`zpa/nonce/user-code-resource-verify-user-codes`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group` (`zpa/policy-management/policy-group-resource-add-policy-group`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/bulkMoveRulesToGroup` (`zpa/policy-management/policy-group-resource-bulk-move-rules-across-policy-groups`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}` (`zpa/policy-management/policy-group-resource-delete-policy-group`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/search` (`zpa/policy-management/policy-group-resource-get-all-policy-group-by-page`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/all` (`zpa/policy-management/policy-group-resource-get-all-policy-groups`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}` (`zpa/policy-management/policy-group-resource-get-policy-group`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}` (`zpa/policy-management/policy-group-resource-update-policy-group`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/reorder/{newOrder}` (`zpa/policy-management/policy-group-resource-update-policy-group-order`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{sourceGroupId}/rule/{ruleId}/moveTo/{targetGroupId}` (`zpa/policy-management/policy-group-rule-move-resource-move-rule-across-policy-groups`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule` (`zpa/policy-management/policy-group-rule-resource-add-rule-to-policy-group`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/bulkDelete` (`zpa/policy-management/policy-group-rule-resource-bulk-delete-policy-rules`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`zpa/policy-management/policy-group-rule-resource-delete-policy-rule`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule` (`zpa/policy-management/policy-group-rule-resource-get-all-policy-group-rules-by-page-with-advanced-filter-and-sort`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`zpa/policy-management/policy-group-rule-resource-get-policy-rule`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`zpa/policy-management/policy-group-rule-resource-update-rule-in-policy-group`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}/reorder/{newOrder}` (`zpa/policy-management/policy-group-rule-resource-update-rule-order-in-policy-group`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}` (`zpa/policy-management/policy-group-set-resource-delete-policy-group-set`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}` (`zpa/policy-management/policy-group-set-resource-get-or-add-policy-group-set-by-policy-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet` (`zpa/policy-management/policy-group-set-resource-get-or-create-policy-group-sets-all`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/groupNameSummary` (`zpa/policy-management/policy-group-set-resource-get-policy-group-names`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/rules` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set-all-rules`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/summary` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set-summary-by-policy-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/policyType/{policyType}/summaryStats` (`zpa/policy-management/policy-group-set-resource-get-policy-group-set-summary-stats`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/search` (`zpa/policy-management/policy-group-set-resource-get-policy-group-sets-by-page`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}` (`zpa/policy-management/policy-group-set-resource-update-policy-group-set`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/count` (`zpa/policy-management/policy-set-rule-resource-get-policy-rules-count-by-policy-type`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/summary` (`zpa/private-cloud-controller-group/private-cloud-controller-group-resource-get-private-cloud-controller-group-name-ids`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}/restart` (`zpa/private-cloud-controller/private-cloud-controller-resource-restart-private-cloud-controller`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroups/{browserAccessGroupsId}` (`zpa/private-exporter-group-management/browser-access-groups-resource-get-browser-access-group`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroups` (`zpa/private-exporter-group-management/browser-access-groups-resource-get-browser-access-groups`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` (`zpa/private-service-edge-group-management/add-private-broker-group`)
+- `zpa` — `POST /waap-pra-config/v1/admin/customers/{customerId}/credential-pool` (`zpa/privileged-credential-management/credential-pool-resource-create-credential-pool`)
+- `zpa` — `DELETE /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}` (`zpa/privileged-credential-management/credential-pool-resource-delete-credential-pool`)
+- `zpa` — `GET /waap-pra-config/v1/admin/customers/{customerId}/credential-pool` (`zpa/privileged-credential-management/credential-pool-resource-get-all-credential-pools`)
+- `zpa` — `GET /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}/credential` (`zpa/privileged-credential-management/credential-pool-resource-get-credential-info`)
+- `zpa` — `GET /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}` (`zpa/privileged-credential-management/credential-pool-resource-get-credential-pool`)
+- `zpa` — `PUT /waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}` (`zpa/privileged-credential-management/credential-pool-resource-update-credential-pool`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/privilegedSessions/{sessionId}` (`zpa/privileged-session-management/privileged-session-resource-get-privileged-session`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/privilegedSessions/{sessionId}/download-url` (`zpa/privileged-session-management/privileged-session-resource-get-recording-download-url`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/remote-assistance-config` (`zpa/remote-assistance-configuration/remote-assistance-config-resource-get-remote-assistance-config`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/remote-assistance-config` (`zpa/remote-assistance-configuration/remote-assistance-config-resource-upsert-remote-assistance-config`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/permissionGroups` (`zpa/role-management/permission-group-resource-get-default-group-permissions`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/roles` (`zpa/role-management/role-resource-create-role`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/roles/{roleId}` (`zpa/role-management/role-resource-delete-role`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/roles/{roleId}` (`zpa/role-management/role-resource-get-role`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/roles` (`zpa/role-management/role-resource-get-roles`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/roles/{roleId}` (`zpa/role-management/role-resource-update-role`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute` (`zpa/saml-attributes/saml-attribute-resource-create-saml-attribute`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute/{attrId}` (`zpa/saml-attributes/saml-attribute-resource-delete-saml-attribute`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute/{attrId}` (`zpa/saml-attributes/saml-attribute-resource-update-saml-attribute`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/serverGroup/summary` (`zpa/server-group-management/server-group-resource-get-server-group-summary`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/server/summary` (`zpa/server-management/server-resource-get-server-summary`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/csr/generate` (`zpa/signing-certificate/enrollment-cert-resource-create-csr-for-ca-cert`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert` (`zpa/signing-certificate/enrollment-cert-resource-create-enrollment-cert`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/selfsigned/generate` (`zpa/signing-certificate/enrollment-cert-resource-create-self-signed-enrollment-cert`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/{enrollmentCertId}` (`zpa/signing-certificate/enrollment-cert-resource-delete-enrollment-cert`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/enrollmentCert/{enrollmentCertId}` (`zpa/signing-certificate/enrollment-cert-resource-update-enrollment-cert`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/tagGroup` (`zpa/tag-management/tag-group-resource-add-tag-group`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}` (`zpa/tag-management/tag-group-resource-delete-tag-group`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/search` (`zpa/tag-management/tag-group-resource-get-all-tag-group`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}` (`zpa/tag-management/tag-group-resource-get-tag-group`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}` (`zpa/tag-management/tag-group-resource-update-tag-group`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey` (`zpa/tag-management/tag-key-resource-add-tag-key`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/bulkUpdateStatus` (`zpa/tag-management/tag-key-resource-bulk-update-status`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/{tagKeyId}` (`zpa/tag-management/tag-key-resource-delete-tag-key`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/search` (`zpa/tag-management/tag-key-resource-get-all-tag-key-dt-os`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/{tagKeyId}` (`zpa/tag-management/tag-key-resource-get-tag-key`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/tagKey/{tagKeyId}` (`zpa/tag-management/tag-key-resource-update-tag-key`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace` (`zpa/tag-management/tag-namespace-resource-add-namespace`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}` (`zpa/tag-management/tag-namespace-resource-delete-namespace`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/namespace/search` (`zpa/tag-management/tag-namespace-resource-get-all-namespace-dto-by-page`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}` (`zpa/tag-management/tag-namespace-resource-get-namespace`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}` (`zpa/tag-management/tag-namespace-resource-update-namespace`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/namespace/{namespaceId}/status` (`zpa/tag-management/tag-namespace-resource-update-predefined-namespace-status`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/tags/import` (`zpa/tag-management/tags-import-resource-bulk-import-tags`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/tags/import/validate` (`zpa/tag-management/tags-import-resource-validate-bulk-import-tags`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/workloadTagGroup/summary` (`zpa/tag-management/workload-tag-group-resource-get-all-name-ids`)
+- `zpa` — `POST /mgmtconfig/v2/admin/customers/{customerId}/userPortalLink/bulk` (`zpa/user-portal-management/user-portal-link-resource-add-list-of-portal-links`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/userPortal` (`zpa/user-portal-management/user-portal-resource-create-user-portal`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup` (`zpa/user-portal-management/user-portal-resource-create-user-portal-aup`)
+- `zpa` — `POST /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink` (`zpa/user-portal-management/user-portal-resource-create-user-portal-link`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}` (`zpa/user-portal-management/user-portal-resource-delete-user-portal`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup/{id}` (`zpa/user-portal-management/user-portal-resource-delete-user-portal-aup`)
+- `zpa` — `DELETE /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}` (`zpa/user-portal-management/user-portal-resource-delete-user-portal-link`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink` (`zpa/user-portal-management/user-portal-resource-get-all-user-portal-links`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortal` (`zpa/user-portal-management/user-portal-resource-get-all-user-portals`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}` (`zpa/user-portal-management/user-portal-resource-get-user-portal`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup/{id}` (`zpa/user-portal-management/user-portal-resource-get-user-portal-aup`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup` (`zpa/user-portal-management/user-portal-resource-get-user-portal-aups`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}` (`zpa/user-portal-management/user-portal-resource-get-user-portal-link`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/userPortal/{portalId}` (`zpa/user-portal-management/user-portal-resource-get-user-portal-links-by-portal-id`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}` (`zpa/user-portal-management/user-portal-resource-update-user-portal`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/userportal/aup/{id}` (`zpa/user-portal-management/user-portal-resource-update-user-portal-aup`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}` (`zpa/user-portal-management/user-portal-resource-update-user-portal-link`)
+- `zpa` — `PUT /mgmtconfig/v1/admin/customers/{customerId}/versionProfiles/{versionProfileId}` (`zpa/version-profile/version-profile-resource-update-version-profile`)
 
 ### Per-operation removals
 
-- `ai-security` — `GET /v1/assets/datastores/{id}` (`ai-security/aisecurity/v1-assets-datastores/datastores-get-datastore`)
-- `ai-security` — `GET /v1/assets/datastores` (`ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores`)
-- `ai-security` — `GET /v1/assets/workloads/{id}` (`ai-security/aisecurity/v1-assets-workloads/workloads-get-workload`)
-- `ai-security` — `GET /v1/assets/workloads` (`ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads`)
-- `zcc` — `DELETE /papi/cred/v1/delete` (`zcc/credential-controller/deletes-api-credentials-for-the-company`)
-- `zcc` — `GET /papi/cred/v1/getList` (`zcc/credential-controller/gets-the-list-of-api-credentials`)
-- `zcc` — `POST /papi/cred/v1/save` (`zcc/credential-controller/saves-api-credentials-for-the-company`)
-- `zcc` — `PUT /papi/cred/v1/update` (`zcc/credential-controller/updates-api-credentials-for-the-company`)
-- `zcell` — `GET /api/v1/audit/metadata` (`zcell/audit-data-handling/audit-resource-get-audit-metadata`)
-- `zia` — `POST /zscsb/submit` (`zia/sandbox-submission-api/submit-file`)
-- `zia` — `POST /zscsb/discan` (`zia/sandbox-submission-api/submit-file-for-scan`)
+- `ai-security` — `GET /v1/assets/identities/{id}` (`ai-security/aisecurity/v1-assets-identities/identities-get-identity`)
+- `ai-security` — `GET /v1/assets/identities` (`ai-security/aisecurity/v1-assets-identities/identities-list-identities`)
+- `ai-security` — `GET /v1/resources/guardrails/{id}` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`)
+- `ai-security` — `GET /v1/resources/guardrails` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/exceptions` (`zpa/appprotection-control-management/get-app-protection-exceptions`)
+- `zpa` — `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroup` (`zpa/browser-access-group/get-browser-access-groups`)
 
 ### Route corrections
 
-- `aiguard` / `aiguard/detection-policies/detections-policy-resource-disable-detections-policy`: `POST /v1/detections/policies/{id}/disable` → `POST /v1/detections/policies/{id}:disable`
-- `aiguard` / `aiguard/detection-policies/detections-policy-resource-enable-detections-policy`: `POST /v1/detections/policies/{id}/enable` → `POST /v1/detections/policies/{id}:enable`
-- `aiguard` / `aiguard/detection-policies/detections-policy-resource-referential-check-detections-policy`: `GET /v1/detections/policies/{id}/referential-check` → `GET /v1/detections/policies/{id}:referential-check`
-- `aiguard` / `aiguard/llm-application-credentials/llm-application-credentials-resource-referential-check-application-credentials`: `GET /v1/llm-application-credentials/{id}/referential-check` → `GET /v1/llm-application-credentials/{id}:referential-check`
-- `aiguard` / `aiguard/llm-application-credentials/llm-application-credentials-resource-regenerate-llm-application-credentials`: `POST /v1/llm-application-credentials/{id}/regenerate` → `POST /v1/llm-application-credentials/{id}:regenerate`
-- `aiguard` / `aiguard/llm-applications/llm-application-resource-referential-check-application`: `GET /v1/llm-applications/{id}/referential-check` → `GET /v1/llm-applications/{id}:referential-check`
-- `aiguard` / `aiguard/llm-provider-credentials/llm-provider-credentials-resource-referential-check-provider-credentials`: `GET /v1/llm-provider-credentials/{id}/referential-check` → `GET /v1/llm-provider-credentials/{id}:referential-check`
-- `aiguard` / `aiguard/llm-providers/llm-provider-resource-referential-check-provider`: `GET /v1/llm-providers/{id}/referential-check` → `GET /v1/llm-providers/{id}:referential-check`
-- `event-monitoring` / `event-monitoring/event-monitoring-subscriptions/subscription-resource-verify-sns-topic-access`: `POST /subscriptions/channels/sns/verify` → `POST /subscriptions/channels/sns:verify`
-- `zid` / `zid/users/users-ops-mfa`: `POST /users/{id}/setskipmfa` → `POST /users/{id}:setskipmfa`
-- `zid` / `zid/users/users-ops-reset-password`: `POST /users/{id}/resetpassword` → `POST /users/{id}:resetpassword`
-- `zid` / `zid/users/users-ops-update-password`: `PUT /users/{id}/updatepassword` → `PUT /users/{id}:updatepassword`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-delete-provisioning`: `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` → `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}`
+- `zpa` / `zpa/machine-groups/machine-group-resource-get-machine-group`: `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/{Id}` → `GET /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/{machineGroupId}`
+- `zpa` / `zpa/federate-applications/application-federation-resource-get-federated-applications-from-host`: `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` → `GET /mgmtconfig/v1/customers/{customerId}/application/host/{hostId}`
+- `zpa` / `zpa/policies-for-b2b-federation/partner-policy-rule-resource-get-partner-policy-rules-on-federated-apps`: `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` → `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guestId}`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-update-federation-state`: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` → `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/federation-state/{status}`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-update-notes`: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes` → `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/notes`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-update-provisioning-state`: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` → `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federationId}/provisioning-state/{status}`
 
 ### Schema changes
 
-- `ai-security` / `ai-security/aisecurity/v1-assets-identities/identities-get-identity` — `response_schema` +22 −1 Δ2; schema titles Δ11
-  - `response_schema` added: `access_categories`, `access_level`, `account_id`, `asset_risk`, `asset_risk[].key`, `asset_risk[].value`, `cloud_discovered_at`, `cloud_event_at`, `cloud_org_id`, `has_metadata`, `sanction_rule_id`, `sanction_rule_name`, `sanction_status`, `service_principal_details`, `service_principal_details.oauth2_permission_grants`, `service_principal_details.owners`, `service_principal_details.owners[].owner_email`, `service_principal_details.owners[].owner_name`, `service_principal_details.owners[].owner_type`, `source_cloud_type`
-  - `response_schema` removed: `access_category`
-  - `response_schema` metadata changed: `environment`, `risk_level`
-- `ai-security` / `ai-security/aisecurity/v1-assets-identities/identities-list-identities` — `query_params` +6 −0 Δ1; `response_schema` +8 −1 Δ2; schema titles Δ3
-  - `query_params` added: `access_category`, `access_level`, `asset_risk`, `sanction_status`, `source_type`, `target_environment`
-  - `query_params` metadata changed: `environment`
-  - `response_schema` added: `data[].access_categories`, `data[].access_level`, `data[].asset_risk`, `data[].asset_risk[].key`, `data[].asset_risk[].value`, `data[].sanction_status`, `data[].target_account_ids`, `data[].target_environments`
-  - `response_schema` removed: `data[].access_category`
-  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`
-- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server` — `response_schema` +25 −3 Δ2; schema titles Δ14
-  - `response_schema` added: `account_name`, `asset_risk`, `cloud_org_id`, `connections`, `connections[].connection_id`, `connections[].connection_name`, `connections[].connector_id`, `connections[].status_code`, `created_at`, `file_system_config`, `file_system_config.delete_operations`, `file_system_config.paths_accessed`, `file_system_config.read_operations`, `file_system_config.traverses_directories`, `file_system_config.uses_absolute_paths`, `file_system_config.write_operations`, `network_config`, `network_config.external_domains`, `network_config.http_requests`, `network_config.localhost_only`
-  - `response_schema` removed: `associated_source`, `associated_source_type`, `risk_indicators`
-  - `response_schema` metadata changed: `environment`, `risk_level`
-- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-tools` — `query_params` +4 −0 Δ0
-  - `query_params` added: `code_execution`, `file_access`, `network_access`, `process_access`
-- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-list-mcp-servers` — `query_params` +2 −0 Δ2; `response_schema` +1 −3 Δ2; schema titles Δ1
-  - `query_params` added: `asset_risk`, `source_type`
+- `ai-security` / `ai-security/aisecurity/v1-assets-agents/agents-get-agent` — `response_schema` +11 −13 Δ4; schema titles Δ8
+  - `response_schema` added: `asset_mgmt_tags`, `asset_mgmt_tags[].key`, `asset_mgmt_tags[].value`, `sensitive_data.dlp_engines`, `sensitive_data.dlp_engines[].file_count`, `sensitive_data.dlp_engines[].name`, `sensitive_data.doc_types`, `sensitive_data.doc_types[].count`, `sensitive_data.doc_types[].type`, `tags[].key`, `tags[].value`
+  - `response_schema` removed: `matched_engines`, `matched_engines[].engine_enum`, `matched_engines[].engine_id`, `matched_engines[].engine_name`, `matched_engines[].file_count`, `matched_engines[].is_sensitive`, `matched_engines[].matched_dictionaries`, `matched_engines[].matched_dictionaries[].dict_enum`, `matched_engines[].matched_dictionaries[].dict_id`, `matched_engines[].matched_dictionaries[].dict_name`, `matched_engines[].matched_dictionaries[].search_score`, `sensitive_data[].file_count`, `sensitive_data[].name`
+  - `response_schema` metadata changed: `environment`, `risk_level`, `sensitive_data`, `tags`
+- `ai-security` / `ai-security/aisecurity/v1-assets-agents/agents-list-agents` — `query_params` +4 −0 Δ2; `response_schema` +12 −2 Δ3; schema titles Δ6
+  - `query_params` added: `asset_mgmt_tags`, `doc_type`, `name`, `tags`
   - `query_params` metadata changed: `environment`, `risk_level`
-  - `response_schema` added: `data[].asset_risk`
-  - `response_schema` removed: `data[].associated_source`, `data[].associated_source_type`, `data[].risk_indicators`
+  - `response_schema` added: `data[].asset_mgmt_tags`, `data[].asset_mgmt_tags[].key`, `data[].asset_mgmt_tags[].value`, `data[].sensitive_data.dlp_engines`, `data[].sensitive_data.dlp_engines[].file_count`, `data[].sensitive_data.dlp_engines[].name`, `data[].sensitive_data.doc_types`, `data[].sensitive_data.doc_types[].count`, `data[].sensitive_data.doc_types[].type`, `data[].tags`, `data[].tags[].key`, `data[].tags[].value`
+  - `response_schema` removed: `data[].sensitive_data[].file_count`, `data[].sensitive_data[].name`
+  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`, `data[].sensitive_data`
+- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server` — `response_schema` +22 −13 Δ2; schema titles Δ7
+  - `response_schema` added: `asset_mgmt_tags`, `asset_mgmt_tags[].key`, `asset_mgmt_tags[].value`, `file_system`, `file_system.delete_operations`, `file_system.paths_accessed`, `file_system.read_operations`, `file_system.traverses_directories`, `file_system.uses_absolute_paths`, `file_system.write_operations`, `network_connection`, `network_connection.external_domains`, `network_connection.http_requests`, `network_connection.localhost_only`, `network_connection.websocket_connections`, `prompts`, `prompts.mcp_prompts`, `prompts.mcp_prompts[].description`, `prompts.mcp_prompts[].name`, `prompts.prompt_injection_risk`
+  - `response_schema` removed: `file_system_config`, `file_system_config.delete_operations`, `file_system_config.paths_accessed`, `file_system_config.read_operations`, `file_system_config.traverses_directories`, `file_system_config.uses_absolute_paths`, `file_system_config.write_operations`, `network_config`, `network_config.external_domains`, `network_config.http_requests`, `network_config.localhost_only`, `network_config.websocket_connections`, `tags`
+  - `response_schema` metadata changed: `environment`, `risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-list-mcp-servers` — `query_params` +2 −0 Δ2; `response_schema` +3 −0 Δ2; schema titles Δ1
+  - `query_params` added: `asset_mgmt_tags`, `name`
+  - `query_params` metadata changed: `environment`, `risk_level`
+  - `response_schema` added: `data[].asset_mgmt_tags`, `data[].asset_mgmt_tags[].key`, `data[].asset_mgmt_tags[].value`
   - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`
-- `ai-security` / `ai-security/aisecurity/v1-issues/issues-get-issue` — `response_schema` +1 −1 Δ1; schema titles Δ2
-  - `response_schema` added: `risk_level`
-  - `response_schema` removed: `severity`
+- `ai-security` / `ai-security/aisecurity/v1-issues/issues-get-issue` — `response_schema` +15 −0 Δ2; schema titles Δ11
+  - `response_schema` added: `asset_id`, `asset_name`, `asset_type`, `compliance_benchmarks`, `compliance_categories`, `mitre_attack`, `policy_description`, `region`, `remediation_procedure`, `severity`, `status_description`, `status_reason`, `tags`, `tags[].key`, `tags[].value`
+  - `response_schema` metadata changed: `environment`, `risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-issues/issues-list-issues` — `query_params` +1 −0 Δ3; `response_schema` +5 −0 Δ2; schema titles Δ1
+  - `query_params` added: `asset_id`
+  - `query_params` metadata changed: `environment`, `risk_level`, `severity`
+  - `response_schema` added: `data[].asset_id`, `data[].asset_name`, `data[].asset_type`, `data[].region`, `data[].severity`
+  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository` — `response_schema` +6 −3 Δ1; schema titles Δ4
+  - `response_schema` added: `asset_mgmt_tags`, `asset_mgmt_tags[].key`, `asset_mgmt_tags[].value`, `tags`, `tags[].key`, `tags[].value`
+  - `response_schema` removed: `doc_types`, `doc_types[].doc_count`, `doc_types[].doc_type_id`
   - `response_schema` metadata changed: `environment`
-- `ai-security` / `ai-security/aisecurity/v1-issues/issues-list-issues` — `query_params` +4 −0 Δ2; `response_schema` +1 −1 Δ1; schema titles Δ3
-  - `query_params` added: `policy_category`, `policy_id`, `region`, `risk_level`
-  - `query_params` metadata changed: `environment`, `severity`
-  - `response_schema` added: `data[].risk_level`
-  - `response_schema` removed: `data[].severity`
+- `ai-security` / `ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories` — `query_params` +3 −0 Δ1; `response_schema` +6 −0 Δ1; schema titles Δ2
+  - `query_params` added: `asset_mgmt_tags`, `name`, `tags`
+  - `query_params` metadata changed: `environment`
+  - `response_schema` added: `data[].asset_mgmt_tags`, `data[].asset_mgmt_tags[].key`, `data[].asset_mgmt_tags[].value`, `data[].tags`, `data[].tags[].key`, `data[].tags[].value`
   - `response_schema` metadata changed: `data[].environment`
-- `zcell` / `zcell/network-events/network-event-resource-search-network-events` — `response_schema` +8 −0 Δ0
-  - `response_schema` added: `content[].apnUsername`, `content[].imei`, `content[].location`, `content[].msisdn`, `content[].sessionTime`, `content[].status`, `content[].subStatus`, `content[].vplmnTadig`
-- `zcell` / `zcell/sim-location-groups/sim-location-group-resource-get-all-sim-location-groups` — `query_params` +0 −0 Δ2
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-- `zcell` / `zcell/customer-management/customer-resource-get-by-zs-tid` — `response_schema` +0 −0 Δ1; schema titles Δ12
-  - `response_schema` metadata changed: `mvnoIds[].type`
-- `zcell` / `zcell/anomaly-policies/anomaly-policy-resource-get-all-anomaly-policies` — `query_params` +0 −0 Δ2
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-- `zcell` / `zcell/anomaly-policies/anomaly-policy-resource-get-violation-details-by-iccid` — `query_params` +0 −0 Δ2
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-- `zcell` / `zcell/tag-management/tag-resource-get-all-tags` — `query_params` +0 −0 Δ2; `response_schema` +0 −1 Δ0
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-  - `response_schema` removed: `content[].mvnoCustomerId`
-- `zcell` / `zcell/sim-management/sim-resource-lock-sims` — `request_body` +1 −0 Δ1
-  - `request_body` added: `simLockDetails[].locked`
-  - `request_body` metadata changed: `dataAuthorize`
-- `zcell` / `zcell/audit-logs/audit-resource-get-audit-log` — `query_params` +0 −0 Δ2
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-- `zcell` / `zcell/sim-management/sim-resource-download-sims-csv` — `query_params` +0 −0 Δ2
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-- `zcell` / `zcell/sim-management/sim-resource-get-all-sims` — `query_params` +0 −0 Δ2
-  - `query_params` metadata changed: `sortBy`, `sortDir`
-- `zpa` / `zpa/app-connector-group/gets-all-configured-app-connector-groups-for-the-specified-customer` — `query_params` +1 −0 Δ0
+- `ai-security` / `ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore` — `response_schema` +11 −16 Δ4; schema titles Δ9
+  - `response_schema` added: `asset_mgmt_tags`, `asset_mgmt_tags[].key`, `asset_mgmt_tags[].value`, `sensitive_data.dlp_engines`, `sensitive_data.dlp_engines[].file_count`, `sensitive_data.dlp_engines[].name`, `sensitive_data.doc_types`, `sensitive_data.doc_types[].count`, `sensitive_data.doc_types[].type`, `tags[].key`, `tags[].value`
+  - `response_schema` removed: `doc_types`, `doc_types[].doc_count`, `doc_types[].doc_type_id`, `matched_engines`, `matched_engines[].engine_enum`, `matched_engines[].engine_id`, `matched_engines[].engine_name`, `matched_engines[].file_count`, `matched_engines[].is_sensitive`, `matched_engines[].matched_dictionaries`, `matched_engines[].matched_dictionaries[].dict_enum`, `matched_engines[].matched_dictionaries[].dict_id`, `matched_engines[].matched_dictionaries[].dict_name`, `matched_engines[].matched_dictionaries[].search_score`, `sensitive_data[].file_count`, `sensitive_data[].name`
+  - `response_schema` metadata changed: `environment`, `risk_level`, `sensitive_data`, `tags`
+- `ai-security` / `ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores` — `query_params` +5 −0 Δ2; `response_schema` +12 −2 Δ3; schema titles Δ6
+  - `query_params` added: `asset_mgmt_tags`, `dlp_engine`, `doc_type`, `name`, `tags`
+  - `query_params` metadata changed: `environment`, `risk_level`
+  - `response_schema` added: `data[].asset_mgmt_tags`, `data[].asset_mgmt_tags[].key`, `data[].asset_mgmt_tags[].value`, `data[].sensitive_data.dlp_engines`, `data[].sensitive_data.dlp_engines[].file_count`, `data[].sensitive_data.dlp_engines[].name`, `data[].sensitive_data.doc_types`, `data[].sensitive_data.doc_types[].count`, `data[].sensitive_data.doc_types[].type`, `data[].tags`, `data[].tags[].key`, `data[].tags[].value`
+  - `response_schema` removed: `data[].sensitive_data[].file_count`, `data[].sensitive_data[].name`
+  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`, `data[].sensitive_data`
+- `ai-security` / `ai-security/aisecurity/v1-resources-workloads/workloads-get-workload` — `response_schema` +11 −16 Δ4; schema titles Δ9
+  - `response_schema` added: `asset_mgmt_tags`, `asset_mgmt_tags[].key`, `asset_mgmt_tags[].value`, `sensitive_data.dlp_engines`, `sensitive_data.dlp_engines[].file_count`, `sensitive_data.dlp_engines[].name`, `sensitive_data.doc_types`, `sensitive_data.doc_types[].count`, `sensitive_data.doc_types[].type`, `tags[].key`, `tags[].value`
+  - `response_schema` removed: `doc_types`, `doc_types[].doc_count`, `doc_types[].doc_type_id`, `matched_engines`, `matched_engines[].engine_enum`, `matched_engines[].engine_id`, `matched_engines[].engine_name`, `matched_engines[].file_count`, `matched_engines[].is_sensitive`, `matched_engines[].matched_dictionaries`, `matched_engines[].matched_dictionaries[].dict_enum`, `matched_engines[].matched_dictionaries[].dict_id`, `matched_engines[].matched_dictionaries[].dict_name`, `matched_engines[].matched_dictionaries[].search_score`, `sensitive_data[].file_count`, `sensitive_data[].name`
+  - `response_schema` metadata changed: `environment`, `risk_level`, `sensitive_data`, `tags`
+- `ai-security` / `ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads` — `query_params` +5 −0 Δ2; `response_schema` +12 −2 Δ3; schema titles Δ6
+  - `query_params` added: `asset_mgmt_tags`, `dlp_engine`, `doc_type`, `name`, `tags`
+  - `query_params` metadata changed: `environment`, `risk_level`
+  - `response_schema` added: `data[].asset_mgmt_tags`, `data[].asset_mgmt_tags[].key`, `data[].asset_mgmt_tags[].value`, `data[].sensitive_data.dlp_engines`, `data[].sensitive_data.dlp_engines[].file_count`, `data[].sensitive_data.dlp_engines[].name`, `data[].sensitive_data.doc_types`, `data[].sensitive_data.doc_types[].count`, `data[].sensitive_data.doc_types[].type`, `data[].tags`, `data[].tags[].key`, `data[].tags[].value`
+  - `response_schema` removed: `data[].sensitive_data[].file_count`, `data[].sensitive_data[].name`
+  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`, `data[].sensitive_data`
+- `event-monitoring` / `event-monitoring/event-monitoring-subscriptions/subscription-resource-create-subscription` — `request_body` +1 −0 Δ0; `response_schema` +5 −0 Δ0; schema titles Δ1
+  - `request_body` added: `notification_emails`
+  - `response_schema` added: `channels[].last_notified_at`, `channels[].suspended`, `channels[].suspended_at`, `channels[].suspended_reason`, `notification_emails`
+- `event-monitoring` / `event-monitoring/event-monitoring-subscriptions/subscription-resource-get-subscription` — `response_schema` +5 −0 Δ0
+  - `response_schema` added: `channels[].last_notified_at`, `channels[].suspended`, `channels[].suspended_at`, `channels[].suspended_reason`, `notification_emails`
+- `event-monitoring` / `event-monitoring/event-monitoring-subscriptions/subscription-resource-get-subscriptions` — `response_schema` +5 −0 Δ0
+  - `response_schema` added: `subscriptions[].channels[].last_notified_at`, `subscriptions[].channels[].suspended`, `subscriptions[].channels[].suspended_at`, `subscriptions[].channels[].suspended_reason`, `subscriptions[].notification_emails`
+- `event-monitoring` / `event-monitoring/event-monitoring-subscriptions/subscription-resource-update-subscription` — `request_body` +1 −0 Δ0; `response_schema` +5 −0 Δ0; schema titles Δ1
+  - `request_body` added: `notification_emails`
+  - `response_schema` added: `channels[].last_notified_at`, `channels[].suspended`, `channels[].suspended_at`, `channels[].suspended_reason`, `notification_emails`
+- `zcloudconnector` / `zcloudconnector/partner-integrations/aws-account-z-resource-create-aws-account` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `supportedRegions[].regionName`
+  - `response_schema` added: `supportedRegions[].regionName`
+- `zcloudconnector` / `zcloudconnector/partner-integrations/aws-account-z-resource-disable-aws-account` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `supportedRegions[].regionName`
+- `zcloudconnector` / `zcloudconnector/partner-integrations/aws-account-z-resource-get-aws-account` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `[].supportedRegions[].regionName`
+- `zcloudconnector` / `zcloudconnector/partner-integrations/aws-account-z-resource-get-aws-account-by-id` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `supportedRegions[].regionName`
+- `zcloudconnector` / `zcloudconnector/partner-integrations/aws-account-z-resource-get-aws-supported-regions` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `[].regionName`
+- `zcloudconnector` / `zcloudconnector/partner-integrations/aws-account-z-resource-update-aws-account` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `supportedRegions[].regionName`
+  - `response_schema` added: `supportedRegions[].regionName`
+- `zia` / `zia/admin-audit-logs/get-audit-report-entry-csv-data` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `statusId`
+- `zia` / `zia/admin-audit-logs/get-audit-report-entry-csv-export-status` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `statusId`
+- `zia` / `zia/admin-audit-logs/start-audit-report-entry-csv-export` — `response_schema` +6 −0 Δ0
+  - `response_schema` added: `errorName`, `markedServer`, `reportType`, `reportingMessage`, `status`, `statusId`
+- `zia` / `zia/admin-role-management/add-admin-user` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1
+  - `request_body` metadata changed: `adminScope.Type`
+  - `response_schema` metadata changed: `adminScope.Type`
+- `zia` / `zia/admin-role-management/admin-user-resource-convert-admin-to-end-user` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `groups[].adminScopeSupport`
+  - `response_schema` added: `groups[].adminScopeSupport`
+- `zia` / `zia/admin-role-management/admin-user-z-resource-get-current-user` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `adminScope.Type`
+- `zia` / `zia/admin-role-management/get-admin-users` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `adminScope.Type`
+- `zia` / `zia/admin-role-management/update-admin-user` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `adminScope.Type`
+- `zia` / `zia/advanced-settings/advanced-settings-resource-get-advanced-settings` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `apiSessionTimeout`
+- `zia` / `zia/advanced-settings/advanced-settings-resource-update-advanced-settings` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `apiSessionTimeout`
+  - `response_schema` added: `apiSessionTimeout`
+- `zia` / `zia/cloud-app-control-policy/tenancy-restriction-profile-resource-add-profile` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1
+  - `request_body` metadata changed: `appType`
+  - `response_schema` metadata changed: `appType`
+- `zia` / `zia/cloud-app-control-policy/tenancy-restriction-profile-resource-get-app-item-count` — `path_params` +0 −0 Δ1
+  - `path_params` metadata changed: `appType`
+- `zia` / `zia/cloud-app-control-policy/tenancy-restriction-profile-resource-get-tenancy-restriction-by-profile-id` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `appType`
+- `zia` / `zia/cloud-app-control-policy/tenancy-restriction-profile-resource-get-tenancy-restriction-profiles` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `[].appType`
+- `zia` / `zia/cloud-app-control-policy/tenancy-restriction-profile-resource-update-profile` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1
+  - `request_body` metadata changed: `appType`
+  - `response_schema` metadata changed: `appType`
+- `zia` / `zia/cloud-nanolog-streaming-service-nss/nss-feeds-resource-create-nss-feed` — `query_params` +1 −0 Δ0
+  - `query_params` added: `onPremNss`
+- `zia` / `zia/cloud-nanolog-streaming-service-nss/nss-feeds-resource-delete-nss-feed` — `query_params` +1 −0 Δ0
+  - `query_params` added: `onPremNss`
+- `zia` / `zia/cloud-nanolog-streaming-service-nss/nss-feeds-resource-get-all-nss-feeds` — `query_params` +1 −0 Δ0
+  - `query_params` added: `onPremNss`
+- `zia` / `zia/cloud-nanolog-streaming-service-nss/nss-feeds-resource-update-nss-feed` — `query_params` +1 −0 Δ0
+  - `query_params` added: `onPremNss`
+- `zia` / `zia/data-loss-prevention/c-2-c-incident-receiver-resource-get-c-2-cir` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `query_params` added: `excludeDisabledC2CForwarding`
+  - `response_schema` added: `[].featuresSupported`
+- `zia` / `zia/data-loss-prevention/c-2-c-incident-receiver-resource-get-c-2-cir-count` — `query_params` +1 −0 Δ0
+  - `query_params` added: `excludeDisabledC2CForwarding`
+- `zia` / `zia/data-loss-prevention/c-2-c-incident-receiver-resource-get-c-2-cir-lite` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `query_params` added: `excludeDisabledC2CForwarding`
+  - `response_schema` added: `[].featuresSupported`
+- `zia` / `zia/data-loss-prevention/c-2-c-incident-receiver-resource-get-receiver-by-id` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `featuresSupported`
+- `zia` / `zia/dns-control-policy/firewall-dns-rules-resource-create-firewall-dns-rule` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0
+  - `request_body` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/dns-control-policy/firewall-dns-rules-resource-get-firewall-dns-rule` — `response_schema` +68 −0 Δ0
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/dns-control-policy/firewall-dns-rules-resource-get-firewall-dns-rules` — `response_schema` +68 −0 Δ0
+  - `response_schema` added: `[].endPointApplicationGroups`, `[].endPointApplicationGroups[].description`, `[].endPointApplicationGroups[].endPointApplications`, `[].endPointApplicationGroups[].endPointApplications[].applicationName`, `[].endPointApplicationGroups[].endPointApplications[].applicationType`, `[].endPointApplicationGroups[].endPointApplications[].bundleID`, `[].endPointApplicationGroups[].endPointApplications[].deleted`, `[].endPointApplicationGroups[].endPointApplications[].description`, `[].endPointApplicationGroups[].endPointApplications[].digitallySigned`, `[].endPointApplicationGroups[].endPointApplications[].filename`, `[].endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `[].endPointApplicationGroups[].endPointApplications[].modUId`, `[].endPointApplicationGroups[].endPointApplications[].originalFileName`, `[].endPointApplicationGroups[].endPointApplications[].osType`, `[].endPointApplicationGroups[].endPointApplications[].resourceId`, `[].endPointApplicationGroups[].endPointApplications[].version`, `[].endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `[].endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `[].endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `[].endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/dns-control-policy/firewall-dns-rules-resource-update-firewall-dns-rule` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0
+  - `request_body` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/event-logs/event-log-entry-report-resource-get-event-report-entry-csv-data` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `statusId`
+- `zia` / `zia/event-logs/event-log-entry-report-resource-get-event-report-entry-csv-export-status` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `statusId`
+- `zia` / `zia/event-logs/event-log-entry-report-resource-start-event-report-entry-csv-export` — `response_schema` +6 −0 Δ0
+  - `response_schema` added: `errorName`, `markedServer`, `reportType`, `reportingMessage`, `status`, `statusId`
+- `zia` / `zia/firewall-policies/firewall-filtering-rules-resource-create-firewall-filtering-rule` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0
+  - `request_body` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/firewall-policies/firewall-filtering-rules-resource-get-firewall-filtering-rule` — `response_schema` +68 −0 Δ0
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/firewall-policies/firewall-filtering-rules-resource-get-firewall-filtering-rules` — `query_params` +1 −0 Δ0; `response_schema` +68 −0 Δ0
+  - `query_params` added: `ruleLabelId`
+  - `response_schema` added: `[].endPointApplicationGroups`, `[].endPointApplicationGroups[].description`, `[].endPointApplicationGroups[].endPointApplications`, `[].endPointApplicationGroups[].endPointApplications[].applicationName`, `[].endPointApplicationGroups[].endPointApplications[].applicationType`, `[].endPointApplicationGroups[].endPointApplications[].bundleID`, `[].endPointApplicationGroups[].endPointApplications[].deleted`, `[].endPointApplicationGroups[].endPointApplications[].description`, `[].endPointApplicationGroups[].endPointApplications[].digitallySigned`, `[].endPointApplicationGroups[].endPointApplications[].filename`, `[].endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `[].endPointApplicationGroups[].endPointApplications[].modUId`, `[].endPointApplicationGroups[].endPointApplications[].originalFileName`, `[].endPointApplicationGroups[].endPointApplications[].osType`, `[].endPointApplicationGroups[].endPointApplications[].resourceId`, `[].endPointApplicationGroups[].endPointApplications[].version`, `[].endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `[].endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `[].endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `[].endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/firewall-policies/firewall-filtering-rules-resource-get-firewall-filtering-rules-count` — `query_params` +1 −0 Δ0; `response_schema` +68 −0 Δ0
+  - `query_params` added: `ruleLabelId`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/firewall-policies/firewall-filtering-rules-resource-update-firewall-filtering-rule` — `request_body` +68 −0 Δ0; `response_schema` +68 −0 Δ0
+  - `request_body` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/location-management/add-location` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0
+  - `request_body` added: `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`
+  - `response_schema` added: `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`
+- `zia` / `zia/location-management/get-lite-locations` — `response_schema` +4 −0 Δ0
+  - `response_schema` added: `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`
+- `zia` / `zia/location-management/get-sub-locations` — `response_schema` +4 −0 Δ0
+  - `response_schema` added: `[].subLocAccIds`, `[].subLocScope`, `[].subLocScopeEnabled`, `[].subLocScopeValues`
+- `zia` / `zia/location-management/get-top-locations` — `response_schema` +4 −0 Δ0
+  - `response_schema` added: `[].subLocAccIds`, `[].subLocScope`, `[].subLocScopeEnabled`, `[].subLocScopeValues`
+- `zia` / `zia/location-management/update-location` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0
+  - `request_body` added: `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`
+  - `response_schema` added: `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`
+- `zia` / `zia/saas-security-api/casb-dlp-rule-resource-add-rule` — `request_body` +2 −0 Δ1; `response_schema` +2 −0 Δ1
+  - `request_body` added: `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
+  - `request_body` metadata changed: `action`
+  - `response_schema` added: `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
+  - `response_schema` metadata changed: `action`
+- `zia` / `zia/saas-security-api/casb-dlp-rule-resource-get-all-dlp-rules` — `response_schema` +2 −0 Δ1
+  - `response_schema` added: `[].fileSharingExpiryTime`, `[].fileSharingExpiryTimeType`
+  - `response_schema` metadata changed: `[].action`
+- `zia` / `zia/saas-security-api/casb-dlp-rule-resource-get-rule-by-id` — `response_schema` +2 −0 Δ1
+  - `response_schema` added: `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
+  - `response_schema` metadata changed: `action`
+- `zia` / `zia/saas-security-api/casb-dlp-rule-resource-get-rules` — `response_schema` +2 −0 Δ1
+  - `response_schema` added: `[].fileSharingExpiryTime`, `[].fileSharingExpiryTimeType`
+  - `response_schema` metadata changed: `[].action`
+- `zia` / `zia/saas-security-api/casb-dlp-rule-resource-update-rule` — `request_body` +2 −0 Δ1; `response_schema` +2 −0 Δ1
+  - `request_body` added: `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
+  - `request_body` metadata changed: `action`
+  - `response_schema` added: `fileSharingExpiryTime`, `fileSharingExpiryTimeType`
+  - `response_schema` metadata changed: `action`
+- `zia` / `zia/saas-security-api/cloud-application-tenant-resource-get-scan-info` — `response_schema` +3 −0 Δ0
+  - `response_schema` added: `[].scanInfo.cur_scan_start_time`, `[].scanInfo.prev_scan_end_time`, `[].scanInfo.scan_reset_num`
+- `zia` / `zia/sandbox-policy-settings/ba-rule-resource-add-rule` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1
+  - `request_body` metadata changed: `fileTypes`
+  - `response_schema` metadata changed: `fileTypes`
+- `zia` / `zia/sandbox-policy-settings/ba-rule-resource-get-rule-by-id` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `fileTypes`
+- `zia` / `zia/sandbox-policy-settings/ba-rule-resource-get-rules` — `response_schema` +0 −0 Δ1
+  - `response_schema` metadata changed: `[].fileTypes`
+- `zia` / `zia/sandbox-policy-settings/ba-rule-resource-update-rule` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1
+  - `request_body` metadata changed: `fileTypes`
+  - `response_schema` metadata changed: `fileTypes`
+- `zia` / `zia/service-edges/virtual-zen-node-resource-add-virtual-zen-node` — `request_body` +12 −12 Δ2; `response_schema` +12 −12 Δ2
+  - `request_body` added: `clusterName`, `defaultGateway`, `deploymentMode`, `establishSupportTunnelEnabled`, `inProduction`, `ipAddress`, `ipSecEnabled`, `loadBalancerIpAddress`, `onDemandSupportTunnelEnabled`, `subnetMask`, `vzenSkuType`, `zgatewayId`
+  - `request_body` removed: `cluster_name`, `default_gateway`, `deployment_mode`, `establish_support_tunnel_enabled`, `in_production`, `ip_address`, `ip_sec_enabled`, `load_balancer_ip_address`, `on_demand_support_tunnel_enabled`, `subnet_mask`, `vzen_sku_type`, `zgateway_id`
+  - `request_body` metadata changed: `status`, `type`
+  - `response_schema` added: `clusterName`, `defaultGateway`, `deploymentMode`, `establishSupportTunnelEnabled`, `inProduction`, `ipAddress`, `ipSecEnabled`, `loadBalancerIpAddress`, `onDemandSupportTunnelEnabled`, `subnetMask`, `vzenSkuType`, `zgatewayId`
+  - `response_schema` removed: `cluster_name`, `default_gateway`, `deployment_mode`, `establish_support_tunnel_enabled`, `in_production`, `ip_address`, `ip_sec_enabled`, `load_balancer_ip_address`, `on_demand_support_tunnel_enabled`, `subnet_mask`, `vzen_sku_type`, `zgateway_id`
+  - `response_schema` metadata changed: `status`, `type`
+- `zia` / `zia/service-edges/virtual-zen-node-resource-get-virtual-zen-node` — `response_schema` +12 −12 Δ2
+  - `response_schema` added: `clusterName`, `defaultGateway`, `deploymentMode`, `establishSupportTunnelEnabled`, `inProduction`, `ipAddress`, `ipSecEnabled`, `loadBalancerIpAddress`, `onDemandSupportTunnelEnabled`, `subnetMask`, `vzenSkuType`, `zgatewayId`
+  - `response_schema` removed: `cluster_name`, `default_gateway`, `deployment_mode`, `establish_support_tunnel_enabled`, `in_production`, `ip_address`, `ip_sec_enabled`, `load_balancer_ip_address`, `on_demand_support_tunnel_enabled`, `subnet_mask`, `vzen_sku_type`, `zgateway_id`
+  - `response_schema` metadata changed: `status`, `type`
+- `zia` / `zia/service-edges/virtual-zen-node-resource-get-virtual-zen-nodes` — `response_schema` +12 −12 Δ2
+  - `response_schema` added: `[].clusterName`, `[].defaultGateway`, `[].deploymentMode`, `[].establishSupportTunnelEnabled`, `[].inProduction`, `[].ipAddress`, `[].ipSecEnabled`, `[].loadBalancerIpAddress`, `[].onDemandSupportTunnelEnabled`, `[].subnetMask`, `[].vzenSkuType`, `[].zgatewayId`
+  - `response_schema` removed: `[].cluster_name`, `[].default_gateway`, `[].deployment_mode`, `[].establish_support_tunnel_enabled`, `[].in_production`, `[].ip_address`, `[].ip_sec_enabled`, `[].load_balancer_ip_address`, `[].on_demand_support_tunnel_enabled`, `[].subnet_mask`, `[].vzen_sku_type`, `[].zgateway_id`
+  - `response_schema` metadata changed: `[].status`, `[].type`
+- `zia` / `zia/service-edges/virtual-zen-node-resource-update-virtual-zen-node` — `request_body` +12 −12 Δ2; `response_schema` +12 −12 Δ2
+  - `request_body` added: `clusterName`, `defaultGateway`, `deploymentMode`, `establishSupportTunnelEnabled`, `inProduction`, `ipAddress`, `ipSecEnabled`, `loadBalancerIpAddress`, `onDemandSupportTunnelEnabled`, `subnetMask`, `vzenSkuType`, `zgatewayId`
+  - `request_body` removed: `cluster_name`, `default_gateway`, `deployment_mode`, `establish_support_tunnel_enabled`, `in_production`, `ip_address`, `ip_sec_enabled`, `load_balancer_ip_address`, `on_demand_support_tunnel_enabled`, `subnet_mask`, `vzen_sku_type`, `zgateway_id`
+  - `request_body` metadata changed: `status`, `type`
+  - `response_schema` added: `clusterName`, `defaultGateway`, `deploymentMode`, `establishSupportTunnelEnabled`, `inProduction`, `ipAddress`, `ipSecEnabled`, `loadBalancerIpAddress`, `onDemandSupportTunnelEnabled`, `subnetMask`, `vzenSkuType`, `zgatewayId`
+  - `response_schema` removed: `cluster_name`, `default_gateway`, `deployment_mode`, `establish_support_tunnel_enabled`, `in_production`, `ip_address`, `ip_sec_enabled`, `load_balancer_ip_address`, `on_demand_support_tunnel_enabled`, `subnet_mask`, `vzen_sku_type`, `zgateway_id`
+  - `response_schema` metadata changed: `status`, `type`
+- `zia` / `zia/ssl-inspection-policy/ssl-inspection-rule-resource-add-ssl-inspection-rule` — `request_body` +67 −0 Δ0; `response_schema` +67 −0 Δ0
+  - `request_body` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/ssl-inspection-policy/ssl-inspection-rule-resource-get-rule-by-id` — `response_schema` +67 −0 Δ0
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/ssl-inspection-policy/ssl-inspection-rule-resource-get-ssl-inspection-rules` — `response_schema` +67 −0 Δ0
+  - `response_schema` added: `[].endPointApplicationGroups`, `[].endPointApplicationGroups[].description`, `[].endPointApplicationGroups[].endPointApplications`, `[].endPointApplicationGroups[].endPointApplications[].applicationName`, `[].endPointApplicationGroups[].endPointApplications[].applicationType`, `[].endPointApplicationGroups[].endPointApplications[].bundleID`, `[].endPointApplicationGroups[].endPointApplications[].deleted`, `[].endPointApplicationGroups[].endPointApplications[].description`, `[].endPointApplicationGroups[].endPointApplications[].digitallySigned`, `[].endPointApplicationGroups[].endPointApplications[].filename`, `[].endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `[].endPointApplicationGroups[].endPointApplications[].modUId`, `[].endPointApplicationGroups[].endPointApplications[].originalFileName`, `[].endPointApplicationGroups[].endPointApplications[].osType`, `[].endPointApplicationGroups[].endPointApplications[].resourceId`, `[].endPointApplicationGroups[].endPointApplications[].version`, `[].endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `[].endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `[].endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `[].endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/ssl-inspection-policy/ssl-inspection-rule-resource-update-rule` — `request_body` +67 −0 Δ0; `response_schema` +67 −0 Δ0
+  - `request_body` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+  - `response_schema` added: `endPointApplicationGroups`, `endPointApplicationGroups[].description`, `endPointApplicationGroups[].endPointApplications`, `endPointApplicationGroups[].endPointApplications[].applicationName`, `endPointApplicationGroups[].endPointApplications[].applicationType`, `endPointApplicationGroups[].endPointApplications[].bundleID`, `endPointApplicationGroups[].endPointApplications[].deleted`, `endPointApplicationGroups[].endPointApplications[].description`, `endPointApplicationGroups[].endPointApplications[].digitallySigned`, `endPointApplicationGroups[].endPointApplications[].filename`, `endPointApplicationGroups[].endPointApplications[].lastModifiedTime`, `endPointApplicationGroups[].endPointApplications[].modUId`, `endPointApplicationGroups[].endPointApplications[].originalFileName`, `endPointApplicationGroups[].endPointApplications[].osType`, `endPointApplicationGroups[].endPointApplications[].resourceId`, `endPointApplicationGroups[].endPointApplications[].version`, `endPointApplicationGroups[].endPointApplications[].version.bundle_id`, `endPointApplicationGroups[].endPointApplications[].version.code_signing_certificate_status`, `endPointApplicationGroups[].endPointApplications[].version.threatLevelUpdated`, `endPointApplicationGroups[].endPointApplications[].version.threat_level`
+- `zia` / `zia/url-categories/add-custom-category` — `request_body` +3 −0 Δ1; `response_schema` +3 −0 Δ1
+  - `request_body` added: `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
+  - `request_body` metadata changed: `scopes[].Type`
+  - `response_schema` added: `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
+  - `response_schema` metadata changed: `scopes[].Type`
+- `zia` / `zia/url-categories/get-lite-url-categories` — `response_schema` +3 −0 Δ1
+  - `response_schema` added: `[].regexPatterns`, `[].regexPatternsRetainingParentCategory`, `[].urlType`
+  - `response_schema` metadata changed: `[].scopes[].Type`
+- `zia` / `zia/url-categories/get-url-categories` — `response_schema` +3 −0 Δ1
+  - `response_schema` added: `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
+  - `response_schema` metadata changed: `scopes[].Type`
+- `zia` / `zia/url-categories/get-url-category` — `response_schema` +3 −0 Δ1
+  - `response_schema` added: `[].regexPatterns`, `[].regexPatternsRetainingParentCategory`, `[].urlType`
+  - `response_schema` metadata changed: `[].scopes[].Type`
+- `zia` / `zia/url-categories/update-category` — `request_body` +3 −0 Δ1; `response_schema` +3 −0 Δ1
+  - `request_body` added: `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
+  - `request_body` metadata changed: `scopes[].Type`
+  - `response_schema` added: `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`
+  - `response_schema` metadata changed: `scopes[].Type`
+- `zia` / `zia/url-cloud-app-control-policy-settings/advanced-url-filtering-cloud-app-resource-get-advanced-url-filt-options` — `response_schema` +8 −0 Δ0
+  - `response_schema` added: `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`
+- `zia` / `zia/url-cloud-app-control-policy-settings/advanced-url-filtering-cloud-app-resource-update-advanced-url-filt-options` — `request_body` +8 −0 Δ0; `response_schema` +8 −0 Δ0
+  - `request_body` added: `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`
+  - `response_schema` added: `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`
+- `zia` / `zia/url-filtering-policy/get-rules` — `query_params` +2 −0 Δ0
+  - `query_params` added: `page`, `pageSize`
+- `zia` / `zia/user-management/add-user` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `groups[].adminScopeSupport`
+  - `response_schema` added: `groups[].adminScopeSupport`
+- `zia` / `zia/user-management/get-groups` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `query_params` added: `adminScopeSupport`
+  - `response_schema` added: `[].adminScopeSupport`
+- `zia` / `zia/user-management/get-users` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `[].groups[].adminScopeSupport`
+- `zia` / `zia/user-management/group-resource-add-group` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `adminScopeSupport`
+  - `response_schema` added: `adminScopeSupport`
+- `zia` / `zia/user-management/group-resource-get-group` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `adminScopeSupport`
+- `zia` / `zia/user-management/group-resource-get-group-lite` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `adminScopeSupport`
+- `zia` / `zia/user-management/group-resource-get-groups-lite` — `query_params` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `query_params` added: `adminScopeSupport`
+  - `response_schema` added: `adminScopeSupport`
+- `zia` / `zia/user-management/group-resource-update-group` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `adminScopeSupport`
+  - `response_schema` added: `adminScopeSupport`
+- `zia` / `zia/user-management/update-user` — `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0
+  - `request_body` added: `groups[].adminScopeSupport`
+  - `response_schema` added: `groups[].adminScopeSupport`
+- `zpa` / `zpa/app-connector-group-management/deletes-the-app-connector-group-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/app-connector-group-management/gets-the-app-connector-group-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +99 −1 Δ22; schema titles Δ37
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `connectors[].assistantVersion.connectorType`, `connectors[].assistantVersion.expectedSargeVersion`, `connectors[].assistantVersion.lastOSUpgradeTime`, `connectors[].assistantVersion.lastSargeUpgradeTime`, `connectors[].assistantVersion.osUpgradeEnabled`, `connectors[].assistantVersion.osUpgradeFailReasonCode`, `connectors[].assistantVersion.osUpgradeStatus`, `connectors[].assistantVersion.platformVersion`, `connectors[].assistantVersion.previousSargeVersion`, `connectors[].assistantVersion.sargeUpgradeAttempt`, `connectors[].assistantVersion.sargeUpgradeStatus`, `connectors[].assistantVersion.zpnSubModuleUpgrade`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `siteId`
+  - `response_schema` metadata changed: `connectors[].assistantVersion`, `connectors[].npAssistant`, `connectors[].zpnSubModuleUpgradeList`, `connectors[].zpnSubModuleUpgradeList[].creationTime`, `connectors[].zpnSubModuleUpgradeList[].currentVersion`, `connectors[].zpnSubModuleUpgradeList[].entityGid`, `connectors[].zpnSubModuleUpgradeList[].entityType`, `connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `connectors[].zpnSubModuleUpgradeList[].id`, `connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `connectors[].zpnSubModuleUpgradeList[].previousVersion`, `connectors[].zpnSubModuleUpgradeList[].role`, `connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `npAssistantGroup`, `npAssistantGroup.lanSubnets[].appConnectorGroupId`, `npAssistantGroup.lanSubnets[].npDnsNsRecord`, `serverGroups[].zpnErId`, `upgradePriority`
+- `zpa` / `zpa/app-connector-group-management/updates-the-app-connector-group-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +99 −1 Δ22; schema titles Δ37
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `connectors[].assistantVersion.connectorType`, `connectors[].assistantVersion.expectedSargeVersion`, `connectors[].assistantVersion.lastOSUpgradeTime`, `connectors[].assistantVersion.lastSargeUpgradeTime`, `connectors[].assistantVersion.osUpgradeEnabled`, `connectors[].assistantVersion.osUpgradeFailReasonCode`, `connectors[].assistantVersion.osUpgradeStatus`, `connectors[].assistantVersion.platformVersion`, `connectors[].assistantVersion.previousSargeVersion`, `connectors[].assistantVersion.sargeUpgradeAttempt`, `connectors[].assistantVersion.sargeUpgradeStatus`, `connectors[].assistantVersion.zpnSubModuleUpgrade`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `request_body` removed: `siteId`
+  - `request_body` metadata changed: `connectors[].assistantVersion`, `connectors[].npAssistant`, `connectors[].zpnSubModuleUpgradeList`, `connectors[].zpnSubModuleUpgradeList[].creationTime`, `connectors[].zpnSubModuleUpgradeList[].currentVersion`, `connectors[].zpnSubModuleUpgradeList[].entityGid`, `connectors[].zpnSubModuleUpgradeList[].entityType`, `connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `connectors[].zpnSubModuleUpgradeList[].id`, `connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `connectors[].zpnSubModuleUpgradeList[].previousVersion`, `connectors[].zpnSubModuleUpgradeList[].role`, `connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `npAssistantGroup`, `npAssistantGroup.lanSubnets[].appConnectorGroupId`, `npAssistantGroup.lanSubnets[].npDnsNsRecord`, `serverGroups[].zpnErId`, `upgradePriority`
+- `zpa` / `zpa/app-connector-group/gets-all-configured-app-connector-groups-for-the-specified-customer` — `path_params` +0 −0 Δ1; `query_params` +0 −1 Δ3; `response_schema` +277 −1 Δ5; schema titles Δ43
+  - `path_params` metadata changed: `customerId`
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `currentCount`, `list[].city`, `list[].cityCountry`, `list[].connectorGroupType`, `list[].connectors`, `list[].connectors[].appConnectorGroupId`, `list[].connectors[].appConnectorGroupName`, `list[].connectors[].applicationStartTime`, `list[].connectors[].assistantVersion`, `list[].connectors[].assistantVersion.appConnectorGroupId`, `list[].connectors[].assistantVersion.applicationStartTime`, `list[].connectors[].assistantVersion.brokerId`, `list[].connectors[].assistantVersion.connectorType`, `list[].connectors[].assistantVersion.creationTime`, `list[].connectors[].assistantVersion.ctrlChannelStatus`, `list[].connectors[].assistantVersion.currentVersion`, `list[].connectors[].assistantVersion.disableAutoUpdate`, `list[].connectors[].assistantVersion.expectedSargeVersion`, `list[].connectors[].assistantVersion.expectedVersion`, `list[].connectors[].assistantVersion.id`
+  - `response_schema` removed: `list[].scopeId`
+  - `response_schema` metadata changed: `list[].id`, `list[].name`, `list[].versionProfileId`, `totalCount`, `totalPages`
+- `zpa` / `zpa/app-connector-management/bulk-deletes-the-app-connectors-for-the-specified-customer` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/app-connector-management/configure-a-app-connector-schedule-frequency-to-delete-the-in-active-connectors-with-configured-frequency` — `query_params` +0 −0 Δ1; `response_schema` +0 −6 Δ0; schema titles Δ2
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` removed: `customerId`, `deleteDisabled`, `enabled`, `frequency`, `frequencyInterval`, `id`
+- `zpa` / `zpa/app-connector-management/deletes-the-app-connector-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/app-connector-management/get-a-configured-app-connector-schedule-frequency` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/app-connector-management/gets-all-configured-app-connector-details-for-the-specified-customer` — `query_params` +0 −0 Δ6; `response_schema` +60 −0 Δ15; schema titles Δ27
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, `sortDir`
+  - `response_schema` added: `list[].assistantVersion.connectorType`, `list[].assistantVersion.expectedSargeVersion`, `list[].assistantVersion.lastOSUpgradeTime`, `list[].assistantVersion.lastSargeUpgradeTime`, `list[].assistantVersion.osUpgradeEnabled`, `list[].assistantVersion.osUpgradeFailReasonCode`, `list[].assistantVersion.osUpgradeStatus`, `list[].assistantVersion.platformVersion`, `list[].assistantVersion.previousSargeVersion`, `list[].assistantVersion.sargeUpgradeAttempt`, `list[].assistantVersion.sargeUpgradeStatus`, `list[].assistantVersion.zpnSubModuleUpgrade`, `list[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `list[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `list[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `list[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `list[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `list[].assistantVersion.zpnSubModuleUpgrade[].id`, `list[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `list[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` metadata changed: `list[].assistantVersion`, `list[].npAssistant`, `list[].zpnSubModuleUpgradeList`, `list[].zpnSubModuleUpgradeList[].creationTime`, `list[].zpnSubModuleUpgradeList[].currentVersion`, `list[].zpnSubModuleUpgradeList[].entityGid`, `list[].zpnSubModuleUpgradeList[].entityType`, `list[].zpnSubModuleUpgradeList[].expectedVersion`, `list[].zpnSubModuleUpgradeList[].id`, `list[].zpnSubModuleUpgradeList[].modifiedBy`, `list[].zpnSubModuleUpgradeList[].modifiedTime`, `list[].zpnSubModuleUpgradeList[].previousVersion`, `list[].zpnSubModuleUpgradeList[].role`, `list[].zpnSubModuleUpgradeList[].upgradeStatus`, `list[].zpnSubModuleUpgradeList[].upgradeTime`
+- `zpa` / `zpa/app-connector-management/gets-the-app-connector-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +59 −0 Δ15; schema titles Δ26
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `assistantVersion.connectorType`, `assistantVersion.expectedSargeVersion`, `assistantVersion.lastOSUpgradeTime`, `assistantVersion.lastSargeUpgradeTime`, `assistantVersion.osUpgradeEnabled`, `assistantVersion.osUpgradeFailReasonCode`, `assistantVersion.osUpgradeStatus`, `assistantVersion.platformVersion`, `assistantVersion.previousSargeVersion`, `assistantVersion.sargeUpgradeAttempt`, `assistantVersion.sargeUpgradeStatus`, `assistantVersion.zpnSubModuleUpgrade`, `assistantVersion.zpnSubModuleUpgrade[].creationTime`, `assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `assistantVersion.zpnSubModuleUpgrade[].entityGid`, `assistantVersion.zpnSubModuleUpgrade[].entityType`, `assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `assistantVersion.zpnSubModuleUpgrade[].id`, `assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` metadata changed: `assistantVersion`, `npAssistant`, `zpnSubModuleUpgradeList`, `zpnSubModuleUpgradeList[].creationTime`, `zpnSubModuleUpgradeList[].currentVersion`, `zpnSubModuleUpgradeList[].entityGid`, `zpnSubModuleUpgradeList[].entityType`, `zpnSubModuleUpgradeList[].expectedVersion`, `zpnSubModuleUpgradeList[].id`, `zpnSubModuleUpgradeList[].modifiedBy`, `zpnSubModuleUpgradeList[].modifiedTime`, `zpnSubModuleUpgradeList[].previousVersion`, `zpnSubModuleUpgradeList[].role`, `zpnSubModuleUpgradeList[].upgradeStatus`, `zpnSubModuleUpgradeList[].upgradeTime`
+- `zpa` / `zpa/app-connector-management/updates-the-app-connector-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +59 −0 Δ15; schema titles Δ26
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `assistantVersion.connectorType`, `assistantVersion.expectedSargeVersion`, `assistantVersion.lastOSUpgradeTime`, `assistantVersion.lastSargeUpgradeTime`, `assistantVersion.osUpgradeEnabled`, `assistantVersion.osUpgradeFailReasonCode`, `assistantVersion.osUpgradeStatus`, `assistantVersion.platformVersion`, `assistantVersion.previousSargeVersion`, `assistantVersion.sargeUpgradeAttempt`, `assistantVersion.sargeUpgradeStatus`, `assistantVersion.zpnSubModuleUpgrade`, `assistantVersion.zpnSubModuleUpgrade[].creationTime`, `assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `assistantVersion.zpnSubModuleUpgrade[].entityGid`, `assistantVersion.zpnSubModuleUpgrade[].entityType`, `assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `assistantVersion.zpnSubModuleUpgrade[].id`, `assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `request_body` metadata changed: `assistantVersion`, `npAssistant`, `zpnSubModuleUpgradeList`, `zpnSubModuleUpgradeList[].creationTime`, `zpnSubModuleUpgradeList[].currentVersion`, `zpnSubModuleUpgradeList[].entityGid`, `zpnSubModuleUpgradeList[].entityType`, `zpnSubModuleUpgradeList[].expectedVersion`, `zpnSubModuleUpgradeList[].id`, `zpnSubModuleUpgradeList[].modifiedBy`, `zpnSubModuleUpgradeList[].modifiedTime`, `zpnSubModuleUpgradeList[].previousVersion`, `zpnSubModuleUpgradeList[].role`, `zpnSubModuleUpgradeList[].upgradeStatus`, `zpnSubModuleUpgradeList[].upgradeTime`
+- `zpa` / `zpa/application-segment-management/adds-a-new-application-segment-for-the-specified-customer` — `query_params` +0 −0 Δ1; `request_body` +66 −0 Δ28; `response_schema` +66 −0 Δ28; schema titles Δ378
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `clientlessApps[].appResource.cnameConfig`, `clientlessApps[].appResource.readOnly`, `clientlessApps[].appResource.restrictionType`, `clientlessApps[].appResource.serverGroups[].nameWithoutTrim`, `clientlessApps[].appResource.serverGroups[].readOnly`, `clientlessApps[].appResource.serverGroups[].restrictionType`, `clientlessApps[].appResource.serverGroups[].zscalerManaged`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant.enabled`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedToMicrotenants[].enabled`, `clientlessApps[].appResource.zscalerManaged`, `clientlessApps[].extId`, `commonAppsDto.appsConfig[].extId`, `guestDetails`, `guestDetails[].federationId`, `guestDetails[].partnerInfo`, `guestDetails[].partnerInfo.approvalStatus`, `guestDetails[].partnerInfo.federationStatus`, `guestDetails[].partnerInfo.partnerGid`, `guestDetails[].partnerInfo.partnerName`, `guestDetails[].partnerInfo.partnerScopeName`
+  - `request_body` metadata changed: `clientlessApps[].appResource`, `clientlessApps[].appResource.inconsistentConfigDetails`, `clientlessApps[].appResource.serverGroups[].zpnErId`, `clientlessApps[].appResource.sharedMicrotenantDetails`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `clientlessApps[].inconsistentConfigDetails`, `commonAppsDto`, `creationTime`, `id`, `inconsistentConfigDetails`, `inspectionApps[].appResource`, `inspectionApps[].appResource.inconsistentConfigDetails`, `inspectionApps[].appResource.serverGroups[].zpnErId`, `inspectionApps[].appResource.sharedMicrotenantDetails`, `inspectionApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `inspectionApps[].inconsistentConfigDetails`, `modifiedBy`, `modifiedTime`, `praApps[].appResource`, `praApps[].appResource.inconsistentConfigDetails`
+  - `response_schema` added: `clientlessApps[].appResource.cnameConfig`, `clientlessApps[].appResource.readOnly`, `clientlessApps[].appResource.restrictionType`, `clientlessApps[].appResource.serverGroups[].nameWithoutTrim`, `clientlessApps[].appResource.serverGroups[].readOnly`, `clientlessApps[].appResource.serverGroups[].restrictionType`, `clientlessApps[].appResource.serverGroups[].zscalerManaged`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant.enabled`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedToMicrotenants[].enabled`, `clientlessApps[].appResource.zscalerManaged`, `clientlessApps[].extId`, `commonAppsDto.appsConfig[].extId`, `guestDetails`, `guestDetails[].federationId`, `guestDetails[].partnerInfo`, `guestDetails[].partnerInfo.approvalStatus`, `guestDetails[].partnerInfo.federationStatus`, `guestDetails[].partnerInfo.partnerGid`, `guestDetails[].partnerInfo.partnerName`, `guestDetails[].partnerInfo.partnerScopeName`
+  - `response_schema` metadata changed: `clientlessApps[].appResource`, `clientlessApps[].appResource.inconsistentConfigDetails`, `clientlessApps[].appResource.serverGroups[].zpnErId`, `clientlessApps[].appResource.sharedMicrotenantDetails`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `clientlessApps[].inconsistentConfigDetails`, `commonAppsDto`, `creationTime`, `id`, `inconsistentConfigDetails`, `inspectionApps[].appResource`, `inspectionApps[].appResource.inconsistentConfigDetails`, `inspectionApps[].appResource.serverGroups[].zpnErId`, `inspectionApps[].appResource.sharedMicrotenantDetails`, `inspectionApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `inspectionApps[].inconsistentConfigDetails`, `modifiedBy`, `modifiedTime`, `praApps[].appResource`, `praApps[].appResource.inconsistentConfigDetails`
+- `zpa` / `zpa/application-segment-management/deletes-the-application-segment-for-the-specified-id` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `forceDelete`, `microtenantId`
+- `zpa` / `zpa/application-segment-management/get-all-configured-ba-inspect-pra-application-segments` — `query_params` +0 −0 Δ6; `response_schema` +1 −0 Δ1; schema titles Δ20
+  - `query_params` metadata changed: `applicationType`, `expandAll`, `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `message`
+  - `response_schema` metadata changed: `list[].inconsistentConfigDetails`
+- `zpa` / `zpa/application-segment-management/gets-all-configured-application-segments-for-the-specified-customer` — `query_params` +0 −0 Δ4; `response_schema` +67 −0 Δ28; schema titles Δ189
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].clientlessApps[].appResource.cnameConfig`, `list[].clientlessApps[].appResource.readOnly`, `list[].clientlessApps[].appResource.restrictionType`, `list[].clientlessApps[].appResource.serverGroups[].nameWithoutTrim`, `list[].clientlessApps[].appResource.serverGroups[].readOnly`, `list[].clientlessApps[].appResource.serverGroups[].restrictionType`, `list[].clientlessApps[].appResource.serverGroups[].zscalerManaged`, `list[].clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant.enabled`, `list[].clientlessApps[].appResource.sharedMicrotenantDetails.sharedToMicrotenants[].enabled`, `list[].clientlessApps[].appResource.zscalerManaged`, `list[].clientlessApps[].extId`, `list[].commonAppsDto.appsConfig[].extId`, `list[].guestDetails`, `list[].guestDetails[].federationId`, `list[].guestDetails[].partnerInfo`, `list[].guestDetails[].partnerInfo.approvalStatus`, `list[].guestDetails[].partnerInfo.federationStatus`, `list[].guestDetails[].partnerInfo.partnerGid`, `list[].guestDetails[].partnerInfo.partnerName`, `list[].guestDetails[].partnerInfo.partnerScopeName`
+  - `response_schema` metadata changed: `list[].clientlessApps[].appResource`, `list[].clientlessApps[].appResource.inconsistentConfigDetails`, `list[].clientlessApps[].appResource.serverGroups[].zpnErId`, `list[].clientlessApps[].appResource.sharedMicrotenantDetails`, `list[].clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `list[].clientlessApps[].inconsistentConfigDetails`, `list[].commonAppsDto`, `list[].creationTime`, `list[].id`, `list[].inconsistentConfigDetails`, `list[].inspectionApps[].appResource`, `list[].inspectionApps[].appResource.inconsistentConfigDetails`, `list[].inspectionApps[].appResource.serverGroups[].zpnErId`, `list[].inspectionApps[].appResource.sharedMicrotenantDetails`, `list[].inspectionApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `list[].inspectionApps[].inconsistentConfigDetails`, `list[].modifiedBy`, `list[].modifiedTime`, `list[].praApps[].appResource`, `list[].praApps[].appResource.inconsistentConfigDetails`
+- `zpa` / `zpa/application-segment-management/gets-the-application-segment-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +66 −0 Δ28; schema titles Δ189
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `clientlessApps[].appResource.cnameConfig`, `clientlessApps[].appResource.readOnly`, `clientlessApps[].appResource.restrictionType`, `clientlessApps[].appResource.serverGroups[].nameWithoutTrim`, `clientlessApps[].appResource.serverGroups[].readOnly`, `clientlessApps[].appResource.serverGroups[].restrictionType`, `clientlessApps[].appResource.serverGroups[].zscalerManaged`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant.enabled`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedToMicrotenants[].enabled`, `clientlessApps[].appResource.zscalerManaged`, `clientlessApps[].extId`, `commonAppsDto.appsConfig[].extId`, `guestDetails`, `guestDetails[].federationId`, `guestDetails[].partnerInfo`, `guestDetails[].partnerInfo.approvalStatus`, `guestDetails[].partnerInfo.federationStatus`, `guestDetails[].partnerInfo.partnerGid`, `guestDetails[].partnerInfo.partnerName`, `guestDetails[].partnerInfo.partnerScopeName`
+  - `response_schema` metadata changed: `clientlessApps[].appResource`, `clientlessApps[].appResource.inconsistentConfigDetails`, `clientlessApps[].appResource.serverGroups[].zpnErId`, `clientlessApps[].appResource.sharedMicrotenantDetails`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `clientlessApps[].inconsistentConfigDetails`, `commonAppsDto`, `creationTime`, `id`, `inconsistentConfigDetails`, `inspectionApps[].appResource`, `inspectionApps[].appResource.inconsistentConfigDetails`, `inspectionApps[].appResource.serverGroups[].zpnErId`, `inspectionApps[].appResource.sharedMicrotenantDetails`, `inspectionApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `inspectionApps[].inconsistentConfigDetails`, `modifiedBy`, `modifiedTime`, `praApps[].appResource`, `praApps[].appResource.inconsistentConfigDetails`
+- `zpa` / `zpa/application-segment-management/moves-application-of-one-microtenant-to-another` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/application-segment-management/share-the-application-segment-to-microtenants` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/application-segment-management/updates-the-application-segment-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +66 −0 Δ28; schema titles Δ189
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `clientlessApps[].appResource.cnameConfig`, `clientlessApps[].appResource.readOnly`, `clientlessApps[].appResource.restrictionType`, `clientlessApps[].appResource.serverGroups[].nameWithoutTrim`, `clientlessApps[].appResource.serverGroups[].readOnly`, `clientlessApps[].appResource.serverGroups[].restrictionType`, `clientlessApps[].appResource.serverGroups[].zscalerManaged`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant.enabled`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedToMicrotenants[].enabled`, `clientlessApps[].appResource.zscalerManaged`, `clientlessApps[].extId`, `commonAppsDto.appsConfig[].extId`, `guestDetails`, `guestDetails[].federationId`, `guestDetails[].partnerInfo`, `guestDetails[].partnerInfo.approvalStatus`, `guestDetails[].partnerInfo.federationStatus`, `guestDetails[].partnerInfo.partnerGid`, `guestDetails[].partnerInfo.partnerName`, `guestDetails[].partnerInfo.partnerScopeName`
+  - `request_body` metadata changed: `clientlessApps[].appResource`, `clientlessApps[].appResource.inconsistentConfigDetails`, `clientlessApps[].appResource.serverGroups[].zpnErId`, `clientlessApps[].appResource.sharedMicrotenantDetails`, `clientlessApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `clientlessApps[].inconsistentConfigDetails`, `commonAppsDto`, `creationTime`, `id`, `inconsistentConfigDetails`, `inspectionApps[].appResource`, `inspectionApps[].appResource.inconsistentConfigDetails`, `inspectionApps[].appResource.serverGroups[].zpnErId`, `inspectionApps[].appResource.sharedMicrotenantDetails`, `inspectionApps[].appResource.sharedMicrotenantDetails.sharedFromMicrotenant`, `inspectionApps[].inconsistentConfigDetails`, `modifiedBy`, `modifiedTime`, `praApps[].appResource`, `praApps[].appResource.inconsistentConfigDetails`
+- `zpa` / `zpa/appprotection-control-management/create-custom-control` — `request_body` +2 −0 Δ2; `response_schema` +2 −0 Δ2; schema titles Δ20
+  - `request_body` added: `associatedInspectionProfileNames[].enabled`, `nameWithoutTrim`
+  - `request_body` metadata changed: `controlException`, `rules[].conditions[].op`
+  - `response_schema` added: `associatedInspectionProfileNames[].enabled`, `nameWithoutTrim`
+  - `response_schema` metadata changed: `controlException`, `rules[].conditions[].op`
+- `zpa` / `zpa/appprotection-control-management/get-all-custom-controls` — `query_params` +0 −0 Δ4; `response_schema` +3 −0 Δ2; schema titles Δ10
+  - `query_params` metadata changed: `page`, `pagesize`, `search`, `sortdir`
+  - `response_schema` added: `list[].associatedInspectionProfileNames[].enabled`, `list[].nameWithoutTrim`, `message`
+  - `response_schema` metadata changed: `list[].controlException`, `list[].rules[].conditions[].op`
+- `zpa` / `zpa/appprotection-control-management/get-all-inspection-controls` — `query_params` +0 −0 Δ2; `response_schema` +3 −0 Δ1; schema titles Δ6
+  - `query_params` metadata changed: `search`, `version`
+  - `response_schema` added: `[].predefinedInspectionControls[].associatedInspectionProfileNames[].enabled`, `[].predefinedInspectionControls[].isRecommended`, `[].predefinedInspectionControls[].nameWithoutTrim`
+  - `response_schema` metadata changed: `[].predefinedInspectionControls[].controlException`
+- `zpa` / `zpa/appprotection-control-management/get-custom-control-by-id` — `response_schema` +2 −0 Δ2; schema titles Δ10
+  - `response_schema` added: `associatedInspectionProfileNames[].enabled`, `nameWithoutTrim`
+  - `response_schema` metadata changed: `controlException`, `rules[].conditions[].op`
+- `zpa` / `zpa/appprotection-control-management/get-inspection-custom-control-types` — schema titles Δ2
+- `zpa` / `zpa/appprotection-control-management/get-predefined-ad-controls` — `query_params` +0 −0 Δ2; `response_schema` +3 −0 Δ1; schema titles Δ6
+  - `query_params` metadata changed: `search`, `version`
+  - `response_schema` added: `[].predefinedInspectionControls[].associatedInspectionProfileNames[].enabled`, `[].predefinedInspectionControls[].isRecommended`, `[].predefinedInspectionControls[].nameWithoutTrim`
+  - `response_schema` metadata changed: `[].predefinedInspectionControls[].controlException`
+- `zpa` / `zpa/appprotection-control-management/get-predefined-api-controls` — `query_params` +0 −0 Δ2; `response_schema` +3 −0 Δ1; schema titles Δ6
+  - `query_params` metadata changed: `search`, `version`
+  - `response_schema` added: `[].predefinedInspectionControls[].associatedInspectionProfileNames[].enabled`, `[].predefinedInspectionControls[].isRecommended`, `[].predefinedInspectionControls[].nameWithoutTrim`
+  - `response_schema` metadata changed: `[].predefinedInspectionControls[].controlException`
+- `zpa` / `zpa/appprotection-control-management/get-predefined-control-by-id` — `response_schema` +3 −0 Δ1; schema titles Δ6
+  - `response_schema` added: `associatedInspectionProfileNames[].enabled`, `isRecommended`, `nameWithoutTrim`
+  - `response_schema` metadata changed: `controlException`
+- `zpa` / `zpa/appprotection-control-management/get-profile-info` — `response_schema` +1 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `[].enabled`
+- `zpa` / `zpa/appprotection-control-management/update-custom-control` — `request_body` +2 −0 Δ2; schema titles Δ10
+  - `request_body` added: `associatedInspectionProfileNames[].enabled`, `nameWithoutTrim`
+  - `request_body` metadata changed: `controlException`, `rules[].conditions[].op`
+- `zpa` / `zpa/appprotection-profile-management/add-inspection-profile` — `request_body` +21 −0 Δ7; `response_schema` +21 −0 Δ7; schema titles Δ84
+  - `request_body` added: `apiDiscoveryEnabled`, `customControls[].associatedInspectionProfileNames[].enabled`, `customControls[].nameWithoutTrim`, `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `predefinedADPControls[].associatedInspectionProfileNames[].enabled`, `predefinedADPControls[].isRecommended`, `predefinedADPControls[].nameWithoutTrim`, `predefinedApiControls[].associatedInspectionProfileNames[].enabled`, `predefinedApiControls[].isRecommended`, `predefinedApiControls[].nameWithoutTrim`, `predefinedControls[].associatedInspectionProfileNames[].enabled`, `predefinedControls[].isRecommended`, `predefinedControls[].nameWithoutTrim`, `profileSource`, `threatlabzControls[].associatedInspectionProfileNames[].enabled`, `threatlabzControls[].isRecommended`, `threatlabzControls[].nameWithoutTrim`, `websocketControls[].associatedInspectionProfileNames[].enabled`
+  - `request_body` metadata changed: `customControls[].controlException`, `customControls[].rules[].conditions[].op`, `predefinedADPControls[].controlException`, `predefinedApiControls[].controlException`, `predefinedControls[].controlException`, `threatlabzControls[].controlException`, `websocketControls[].controlException`
+  - `response_schema` added: `apiDiscoveryEnabled`, `customControls[].associatedInspectionProfileNames[].enabled`, `customControls[].nameWithoutTrim`, `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `predefinedADPControls[].associatedInspectionProfileNames[].enabled`, `predefinedADPControls[].isRecommended`, `predefinedADPControls[].nameWithoutTrim`, `predefinedApiControls[].associatedInspectionProfileNames[].enabled`, `predefinedApiControls[].isRecommended`, `predefinedApiControls[].nameWithoutTrim`, `predefinedControls[].associatedInspectionProfileNames[].enabled`, `predefinedControls[].isRecommended`, `predefinedControls[].nameWithoutTrim`, `profileSource`, `threatlabzControls[].associatedInspectionProfileNames[].enabled`, `threatlabzControls[].isRecommended`, `threatlabzControls[].nameWithoutTrim`, `websocketControls[].associatedInspectionProfileNames[].enabled`
+  - `response_schema` metadata changed: `customControls[].controlException`, `customControls[].rules[].conditions[].op`, `predefinedADPControls[].controlException`, `predefinedApiControls[].controlException`, `predefinedControls[].controlException`, `threatlabzControls[].controlException`, `websocketControls[].controlException`
+- `zpa` / `zpa/appprotection-profile-management/associate-all-predefined-controls` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `version`
+- `zpa` / `zpa/appprotection-profile-management/get-all-inspection-profiles` — `query_params` +0 −0 Δ3; `response_schema` +22 −0 Δ7; schema titles Δ42
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].apiDiscoveryEnabled`, `list[].customControls[].associatedInspectionProfileNames[].enabled`, `list[].customControls[].nameWithoutTrim`, `list[].hasRecommendedOwaspControls`, `list[].hasRecommendedThreatlabzControls`, `list[].nameWithoutTrim`, `list[].predefinedADPControls[].associatedInspectionProfileNames[].enabled`, `list[].predefinedADPControls[].isRecommended`, `list[].predefinedADPControls[].nameWithoutTrim`, `list[].predefinedApiControls[].associatedInspectionProfileNames[].enabled`, `list[].predefinedApiControls[].isRecommended`, `list[].predefinedApiControls[].nameWithoutTrim`, `list[].predefinedControls[].associatedInspectionProfileNames[].enabled`, `list[].predefinedControls[].isRecommended`, `list[].predefinedControls[].nameWithoutTrim`, `list[].profileSource`, `list[].threatlabzControls[].associatedInspectionProfileNames[].enabled`, `list[].threatlabzControls[].isRecommended`, `list[].threatlabzControls[].nameWithoutTrim`, `list[].websocketControls[].associatedInspectionProfileNames[].enabled`
+  - `response_schema` metadata changed: `list[].customControls[].controlException`, `list[].customControls[].rules[].conditions[].op`, `list[].predefinedADPControls[].controlException`, `list[].predefinedApiControls[].controlException`, `list[].predefinedControls[].controlException`, `list[].threatlabzControls[].controlException`, `list[].websocketControls[].controlException`
+- `zpa` / `zpa/appprotection-profile-management/get-inspection-profile` — `response_schema` +21 −0 Δ7; schema titles Δ42
+  - `response_schema` added: `apiDiscoveryEnabled`, `customControls[].associatedInspectionProfileNames[].enabled`, `customControls[].nameWithoutTrim`, `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `predefinedADPControls[].associatedInspectionProfileNames[].enabled`, `predefinedADPControls[].isRecommended`, `predefinedADPControls[].nameWithoutTrim`, `predefinedApiControls[].associatedInspectionProfileNames[].enabled`, `predefinedApiControls[].isRecommended`, `predefinedApiControls[].nameWithoutTrim`, `predefinedControls[].associatedInspectionProfileNames[].enabled`, `predefinedControls[].isRecommended`, `predefinedControls[].nameWithoutTrim`, `profileSource`, `threatlabzControls[].associatedInspectionProfileNames[].enabled`, `threatlabzControls[].isRecommended`, `threatlabzControls[].nameWithoutTrim`, `websocketControls[].associatedInspectionProfileNames[].enabled`
+  - `response_schema` metadata changed: `customControls[].controlException`, `customControls[].rules[].conditions[].op`, `predefinedADPControls[].controlException`, `predefinedApiControls[].controlException`, `predefinedControls[].controlException`, `threatlabzControls[].controlException`, `websocketControls[].controlException`
+- `zpa` / `zpa/appprotection-profile-management/patch-inspection-profile` — `request_body` +21 −0 Δ7; schema titles Δ42
+  - `request_body` added: `apiDiscoveryEnabled`, `customControls[].associatedInspectionProfileNames[].enabled`, `customControls[].nameWithoutTrim`, `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `predefinedADPControls[].associatedInspectionProfileNames[].enabled`, `predefinedADPControls[].isRecommended`, `predefinedADPControls[].nameWithoutTrim`, `predefinedApiControls[].associatedInspectionProfileNames[].enabled`, `predefinedApiControls[].isRecommended`, `predefinedApiControls[].nameWithoutTrim`, `predefinedControls[].associatedInspectionProfileNames[].enabled`, `predefinedControls[].isRecommended`, `predefinedControls[].nameWithoutTrim`, `profileSource`, `threatlabzControls[].associatedInspectionProfileNames[].enabled`, `threatlabzControls[].isRecommended`, `threatlabzControls[].nameWithoutTrim`, `websocketControls[].associatedInspectionProfileNames[].enabled`
+  - `request_body` metadata changed: `customControls[].controlException`, `customControls[].rules[].conditions[].op`, `predefinedADPControls[].controlException`, `predefinedApiControls[].controlException`, `predefinedControls[].controlException`, `threatlabzControls[].controlException`, `websocketControls[].controlException`
+- `zpa` / `zpa/appprotection-profile-management/update-inspection-profile` — `request_body` +21 −0 Δ7; schema titles Δ42
+  - `request_body` added: `apiDiscoveryEnabled`, `customControls[].associatedInspectionProfileNames[].enabled`, `customControls[].nameWithoutTrim`, `hasRecommendedOwaspControls`, `hasRecommendedThreatlabzControls`, `nameWithoutTrim`, `predefinedADPControls[].associatedInspectionProfileNames[].enabled`, `predefinedADPControls[].isRecommended`, `predefinedADPControls[].nameWithoutTrim`, `predefinedApiControls[].associatedInspectionProfileNames[].enabled`, `predefinedApiControls[].isRecommended`, `predefinedApiControls[].nameWithoutTrim`, `predefinedControls[].associatedInspectionProfileNames[].enabled`, `predefinedControls[].isRecommended`, `predefinedControls[].nameWithoutTrim`, `profileSource`, `threatlabzControls[].associatedInspectionProfileNames[].enabled`, `threatlabzControls[].isRecommended`, `threatlabzControls[].nameWithoutTrim`, `websocketControls[].associatedInspectionProfileNames[].enabled`
+  - `request_body` metadata changed: `customControls[].controlException`, `customControls[].rules[].conditions[].op`, `predefinedADPControls[].controlException`, `predefinedApiControls[].controlException`, `predefinedControls[].controlException`, `threatlabzControls[].controlException`, `websocketControls[].controlException`
+- `zpa` / `zpa/certificate-management/adds-a-certificate-with-a-private-key-for-the-specified-customer` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ0
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+- `zpa` / `zpa/certificate-management/deletes-the-certificate-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/certificate-management/get-all-issued-certificates` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ0; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].readOnly`, `list[].restrictionType`, `list[].zscalerManaged`, `message`
+- `zpa` / `zpa/certificate-management/get-all-issued-certs` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ0; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].readOnly`, `list[].restrictionType`, `list[].zscalerManaged`, `message`
+- `zpa` / `zpa/certificate-management/gets-all-certificates-for-the-specified-customer` — `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].readOnly`, `list[].restrictionType`, `list[].zscalerManaged`, `message`
+- `zpa` / `zpa/certificate-management/gets-the-certificate-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ0
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+- `zpa` / `zpa/certificate-management/gets-the-certificate-details-for-the-specified-id-this-api-will-be-deprecated-in-a-future-release` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ0
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+- `zpa` / `zpa/cloud-connector-groups/get-edge-connector-group` — `response_schema` +4 −0 Δ4; schema titles Δ3
+  - `response_schema` added: `cloudConnectors[].nameWithoutTrim`, `cloudConnectors[].readOnly`, `cloudConnectors[].restrictionType`, `cloudConnectors[].zscalerManaged`
+  - `response_schema` metadata changed: `creationTime`, `id`, `modifiedBy`, `modifiedTime`
+- `zpa` / `zpa/cloud-connector-groups/get-edge-connector-groups` — `query_params` +0 −0 Δ3; `response_schema` +5 −0 Δ4; schema titles Δ4
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].cloudConnectors[].nameWithoutTrim`, `list[].cloudConnectors[].readOnly`, `list[].cloudConnectors[].restrictionType`, `list[].cloudConnectors[].zscalerManaged`, `message`
+  - `response_schema` metadata changed: `list[].creationTime`, `list[].id`, `list[].modifiedBy`, `list[].modifiedTime`
+- `zpa` / `zpa/customers/gets-the-authentication-domains-for-the-specified-customer` — schema titles Δ1
+- `zpa` / `zpa/delegated-tenant-administration/add-scope` — `request_body` +35 −0 Δ4; `response_schema` +28 −2 Δ2; schema titles Δ18
+  - `request_body` added: `conditionsOperator`, `scopeConditions`, `scopeConditions[].creationTime`, `scopeConditions[].id`, `scopeConditions[].modifiedBy`, `scopeConditions[].modifiedTime`, `scopeConditions[].negated`, `scopeConditions[].operands`, `scopeConditions[].operands[].commonProperties`, `scopeConditions[].operands[].commonProperties.creationTime`, `scopeConditions[].operands[].commonProperties.entryValues`, `scopeConditions[].operands[].commonProperties.entryValues[].lhs`, `scopeConditions[].operands[].commonProperties.entryValues[].rhs`, `scopeConditions[].operands[].commonProperties.id`, `scopeConditions[].operands[].commonProperties.idpId`, `scopeConditions[].operands[].commonProperties.idpName`, `scopeConditions[].operands[].commonProperties.lhs`, `scopeConditions[].operands[].commonProperties.modifiedBy`, `scopeConditions[].operands[].commonProperties.modifiedTime`, `scopeConditions[].operands[].commonProperties.name`
+  - `request_body` metadata changed: `creationTime`, `id`, `modifiedBy`, `modifiedTime`
+  - `response_schema` added: `conditionsOperator`, `nameWithoutTrim`, `roles[].isHiddenRole`, `roles[].isRAFullAccess`, `roles[].isRARole`, `roles[].obfuscation`, `scopeConditions`, `scopeConditions[].creationTime`, `scopeConditions[].id`, `scopeConditions[].modifiedBy`, `scopeConditions[].modifiedTime`, `scopeConditions[].negated`, `scopeConditions[].operands`, `scopeConditions[].operands[].creationTime`, `scopeConditions[].operands[].entryValues`, `scopeConditions[].operands[].entryValues[].lhs`, `scopeConditions[].operands[].entryValues[].rhs`, `scopeConditions[].operands[].id`, `scopeConditions[].operands[].idpId`, `scopeConditions[].operands[].idpName`
+  - `response_schema` removed: `operator`, `user.iamUserId`
+  - `response_schema` metadata changed: `user`, `user.oneIdentityUser`
+- `zpa` / `zpa/delegated-tenant-administration/get-all-scopes` — `request_body` +0 −0 Δ2; `response_schema` +29 −2 Δ2; schema titles Δ13
+  - `request_body` metadata changed: `pageBy`, `sortBy`
+  - `response_schema` added: `list[].conditionsOperator`, `list[].nameWithoutTrim`, `list[].roles[].isHiddenRole`, `list[].roles[].isRAFullAccess`, `list[].roles[].isRARole`, `list[].roles[].obfuscation`, `list[].scopeConditions`, `list[].scopeConditions[].creationTime`, `list[].scopeConditions[].id`, `list[].scopeConditions[].modifiedBy`, `list[].scopeConditions[].modifiedTime`, `list[].scopeConditions[].negated`, `list[].scopeConditions[].operands`, `list[].scopeConditions[].operands[].creationTime`, `list[].scopeConditions[].operands[].entryValues`, `list[].scopeConditions[].operands[].entryValues[].lhs`, `list[].scopeConditions[].operands[].entryValues[].rhs`, `list[].scopeConditions[].operands[].id`, `list[].scopeConditions[].operands[].idpId`, `list[].scopeConditions[].operands[].idpName`
+  - `response_schema` removed: `list[].operator`, `list[].user.iamUserId`
+  - `response_schema` metadata changed: `list[].user`, `list[].user.oneIdentityUser`
+- `zpa` / `zpa/delegated-tenant-administration/get-scope` — `response_schema` +28 −2 Δ2; schema titles Δ8
+  - `response_schema` added: `conditionsOperator`, `nameWithoutTrim`, `roles[].isHiddenRole`, `roles[].isRAFullAccess`, `roles[].isRARole`, `roles[].obfuscation`, `scopeConditions`, `scopeConditions[].creationTime`, `scopeConditions[].id`, `scopeConditions[].modifiedBy`, `scopeConditions[].modifiedTime`, `scopeConditions[].negated`, `scopeConditions[].operands`, `scopeConditions[].operands[].creationTime`, `scopeConditions[].operands[].entryValues`, `scopeConditions[].operands[].entryValues[].lhs`, `scopeConditions[].operands[].entryValues[].rhs`, `scopeConditions[].operands[].id`, `scopeConditions[].operands[].idpId`, `scopeConditions[].operands[].idpName`
+  - `response_schema` removed: `operator`, `user.iamUserId`
+  - `response_schema` metadata changed: `user`, `user.oneIdentityUser`
+- `zpa` / `zpa/delegated-tenant-administration/get-scopes` — `query_params` +0 −0 Δ3; `response_schema` +29 −2 Δ2; schema titles Δ9
+  - `query_params` metadata changed: `includeRoles`, `page`, `pagesize`
+  - `response_schema` added: `list[].conditionsOperator`, `list[].nameWithoutTrim`, `list[].roles[].isHiddenRole`, `list[].roles[].isRAFullAccess`, `list[].roles[].isRARole`, `list[].roles[].obfuscation`, `list[].scopeConditions`, `list[].scopeConditions[].creationTime`, `list[].scopeConditions[].id`, `list[].scopeConditions[].modifiedBy`, `list[].scopeConditions[].modifiedTime`, `list[].scopeConditions[].negated`, `list[].scopeConditions[].operands`, `list[].scopeConditions[].operands[].creationTime`, `list[].scopeConditions[].operands[].entryValues`, `list[].scopeConditions[].operands[].entryValues[].lhs`, `list[].scopeConditions[].operands[].entryValues[].rhs`, `list[].scopeConditions[].operands[].id`, `list[].scopeConditions[].operands[].idpId`, `list[].scopeConditions[].operands[].idpName`
+  - `response_schema` removed: `list[].operator`, `list[].user.iamUserId`
+  - `response_schema` metadata changed: `list[].user`, `list[].user.oneIdentityUser`
+- `zpa` / `zpa/delegated-tenant-administration/gets-the-name-and-id-of-the-configured-microtenant-for-the-specified-customer` — `response_schema` +1 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `[].enabled`
+- `zpa` / `zpa/delegated-tenant-administration/update-scope` — `request_body` +35 −0 Δ4; schema titles Δ10
+  - `request_body` added: `conditionsOperator`, `scopeConditions`, `scopeConditions[].creationTime`, `scopeConditions[].id`, `scopeConditions[].modifiedBy`, `scopeConditions[].modifiedTime`, `scopeConditions[].negated`, `scopeConditions[].operands`, `scopeConditions[].operands[].commonProperties`, `scopeConditions[].operands[].commonProperties.creationTime`, `scopeConditions[].operands[].commonProperties.entryValues`, `scopeConditions[].operands[].commonProperties.entryValues[].lhs`, `scopeConditions[].operands[].commonProperties.entryValues[].rhs`, `scopeConditions[].operands[].commonProperties.id`, `scopeConditions[].operands[].commonProperties.idpId`, `scopeConditions[].operands[].commonProperties.idpName`, `scopeConditions[].operands[].commonProperties.lhs`, `scopeConditions[].operands[].commonProperties.modifiedBy`, `scopeConditions[].operands[].commonProperties.modifiedTime`, `scopeConditions[].operands[].commonProperties.name`
+  - `request_body` metadata changed: `creationTime`, `id`, `modifiedBy`, `modifiedTime`
+- `zpa` / `zpa/emergency-access-management/activate-emergency-access-user` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `microtenantId`, `sendEmail`
+- `zpa` / `zpa/emergency-access-management/add-emergency-access-user` — `query_params` +0 −0 Δ2; `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ2
+  - `query_params` metadata changed: `activateNow`, `microtenantId`
+  - `request_body` metadata changed: `userId`
+  - `response_schema` metadata changed: `userId`
+- `zpa` / `zpa/emergency-access-management/deactivate-emergency-access-user` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/emergency-access-management/get-all-emergency-access-group-users` — `query_params` +2 −0 Δ4; `response_schema` +0 −0 Δ1; schema titles Δ2
+  - `query_params` added: `sortBy`, `sortOrder`
+  - `query_params` metadata changed: `microtenantId`, `pageId`, `pageSize`, `search`
+  - `response_schema` metadata changed: `items[].userId`
+- `zpa` / `zpa/emergency-access-management/get-emergency-access-user` — `query_params` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` metadata changed: `userId`
+- `zpa` / `zpa/emergency-access-management/update-emergency-access-user` — `query_params` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` metadata changed: `userId`
+- `zpa` / `zpa/enrollment-certificates/gets-the-enrollment-certificate-details-for-the-specified-id` — `response_schema` +4 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `readOnly`, `restrictionType`, `storeInHsm`, `zscalerManaged`
+- `zpa` / `zpa/federate-applications/federate-application` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/idp-management/get-all-idp` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ5; `response_schema` +7 −0 Δ4; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `page`, `pagesize`, `scimEnabled`, `search`, `userAttributes`
+  - `response_schema` added: `list[].adminMetadata.idpName`, `list[].arbitraryIdpIamId`, `list[].certificates[].idpJwKeys`, `list[].encryptSamlResponse`, `list[].nameWithoutTrim`, `list[].userMetadata.idpName`, `message`
+  - `response_schema` metadata changed: `list[].adminMetadata`, `list[].idpEntityId`, `list[].loginUrl`, `list[].userMetadata`
+- `zpa` / `zpa/idp-management/gets-details-of-the-id-p-for-the-specified-id` — `response_schema` +6 −0 Δ4; schema titles Δ1
+  - `response_schema` added: `adminMetadata.idpName`, `arbitraryIdpIamId`, `certificates[].idpJwKeys`, `encryptSamlResponse`, `nameWithoutTrim`, `userMetadata.idpName`
+  - `response_schema` metadata changed: `adminMetadata`, `idpEntityId`, `loginUrl`, `userMetadata`
+- `zpa` / `zpa/isolation-banner-management/add-cbi-banner-using-post` — `request_body` +10 −0 Δ0; `response_schema` +10 −0 Δ0; schema titles Δ2
+  - `request_body` added: `banner`, `id`, `isDefault`, `logo`, `name`, `notificationText`, `notificationTitle`, `persist`, `primaryColor`, `textColor`
+  - `response_schema` added: `banner`, `id`, `isDefault`, `logo`, `name`, `notificationText`, `notificationTitle`, `persist`, `primaryColor`, `textColor`
+- `zpa` / `zpa/isolation-banner-management/get-all-cbi-banner-using-get` — `response_schema` +10 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `[].banner`, `[].id`, `[].isDefault`, `[].logo`, `[].name`, `[].notificationText`, `[].notificationTitle`, `[].persist`, `[].primaryColor`, `[].textColor`
+- `zpa` / `zpa/isolation-banner-management/get-cbi-banner-using-get` — `response_schema` +10 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `banner`, `id`, `isDefault`, `logo`, `name`, `notificationText`, `notificationTitle`, `persist`, `primaryColor`, `textColor`
+- `zpa` / `zpa/isolation-banner-management/update-zpa-banner-using-put` — `request_body` +10 −0 Δ0; `response_schema` +10 −0 Δ0; schema titles Δ2
+  - `request_body` added: `banner`, `id`, `isDefault`, `logo`, `name`, `notificationText`, `notificationTitle`, `persist`, `primaryColor`, `textColor`
+  - `response_schema` added: `banner`, `id`, `isDefault`, `logo`, `name`, `notificationText`, `notificationTitle`, `persist`, `primaryColor`, `textColor`
+- `zpa` / `zpa/isolation-certificate-management/add-cbi-certificate-using-post` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0; schema titles Δ2
+  - `request_body` added: `id`, `isDefault`, `name`, `pem`
+  - `response_schema` added: `id`, `isDefault`, `name`, `pem`
+- `zpa` / `zpa/isolation-certificate-management/get-all-cbi-certificate-using-get` — `response_schema` +4 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `[].id`, `[].isDefault`, `[].name`, `[].pem`
+- `zpa` / `zpa/isolation-certificate-management/get-cbi-certificate-using-get` — `response_schema` +4 −0 Δ0; schema titles Δ1
+  - `response_schema` added: `id`, `isDefault`, `name`, `pem`
+- `zpa` / `zpa/isolation-certificate-management/update-zpa-certificate-using-put` — `request_body` +4 −0 Δ0; `response_schema` +4 −0 Δ0; schema titles Δ2
+  - `request_body` added: `id`, `isDefault`, `name`, `pem`
+  - `response_schema` added: `id`, `isDefault`, `name`, `pem`
+- `zpa` / `zpa/isolation-profile-management/add-zpa-profile-using-post` — `query_params` +0 −0 Δ1; `request_body` +50 −0 Δ0; `response_schema` +13 −0 Δ0; schema titles Δ12
+  - `query_params` metadata changed: `scopeId`
+  - `request_body` added: `banner`, `banner.id`, `bannerId`, `cbiUrl`, `certificateIds`, `certificates`, `certificates[].id`, `certificates[].isDefault`, `certificates[].name`, `debugMode`, `debugMode.allowed`, `debugMode.filePassword`, `description`, `href`, `id`, `isDefault`, `name`, `regionIds`, `regions`, `regions[].id`
+  - `response_schema` added: `href`, `id`, `profileInfo`, `profileInfo.cbiProfileId`, `profileInfo.cbiTenantId`, `profileInfo.cbiUrl`, `profileInfo.creationTime`, `profileInfo.description`, `profileInfo.enabled`, `profileInfo.id`, `profileInfo.modifiedBy`, `profileInfo.modifiedTime`, `profileInfo.name`
+- `zpa` / `zpa/isolation-profile-management/delete-zpa-profile-using-delete` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `scopeId`
+- `zpa` / `zpa/isolation-profile-management/get-all-profiles-from-cbi-using-get` — `query_params` +0 −0 Δ1; `response_schema` +50 −0 Δ0; schema titles Δ10
+  - `query_params` metadata changed: `scopeId`
+  - `response_schema` added: `[].banner`, `[].banner.id`, `[].bannerId`, `[].cbiUrl`, `[].certificateIds`, `[].certificates`, `[].certificates[].id`, `[].certificates[].isDefault`, `[].certificates[].name`, `[].debugMode`, `[].debugMode.allowed`, `[].debugMode.filePassword`, `[].description`, `[].href`, `[].id`, `[].isDefault`, `[].name`, `[].regionIds`, `[].regions`, `[].regions[].id`
+- `zpa` / `zpa/isolation-profile-management/get-all-zpa-profiles` — `query_params` +0 −0 Δ2; `response_schema` +10 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `scopeId`, `showDisabled`
+  - `response_schema` added: `[].cbiProfileId`, `[].cbiTenantId`, `[].cbiUrl`, `[].creationTime`, `[].description`, `[].enabled`, `[].id`, `[].modifiedBy`, `[].modifiedTime`, `[].name`
+- `zpa` / `zpa/isolation-profile-management/get-profiles-for-customer` — `query_params` +0 −0 Δ4; `response_schema` +2 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `page`, `pagesize`, `search`, `showDisabled`
+  - `response_schema` added: `list[].nameWithoutTrim`, `message`
+- `zpa` / `zpa/isolation-profile-management/get-zpa-profile-using-get` — `query_params` +0 −0 Δ1; `response_schema` +50 −0 Δ0; schema titles Δ10
+  - `query_params` metadata changed: `scopeId`
+  - `response_schema` added: `banner`, `banner.id`, `bannerId`, `cbiUrl`, `certificateIds`, `certificates`, `certificates[].id`, `certificates[].isDefault`, `certificates[].name`, `debugMode`, `debugMode.allowed`, `debugMode.filePassword`, `description`, `href`, `id`, `isDefault`, `name`, `regionIds`, `regions`, `regions[].id`
+- `zpa` / `zpa/isolation-profile-management/update-zpa-profile-using-put` — `query_params` +0 −0 Δ1; `request_body` +50 −0 Δ0; `response_schema` +13 −0 Δ0; schema titles Δ12
+  - `query_params` metadata changed: `scopeId`
+  - `request_body` added: `banner`, `banner.id`, `bannerId`, `cbiUrl`, `certificateIds`, `certificates`, `certificates[].id`, `certificates[].isDefault`, `certificates[].name`, `debugMode`, `debugMode.allowed`, `debugMode.filePassword`, `description`, `href`, `id`, `isDefault`, `name`, `regionIds`, `regions`, `regions[].id`
+  - `response_schema` added: `href`, `id`, `profileInfo`, `profileInfo.cbiProfileId`, `profileInfo.cbiTenantId`, `profileInfo.cbiUrl`, `profileInfo.creationTime`, `profileInfo.description`, `profileInfo.enabled`, `profileInfo.id`, `profileInfo.modifiedBy`, `profileInfo.modifiedTime`, `profileInfo.name`
+- `zpa` / `zpa/log-streaming-service-lss-configuration/deletes-the-lss-configuration-for-the-specified-id` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ0
+  - `path_params` metadata changed: `customerId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/nonce/adds-a-new-provisioning-key-for-the-specified-customer` — `query_params` +1 −0 Δ0
+- `zpa` / `zpa/log-streaming-service-lss-configuration/gets-a-list-of-lss-status-codes` — schema titles Δ1
+- `zpa` / `zpa/log-streaming-service-lss-configuration/gets-all-lss-client-types-for-the-specified-customer` — `path_params` +0 −0 Δ1; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+- `zpa` / `zpa/log-streaming-service-lss-configuration/gets-all-lss-client-types-this-api-will-be-deprecated-in-a-future-release` — schema titles Δ1
+- `zpa` / `zpa/log-streaming-service-lss-configuration/gets-all-lss-log-formats` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `logType`
+- `zpa` / `zpa/log-streaming-service-lss-configuration/gets-all-lss-log-formats-for-the-specified-customer` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `logType`
+- `zpa` / `zpa/log-streaming-service-lss-configuration/gets-the-lss-configuration-details-for-the-specified-id` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ0; `response_schema` +1520 −3 Δ97; schema titles Δ499
+  - `path_params` metadata changed: `customerId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/nonce/deletes-the-provisioning-key-for-the-specified-id` — `query_params` +1 −0 Δ0
+  - `response_schema` added: `config.filterScopeIds`, `config.nameWithoutTrim`, `config.readOnly`, `config.restrictionType`, `config.zscalerManaged`, `connectorGroups[].connectors[].assistantVersion.connectorType`, `connectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `connectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `connectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `connectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `connectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `connectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `connectorGroups[].connectors[].assistantVersion.platformVersion`, `connectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `connectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `connectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`
+  - `response_schema` removed: `connectorGroups[].siteId`, `policyRule.appConnectorGroups[].siteId`, `policyRule.serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `config`, `config.sourceLogType`, `connectorGroups[].connectors[].assistantVersion`, `connectorGroups[].connectors[].npAssistant`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `connectorGroups[].npAssistantGroup`, `connectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `connectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`
+- `zpa` / `zpa/log-streaming-service-lss-configuration/updates-the-lss-configuration-for-the-specified-id` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ0; `request_body` +1520 −3 Δ97; schema titles Δ499
+  - `path_params` metadata changed: `customerId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/nonce/gets-details-of-all-configured-provisioning-keys-for-the-specified-customer` — `query_params` +1 −0 Δ0
+  - `request_body` added: `config.filterScopeIds`, `config.nameWithoutTrim`, `config.readOnly`, `config.restrictionType`, `config.zscalerManaged`, `connectorGroups[].connectors[].assistantVersion.connectorType`, `connectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `connectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `connectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `connectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `connectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `connectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `connectorGroups[].connectors[].assistantVersion.platformVersion`, `connectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `connectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `connectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `connectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`
+  - `request_body` removed: `connectorGroups[].siteId`, `policyRule.appConnectorGroups[].siteId`, `policyRule.serviceEdgeGroups[].siteId`
+  - `request_body` metadata changed: `config`, `config.sourceLogType`, `connectorGroups[].connectors[].assistantVersion`, `connectorGroups[].connectors[].npAssistant`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `connectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `connectorGroups[].npAssistantGroup`, `connectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `connectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`
+- `zpa` / `zpa/machine-groups/get-machine-groups` — `query_params` +0 −0 Δ4; `response_schema` +10 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].machines[].iamMachineDeviceId`, `list[].machines[].nameWithoutTrim`, `list[].machines[].readOnly`, `list[].machines[].restrictionType`, `list[].machines[].zscalerManaged`, `list[].nameWithoutTrim`, `list[].readOnly`, `list[].restrictionType`, `list[].zscalerManaged`, `message`
+- `zpa` / `zpa/nonce/adds-a-new-provisioning-key-for-the-specified-customer` — `path_params` +0 −0 Δ2; `query_params` +0 −1 Δ0; `request_body` +20 −5 Δ3; `response_schema` +20 −5 Δ3; schema titles Δ3
+  - `path_params` metadata changed: `associationType`, `customerId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `ipAcl`, `maxUsage`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
+  - `request_body` removed: `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`
+  - `request_body` metadata changed: `id`, `name`, `usageCount`
+  - `response_schema` added: `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `ipAcl`, `maxUsage`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
+  - `response_schema` removed: `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`
+  - `response_schema` metadata changed: `id`, `name`, `usageCount`
+- `zpa` / `zpa/nonce/deletes-the-provisioning-key-for-the-specified-id` — `path_params` +0 −0 Δ3; `query_params` +0 −1 Δ0
+  - `path_params` metadata changed: `associationType`, `customerId`, `provisioningKeyId`
+  - `query_params` removed: `scopeId`
+- `zpa` / `zpa/nonce/gets-details-of-all-configured-provisioning-keys-for-the-specified-customer` — `path_params` +0 −0 Δ2; `query_params` +0 −1 Δ3; `response_schema` +22 −5 Δ5; schema titles Δ4
+  - `path_params` metadata changed: `associationType`, `customerId`
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `currentCount`, `list[].creationTime`, `list[].enabled`, `list[].enrollmentCertId`, `list[].enrollmentCertName`, `list[].expirationInEpochSec`, `list[].exportable`, `list[].ipAcl`, `list[].maxUsage`, `list[].microtenantId`, `list[].microtenantName`, `list[].modifiedBy`, `list[].modifiedTime`, `list[].nameWithoutTrim`, `list[].provisioningKey`, `list[].readOnly`, `list[].restrictionType`, `list[].uiConfig`, `list[].zcomponentId`, `list[].zcomponentName`
+  - `response_schema` removed: `list[].cloudName`, `list[].maxUsageCount`, `list[].nonceAssociationType`, `list[].nonceValue`, `list[].scopeId`
+  - `response_schema` metadata changed: `list[].id`, `list[].name`, `list[].usageCount`, `totalCount`, `totalPages`
+- `zpa` / `zpa/nonce/gets-details-of-the-provisioning-key-for-the-specified-id` — `path_params` +0 −0 Δ3; `query_params` +0 −1 Δ0; `response_schema` +20 −5 Δ3; schema titles Δ1
+  - `path_params` metadata changed: `associationType`, `customerId`, `provisioningKeyId`
+  - `query_params` removed: `scopeId`
+  - `response_schema` added: `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `ipAcl`, `maxUsage`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
+  - `response_schema` removed: `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`
+  - `response_schema` metadata changed: `id`, `name`, `usageCount`
+- `zpa` / `zpa/nonce/updates-the-provisioning-key-details-for-the-specified-id` — `path_params` +0 −0 Δ3; `query_params` +0 −1 Δ0; `request_body` +20 −5 Δ3; schema titles Δ1
+  - `path_params` metadata changed: `associationType`, `customerId`, `provisioningKeyId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `exportable`, `ipAcl`, `maxUsage`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `nameWithoutTrim`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
+  - `request_body` removed: `cloudName`, `maxUsageCount`, `nonceAssociationType`, `nonceValue`, `scopeId`
+  - `request_body` metadata changed: `id`, `name`, `usageCount`
+- `zpa` / `zpa/partner-federation-provisioning/create-federation-token` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/partner-federation-provisioning/get-active-federation-partners` — `query_params` +0 −0 Δ6; schema titles Δ3
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, `sortDir`
+- `zpa` / `zpa/partner-federation-provisioning/get-provisionings` — `query_params` +0 −0 Δ6; `response_schema` +0 −0 Δ1; schema titles Δ4
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, `sortDir`
+  - `response_schema` metadata changed: `list[].partnerInfo`
+- `zpa` / `zpa/partner-federation-provisioning/request-approval` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/partner-federation-provisioning/verify-token` — `query_params` +0 −0 Δ1; `response_schema` +0 −0 Δ1; schema titles Δ2
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` metadata changed: `partnerInfo`
+- `zpa` / `zpa/policy-management/add-a-new-policy-rule-for-a-given-policy` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; `request_body` +629 −0 Δ20; `response_schema` +787 −2 Δ50; schema titles Δ443
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `auditMessage`, `browserPostureName`, `browserPostureProfileId`, `conditions[].nestedConditionSetIds`, `conditions[].operands[].commonProperties.conditionId`, `conditions[].operands[].commonProperties.policySetType`, `conditions[].operands[].commonProperties.referencedObjectDeleted`, `credential.enabled`, `credentialPool.enabled`, `desktopPolicyMappings`, `desktopPolicyMappings[].appSegments`, `desktopPolicyMappings[].appSegments[].clientlessApps`, `desktopPolicyMappings[].appSegments[].clientlessApps[].allowOptions`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appId`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.appRecommendationId`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.bypassType`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.cnameConfig`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.configSpace`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.creationTime`
+  - `request_body` metadata changed: `conditions[].creationTime`, `conditions[].id`, `conditions[].modifiedBy`, `conditions[].modifiedTime`, `conditions[].operands[].commonProperties`, `conditions[].operands[].commonProperties.objectType`, `conditions[].operands[].creationTime`, `conditions[].operands[].id`, `conditions[].operands[].modifiedBy`, `conditions[].operands[].modifiedTime`, `conditions[].operands[].objectType`, `creationTime`, `credential`, `credentialPool`, `extranetDTO`, `id`, `modifiedBy`, `modifiedTime`, `privilegedCapabilities`, `privilegedPortalCapabilities`
+  - `response_schema` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `appConnectorGroups[].siteId`, `serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/policy-management/adds-a-new-policy-rule-for-the-specified-policy-set` — `query_params` +0 −0 Δ1; `request_body` +787 −2 Δ50; `response_schema` +787 −2 Δ50; schema titles Δ520
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `request_body` removed: `appConnectorGroups[].siteId`, `serviceEdgeGroups[].siteId`
+  - `request_body` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+  - `response_schema` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `appConnectorGroups[].siteId`, `serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/policy-management/bulk-reorders-all-the-rules-in-a-policy-set-execute-this-api-only-once-to-reorder-the-rules` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/policy-management/deletes-the-rule-in-a-policy-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/policy-management/gets-all-client-types-for-the-specified-customer` — schema titles Δ1
+- `zpa` / `zpa/policy-management/gets-all-platforms-for-the-specified-customer` — schema titles Δ1
+- `zpa` / `zpa/policy-management/gets-paginated-policy-rules-for-the-specified-policy-type` — `query_params` +0 −0 Δ4; `response_schema` +788 −2 Δ50; schema titles Δ260
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].appConnectorGroups[].connectors[].assistantVersion.connectorType`, `list[].appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `list[].appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `list[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `list[].appConnectorGroups[].siteId`, `list[].serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `list[].appConnectorGroups[].connectors[].assistantVersion`, `list[].appConnectorGroups[].connectors[].npAssistant`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `list[].appConnectorGroups[].npAssistantGroup`, `list[].appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `list[].appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `list[].appConnectorGroups[].serverGroups[].zpnErId`, `list[].appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/policy-management/gets-the-policy-set-for-the-specified-policy-type` — `query_params` +0 −0 Δ1; `response_schema` +788 −2 Δ50; schema titles Δ260
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `nameWithoutTrim`, `rules[].appConnectorGroups[].connectors[].assistantVersion.connectorType`, `rules[].appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `rules[].appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `rules[].appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `rules[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `rules[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `rules[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `rules[].appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `rules[].appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `rules[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `rules[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `rules[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`
+  - `response_schema` removed: `rules[].appConnectorGroups[].siteId`, `rules[].serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `rules[].appConnectorGroups[].connectors[].assistantVersion`, `rules[].appConnectorGroups[].connectors[].npAssistant`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `rules[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `rules[].appConnectorGroups[].npAssistantGroup`, `rules[].appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `rules[].appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `rules[].appConnectorGroups[].serverGroups[].zpnErId`, `rules[].appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/policy-management/gets-the-rule-in-a-policy-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +787 −2 Δ50; schema titles Δ260
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `appConnectorGroups[].siteId`, `serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/policy-management/update-a-rule-in-a-policy` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; `request_body` +629 −0 Δ20; schema titles Δ182
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `auditMessage`, `browserPostureName`, `browserPostureProfileId`, `conditions[].nestedConditionSetIds`, `conditions[].operands[].commonProperties.conditionId`, `conditions[].operands[].commonProperties.policySetType`, `conditions[].operands[].commonProperties.referencedObjectDeleted`, `credential.enabled`, `credentialPool.enabled`, `desktopPolicyMappings`, `desktopPolicyMappings[].appSegments`, `desktopPolicyMappings[].appSegments[].clientlessApps`, `desktopPolicyMappings[].appSegments[].clientlessApps[].allowOptions`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appId`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.appRecommendationId`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.bypassType`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.cnameConfig`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.configSpace`, `desktopPolicyMappings[].appSegments[].clientlessApps[].appResource.creationTime`
+  - `request_body` metadata changed: `conditions[].creationTime`, `conditions[].id`, `conditions[].modifiedBy`, `conditions[].modifiedTime`, `conditions[].operands[].commonProperties`, `conditions[].operands[].commonProperties.objectType`, `conditions[].operands[].creationTime`, `conditions[].operands[].id`, `conditions[].operands[].modifiedBy`, `conditions[].operands[].modifiedTime`, `conditions[].operands[].objectType`, `creationTime`, `credential`, `credentialPool`, `extranetDTO`, `id`, `modifiedBy`, `modifiedTime`, `privilegedCapabilities`, `privilegedPortalCapabilities`
+- `zpa` / `zpa/policy-management/updates-the-rule-in-a-policy-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +787 −2 Δ50; schema titles Δ260
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `request_body` removed: `appConnectorGroups[].siteId`, `serviceEdgeGroups[].siteId`
+  - `request_body` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/policy-management/updates-the-rule-order-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/posture-profiles/get-all-attributes` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +7 −0 Δ0; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].frequencyInSecs`, `list[].machineTunnelSupportedPlatforms`, `list[].nameWithoutTrim`, `list[].platformType`, `list[].postureConfig`, `list[].postureTypeValue`, `message`
+- `zpa` / `zpa/posture-profiles/gets-the-configured-posture-profile-for-the-specified-id` — `response_schema` +6 −0 Δ0
+  - `response_schema` added: `frequencyInSecs`, `machineTunnelSupportedPlatforms`, `nameWithoutTrim`, `platformType`, `postureConfig`, `postureTypeValue`
+- `zpa` / `zpa/private-service-edge-group-management/delete-private-broker-group` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/private-service-edge-group-management/get-private-broker-group` — `query_params` +0 −0 Δ1; `response_schema` +51 −1 Δ19; schema titles Δ28
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `enrollmentCertId`, `exclusiveForBusinessContinuity`, `nameWithoutTrim`, `privateCloudId`, `readOnly`, `restrictionType`, `serviceEdges[].enrollmentTime`, `serviceEdges[].expectedSargeVersion`, `serviceEdges[].ip_addr_setting`, `serviceEdges[].ip_addr_setting[].interface`, `serviceEdges[].ip_addr_setting[].ip_addr_cidr`, `serviceEdges[].lastOSUpgradeTime`, `serviceEdges[].lastSargeUpgradeTime`, `serviceEdges[].nameWithoutTrim`, `serviceEdges[].osUpgradeEnabled`, `serviceEdges[].osUpgradeFailReasonCode`, `serviceEdges[].osUpgradeStatus`, `serviceEdges[].platformVersion`, `serviceEdges[].privateBrokerVersion.expectedSargeVersion`, `serviceEdges[].privateBrokerVersion.lastOSUpgradeTime`
+  - `response_schema` removed: `siteId`
+  - `response_schema` metadata changed: `serviceEdges[].privateBrokerVersion`, `serviceEdges[].privateBrokerVersion.zpnSubModuleUpgrade[].entityType`, `serviceEdges[].privateBrokerVersion.zpnSubModuleUpgrade[].role`, `serviceEdges[].zpnSubModuleUpgradeList`, `serviceEdges[].zpnSubModuleUpgradeList[].creationTime`, `serviceEdges[].zpnSubModuleUpgradeList[].currentVersion`, `serviceEdges[].zpnSubModuleUpgradeList[].entityGid`, `serviceEdges[].zpnSubModuleUpgradeList[].entityType`, `serviceEdges[].zpnSubModuleUpgradeList[].expectedVersion`, `serviceEdges[].zpnSubModuleUpgradeList[].id`, `serviceEdges[].zpnSubModuleUpgradeList[].modifiedBy`, `serviceEdges[].zpnSubModuleUpgradeList[].modifiedTime`, `serviceEdges[].zpnSubModuleUpgradeList[].previousVersion`, `serviceEdges[].zpnSubModuleUpgradeList[].role`, `serviceEdges[].zpnSubModuleUpgradeList[].upgradeStatus`, `serviceEdges[].zpnSubModuleUpgradeList[].upgradeTime`, `upgradePriority`, `versionProfileName`, `versionProfileVisibilityScope`
+- `zpa` / `zpa/private-service-edge-group-management/update-private-broker-group` — `query_params` +0 −0 Δ1; `request_body` +51 −1 Δ19; schema titles Δ28
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `enrollmentCertId`, `exclusiveForBusinessContinuity`, `nameWithoutTrim`, `privateCloudId`, `readOnly`, `restrictionType`, `serviceEdges[].enrollmentTime`, `serviceEdges[].expectedSargeVersion`, `serviceEdges[].ip_addr_setting`, `serviceEdges[].ip_addr_setting[].interface`, `serviceEdges[].ip_addr_setting[].ip_addr_cidr`, `serviceEdges[].lastOSUpgradeTime`, `serviceEdges[].lastSargeUpgradeTime`, `serviceEdges[].nameWithoutTrim`, `serviceEdges[].osUpgradeEnabled`, `serviceEdges[].osUpgradeFailReasonCode`, `serviceEdges[].osUpgradeStatus`, `serviceEdges[].platformVersion`, `serviceEdges[].privateBrokerVersion.expectedSargeVersion`, `serviceEdges[].privateBrokerVersion.lastOSUpgradeTime`
+  - `request_body` removed: `siteId`
+  - `request_body` metadata changed: `serviceEdges[].privateBrokerVersion`, `serviceEdges[].privateBrokerVersion.zpnSubModuleUpgrade[].entityType`, `serviceEdges[].privateBrokerVersion.zpnSubModuleUpgrade[].role`, `serviceEdges[].zpnSubModuleUpgradeList`, `serviceEdges[].zpnSubModuleUpgradeList[].creationTime`, `serviceEdges[].zpnSubModuleUpgradeList[].currentVersion`, `serviceEdges[].zpnSubModuleUpgradeList[].entityGid`, `serviceEdges[].zpnSubModuleUpgradeList[].entityType`, `serviceEdges[].zpnSubModuleUpgradeList[].expectedVersion`, `serviceEdges[].zpnSubModuleUpgradeList[].id`, `serviceEdges[].zpnSubModuleUpgradeList[].modifiedBy`, `serviceEdges[].zpnSubModuleUpgradeList[].modifiedTime`, `serviceEdges[].zpnSubModuleUpgradeList[].previousVersion`, `serviceEdges[].zpnSubModuleUpgradeList[].role`, `serviceEdges[].zpnSubModuleUpgradeList[].upgradeStatus`, `serviceEdges[].zpnSubModuleUpgradeList[].upgradeTime`, `upgradePriority`, `versionProfileName`, `versionProfileVisibilityScope`
+- `zpa` / `zpa/private-service-edge-management/bulk-delete-private-broker` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/private-service-edge-management/delete-private-broker` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/private-service-edge-management/get-private-broker` — `query_params` +0 −0 Δ1; `response_schema` +36 −0 Δ16; schema titles Δ24
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `enrollmentTime`, `expectedSargeVersion`, `ip_addr_setting`, `ip_addr_setting[].interface`, `ip_addr_setting[].ip_addr_cidr`, `lastOSUpgradeTime`, `lastSargeUpgradeTime`, `nameWithoutTrim`, `osUpgradeEnabled`, `osUpgradeFailReasonCode`, `osUpgradeStatus`, `platformVersion`, `privateBrokerVersion.expectedSargeVersion`, `privateBrokerVersion.lastOSUpgradeTime`, `privateBrokerVersion.lastSargeUpgradeTime`, `privateBrokerVersion.osUpgradeEnabled`, `privateBrokerVersion.osUpgradeFailReasonCode`, `privateBrokerVersion.osUpgradeStatus`, `privateBrokerVersion.platformVersion`, `privateBrokerVersion.previousSargeVersion`
+  - `response_schema` metadata changed: `privateBrokerVersion`, `privateBrokerVersion.zpnSubModuleUpgrade[].entityType`, `privateBrokerVersion.zpnSubModuleUpgrade[].role`, `zpnSubModuleUpgradeList`, `zpnSubModuleUpgradeList[].creationTime`, `zpnSubModuleUpgradeList[].currentVersion`, `zpnSubModuleUpgradeList[].entityGid`, `zpnSubModuleUpgradeList[].entityType`, `zpnSubModuleUpgradeList[].expectedVersion`, `zpnSubModuleUpgradeList[].id`, `zpnSubModuleUpgradeList[].modifiedBy`, `zpnSubModuleUpgradeList[].modifiedTime`, `zpnSubModuleUpgradeList[].previousVersion`, `zpnSubModuleUpgradeList[].role`, `zpnSubModuleUpgradeList[].upgradeStatus`, `zpnSubModuleUpgradeList[].upgradeTime`
+- `zpa` / `zpa/private-service-edge-management/get-private-broker-schedule` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/private-service-edge-management/gets-all-the-configured-service-edge-details-for-the-specified-customer` — `query_params` +0 −0 Δ6; `response_schema` +37 −0 Δ16; schema titles Δ25
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, `sortDir`
+  - `response_schema` added: `list[].enrollmentTime`, `list[].expectedSargeVersion`, `list[].ip_addr_setting`, `list[].ip_addr_setting[].interface`, `list[].ip_addr_setting[].ip_addr_cidr`, `list[].lastOSUpgradeTime`, `list[].lastSargeUpgradeTime`, `list[].nameWithoutTrim`, `list[].osUpgradeEnabled`, `list[].osUpgradeFailReasonCode`, `list[].osUpgradeStatus`, `list[].platformVersion`, `list[].privateBrokerVersion.expectedSargeVersion`, `list[].privateBrokerVersion.lastOSUpgradeTime`, `list[].privateBrokerVersion.lastSargeUpgradeTime`, `list[].privateBrokerVersion.osUpgradeEnabled`, `list[].privateBrokerVersion.osUpgradeFailReasonCode`, `list[].privateBrokerVersion.osUpgradeStatus`, `list[].privateBrokerVersion.platformVersion`, `list[].privateBrokerVersion.previousSargeVersion`
+  - `response_schema` metadata changed: `list[].privateBrokerVersion`, `list[].privateBrokerVersion.zpnSubModuleUpgrade[].entityType`, `list[].privateBrokerVersion.zpnSubModuleUpgrade[].role`, `list[].zpnSubModuleUpgradeList`, `list[].zpnSubModuleUpgradeList[].creationTime`, `list[].zpnSubModuleUpgradeList[].currentVersion`, `list[].zpnSubModuleUpgradeList[].entityGid`, `list[].zpnSubModuleUpgradeList[].entityType`, `list[].zpnSubModuleUpgradeList[].expectedVersion`, `list[].zpnSubModuleUpgradeList[].id`, `list[].zpnSubModuleUpgradeList[].modifiedBy`, `list[].zpnSubModuleUpgradeList[].modifiedTime`, `list[].zpnSubModuleUpgradeList[].previousVersion`, `list[].zpnSubModuleUpgradeList[].role`, `list[].zpnSubModuleUpgradeList[].upgradeStatus`, `list[].zpnSubModuleUpgradeList[].upgradeTime`
+- `zpa` / `zpa/private-service-edge-management/save-private-broker-schedule` — `query_params` +0 −0 Δ1; `response_schema` +0 −6 Δ0; schema titles Δ2
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` removed: `customerId`, `deleteDisabled`, `enabled`, `frequency`, `frequencyInterval`, `id`
+- `zpa` / `zpa/private-service-edge-management/update-private-broker` — `query_params` +0 −0 Δ1; `request_body` +36 −0 Δ16; schema titles Δ24
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `enrollmentTime`, `expectedSargeVersion`, `ip_addr_setting`, `ip_addr_setting[].interface`, `ip_addr_setting[].ip_addr_cidr`, `lastOSUpgradeTime`, `lastSargeUpgradeTime`, `nameWithoutTrim`, `osUpgradeEnabled`, `osUpgradeFailReasonCode`, `osUpgradeStatus`, `platformVersion`, `privateBrokerVersion.expectedSargeVersion`, `privateBrokerVersion.lastOSUpgradeTime`, `privateBrokerVersion.lastSargeUpgradeTime`, `privateBrokerVersion.osUpgradeEnabled`, `privateBrokerVersion.osUpgradeFailReasonCode`, `privateBrokerVersion.osUpgradeStatus`, `privateBrokerVersion.platformVersion`, `privateBrokerVersion.previousSargeVersion`
+  - `request_body` metadata changed: `privateBrokerVersion`, `privateBrokerVersion.zpnSubModuleUpgrade[].entityType`, `privateBrokerVersion.zpnSubModuleUpgrade[].role`, `zpnSubModuleUpgradeList`, `zpnSubModuleUpgradeList[].creationTime`, `zpnSubModuleUpgradeList[].currentVersion`, `zpnSubModuleUpgradeList[].entityGid`, `zpnSubModuleUpgradeList[].entityType`, `zpnSubModuleUpgradeList[].expectedVersion`, `zpnSubModuleUpgradeList[].id`, `zpnSubModuleUpgradeList[].modifiedBy`, `zpnSubModuleUpgradeList[].modifiedTime`, `zpnSubModuleUpgradeList[].previousVersion`, `zpnSubModuleUpgradeList[].role`, `zpnSubModuleUpgradeList[].upgradeStatus`, `zpnSubModuleUpgradeList[].upgradeTime`
+- `zpa` / `zpa/private-service-edge-management/update-private-broker-schedule` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/privileged-approval-management/add-privileged-approval` — `query_params` +0 −0 Δ1; `request_body` +13 −0 Δ3; `response_schema` +13 −0 Δ3; schema titles Δ30
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `applications[].b2bGuestCustomerIds`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`
+  - `request_body` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`, `workingHours`
+  - `response_schema` added: `applications[].b2bGuestCustomerIds`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`
+  - `response_schema` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`, `workingHours`
+- `zpa` / `zpa/privileged-approval-management/delete-expired-privileged-approvals` — `query_params` +0 −0 Δ1; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/privileged-approval-management/delete-privileged-approval` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/privileged-approval-management/get-privileged-approval` — `query_params` +0 −0 Δ1; `response_schema` +13 −0 Δ3; schema titles Δ15
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `applications[].b2bGuestCustomerIds`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`
+  - `response_schema` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`, `workingHours`
+- `zpa` / `zpa/privileged-approval-management/gets-all-configured-privileged-approvals-for-the-specified-customer` — `query_params` +0 −0 Δ6; `response_schema` +14 −0 Δ3; schema titles Δ16
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, `sortdir`
+  - `response_schema` added: `list[].applications[].b2bGuestCustomerIds`, `list[].applications[].hbrEnabled`, `list[].applications[].nameWithoutTrim`, `list[].applications[].policyStyle`, `list[].applications[].readOnly`, `list[].applications[].restrictionType`, `list[].applications[].serverGroups[].nameWithoutTrim`, `list[].applications[].serverGroups[].readOnly`, `list[].applications[].serverGroups[].restrictionType`, `list[].applications[].serverGroups[].zscalerManaged`, `list[].applications[].stickyEntity`, `list[].applications[].stickyGroup`, `list[].applications[].zscalerManaged`, `message`
+  - `response_schema` metadata changed: `list[].applications[].serverGroups[].zpnErId`, `list[].applications[].zpnErId`, `list[].workingHours`
+- `zpa` / `zpa/privileged-approval-management/update-privileged-approval` — `query_params` +0 −0 Δ1; `request_body` +13 −0 Δ3; schema titles Δ15
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `applications[].b2bGuestCustomerIds`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`
+  - `request_body` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`, `workingHours`
+- `zpa` / `zpa/privileged-console-management/add-list-of-consoles` — `query_params` +0 −0 Δ1; `request_body` +4 −0 Δ2; `response_schema` +4 −0 Δ2; schema titles Δ38
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `[].nameWithoutTrim`, `[].praApplication.nameWithoutTrim`, `[].praPortals[].approvalReviewers`, `[].praPortals[].nameWithoutTrim`
+  - `request_body` metadata changed: `[].inconsistentConfigDetails`, `[].praApplication`
+  - `response_schema` added: `[].nameWithoutTrim`, `[].praApplication.nameWithoutTrim`, `[].praPortals[].approvalReviewers`, `[].praPortals[].nameWithoutTrim`
+  - `response_schema` metadata changed: `[].inconsistentConfigDetails`, `[].praApplication`
+- `zpa` / `zpa/privileged-console-management/add-pra-console` — `query_params` +0 −0 Δ1; `request_body` +4 −0 Δ2; `response_schema` +4 −0 Δ2; schema titles Δ38
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `nameWithoutTrim`, `praApplication.nameWithoutTrim`, `praPortals[].approvalReviewers`, `praPortals[].nameWithoutTrim`
+  - `request_body` metadata changed: `inconsistentConfigDetails`, `praApplication`
+  - `response_schema` added: `nameWithoutTrim`, `praApplication.nameWithoutTrim`, `praPortals[].approvalReviewers`, `praPortals[].nameWithoutTrim`
+  - `response_schema` metadata changed: `inconsistentConfigDetails`, `praApplication`
+- `zpa` / `zpa/privileged-console-management/delete-pra-console` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/privileged-console-management/get-pra-console` — `query_params` +0 −0 Δ1; `response_schema` +4 −0 Δ2; schema titles Δ19
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `nameWithoutTrim`, `praApplication.nameWithoutTrim`, `praPortals[].approvalReviewers`, `praPortals[].nameWithoutTrim`
+  - `response_schema` metadata changed: `inconsistentConfigDetails`, `praApplication`
+- `zpa` / `zpa/privileged-console-management/get-pra-consoles-by-portal-id` — `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ2; schema titles Δ20
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].praApplication.nameWithoutTrim`, `list[].praPortals[].approvalReviewers`, `list[].praPortals[].nameWithoutTrim`, `message`
+  - `response_schema` metadata changed: `list[].inconsistentConfigDetails`, `list[].praApplication`
+- `zpa` / `zpa/privileged-console-management/gets-all-configured-privileged-consoles-for-the-specified-customer` — `query_params` +0 −0 Δ4; `response_schema` +5 −0 Δ2; schema titles Δ20
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].praApplication.nameWithoutTrim`, `list[].praPortals[].approvalReviewers`, `list[].praPortals[].nameWithoutTrim`, `message`
+  - `response_schema` metadata changed: `list[].inconsistentConfigDetails`, `list[].praApplication`
+- `zpa` / `zpa/privileged-console-management/update-pra-console` — `query_params` +0 −0 Δ1; `request_body` +4 −0 Δ2; schema titles Δ19
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `nameWithoutTrim`, `praApplication.nameWithoutTrim`, `praPortals[].approvalReviewers`, `praPortals[].nameWithoutTrim`
+  - `request_body` metadata changed: `inconsistentConfigDetails`, `praApplication`
+- `zpa` / `zpa/privileged-credential-management/add-credential` — `query_params` +0 −0 Δ1; `request_body` +1 −0 Δ0; `response_schema` +1 −0 Δ0; schema titles Δ2
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `nameWithoutTrim`
+  - `response_schema` added: `nameWithoutTrim`
+- `zpa` / `zpa/privileged-credential-management/delete-credential` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/privileged-credential-management/get-credential` — `query_params` +0 −0 Δ1; `response_schema` +1 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `nameWithoutTrim`
+- `zpa` / `zpa/privileged-credential-management/gets-all-configured-privileged-credentials-for-the-specified-customer` — `query_params` +0 −0 Δ6; `response_schema` +2 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, `sortdir`
+  - `response_schema` added: `list[].nameWithoutTrim`, `message`
+- `zpa` / `zpa/privileged-credential-management/move-credential` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `microtenantId`, `targetMicrotenantId`
+- `zpa` / `zpa/privileged-credential-management/update-credential` — `query_params` +0 −0 Δ1; `request_body` +1 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `nameWithoutTrim`
+- `zpa` / `zpa/privileged-portal-management/add` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0; `response_schema` +2 −0 Δ0
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `approvalReviewers`, `nameWithoutTrim`
+  - `response_schema` added: `approvalReviewers`, `nameWithoutTrim`
+- `zpa` / `zpa/privileged-portal-management/delete-pra-portal` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/privileged-portal-management/get-pra-portal` — `query_params` +0 −0 Δ1; `response_schema` +2 −0 Δ0
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `approvalReviewers`, `nameWithoutTrim`
+- `zpa` / `zpa/privileged-portal-management/gets-all-configured-privileged-portals-for-the-specified-customer` — `query_params` +0 −0 Δ4; `response_schema` +3 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].approvalReviewers`, `list[].nameWithoutTrim`, `message`
+- `zpa` / `zpa/privileged-portal-management/update-pra-portal` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `approvalReviewers`, `nameWithoutTrim`
+- `zpa` / `zpa/saml-attributes/get-all-attributes-by-idp-id-and-page` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +3 −0 Δ0; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].syncVersion`, `message`
+- `zpa` / `zpa/saml-attributes/get-all-attributes-by-page` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +3 −0 Δ0; schema titles Δ1
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].syncVersion`, `message`
+- `zpa` / `zpa/saml-attributes/gets-the-saml-attribute-details-for-the-specified-id` — `response_schema` +2 −0 Δ0
+  - `response_schema` added: `nameWithoutTrim`, `syncVersion`
+- `zpa` / `zpa/scim-attributes/get-all-scim-attribute-values` — `query_params` +0 −0 Δ3
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+- `zpa` / `zpa/scim-attributes/gets-all-scim-attributes-for-the-specified-id` — `query_params` +0 −0 Δ3; `response_schema` +3 −0 Δ0
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `list[].syncVersion`, `message`
+- `zpa` / `zpa/scim-attributes/gets-the-scim-attribute-details-for-the-specified-id` — `response_schema` +2 −0 Δ0
+  - `response_schema` added: `nameWithoutTrim`, `syncVersion`
+- `zpa` / `zpa/scim-groups/get-all-scim-groups` — `query_params` +0 −0 Δ11; `response_schema` +1 −0 Δ0
+  - `query_params` metadata changed: `allEntries`, `endTime`, `idpGroupId`, `page`, `pagesize`, `scimUserId`, `scimUserName`, `search`, `sortBy`, `sortOrder`, `startTime`
+  - `response_schema` added: `list[].iamIdpId`
+- `zpa` / `zpa/scim-groups/get-scim-group` — `query_params` +0 −0 Δ1; `response_schema` +1 −0 Δ0
+  - `query_params` metadata changed: `allEntries`
+  - `response_schema` added: `iamIdpId`
+- `zpa` / `zpa/segment-group-management/adds-a-new-segment-group-for-the-specified-customer` — `query_params` +0 −0 Δ1; `request_body` +17 −0 Δ2; `response_schema` +17 −0 Δ2; schema titles Δ30
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `applicationNames[].enabled`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+  - `request_body` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`
+  - `response_schema` added: `applicationNames[].enabled`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+  - `response_schema` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`
+- `zpa` / `zpa/segment-group-management/deletes-the-segment-group-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/segment-group-management/gets-all-configured-segment-groups-for-the-specified-customer` — `query_params` +0 −0 Δ5; `response_schema` +18 −0 Δ2; schema titles Δ16
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`, `skipDetailedAppInfo`
+  - `response_schema` added: `list[].applicationNames[].enabled`, `list[].applications[].hbrEnabled`, `list[].applications[].nameWithoutTrim`, `list[].applications[].policyStyle`, `list[].applications[].readOnly`, `list[].applications[].restrictionType`, `list[].applications[].serverGroups[].nameWithoutTrim`, `list[].applications[].serverGroups[].readOnly`, `list[].applications[].serverGroups[].restrictionType`, `list[].applications[].serverGroups[].zscalerManaged`, `list[].applications[].stickyEntity`, `list[].applications[].stickyGroup`, `list[].applications[].zscalerManaged`, `list[].nameWithoutTrim`, `list[].readOnly`, `list[].restrictionType`, `list[].zscalerManaged`, `message`
+  - `response_schema` metadata changed: `list[].applications[].serverGroups[].zpnErId`, `list[].applications[].zpnErId`
+- `zpa` / `zpa/segment-group-management/gets-the-segment-group-details-for-the-specified-id` — `query_params` +0 −0 Δ2; `response_schema` +17 −0 Δ2; schema titles Δ15
+  - `query_params` metadata changed: `microtenantId`, `skipDetailedAppInfo`
+  - `response_schema` added: `applicationNames[].enabled`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+  - `response_schema` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`
+- `zpa` / `zpa/segment-group-management/update-application-group` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ1; schema titles Δ2
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/segment-group-management/updates-the-segment-group-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +17 −0 Δ2; schema titles Δ15
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `applicationNames[].enabled`, `applications[].hbrEnabled`, `applications[].nameWithoutTrim`, `applications[].policyStyle`, `applications[].readOnly`, `applications[].restrictionType`, `applications[].serverGroups[].nameWithoutTrim`, `applications[].serverGroups[].readOnly`, `applications[].serverGroups[].restrictionType`, `applications[].serverGroups[].zscalerManaged`, `applications[].stickyEntity`, `applications[].stickyGroup`, `applications[].zscalerManaged`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+  - `request_body` metadata changed: `applications[].serverGroups[].zpnErId`, `applications[].zpnErId`
+- `zpa` / `zpa/server-group-management/add-a-new-server-group` — `query_params` +0 −0 Δ1; `request_body` +107 −1 Δ24; `response_schema` +107 −1 Δ24; schema titles Δ124
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `request_body` removed: `appConnectorGroups[].siteId`
+  - `request_body` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+  - `response_schema` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `appConnectorGroups[].siteId`
+  - `response_schema` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/server-group-management/deletes-the-server-group-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/server-group-management/gets-all-configured-server-groups-for-the-specified-customer` — `query_params` +0 −0 Δ4; `response_schema` +108 −1 Δ24; schema titles Δ63
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].appConnectorGroups[].connectors[].assistantVersion.connectorType`, `list[].appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `list[].appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `list[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `list[].appConnectorGroups[].siteId`
+  - `response_schema` metadata changed: `list[].appConnectorGroups[].connectors[].assistantVersion`, `list[].appConnectorGroups[].connectors[].npAssistant`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `list[].appConnectorGroups[].npAssistantGroup`, `list[].appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `list[].appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `list[].appConnectorGroups[].serverGroups[].zpnErId`, `list[].appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/server-group-management/gets-the-server-group-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +107 −1 Δ24; schema titles Δ62
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `appConnectorGroups[].siteId`
+  - `response_schema` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/server-group-management/updates-the-server-group-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +107 −1 Δ24; schema titles Δ62
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `appConnectorGroups[].connectors[].assistantVersion.connectorType`, `appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `request_body` removed: `appConnectorGroups[].siteId`
+  - `request_body` metadata changed: `appConnectorGroups[].connectors[].assistantVersion`, `appConnectorGroups[].connectors[].npAssistant`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `appConnectorGroups[].npAssistantGroup`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `appConnectorGroups[].serverGroups[].zpnErId`, `appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/server-management/adds-a-new-server-for-the-specified-customer` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0; `response_schema` +2 −0 Δ0; schema titles Δ2
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `appServerGroupAssociations`, `nameWithoutTrim`
+  - `response_schema` added: `appServerGroupAssociations`, `nameWithoutTrim`
+- `zpa` / `zpa/server-management/deletes-the-server-for-the-specified-id` — `query_params` +0 −0 Δ1
+  - `query_params` metadata changed: `microtenantId`
+- `zpa` / `zpa/server-management/gets-all-configured-servers-for-the-specified-customer` — `query_params` +0 −0 Δ4; `response_schema` +3 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`, `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].appServerGroupAssociations`, `list[].nameWithoutTrim`, `message`
+- `zpa` / `zpa/server-management/gets-the-server-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `response_schema` +2 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+  - `response_schema` added: `appServerGroupAssociations`, `nameWithoutTrim`
+- `zpa` / `zpa/server-management/updates-the-server-details-for-the-specified-id` — `query_params` +0 −0 Δ1; `request_body` +2 −0 Δ0; schema titles Δ1
+  - `query_params` metadata changed: `microtenantId`
+  - `request_body` added: `appServerGroupAssociations`, `nameWithoutTrim`
+- `zpa` / `zpa/service-edge-group/get-private-broker-groups` — `path_params` +0 −0 Δ1; `query_params` +0 −1 Δ3; `response_schema` +189 −1 Δ4; schema titles Δ34
+  - `path_params` metadata changed: `customerId`
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `currentCount`, `list[].altCloud`, `list[].city`, `list[].cityCountry`, `list[].countryCode`, `list[].creationTime`, `list[].enrollmentCertId`, `list[].exclusiveForBusinessContinuity`, `list[].geoLocationId`, `list[].graceDistanceEnabled`, `list[].graceDistanceValue`, `list[].graceDistanceValueUnit`, `list[].isPublic`, `list[].latitude`, `list[].location`, `list[].longitude`, `list[].microtenantId`, `list[].microtenantName`, `list[].modifiedBy`, `list[].modifiedTime`
+  - `response_schema` removed: `list[].scopeId`
+  - `response_schema` metadata changed: `list[].id`, `list[].name`, `totalCount`, `totalPages`
+- `zpa` / `zpa/siem-config/gets-all-lss-configurations-for-the-specified-customer` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ3; `response_schema` +2341 −3 Δ4; schema titles Δ521
+  - `path_params` metadata changed: `customerId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/nonce/gets-details-of-the-provisioning-key-for-the-specified-id` — `query_params` +1 −0 Δ0
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `currentCount`, `list[].config.auditMessage`, `list[].config.creationTime`, `list[].config.description`, `list[].config.enabled`, `list[].config.filter`, `list[].config.filterScopeIds`, `list[].config.format`, `list[].config.id`, `list[].config.lssHost`, `list[].config.lssPort`, `list[].config.microtenantId`, `list[].config.microtenantName`, `list[].config.modifiedBy`, `list[].config.modifiedTime`, `list[].config.name`, `list[].config.nameWithoutTrim`, `list[].config.readOnly`, `list[].config.restrictionType`, `list[].config.sourceLogType`
+  - `response_schema` removed: `list[].enabled`, `list[].name`, `list[].scopeId`
+  - `response_schema` metadata changed: `list[].config`, `list[].id`, `totalCount`, `totalPages`
+- `zpa` / `zpa/signing-certificate/get-all-signing-cert` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +26 −3 Δ5; schema titles Δ5
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `currentCount`, `list[].allowSigning`, `list[].clientCertType`, `list[].creationTime`, `list[].csr`, `list[].description`, `list[].getcName`, `list[].issuedBy`, `list[].issuedTo`, `list[].microtenantId`, `list[].modifiedBy`, `list[].modifiedTime`, `list[].parentCertId`, `list[].parentCertName`, `list[].privateKey`, `list[].privateKeyPresent`, `list[].readOnly`, `list[].restrictionType`, `list[].serialNo`, `list[].storeInHsm`
+  - `response_schema` removed: `list[].issuer`, `list[].validFrom`, `list[].validTo`
+  - `response_schema` metadata changed: `list[].certificate`, `list[].id`, `list[].name`, `totalCount`, `totalPages`
+- `zpa` / `zpa/trusted-networks/get-all-trusted-networks` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ3; `response_schema` +2 −0 Δ0
+  - `path_params` metadata changed: `customerId`
+  - `query_params` metadata changed: `page`, `pagesize`, `search`
+  - `response_schema` added: `list[].nameWithoutTrim`, `message`
+- `zpa` / `zpa/trusted-networks/gets-the-trusted-networks-for-the-specified-id` — `response_schema` +1 −0 Δ0
+  - `response_schema` added: `nameWithoutTrim`
+- `zpa` / `zpa/version-profile/get-all-version-profiles-visibile-by-customer-id` — `path_params` +0 −0 Δ1; `response_schema` +52 −7 Δ0; schema titles Δ12
+  - `path_params` metadata changed: `customerId`
+  - `response_schema` added: `currentCount`, `list`, `list[].componentPriorities`, `list[].componentPriorities[].component`, `list[].componentPriorities[].upgradePriority`, `list[].creationTime`, `list[].customScopeCustomerIds`, `list[].customScopeCustomerIds[].customerId`, `list[].customScopeCustomerIds[].excludeConstellation`, `list[].customScopeCustomerIds[].isPartner`, `list[].customScopeCustomerIds[].name`, `list[].customScopeRequestCustomerIds`, `list[].customScopeRequestCustomerIds.addCustomerIds`, `list[].customScopeRequestCustomerIds.deleteCustomerIds`, `list[].customerId`, `list[].description`, `list[].id`, `list[].modifiedBy`, `list[].modifiedTime`, `list[].name`
+  - `response_schema` removed: `platformTypes`, `versions`, `versions[].id`, `versions[].name`, `versions[].platformType`, `versions[].releaseDate`, `versions[].version`
+- `zpa` / `zpa/site/private-cloud-resource-delete-zpn-site` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0
+  - `path_params` metadata changed: `customerId`, `privateCloudId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/nonce/updates-the-provisioning-key-details-for-the-specified-id` — `query_params` +1 −0 Δ0
+  - `query_params` removed: `scopeId`
+- `zpa` / `zpa/private-cloud-controller/private-cloud-controller-resource-delete-private-cloud-controller` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0
+  - `path_params` metadata changed: `customerId`, `privateCloudControllerId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/service-edge-group/get-private-broker-groups` — `query_params` +1 −0 Δ0
+  - `query_params` removed: `scopeId`
+- `zpa` / `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-delete-private-cloud-controller-group` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0
+  - `path_params` metadata changed: `customerId`, `privateCloudControllerGroupId`
   - `query_params` added: `microtenantId`
-- `zpa` / `zpa/version-profile/get-all-version-profiles-visibile-by-customer-id` — `query_params` +3 −0 Δ0
-  - `query_params` added: `page`, `pagesize`, `search`
+  - `query_params` removed: `scopeId`
+- `zpa` / `zpa/business-continuity-settings/business-continuity-settings-resource-get-all-ddil-config` — `path_params` +0 −0 Δ1; `response_schema` +38 −4 Δ2; schema titles Δ6
+  - `path_params` metadata changed: `customerId`
+  - `response_schema` added: `baAuthDomainCertId`, `baAuthDomainCertName`, `backupBasedir`, `backupEnabled`, `backupMaxAllowedNum`, `backupScheduleType`, `backupScheduleValue`, `creationTime`, `encryptSamlResponse`, `idpCert`, `idpEntityId`, `idpLoginUrl`, `maxAllowedDownTime`, `maxAllowedDownTimeUnit`, `maxAllowedSwitchTime`, `maxAllowedSwitchTimeUnit`, `modifiedBy`, `modifiedTime`, `newUserSupport`, `restrictionType`
+  - `response_schema` removed: `metaData`, `metaData.spEntityId`, `metaData.spPostUrl`, `sitespSigningCertificate`
+  - `response_schema` metadata changed: `id`, `sitespEncryptionCertificate`
+- `zpa` / `zpa/business-continuity-settings/business-continuity-settings-resource-download-sp-certificate` — `path_params` +0 −0 Δ1
+  - `path_params` metadata changed: `customerId`
+- `zpa` / `zpa/business-continuity-settings/business-continuity-settings-resource-download-meta-data` — `path_params` +0 −0 Δ1
+  - `path_params` metadata changed: `customerId`
+- `zpa` / `zpa/business-continuity-settings/business-continuity-settings-resource-get-by-id` — `response_schema` +38 −4 Δ2; schema titles Δ6
+  - `response_schema` added: `baAuthDomainCertId`, `baAuthDomainCertName`, `backupBasedir`, `backupEnabled`, `backupMaxAllowedNum`, `backupScheduleType`, `backupScheduleValue`, `creationTime`, `encryptSamlResponse`, `idpCert`, `idpEntityId`, `idpLoginUrl`, `maxAllowedDownTime`, `maxAllowedDownTimeUnit`, `maxAllowedSwitchTime`, `maxAllowedSwitchTimeUnit`, `modifiedBy`, `modifiedTime`, `newUserSupport`, `restrictionType`
+  - `response_schema` removed: `metaData`, `metaData.spEntityId`, `metaData.spPostUrl`, `sitespSigningCertificate`
+  - `response_schema` metadata changed: `id`, `sitespEncryptionCertificate`
+- `zpa` / `zpa/site/private-cloud-resource-get-all-sites` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ2; `response_schema` +43 −3 Δ4; schema titles Δ11
+  - `path_params` metadata changed: `customerId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`
+  - `response_schema` added: `currentCount`, `list[].assistantGroupsIds`, `list[].assistantGroupsIds[].enabled`, `list[].assistantGroupsIds[].id`, `list[].assistantGroupsIds[].name`, `list[].creationTime`, `list[].fireDrillEnabled`, `list[].microtenantId`, `list[].microtenantName`, `list[].modifiedBy`, `list[].modifiedTime`, `list[].privateBrokerGroupIds`, `list[].privateBrokerGroupIds[].enabled`, `list[].privateBrokerGroupIds[].id`, `list[].privateBrokerGroupIds[].name`, `list[].privateExporterGroupIds`, `list[].privateExporterGroupIds[].enabled`, `list[].privateExporterGroupIds[].id`, `list[].privateExporterGroupIds[].name`, `list[].reEnrollPeriod`
+  - `response_schema` removed: `list[].city`, `list[].country`, `list[].scopeId`
+  - `response_schema` metadata changed: `list[].id`, `list[].name`, `totalCount`, `totalPages`
+- `zpa` / `zpa/site/private-cloud-resource-get-zpn-site` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `response_schema` +41 −3 Δ2; schema titles Δ8
+  - `path_params` metadata changed: `customerId`, `privateCloudId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `response_schema` added: `assistantGroupsIds`, `assistantGroupsIds[].enabled`, `assistantGroupsIds[].id`, `assistantGroupsIds[].name`, `creationTime`, `fireDrillEnabled`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `privateBrokerGroupIds`, `privateBrokerGroupIds[].enabled`, `privateBrokerGroupIds[].id`, `privateBrokerGroupIds[].name`, `privateExporterGroupIds`, `privateExporterGroupIds[].enabled`, `privateExporterGroupIds[].id`, `privateExporterGroupIds[].name`, `reEnrollPeriod`, `readOnly`
+  - `response_schema` removed: `city`, `country`, `scopeId`
+  - `response_schema` metadata changed: `id`, `name`
+- `zpa` / `zpa/private-cloud-controller/private-cloud-controller-resource-get-all-private-cloud-controllers` — `path_params` +0 −0 Δ1; `query_params` +3 −1 Δ2; `response_schema` +138 −2 Δ4; schema titles Δ28
+  - `path_params` metadata changed: `customerId`
+  - `query_params` added: `microtenantId`, `siteControllerGroupIds`, `versionMismatch`
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`
+  - `response_schema` added: `currentCount`, `list[].applicationStartTime`, `list[].controlChannelStatus`, `list[].creationTime`, `list[].ctrlBrokerName`, `list[].currentVersion`, `list[].enrollmentCert`, `list[].enrollmentTime`, `list[].expectedSargeVersion`, `list[].expectedUpgradeTime`, `list[].expectedVersion`, `list[].fingerprint`, `list[].ipAcl`, `list[].ip_addr_setting`, `list[].ip_addr_setting[].interface`, `list[].ip_addr_setting[].ip_addr_cidr`, `list[].issuedCertId`, `list[].lastBrokerConnectTime`, `list[].lastBrokerConnectTimeDuration`, `list[].lastBrokerDisconnectTime`
+  - `response_schema` removed: `list[].scopeId`, `list[].versionProfileId`
+  - `response_schema` metadata changed: `list[].id`, `list[].name`, `totalCount`, `totalPages`
+- `zpa` / `zpa/private-cloud-controller/private-cloud-controller-resource-get-private-cloud-controller` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `response_schema` +136 −2 Δ2; schema titles Δ25
+  - `path_params` metadata changed: `customerId`, `privateCloudControllerId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `response_schema` added: `applicationStartTime`, `controlChannelStatus`, `creationTime`, `ctrlBrokerName`, `currentVersion`, `enrollmentCert`, `enrollmentTime`, `expectedSargeVersion`, `expectedUpgradeTime`, `expectedVersion`, `fingerprint`, `ipAcl`, `ip_addr_setting`, `ip_addr_setting[].interface`, `ip_addr_setting[].ip_addr_cidr`, `issuedCertId`, `lastBrokerConnectTime`, `lastBrokerConnectTimeDuration`, `lastBrokerDisconnectTime`, `lastBrokerDisconnectTimeDuration`
+  - `response_schema` removed: `scopeId`, `versionProfileId`
+  - `response_schema` metadata changed: `id`, `name`
+- `zpa` / `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-get-private-cloud-controller-groups` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ2; `response_schema` +169 −1 Δ5; schema titles Δ31
+  - `path_params` metadata changed: `customerId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `query_params` metadata changed: `page`, `pagesize`
+  - `response_schema` added: `currentCount`, `list[].city`, `list[].cityCountry`, `list[].countryCode`, `list[].creationTime`, `list[].enabled`, `list[].enrollmentCertId`, `list[].geoLocationId`, `list[].isPublic`, `list[].latitude`, `list[].location`, `list[].longitude`, `list[].microtenantId`, `list[].microtenantName`, `list[].modifiedBy`, `list[].modifiedTime`, `list[].overrideVersionProfile`, `list[].privateCloudControllers`, `list[].privateCloudControllers[].applicationStartTime`, `list[].privateCloudControllers[].controlChannelStatus`
+  - `response_schema` removed: `list[].scopeId`
+  - `response_schema` metadata changed: `list[].id`, `list[].name`, `list[].versionProfileId`, `totalCount`, `totalPages`
+- `zpa` / `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-get-private-cloud-controller-group` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `response_schema` +167 −1 Δ3; schema titles Δ28
+  - `path_params` metadata changed: `customerId`, `privateCloudControllerGroupId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `response_schema` added: `city`, `cityCountry`, `countryCode`, `creationTime`, `enabled`, `enrollmentCertId`, `geoLocationId`, `isPublic`, `latitude`, `location`, `longitude`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `overrideVersionProfile`, `privateCloudControllers`, `privateCloudControllers[].applicationStartTime`, `privateCloudControllers[].controlChannelStatus`, `privateCloudControllers[].creationTime`
+  - `response_schema` removed: `scopeId`
+  - `response_schema` metadata changed: `id`, `name`, `versionProfileId`
+- `zpa` / `zpa/version-profile/version-profile-resource-get-version-profile` — `path_params` +0 −0 Δ1; `response_schema` +12 −5 Δ0; schema titles Δ8
+  - `path_params` metadata changed: `customerId`
+  - `response_schema` added: `componentPriorities`, `componentPriorities[].component`, `componentPriorities[].upgradePriority`, `enabled`, `id`, `name`, `upgradePriority`, `versionDetails`, `versionDetails[].latestPlatform`, `versionDetails[].role`, `versionDetails[].version`, `visibilityScope`
+  - `response_schema` removed: `[].id`, `[].name`, `[].platformType`, `[].releaseDate`, `[].version`
+- `zpa` / `zpa/business-continuity-settings/business-continuity-settings-resource-create-ddil-config` — `request_body` +38 −4 Δ2; `response_schema` +38 −4 Δ2; schema titles Δ12
+  - `request_body` added: `baAuthDomainCertId`, `baAuthDomainCertName`, `backupBasedir`, `backupEnabled`, `backupMaxAllowedNum`, `backupScheduleType`, `backupScheduleValue`, `creationTime`, `encryptSamlResponse`, `idpCert`, `idpEntityId`, `idpLoginUrl`, `maxAllowedDownTime`, `maxAllowedDownTimeUnit`, `maxAllowedSwitchTime`, `maxAllowedSwitchTimeUnit`, `modifiedBy`, `modifiedTime`, `newUserSupport`, `restrictionType`
+  - `request_body` removed: `metaData`, `metaData.spEntityId`, `metaData.spPostUrl`, `sitespSigningCertificate`
+  - `request_body` metadata changed: `id`, `sitespEncryptionCertificate`
+  - `response_schema` added: `baAuthDomainCertId`, `baAuthDomainCertName`, `backupBasedir`, `backupEnabled`, `backupMaxAllowedNum`, `backupScheduleType`, `backupScheduleValue`, `creationTime`, `encryptSamlResponse`, `idpCert`, `idpEntityId`, `idpLoginUrl`, `maxAllowedDownTime`, `maxAllowedDownTimeUnit`, `maxAllowedSwitchTime`, `maxAllowedSwitchTimeUnit`, `modifiedBy`, `modifiedTime`, `newUserSupport`, `restrictionType`
+  - `response_schema` removed: `metaData`, `metaData.spEntityId`, `metaData.spPostUrl`, `sitespSigningCertificate`
+  - `response_schema` metadata changed: `id`, `sitespEncryptionCertificate`
+- `zpa` / `zpa/site/private-cloud-resource-add-zpn-site` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ0; `request_body` +41 −3 Δ2; `response_schema` +41 −3 Δ2; schema titles Δ16
+  - `path_params` metadata changed: `customerId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `assistantGroupsIds`, `assistantGroupsIds[].enabled`, `assistantGroupsIds[].id`, `assistantGroupsIds[].name`, `creationTime`, `fireDrillEnabled`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `privateBrokerGroupIds`, `privateBrokerGroupIds[].enabled`, `privateBrokerGroupIds[].id`, `privateBrokerGroupIds[].name`, `privateExporterGroupIds`, `privateExporterGroupIds[].enabled`, `privateExporterGroupIds[].id`, `privateExporterGroupIds[].name`, `reEnrollPeriod`, `readOnly`
+  - `request_body` removed: `city`, `country`, `scopeId`
+  - `request_body` metadata changed: `id`, `name`
+  - `response_schema` added: `assistantGroupsIds`, `assistantGroupsIds[].enabled`, `assistantGroupsIds[].id`, `assistantGroupsIds[].name`, `creationTime`, `fireDrillEnabled`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `privateBrokerGroupIds`, `privateBrokerGroupIds[].enabled`, `privateBrokerGroupIds[].id`, `privateBrokerGroupIds[].name`, `privateExporterGroupIds`, `privateExporterGroupIds[].enabled`, `privateExporterGroupIds[].id`, `privateExporterGroupIds[].name`, `reEnrollPeriod`, `readOnly`
+  - `response_schema` removed: `city`, `country`, `scopeId`
+  - `response_schema` metadata changed: `id`, `name`
+- `zpa` / `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-create-private-cloud-controller-group` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ0; `request_body` +167 −1 Δ3; `response_schema` +167 −1 Δ3; schema titles Δ56
+  - `path_params` metadata changed: `customerId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `city`, `cityCountry`, `countryCode`, `creationTime`, `enabled`, `enrollmentCertId`, `geoLocationId`, `isPublic`, `latitude`, `location`, `longitude`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `overrideVersionProfile`, `privateCloudControllers`, `privateCloudControllers[].applicationStartTime`, `privateCloudControllers[].controlChannelStatus`, `privateCloudControllers[].creationTime`
+  - `request_body` removed: `scopeId`
+  - `request_body` metadata changed: `id`, `name`, `versionProfileId`
+  - `response_schema` added: `city`, `cityCountry`, `countryCode`, `creationTime`, `enabled`, `enrollmentCertId`, `geoLocationId`, `isPublic`, `latitude`, `location`, `longitude`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `overrideVersionProfile`, `privateCloudControllers`, `privateCloudControllers[].applicationStartTime`, `privateCloudControllers[].controlChannelStatus`, `privateCloudControllers[].creationTime`
+  - `response_schema` removed: `scopeId`
+  - `response_schema` metadata changed: `id`, `name`, `versionProfileId`
+- `zpa` / `zpa/business-continuity-settings/business-continuity-settings-resource-update-business-continuity-setting` — `path_params` +0 −0 Δ2; `request_body` +38 −4 Δ2; `response_schema` +38 −4 Δ2; schema titles Δ12
+  - `path_params` metadata changed: `customerId`, `id`
+  - `request_body` added: `baAuthDomainCertId`, `baAuthDomainCertName`, `backupBasedir`, `backupEnabled`, `backupMaxAllowedNum`, `backupScheduleType`, `backupScheduleValue`, `creationTime`, `encryptSamlResponse`, `idpCert`, `idpEntityId`, `idpLoginUrl`, `maxAllowedDownTime`, `maxAllowedDownTimeUnit`, `maxAllowedSwitchTime`, `maxAllowedSwitchTimeUnit`, `modifiedBy`, `modifiedTime`, `newUserSupport`, `restrictionType`
+  - `request_body` removed: `metaData`, `metaData.spEntityId`, `metaData.spPostUrl`, `sitespSigningCertificate`
+  - `request_body` metadata changed: `id`, `sitespEncryptionCertificate`
+  - `response_schema` added: `baAuthDomainCertId`, `baAuthDomainCertName`, `backupBasedir`, `backupEnabled`, `backupMaxAllowedNum`, `backupScheduleType`, `backupScheduleValue`, `creationTime`, `encryptSamlResponse`, `idpCert`, `idpEntityId`, `idpLoginUrl`, `maxAllowedDownTime`, `maxAllowedDownTimeUnit`, `maxAllowedSwitchTime`, `maxAllowedSwitchTimeUnit`, `modifiedBy`, `modifiedTime`, `newUserSupport`, `restrictionType`
+  - `response_schema` removed: `metaData`, `metaData.spEntityId`, `metaData.spPostUrl`, `sitespSigningCertificate`
+  - `response_schema` metadata changed: `id`, `sitespEncryptionCertificate`
+- `zpa` / `zpa/site/private-cloud-resource-update-zpn-site` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +41 −3 Δ2; schema titles Δ8
+  - `path_params` metadata changed: `customerId`, `privateCloudId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `assistantGroupsIds`, `assistantGroupsIds[].enabled`, `assistantGroupsIds[].id`, `assistantGroupsIds[].name`, `creationTime`, `fireDrillEnabled`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `privateBrokerGroupIds`, `privateBrokerGroupIds[].enabled`, `privateBrokerGroupIds[].id`, `privateBrokerGroupIds[].name`, `privateExporterGroupIds`, `privateExporterGroupIds[].enabled`, `privateExporterGroupIds[].id`, `privateExporterGroupIds[].name`, `reEnrollPeriod`, `readOnly`
+  - `request_body` removed: `city`, `country`, `scopeId`
+  - `request_body` metadata changed: `id`, `name`
+- `zpa` / `zpa/private-cloud-controller/private-cloud-controller-resource-update-private-cloud-controller` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +136 −2 Δ2; schema titles Δ25
+  - `path_params` metadata changed: `customerId`, `privateCloudControllerId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `applicationStartTime`, `controlChannelStatus`, `creationTime`, `ctrlBrokerName`, `currentVersion`, `enrollmentCert`, `enrollmentTime`, `expectedSargeVersion`, `expectedUpgradeTime`, `expectedVersion`, `fingerprint`, `ipAcl`, `ip_addr_setting`, `ip_addr_setting[].interface`, `ip_addr_setting[].ip_addr_cidr`, `issuedCertId`, `lastBrokerConnectTime`, `lastBrokerConnectTimeDuration`, `lastBrokerDisconnectTime`, `lastBrokerDisconnectTimeDuration`
+  - `request_body` removed: `scopeId`, `versionProfileId`
+  - `request_body` metadata changed: `id`, `name`
+- `zpa` / `zpa/private-cloud-controller-group/private-cloud-controller-group-resource-update-private-cloud-controller-group` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +167 −1 Δ3; schema titles Δ28
+  - `path_params` metadata changed: `customerId`, `privateCloudControllerGroupId`
+  - `query_params` added: `microtenantId`
+  - `query_params` removed: `scopeId`
+  - `request_body` added: `city`, `cityCountry`, `countryCode`, `creationTime`, `enabled`, `enrollmentCertId`, `geoLocationId`, `isPublic`, `latitude`, `location`, `longitude`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `overrideVersionProfile`, `privateCloudControllers`, `privateCloudControllers[].applicationStartTime`, `privateCloudControllers[].controlChannelStatus`, `privateCloudControllers[].creationTime`
+  - `request_body` removed: `scopeId`
+  - `request_body` metadata changed: `id`, `name`, `versionProfileId`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-delete-provisioning` — `path_params` +1 −1 Δ0
+  - `path_params` added: `federationId`
+  - `path_params` removed: `federation_id`
+- `zpa` / `zpa/machine-groups/machine-group-resource-get-machine-group` — `path_params` +1 −1 Δ0; `response_schema` +9 −0 Δ0; schema titles Δ1
+  - `path_params` added: `machineGroupId`
+  - `path_params` removed: `Id`
+  - `response_schema` added: `machines[].iamMachineDeviceId`, `machines[].nameWithoutTrim`, `machines[].readOnly`, `machines[].restrictionType`, `machines[].zscalerManaged`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
+- `zpa` / `zpa/federate-applications/application-federation-resource-get-federated-applications-from-host` — `path_params` +1 −1 Δ0; `response_schema` +0 −0 Δ1; schema titles Δ4
+  - `path_params` added: `hostId`
+  - `path_params` removed: `host_id`
+  - `response_schema` metadata changed: `list[].hostInfo`
+- `zpa` / `zpa/policies-for-b2b-federation/partner-policy-rule-resource-get-partner-policy-rules-on-federated-apps` — `path_params` +1 −1 Δ0; `response_schema` +788 −2 Δ50; schema titles Δ260
+  - `path_params` added: `guestId`
+  - `path_params` removed: `guest_id`
+  - `response_schema` added: `list[].appConnectorGroups[].connectors[].assistantVersion.connectorType`, `list[].appConnectorGroups[].connectors[].assistantVersion.expectedSargeVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.lastOSUpgradeTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.lastSargeUpgradeTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeEnabled`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeFailReasonCode`, `list[].appConnectorGroups[].connectors[].assistantVersion.osUpgradeStatus`, `list[].appConnectorGroups[].connectors[].assistantVersion.platformVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.previousSargeVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeAttempt`, `list[].appConnectorGroups[].connectors[].assistantVersion.sargeUpgradeStatus`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].creationTime`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].currentVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityGid`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].entityType`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].expectedVersion`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].id`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedBy`, `list[].appConnectorGroups[].connectors[].assistantVersion.zpnSubModuleUpgrade[].modifiedTime`
+  - `response_schema` removed: `list[].appConnectorGroups[].siteId`, `list[].serviceEdgeGroups[].siteId`
+  - `response_schema` metadata changed: `list[].appConnectorGroups[].connectors[].assistantVersion`, `list[].appConnectorGroups[].connectors[].npAssistant`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].creationTime`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].currentVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityGid`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].entityType`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].expectedVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].id`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedBy`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].modifiedTime`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].previousVersion`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].role`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeStatus`, `list[].appConnectorGroups[].connectors[].zpnSubModuleUpgradeList[].upgradeTime`, `list[].appConnectorGroups[].npAssistantGroup`, `list[].appConnectorGroups[].npAssistantGroup.lanSubnets[].appConnectorGroupId`, `list[].appConnectorGroups[].npAssistantGroup.lanSubnets[].npDnsNsRecord`, `list[].appConnectorGroups[].serverGroups[].zpnErId`, `list[].appConnectorGroups[].upgradePriority`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-update-federation-state` — `path_params` +1 −1 Δ0
+  - `path_params` added: `federationId`
+  - `path_params` removed: `federation_id`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-update-notes` — `path_params` +1 −1 Δ0
+  - `path_params` added: `federationId`
+  - `path_params` removed: `federation_id`
+- `zpa` / `zpa/partner-federation-provisioning/tenant-federation-resource-update-provisioning-state` — `path_params` +1 −1 Δ0
+  - `path_params` added: `federationId`
+  - `path_params` removed: `federation_id`
 
 ## Field Totals
 
 ### `path_params`
 
-- Existing top-level fields across common ops: 1012
-- Blob top-level fields across common ops: 1012
-- Blob flattened fields across common ops: 1012
+- Existing top-level fields across common ops: 1038
+- Blob top-level fields across common ops: 1038
+- Blob flattened fields across common ops: 1038
 - Blob nested fields across common ops: 0
-- Blob top-level fields new vs committed contract: 0
-- Committed contract top-level fields missing from blob: 0
+- Blob top-level fields new vs committed contract: 7
+- Committed contract top-level fields missing from blob: 7
 
 ### `query_params`
 
-- Existing top-level fields across common ops: 1393
-- Blob top-level fields across common ops: 1419
-- Blob flattened fields across common ops: 1419
+- Existing top-level fields across common ops: 1482
+- Blob top-level fields across common ops: 1515
+- Blob flattened fields across common ops: 1515
 - Blob nested fields across common ops: 0
-- Blob top-level fields new vs committed contract: 26
-- Committed contract top-level fields missing from blob: 0
+- Blob top-level fields new vs committed contract: 55
+- Committed contract top-level fields missing from blob: 22
 
 ### `request_body`
 
-- Existing top-level fields across common ops: 4853
-- Blob top-level fields across common ops: 4853
-- Blob flattened fields across common ops: 17145
-- Blob nested fields across common ops: 12330
-- Blob top-level fields new vs committed contract: 0
-- Committed contract top-level fields missing from blob: 0
+- Existing top-level fields across common ops: 4892
+- Blob top-level fields across common ops: 5386
+- Blob flattened fields across common ops: 23574
+- Blob nested fields across common ops: 18227
+- Blob top-level fields new vs committed contract: 544
+- Committed contract top-level fields missing from blob: 50
 
 ### `response_schema`
 
-- Existing top-level fields across common ops: 11737
-- Blob top-level fields across common ops: 11759
-- Blob flattened fields across common ops: 41222
-- Blob nested fields across common ops: 32635
-- Blob top-level fields new vs committed contract: 27
-- Committed contract top-level fields missing from blob: 5
+- Existing top-level fields across common ops: 11909
+- Blob top-level fields across common ops: 12658
+- Blob flattened fields across common ops: 54766
+- Blob nested fields across common ops: 45350
+- Blob top-level fields new vs committed contract: 855
+- Committed contract top-level fields missing from blob: 106
 
 ## Live-Only Samples
 
 ### `ai-security`
-- `ai-security/aisecurity/v1-assets-agents/agents-get-agent`
-- `ai-security/aisecurity/v1-assets-agents/agents-list-agents`
-- `ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository`
-- `ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories`
-- `ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore`
-- `ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores`
-- `ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`
-- `ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`
-- `ai-security/aisecurity/v1-resources-workloads/workloads-get-workload`
-- `ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads`
+- `ai-security/aisecurity/v1-assets-agents/agents-get-agent-tools`
+- `ai-security/aisecurity/v1-assets-agents/agents-list-agent-findings`
+- `ai-security/aisecurity/v1-assets-gateways/gateways-get-gateway`
+- `ai-security/aisecurity/v1-assets-gateways/gateways-list-gateway-policies`
+- `ai-security/aisecurity/v1-assets-gateways/gateways-list-gateway-targets`
+- `ai-security/aisecurity/v1-assets-gateways/gateways-list-gateways`
+- `ai-security/aisecurity/v1-assets-guardrails/guardrails-get-guardrail`
+- `ai-security/aisecurity/v1-assets-guardrails/guardrails-list-guardrails`
+- `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-resources`
+- `ai-security/aisecurity/v1-assets-models/models-get-model`
+- `ai-security/aisecurity/v1-assets-models/models-list-model-usage-data`
+- `ai-security/aisecurity/v1-assets-models/models-list-models`
+- `ai-security/aisecurity/v1-dlp-dictionaries/dlp-dictionaries-list-dlp-dictionaries`
+- `ai-security/aisecurity/v1-dlp-engines/dlp-engines-list-dlp-engines`
+- `ai-security/aisecurity/v1-document-types/document-types-list-document-types`
+- `ai-security/aisecurity/v1-identities/identities-get-identity`
+- `ai-security/aisecurity/v1-identities/identities-list-identities`
+- `ai-security/aisecurity/v1-resources-datastores/datastores-list-datastore-findings`
+- `ai-security/aisecurity/v1-resources-softwarelibraries/software-libraries-get-software-library`
+- `ai-security/aisecurity/v1-resources-softwarelibraries/software-libraries-list-software-libraries`
 
-### `urbac`
-- `urbac/auditlogs/audit-log-resource-search-logs`
-- `urbac/roles/urbac-resource-create-role`
-- `urbac/roles/urbac-resource-delete-role`
-- `urbac/roles/urbac-resource-get-role`
-- `urbac/roles/urbac-resource-get-roles`
-- `urbac/roles/urbac-resource-update-role`
+### `risk360`
+- `risk360/reports/download-report`
 
-### `zcell`
-- `zcell/anomaly-policies/anomaly-policy-resource-create-policy`
-- `zcell/anomaly-policies/anomaly-policy-resource-delete-policy`
-- `zcell/anomaly-policies/anomaly-policy-resource-get-all-anomaly-policies`
-- `zcell/anomaly-policies/anomaly-policy-resource-get-anomaly-policy-logs`
-- `zcell/anomaly-policies/anomaly-policy-resource-get-violated-iccids`
-- `zcell/anomaly-policies/anomaly-policy-resource-get-violation-details-by-iccid`
-- `zcell/anomaly-policies/anomaly-policy-resource-update-policy`
-- `zcell/anomaly-policies/anomaly-policy-resource-update-policy-status`
-- `zcell/audit-logs/audit-resource-get-audit-log`
-- `zcell/customer-management/customer-resource-activate-customer`
-- `zcell/customer-management/customer-resource-get-by-zs-tid`
-- `zcell/customer-regions/region-resource-deploy-regions`
-- `zcell/customer-regions/region-resource-get-assigned-regions-by-zs-tid`
-- `zcell/customer-regions/region-resource-get-region-operational-status-by-zs-tid`
-- `zcell/sim-management/sim-resource-assign-esim`
-- `zcell/sim-management/sim-resource-assign-tag`
-- `zcell/sim-management/sim-resource-download-sims-csv`
-- `zcell/sim-management/sim-resource-get-all-sims`
-- `zcell/sim-management/sim-resource-get-sim-details-by-icc-id`
-- `zcell/sim-management/sim-resource-get-tower-location-history`
+### `zcloudconnector`
+- `zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-change-vm-status`
+- `zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-vm-upgrade-metrics`
+- `zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-update-release-channel`
+- `zcloudconnector/policy-resources/network-service-group-z-resource-delete-custom-network-service-group`
+- `zcloudconnector/policy-resources/network-service-group-z-resource-edit-network-service-group`
+- `zcloudconnector/policy-resources/network-service-group-z-resource-get-network-service-group-by-id`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-traffic-test-environment`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-create-zt-gateway`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-traffic-test-environment`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-delete-zt-gateway`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-by-id`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-test-environment`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-traffic-tests`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-by-id`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-comparison`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-config-status`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-events`
+- `zcloudconnector/zero-trust-gateway/zt-gateway-z-resource-get-zt-gateway-metrics`
+
+### `zia`
+- `zia/adaptive-access-profiles/adaptive-access-profile-resource-get-adaptive-access-profiles`
+- `zia/adaptive-access-profiles/adaptive-access-profile-resource-get-rule-names-associated-with-profiles`
+- `zia/azure-integration/azure-resource-check-async`
+- `zia/azure-integration/azure-resource-get-async-status`
+- `zia/azure-integration/azure-resource-get-refresh-connection-status`
+- `zia/azure-integration/azure-resource-get-tunnel-configuration-status`
+- `zia/azure-integration/azure-resource-get-tunnel-un-configuration-status`
+- `zia/azure-integration/azure-resource-get-virtual-hubs`
+- `zia/azure-integration/azure-resource-start-refresh-connection-status`
+- `zia/azure-integration/azure-resource-start-tunnel-config`
+- `zia/azure-integration/azure-resource-unconfigure-tunnel`
+- `zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-create-nss-collector`
+- `zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-delete-rules`
+- `zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-get-nss-collectors`
+- `zia/cloud-nanolog-streaming-service-nss/nss-collector-resource-update-nss-collector`
+- `zia/data-loss-prevention/domain-profile-resource-create-domain-profile`
+- `zia/data-loss-prevention/domain-profile-resource-delete-domain-profile`
+- `zia/data-loss-prevention/domain-profile-resource-get-domain-profile-by-id`
+- `zia/data-loss-prevention/domain-profile-resource-get-domain-profiles`
+- `zia/data-loss-prevention/domain-profile-resource-update-domain-profile`
 
 ### `zpa`
-- `zpa/federate-applications/federate-application`
-- `zpa/federate-applications/get-federated-applications-from-host`
-- `zpa/partner-federation-provisioning/create-federation-token`
-- `zpa/partner-federation-provisioning/delete-provisioning`
-- `zpa/partner-federation-provisioning/get-active-federation-partners`
-- `zpa/partner-federation-provisioning/get-provisionings`
-- `zpa/partner-federation-provisioning/request-approval`
-- `zpa/partner-federation-provisioning/update-federation-state`
-- `zpa/partner-federation-provisioning/update-notes`
-- `zpa/partner-federation-provisioning/update-provisioning-state`
-- `zpa/partner-federation-provisioning/verify-token`
-- `zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps`
+- `zpa/administrator-management/administrator-resource-create-user`
+- `zpa/administrator-management/administrator-resource-delete-user`
+- `zpa/administrator-management/administrator-resource-get-user`
+- `zpa/administrator-management/administrator-resource-get-users`
+- `zpa/administrator-management/administrator-resource-update-user`
+- `zpa/api-key-management/api-key-resource-create-api-key`
+- `zpa/api-key-management/api-key-resource-delete-api-key`
+- `zpa/api-key-management/api-key-resource-get-all-api-keys`
+- `zpa/api-key-management/api-key-resource-get-api-key-by-id`
+- `zpa/api-key-management/api-key-resource-update-api-key`
+- `zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer`
+- `zpa/app-connector-group-management/app-connector-group-resource-get-app-connector-group-summary`
+- `zpa/app-connector-group-management/app-connector-group-resource-get-app-connector-with-server-group`
+- `zpa/app-connector-management/connector-resource-restart-connector`
+- `zpa/app-connector-management/update-app-connector-schedule-frequency`
+- `zpa/application-recommendations/app-recommendation-resource-aggregate-top-observed-users`
+- `zpa/application-recommendations/app-recommendation-resource-aggregate-user-groups`
+- `zpa/application-recommendations/app-recommendation-resource-get-aggregate-app-types`
+- `zpa/application-recommendations/app-recommendation-resource-get-all-app-recommendations`
+- `zpa/application-recommendations/app-recommendation-resource-get-attack-surface-reduction-details`
 
 ## Loose Method/Path-Only Samples
 
 ### `ai-security`
 - Live-only loose signatures:
-  - `GET /v1/assets/agents`
-  - `GET /v1/assets/agents/{}`
-  - `GET /v1/resources/coderepositories`
-  - `GET /v1/resources/coderepositories/{}`
-  - `GET /v1/resources/datastores`
-  - `GET /v1/resources/datastores/{}`
+  - `GET /v1/assets/agents/{}/sensitivedatafindings`
+  - `GET /v1/assets/agents/{}/tools`
+  - `GET /v1/assets/gateways`
+  - `GET /v1/assets/gateways/{}`
+  - `GET /v1/assets/gateways/{}/policies`
+  - `GET /v1/assets/gateways/{}/targets`
+  - `GET /v1/assets/guardrails`
+  - `GET /v1/assets/guardrails/{}`
+  - `GET /v1/assets/mcpservers/{}/resources`
+  - `GET /v1/assets/models`
+- Existing-only loose signatures:
+  - `GET /v1/assets/identities`
+  - `GET /v1/assets/identities/{}`
   - `GET /v1/resources/guardrails`
   - `GET /v1/resources/guardrails/{}`
-  - `GET /v1/resources/workloads`
-  - `GET /v1/resources/workloads/{}`
-- Existing-only loose signatures:
-  - `GET /v1/assets/datastores`
-  - `GET /v1/assets/datastores/{}`
-  - `GET /v1/assets/workloads`
-  - `GET /v1/assets/workloads/{}`
 
-### `aiguard`
+### `risk360`
 - Live-only loose signatures:
-  - `GET /detections/policies/{}-check`
-  - `GET /llm-application-credentials/{}-check`
-  - `GET /llm-applications/{}-check`
-  - `GET /llm-provider-credentials/{}-check`
-  - `GET /llm-providers/{}-check`
-  - `POST /detections/policies/{}`
-  - `POST /llm-application-credentials/{}`
-- Existing-only loose signatures:
-  - `GET /detections/policies/{}/referential-check`
-  - `GET /llm-application-credentials/{}/referential-check`
-  - `GET /llm-applications/{}/referential-check`
-  - `GET /llm-provider-credentials/{}/referential-check`
-  - `GET /llm-providers/{}/referential-check`
-  - `POST /detections/policies/{}/disable`
-  - `POST /detections/policies/{}/enable`
-  - `POST /llm-application-credentials/{}/regenerate`
+  - `GET /rest/v1/reports/download`
 
-### `event-monitoring`
+### `zcloudconnector`
 - Live-only loose signatures:
-  - `POST /subscriptions/channels/sns{}`
-- Existing-only loose signatures:
-  - `POST /subscriptions/channels/sns/verify`
-
-### `urbac`
-- Live-only loose signatures:
-  - `DELETE /v1/roles/{}`
-  - `GET /v1/roles/{}`
-  - `POST /v1/auditlog/query`
-  - `POST /v1/roles`
-  - `POST /v1/roles/query`
-  - `PUT /v1/roles/{}`
-
-### `zcc`
-- Existing-only loose signatures:
-  - `DELETE /papi/cred/v1/delete`
-  - `GET /papi/cred/v1/getList`
-  - `POST /papi/cred/v1/save`
-  - `PUT /papi/cred/v1/update`
-
-### `zcell`
-- Live-only loose signatures:
-  - `GET /api/v1/customers/{}/sims/{}/tower-locations`
-- Existing-only loose signatures:
-  - `GET /api/v1/audit/metadata`
+  - `DELETE /ztGateway/trafficTest/env/{}`
+  - `DELETE /ztGateway/trafficTest/{}`
+  - `DELETE /ztGateway/{}`
+  - `GET /ecgroup/vmUpgradeMetrics`
+  - `GET /ztGateway`
+  - `GET /ztGateway/config/compare/{}`
+  - `GET /ztGateway/config/status/{}`
+  - `GET /ztGateway/count`
+  - `GET /ztGateway/events/{}`
+  - `GET /ztGateway/licenseInfo`
 
 ### `zia`
-- Existing-only loose signatures:
-  - `POST /zscsb/discan`
-  - `POST /zscsb/submit`
-
-### `zid`
 - Live-only loose signatures:
-  - `POST /users/{}`
-- Existing-only loose signatures:
-  - `POST /users/{}/resetpassword`
-  - `POST /users/{}/setskipmfa`
-  - `PUT /users/{}/updatepassword`
+  - `DELETE /alertDefinitions/{}`
+  - `DELETE /alertRuleConfiguration/rules/{}`
+  - `DELETE /alertRuleConfiguration/uebaRules/{}`
+  - `DELETE /alertRuleConfiguration/webhooks/{}`
+  - `DELETE /apps-services/{}`
+  - `DELETE /azure/unConfigureTunnel/{}`
+  - `DELETE /dlpEndpointResource/{}`
+  - `DELETE /dnsApplicationGroups/{}`
+  - `DELETE /domainProfiles/{}`
+  - `DELETE /emailDlpRules/{}`
 
 ### `zpa`
 - Live-only loose signatures:
-  - `DELETE /mgmtconfig/v1/customers/{}/tenant-federation/{}`
-  - `GET /mgmtconfig/v1/customers/{}/application/host/{}`
-  - `GET /mgmtconfig/v1/customers/{}/policySet/rules/policyType/GLOBAL_POLICY/guest/{}`
-  - `GET /mgmtconfig/v1/customers/{}/tenant-federation`
-  - `GET /mgmtconfig/v1/customers/{}/tenant-federation/partners`
-  - `POST /mgmtconfig/v1/customers/{}/tenant-federation/token`
-  - `POST /mgmtconfig/v1/customers/{}/tenant-federation/token/verify`
-  - `PUT /mgmtconfig/v1/customers/{}/application/federate`
-  - `PUT /mgmtconfig/v1/customers/{}/tenant-federation/approval`
-  - `PUT /mgmtconfig/v1/customers/{}/tenant-federation/{}/federation-state/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/administrators/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/apiKeys/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/application/{}/deleteAppByType`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/bgp/externalRouter/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/clientSetting`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/enrollmentCert/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/lansubnet/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/namespace/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/namespace/{}/tagKey/{}`
+  - `DELETE /mgmtconfig/v1/admin/customers/{}/np/firewall/policy/rules/{}`
+- Existing-only loose signatures:
+  - `GET /mgmtconfig/v1/admin/customers/{}/browserAccessGroup`
+  - `GET /mgmtconfig/v1/admin/customers/{}/inspectionControls/exceptions`
 
 ## Nested Schema Examples
 

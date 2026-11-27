@@ -4,12 +4,12 @@
   "title": "Setting Up Cloud Deception with GCP",
   "source": {
     "url": "https://help.zscaler.com/deception/setting-cloud-deception-gcp",
-    "node": "1542595",
-    "revision": "3221519",
-    "updated": "2026-09-22",
+    "node": "1545999",
+    "revision": "3260096",
+    "updated": "2026-11-24",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-03",
+  "captured_at": "2026-11-25",
   "blocks": [
     {
       "text": "This integration guide provides information on prerequisites and how to integrate Google Cloud Platform (GCP) with Zscaler Deception to set up Cloud Deception by deploying various GCP-specific decoy resources."
@@ -19,7 +19,238 @@
       "level": 1
     },
     {
-      "text": "Before you set up Cloud Deception with GCP, ensure that you have access to a GCP project with an Administrator role."
+      "text": "Before you set up Cloud Deception with GCP, ensure that you have:"
+    },
+    {
+      "item": "Access to a GCP project with an Administrator role. If you do not have an Administrator role, ensure that your account has the minimum project-level IAM roles.",
+      "depth": 0
+    },
+    {
+      "item": "See instructions.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "GCP Role",
+          "Description"
+        ],
+        [
+          "roles/serviceusage.serviceUsageAdmin",
+          "Enables the required Google Cloud APIs using the google_project_service resource."
+        ],
+        [
+          "roles/resourcemanager.projectIamAdmin",
+          "Creates project-level IAM bindings and configures audit logging using the ProjectIamAuditConfig resource."
+        ],
+        [
+          "roles/iam.serviceAccountAdmin",
+          "Creates service accounts for logging and decoy resources."
+        ],
+        [
+          "roles/iam.serviceAccountKeyAdmin",
+          "Creates service account keys used by the CMC for log polling and decoy lures. This role is required in addition to roles/iam.serviceAccountAdmin."
+        ],
+        [
+          "roles/iam.serviceAccountUser",
+          "Attaches service accounts to resources, such as the health-check function."
+        ],
+        [
+          "roles/storage.admin",
+          "Creates and manages decoy buckets, logging buckets, storage objects, and bucket-level IAM permissions."
+        ],
+        [
+          "roles/cloudfunctions.developer",
+          "Deploys the second-generation health-check function."
+        ],
+        [
+          "roles/logging.admin",
+          "Grants the roles/logging.viewAccessor role on the _Default/_AllLogs log view."
+        ],
+        [
+          "roles/secretmanager.admin",
+          "Creates Secret Manager decoys and configures their IAM permissions."
+        ],
+        [
+          "roles/artifactregistry.admin",
+          "Creates Artifact Registry decoys and configures their IAM permissions."
+        ],
+        [
+          "roles/cloudsql.admin",
+          "Creates Cloud SQL decoy instances and database users."
+        ],
+        [
+          "Optional",
+          ""
+        ],
+        [
+          "roles/compute.networkViewer",
+          "Required for private Cloud SQL decoys to read VPC network information. The Terraform deployment does not create the required network peering. Private Services Access, including the allocated IP address range and Service Networking peering, must already be configured for the project and network."
+        ],
+        [
+          "roles/servicenetworking.networksAdmin",
+          "Required only if the deployer must configure Private Services Access for private Cloud SQL instances."
+        ]
+      ],
+      "strong": [
+        [
+          12,
+          0,
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "heading": "(Optional) Creating a Deployer Service Account",
+      "level": 1
+    },
+    {
+      "item": "You can create a dedicated service account and assign the required project-level IAM roles to deploy Cloud Deception resources in GCP.",
+      "depth": 0
+    },
+    {
+      "item": "The account running the following commands must have permissions to create service accounts and modify project-level IAM policies.",
+      "depth": 0
+    },
+    {
+      "item": "To create a deployer service account:",
+      "depth": 0
+    },
+    {
+      "item": "Open the Google Cloud CLI (gcloud).",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Run the following commands to specify your GCP project ID and the deployer service account name:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "PROJECT=<customer-project-id> SA=zsd-deployer",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create the deployer service account:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "gcloud iam service-accounts create $SA \\ --project=$PROJECT \\ --display-name=\"ZS Deception deployer\"",
+      "depth": 1
+    },
+    {
+      "item": "Run the following commands to assign the required project-level IAM roles to the deployer service account:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "for role in \\ serviceusage.serviceUsageAdmin \\ resourcemanager.projectIamAdmin \\ iam.serviceAccountAdmin \\ iam.serviceAccountKeyAdmin \\ iam.serviceAccountUser \\ storage.admin \\ cloudfunctions.developer \\ logging.admin \\ secretmanager.admin \\ artifactregistry.admin \\ cloudsql.admin do gcloud projects add-iam-policy-binding $PROJECT \\ --member=\"serviceAccount:$SA@$PROJECT.iam.gserviceaccount.com\" \\ --role=\"roles/$role\" done",
+      "depth": 1
+    },
+    {
+      "item": "These commands assign the IAM roles required to enable Google Cloud APIs and deploy and manage decoy resources.",
+      "depth": 0
+    },
+    {
+      "item": "Organization policies that do not hinder decoy deployment or operations:",
+      "depth": 0
+    },
+    {
+      "item": "Service account key creation: If your organization enforces the constraints/iam.disableServiceAccountKeyCreation constraint, the deployment fails because it cannot create the service account keys required for logging and decoy resources.",
+      "depth": 1
+    },
+    {
+      "item": "Public decoy buckets: If your organization enforces the constraints/iam.allowedPolicyMemberDomains constraint, IAM bindings that grant the allUsers principal the roles/storage.objectViewer role on public-read buckets are rejected with error 412. Private buckets are unaffected.",
+      "depth": 1
+    },
+    {
+      "item": "Domain-restricted sharing: The same constraints/iam.allowedPolicyMemberDomains constraint prevents the creation of decoys that require public ACL access.",
+      "depth": 1
+    },
+    {
+      "heading": "Deployment Behavior",
+      "level": 1
+    },
+    {
+      "text": "During deployment, Terraform automatically enables the following Google Cloud APIs if they are not already enabled. These APIs support the deployment and management of decoy resources in your GCP project."
+    },
+    {
+      "table": [
+        [
+          "Google Cloud API",
+          "Purpose"
+        ],
+        [
+          "serviceusage.googleapis.com",
+          "Manages services and checks quotas."
+        ],
+        [
+          "cloudresourcemanager.googleapis.com",
+          "Manages project IAM permissions and audit configurations."
+        ],
+        [
+          "iam.googleapis.com",
+          "Manages service accounts, keys, and IAM bindings."
+        ],
+        [
+          "logging.googleapis.com",
+          "Provides access to log views and decoy audit logs."
+        ],
+        [
+          "storage.googleapis.com",
+          "Manages storage buckets for decoys, logging, and datasets."
+        ],
+        [
+          "sqladmin.googleapis.com",
+          "Deploys Cloud SQL decoy instances."
+        ],
+        [
+          "compute.googleapis.com",
+          "Provides networking information for Cloud SQL decoys."
+        ],
+        [
+          "servicenetworking.googleapis.com",
+          "Enables Private Services Access for private Cloud SQL instances."
+        ],
+        [
+          "secretmanager.googleapis.com",
+          "Deploys Secret Manager decoys."
+        ],
+        [
+          "artifactregistry.googleapis.com",
+          "Creates Artifact Registry decoy repositories."
+        ],
+        [
+          "cloudbuild.googleapis.com",
+          "Builds the health-check function."
+        ],
+        [
+          "run.googleapis.com",
+          "Hosts the second-generation health-check function."
+        ],
+        [
+          "cloudfunctions.googleapis.com",
+          "Deploys the health-check function."
+        ]
+      ]
+    },
+    {
+      "item": "Removing the GCP decoys and associated project from the Zscaler Deception Admin Portal removes the decoy resources through Terraform. However, the Google Cloud APIs enabled during deployment remain enabled.",
+      "depth": 0
+    },
+    {
+      "item": "When you deploy GCP decoys, the Deception Terraform stack enables Admin Activity and Data Access (DATA_READ, DATA_WRITE) audit logs only for the GCP services on which you have deployed decoys (i.e., cloud storage for bucket decoys, secret manager for secret decoys, artifact registry for repository decoys, and IAM for service-account decoys). The audit configuration for these services is managed by the stack. If you have existing Data Access audit settings for a service where a decoy is deployed, they are replaced by the stack's configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Removing all decoys of a certain type, or decommissioning the deployment, removes the corresponding audit configuration and does not restore any previously configured settings.",
+      "depth": 0
+    },
+    {
+      "item": "Data Access logging can increase your Cloud Logging costs in proportion to activity on those services.",
+      "depth": 0
     },
     {
       "heading": "Setting Up Cloud Deception with GCP",
@@ -37,7 +268,7 @@
       "depth": 0
     },
     {
-      "item": "Log in to the Zscaler Deception Admin Portal.",
+      "item": "Log in to the Deception Admin Portal.",
       "depth": 1,
       "number": 1
     },

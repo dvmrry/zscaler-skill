@@ -4,11 +4,11 @@
   "resources": [
     {
       "resource": "app_connector_group",
-      "method": "GET",
-      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}",
-      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}",
+      "method": "POST",
+      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup",
+      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup",
       "counts": {
-        "contract": 39,
+        "contract": 45,
         "go": 41,
         "tf": 26
       },
@@ -17,23 +17,19 @@
           "zpa/app-connector-group-management/gets-the-app-connector-group-details-for-the-specified-id",
           "zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer"
         ],
-        "missing_operations": [
-          "zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer"
-        ],
-        "required_comparison": "unavailable"
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
           "city",
           "ipAcl",
-          "upgradePriority"
+          "privateCloudId",
+          "upgradePriority",
+          "version"
         ],
         "go_only_vs_contract": [
-          "enrollmentCertId",
-          "nameWithoutTrim",
-          "readOnly",
-          "restrictionType",
-          "zscalerManaged"
+          "siteId"
         ],
         "contract_unmatched_in_tf": [
           "city",
@@ -45,15 +41,19 @@
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
+          "nameWithoutTrim",
           "npAssistantGroup",
+          "privateCloudId",
+          "readOnly",
+          "restrictionType",
           "serverGroups",
-          "siteId",
           "siteName",
           "upgradePriority",
-          "versionProfileVisibilityScope"
+          "version",
+          "versionProfileVisibilityScope",
+          "zscalerManaged"
         ],
         "tf_corroborates_surface_only": [
-          "enrollmentCertId",
           "userCodes"
         ]
       },
@@ -61,6 +61,11 @@
         {
           "field": "creationTime",
           "contract": "int32",
+          "go": "string"
+        },
+        {
+          "field": "enrollmentCertId",
+          "contract": "int64",
           "go": "string"
         },
         {
@@ -94,14 +99,27 @@
           "go": "string"
         }
       ],
-      "required_drift": [],
-      "readonly": [
+      "required_drift": [
         {
-          "field": "versionProfileName",
-          "tf_computed": true,
-          "agree": true
+          "field": "latitude",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
+        },
+        {
+          "field": "location",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
+        },
+        {
+          "field": "longitude",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
         }
       ],
+      "readonly": [],
       "enum": {
         "match": [
           "dnsQueryType"
@@ -150,16 +168,20 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "npAssistantGroup",
+            "privateCloudId",
+            "readOnly",
+            "restrictionType",
             "serverGroups",
-            "siteId",
             "siteName",
             "upgradePriority",
+            "version",
             "versionProfileName",
-            "versionProfileVisibilityScope"
+            "versionProfileVisibilityScope",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": [
-            "enrollmentCertId",
             "userCodes"
           ]
         },
@@ -218,13 +240,7 @@
         "presence": {
           "contract_unmatched_in_python": [],
           "python_only_vs_contract": [
-            "enrollmentCertId",
-            "nameWithoutTrim",
-            "privateCloudId",
-            "readOnly",
-            "restrictionType",
-            "version",
-            "zscalerManaged"
+            "siteId"
           ]
         }
       },
@@ -267,24 +283,28 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "npAssistantGroup",
             "praEnabled",
+            "privateCloudId",
+            "readOnly",
+            "restrictionType",
             "serverGroups",
-            "siteId",
             "siteName",
             "tcpQuickAckApp",
             "tcpQuickAckAssistant",
             "tcpQuickAckReadAssistant",
             "upgradePriority",
             "useInDrMode",
+            "version",
             "versionProfileId",
             "versionProfileName",
             "versionProfileVisibilityScope",
-            "wafDisabled"
+            "wafDisabled",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": [
             "connectorIds",
-            "enrollmentCertId",
             "enrollmentCertName",
             "serverGroupIds",
             "versionProfile"
@@ -298,7 +318,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/server",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/server",
       "counts": {
-        "contract": 12,
+        "contract": 14,
         "go": 12,
         "tf": 8
       },
@@ -311,13 +331,18 @@
         "required_comparison": "available"
       },
       "presence": {
-        "contract_only_vs_go": [],
+        "contract_only_vs_go": [
+          "appServerGroupAssociations",
+          "nameWithoutTrim"
+        ],
         "go_only_vs_contract": [],
         "contract_unmatched_in_tf": [
+          "appServerGroupAssociations",
           "creationTime",
           "microtenantName",
           "modifiedBy",
-          "modifiedTime"
+          "modifiedTime",
+          "nameWithoutTrim"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -386,12 +411,14 @@
         },
         "presence": {
           "contract_unmatched_in_ansible": [
+            "appServerGroupAssociations",
             "configSpace",
             "creationTime",
             "microtenantId",
             "microtenantName",
             "modifiedBy",
-            "modifiedTime"
+            "modifiedTime",
+            "nameWithoutTrim"
           ],
           "ansible_only_vs_contract": []
         },
@@ -429,11 +456,13 @@
         },
         "presence": {
           "contract_unmatched_in_python": [
+            "appServerGroupAssociations",
             "creationTime",
             "microtenantId",
             "microtenantName",
             "modifiedBy",
-            "modifiedTime"
+            "modifiedTime",
+            "nameWithoutTrim"
           ],
           "python_only_vs_contract": []
         }
@@ -465,13 +494,15 @@
         },
         "presence": {
           "contract_unmatched_in_mcp": [
+            "appServerGroupAssociations",
             "configSpace",
             "creationTime",
             "id",
             "microtenantId",
             "microtenantName",
             "modifiedBy",
-            "modifiedTime"
+            "modifiedTime",
+            "nameWithoutTrim"
           ],
           "mcp_only_vs_contract": []
         }
@@ -483,9 +514,9 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/application",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/application",
       "counts": {
-        "contract": 51,
+        "contract": 60,
         "go": 56,
-        "tf": 35
+        "tf": 36
       },
       "contract_coverage": {
         "expected_operations": [
@@ -506,16 +537,7 @@
         ],
         "go_only_vs_contract": [
           "applications",
-          "guestDetails",
-          "hbrEnabled",
-          "policyStyle",
-          "readOnly",
-          "restrictionType",
-          "shareToMicrotenants",
-          "stickyEntity",
-          "stickyGroup",
-          "tags",
-          "zscalerManaged"
+          "shareToMicrotenants"
         ],
         "contract_unmatched_in_tf": [
           "adpEnabled",
@@ -527,18 +549,24 @@
           "defaultIdleTimeout",
           "defaultMaxAge",
           "extranetEnabled",
+          "guestDetails",
+          "hbrEnabled",
           "inconsistentConfigDetails",
           "inspectionApps",
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
           "praApps",
+          "readOnly",
+          "restrictionType",
           "sharedMicrotenantDetails",
+          "stickyEntity",
+          "stickyGroup",
           "tcpProtocols",
-          "udpProtocols"
+          "udpProtocols",
+          "zscalerManaged"
         ],
         "tf_corroborates_surface_only": [
-          "policyStyle",
           "shareToMicrotenants"
         ]
       },
@@ -582,13 +610,7 @@
           "direction": "tf_stricter"
         }
       ],
-      "readonly": [
-        {
-          "field": "id",
-          "tf_computed": true,
-          "agree": true
-        }
-      ],
+      "readonly": [],
       "enum": {
         "match": [
           "bypassType",
@@ -600,6 +622,14 @@
         ],
         "value_conflict": [],
         "one_sided": [
+          {
+            "field": "policyStyle",
+            "contract": [
+              "NONE",
+              "DUAL_POLICY_EVAL"
+            ],
+            "tf": null
+          },
           {
             "field": "tcpKeepAlive",
             "contract": null,
@@ -636,6 +666,8 @@
             "defaultIdleTimeout",
             "defaultMaxAge",
             "extranetEnabled",
+            "guestDetails",
+            "hbrEnabled",
             "inconsistentConfigDetails",
             "inspectionApps",
             "isIncompleteDRConfig",
@@ -643,13 +675,18 @@
             "modifiedBy",
             "modifiedTime",
             "praApps",
+            "readOnly",
+            "restrictionType",
             "segmentGroupName",
             "serverGroups",
             "sharedMicrotenantDetails",
-            "zpnErId"
+            "stickyEntity",
+            "stickyGroup",
+            "tags",
+            "zpnErId",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": [
-            "policyStyle",
             "serverGroupIds"
           ]
         },
@@ -715,6 +752,16 @@
               "ansible": null,
               "repo": "zpacloud-ansible",
               "path": "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment.py"
+            },
+            {
+              "field": "policyStyle",
+              "contract": [
+                "NONE",
+                "DUAL_POLICY_EVAL"
+              ],
+              "ansible": null,
+              "repo": "zpacloud-ansible",
+              "path": "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment.py"
             }
           ]
         }
@@ -745,16 +792,7 @@
             "udpProtocols"
           ],
           "python_only_vs_contract": [
-            "applicationGroup",
-            "guestDetails",
-            "hbrEnabled",
-            "policyStyle",
-            "readOnly",
-            "restrictionType",
-            "stickyEntity",
-            "stickyGroup",
-            "tags",
-            "zscalerManaged"
+            "applicationGroup"
           ]
         }
       },
@@ -800,6 +838,8 @@
             "doubleEncrypt",
             "extranetEnabled",
             "fqdnDnsCheck",
+            "guestDetails",
+            "hbrEnabled",
             "healthCheckType",
             "healthReporting",
             "icmpAccessType",
@@ -816,11 +856,17 @@
             "modifiedBy",
             "modifiedTime",
             "passiveHealthEnabled",
+            "policyStyle",
             "praApps",
+            "readOnly",
+            "restrictionType",
             "segmentGroupName",
             "selectConnectorCloseToApp",
             "serverGroups",
             "sharedMicrotenantDetails",
+            "stickyEntity",
+            "stickyGroup",
+            "tags",
             "tcpKeepAlive",
             "tcpPortRange",
             "tcpProtocols",
@@ -828,7 +874,8 @@
             "udpProtocols",
             "useInDrMode",
             "weightedLoadBalancing",
-            "zpnErId"
+            "zpnErId",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": [
             "advanced",
@@ -843,7 +890,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/certificate",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/certificate",
       "counts": {
-        "contract": 20,
+        "contract": 24,
         "go": 20,
         "tf": 6
       },
@@ -856,7 +903,12 @@
         "required_comparison": "available"
       },
       "presence": {
-        "contract_only_vs_go": [],
+        "contract_only_vs_go": [
+          "nameWithoutTrim",
+          "readOnly",
+          "restrictionType",
+          "zscalerManaged"
+        ],
         "go_only_vs_contract": [],
         "contract_unmatched_in_tf": [
           "cName",
@@ -867,12 +919,16 @@
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
+          "nameWithoutTrim",
           "publicKey",
+          "readOnly",
+          "restrictionType",
           "san",
           "serialNo",
           "status",
           "validFromInEpochSec",
-          "validToInEpochSec"
+          "validToInEpochSec",
+          "zscalerManaged"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -951,12 +1007,16 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "publicKey",
+            "readOnly",
+            "restrictionType",
             "san",
             "serialNo",
             "status",
             "validFromInEpochSec",
-            "validToInEpochSec"
+            "validToInEpochSec",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": []
         },
@@ -986,7 +1046,11 @@
         "presence": {
           "contract_unmatched_in_python": [
             "certBlob",
-            "certChain"
+            "certChain",
+            "nameWithoutTrim",
+            "readOnly",
+            "restrictionType",
+            "zscalerManaged"
           ],
           "python_only_vs_contract": []
         }
@@ -1028,12 +1092,16 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "publicKey",
+            "readOnly",
+            "restrictionType",
             "san",
             "serialNo",
             "status",
             "validFromInEpochSec",
-            "validToInEpochSec"
+            "validToInEpochSec",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": []
         }
@@ -1104,7 +1172,13 @@
           "direction": "contract_stricter"
         }
       ],
-      "readonly": [],
+      "readonly": [
+        {
+          "field": "userId",
+          "tf_computed": true,
+          "agree": true
+        }
+      ],
       "enum": {
         "match": [],
         "value_conflict": [],
@@ -1146,7 +1220,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/inspectionControls/custom",
       "counts": {
-        "contract": 21,
+        "contract": 22,
         "go": 20,
         "tf": 12
       },
@@ -1160,7 +1234,8 @@
       },
       "presence": {
         "contract_only_vs_go": [
-          "controlException"
+          "controlException",
+          "nameWithoutTrim"
         ],
         "go_only_vs_contract": [],
         "contract_unmatched_in_tf": [
@@ -1172,7 +1247,8 @@
           "controlRuleJson",
           "creationTime",
           "modifiedBy",
-          "modifiedTime"
+          "modifiedTime",
+          "nameWithoutTrim"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -1317,7 +1393,9 @@
           "python": 21
         },
         "presence": {
-          "contract_unmatched_in_python": [],
+          "contract_unmatched_in_python": [
+            "nameWithoutTrim"
+          ],
           "python_only_vs_contract": []
         }
       },
@@ -1331,7 +1409,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/inspectionProfile",
       "counts": {
-        "contract": 21,
+        "contract": 26,
         "go": 21,
         "tf": 17
       },
@@ -1345,21 +1423,31 @@
       },
       "presence": {
         "contract_only_vs_go": [
+          "apiDiscoveryEnabled",
           "exceptionsVersion",
-          "predefinedADPControls"
+          "hasRecommendedOwaspControls",
+          "hasRecommendedThreatlabzControls",
+          "nameWithoutTrim",
+          "predefinedADPControls",
+          "profileSource"
         ],
         "go_only_vs_contract": [
           "commonGlobalOverrideActionsConfig",
           "overrideAction"
         ],
         "contract_unmatched_in_tf": [
+          "apiDiscoveryEnabled",
           "checkControlDeploymentStatus",
           "creationTime",
           "exceptionsVersion",
+          "hasRecommendedOwaspControls",
+          "hasRecommendedThreatlabzControls",
           "incarnationNumber",
           "modifiedBy",
           "modifiedTime",
-          "predefinedADPControls"
+          "nameWithoutTrim",
+          "predefinedADPControls",
+          "profileSource"
         ],
         "tf_corroborates_surface_only": [
           "commonGlobalOverrideActionsConfig",
@@ -1440,10 +1528,13 @@
           "python": 22
         },
         "presence": {
-          "contract_unmatched_in_python": [],
-          "python_only_vs_contract": [
-            "apiDiscoveryEnabled"
-          ]
+          "contract_unmatched_in_python": [
+            "hasRecommendedOwaspControls",
+            "hasRecommendedThreatlabzControls",
+            "nameWithoutTrim",
+            "profileSource"
+          ],
+          "python_only_vs_contract": []
         }
       },
       "mcp": {
@@ -1471,9 +1562,9 @@
     },
     {
       "resource": "lss_config",
-      "method": "GET",
-      "path": "/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}",
-      "contract_path": "/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}",
+      "method": "POST",
+      "path": "/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig",
+      "contract_path": "/mgmtconfig/v2/admin/customers/{customerId}/lssConfig",
       "counts": {
         "contract": 6,
         "go": 5,
@@ -1484,10 +1575,8 @@
           "zpa/log-streaming-service-lss-configuration/gets-the-lss-configuration-details-for-the-specified-id",
           "zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer"
         ],
-        "missing_operations": [
-          "zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer"
-        ],
-        "required_comparison": "unavailable"
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -1507,7 +1596,14 @@
           "go": "string"
         }
       ],
-      "required_drift": [],
+      "required_drift": [
+        {
+          "field": "config",
+          "contract_required": true,
+          "tf_required": false,
+          "direction": "contract_stricter"
+        }
+      ],
       "readonly": [],
       "enum": {
         "match": [],
@@ -1538,7 +1634,16 @@
             "appConnectorGroupIds"
           ]
         },
-        "required_drift": [],
+        "required_drift": [
+          {
+            "field": "config",
+            "contract_required": true,
+            "ansible_required": false,
+            "direction": "contract_stricter",
+            "repo": "zpacloud-ansible",
+            "path": "vendor/zpacloud-ansible/plugins/modules/zpa_lss_config_controller.py"
+          }
+        ],
         "enum": {
           "match": [],
           "value_conflict": [],
@@ -1752,7 +1857,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/praConsole",
       "counts": {
-        "contract": 13,
+        "contract": 14,
         "go": 12,
         "tf": 8
       },
@@ -1766,7 +1871,8 @@
       },
       "presence": {
         "contract_only_vs_go": [
-          "inconsistentConfigDetails"
+          "inconsistentConfigDetails",
+          "nameWithoutTrim"
         ],
         "go_only_vs_contract": [],
         "contract_unmatched_in_tf": [
@@ -1774,7 +1880,8 @@
           "inconsistentConfigDetails",
           "microtenantName",
           "modifiedBy",
-          "modifiedTime"
+          "modifiedTime",
+          "nameWithoutTrim"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -1852,6 +1959,7 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "praApplication",
             "praPortals"
           ],
@@ -1886,7 +1994,8 @@
         "presence": {
           "contract_unmatched_in_python": [
             "iconText",
-            "inconsistentConfigDetails"
+            "inconsistentConfigDetails",
+            "nameWithoutTrim"
           ],
           "python_only_vs_contract": []
         }
@@ -1901,7 +2010,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/credential",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/credential",
       "counts": {
-        "contract": 15,
+        "contract": 16,
         "go": 16,
         "tf": 10
       },
@@ -1914,7 +2023,9 @@
         "required_comparison": "available"
       },
       "presence": {
-        "contract_only_vs_go": [],
+        "contract_only_vs_go": [
+          "nameWithoutTrim"
+        ],
         "go_only_vs_contract": [
           "targetMicrotenantId"
         ],
@@ -1923,7 +2034,8 @@
           "lastCredentialResetTime",
           "microtenantName",
           "modifiedBy",
-          "modifiedTime"
+          "modifiedTime",
+          "nameWithoutTrim"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -2001,7 +2113,8 @@
             "lastCredentialResetTime",
             "microtenantName",
             "modifiedBy",
-            "modifiedTime"
+            "modifiedTime",
+            "nameWithoutTrim"
           ],
           "ansible_only_vs_contract": [
             "updateSecret"
@@ -2046,6 +2159,7 @@
             "creationTime",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "passphrase",
             "password",
             "privateKey"
@@ -2087,6 +2201,7 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "passphrase",
             "userName"
           ],
@@ -2102,7 +2217,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/praPortal",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/praPortal",
       "counts": {
-        "contract": 21,
+        "contract": 23,
         "go": 31,
         "tf": 15
       },
@@ -2115,10 +2230,11 @@
         "required_comparison": "available"
       },
       "presence": {
-        "contract_only_vs_go": [],
+        "contract_only_vs_go": [
+          "nameWithoutTrim"
+        ],
         "go_only_vs_contract": [
           "action",
-          "approvalReviewers",
           "cName",
           "certManagedByZsRadio",
           "hideInfoTooltip",
@@ -2135,11 +2251,10 @@
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
+          "nameWithoutTrim",
           "userPortalName"
         ],
-        "tf_corroborates_surface_only": [
-          "approvalReviewers"
-        ]
+        "tf_corroborates_surface_only": []
       },
       "type_drift": [
         {
@@ -2208,6 +2323,7 @@
         },
         "presence": {
           "contract_unmatched_in_ansible": [
+            "approvalReviewers",
             "certificateName",
             "creationTime",
             "extDomain",
@@ -2218,6 +2334,7 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "userPortalGid",
             "userPortalName"
           ],
@@ -2247,10 +2364,10 @@
           "python": 22
         },
         "presence": {
-          "contract_unmatched_in_python": [],
-          "python_only_vs_contract": [
-            "approvalReviewers"
-          ]
+          "contract_unmatched_in_python": [
+            "nameWithoutTrim"
+          ],
+          "python_only_vs_contract": []
         }
       },
       "mcp": {
@@ -2281,6 +2398,7 @@
         },
         "presence": {
           "contract_unmatched_in_mcp": [
+            "approvalReviewers",
             "certificateName",
             "creationTime",
             "extDomain",
@@ -2293,6 +2411,7 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "userPortalGid",
             "userPortalName"
           ],
@@ -2306,7 +2425,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/serverGroup",
       "counts": {
-        "contract": 18,
+        "contract": 21,
         "go": 20,
         "tf": 13
       },
@@ -2322,17 +2441,16 @@
         "contract_only_vs_go": [
           "inconsistentConfigDetails"
         ],
-        "go_only_vs_contract": [
-          "readOnly",
-          "restrictionType",
-          "zscalerManaged"
-        ],
+        "go_only_vs_contract": [],
         "contract_unmatched_in_tf": [
           "creationTime",
           "inconsistentConfigDetails",
           "microtenantName",
           "modifiedBy",
-          "modifiedTime"
+          "modifiedTime",
+          "readOnly",
+          "restrictionType",
+          "zscalerManaged"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -2402,7 +2520,10 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
-            "servers"
+            "readOnly",
+            "restrictionType",
+            "servers",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": [
             "appConnectorGroupIds",
@@ -2438,10 +2559,7 @@
             "servers"
           ],
           "python_only_vs_contract": [
-            "readOnly",
-            "restrictionType",
-            "weight",
-            "zscalerManaged"
+            "weight"
           ]
         }
       },
@@ -2484,7 +2602,10 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
-            "servers"
+            "readOnly",
+            "restrictionType",
+            "servers",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": [
             "appConnectorGroupIds",
@@ -2499,7 +2620,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup",
       "counts": {
-        "contract": 15,
+        "contract": 19,
         "go": 16,
         "tf": 6
       },
@@ -2513,7 +2634,11 @@
       },
       "presence": {
         "contract_only_vs_go": [
-          "sharedMicrotenantIds"
+          "nameWithoutTrim",
+          "readOnly",
+          "restrictionType",
+          "sharedMicrotenantIds",
+          "zscalerManaged"
         ],
         "go_only_vs_contract": [
           "addedApps",
@@ -2526,9 +2651,13 @@
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
+          "nameWithoutTrim",
           "policyMigrated",
+          "readOnly",
+          "restrictionType",
           "sharedMicrotenantIds",
-          "tcpKeepAliveEnabled"
+          "tcpKeepAliveEnabled",
+          "zscalerManaged"
         ],
         "tf_corroborates_surface_only": []
       },
@@ -2594,9 +2723,13 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "policyMigrated",
+            "readOnly",
+            "restrictionType",
             "sharedMicrotenantIds",
-            "tcpKeepAliveEnabled"
+            "tcpKeepAliveEnabled",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": []
         },
@@ -2629,7 +2762,11 @@
             "creationTime",
             "modifiedBy",
             "modifiedTime",
-            "sharedMicrotenantIds"
+            "nameWithoutTrim",
+            "readOnly",
+            "restrictionType",
+            "sharedMicrotenantIds",
+            "zscalerManaged"
           ],
           "python_only_vs_contract": [
             "skipDetailedAppInfo"
@@ -2672,9 +2809,13 @@
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
             "policyMigrated",
+            "readOnly",
+            "restrictionType",
             "sharedMicrotenantIds",
-            "tcpKeepAliveEnabled"
+            "tcpKeepAliveEnabled",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": []
         }
@@ -2686,7 +2827,7 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey",
       "counts": {
-        "contract": 8,
+        "contract": 23,
         "go": 24,
         "tf": 15
       },
@@ -2700,72 +2841,94 @@
       },
       "presence": {
         "contract_only_vs_go": [
-          "cloudName",
-          "maxUsageCount",
-          "nonceAssociationType",
-          "nonceValue",
-          "scopeId"
+          "exportable",
+          "nameWithoutTrim"
         ],
         "go_only_vs_contract": [
           "appConnectorGroupId",
           "appConnectorGroupName",
-          "associationType",
+          "associationType"
+        ],
+        "contract_unmatched_in_tf": [
           "creationTime",
-          "enabled",
-          "enrollmentCertId",
           "enrollmentCertName",
           "expirationInEpochSec",
-          "ipAcl",
-          "maxUsage",
-          "microtenantId",
+          "exportable",
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
-          "provisioningKey",
+          "nameWithoutTrim",
           "readOnly",
           "restrictionType",
-          "uiConfig",
-          "zcomponentId",
-          "zcomponentName",
           "zscalerManaged"
-        ],
-        "contract_unmatched_in_tf": [
-          "cloudName",
-          "maxUsageCount",
-          "nonceAssociationType",
-          "nonceValue",
-          "scopeId"
         ],
         "tf_corroborates_surface_only": [
           "appConnectorGroupId",
           "appConnectorGroupName",
-          "associationType",
-          "enabled",
-          "enrollmentCertId",
-          "ipAcl",
-          "maxUsage",
-          "microtenantId",
-          "provisioningKey",
-          "uiConfig",
-          "zcomponentId",
-          "zcomponentName"
+          "associationType"
         ]
       },
       "type_drift": [
         {
+          "field": "creationTime",
+          "contract": "int32",
+          "go": "string"
+        },
+        {
+          "field": "enrollmentCertId",
+          "contract": "int64",
+          "go": "string"
+        },
+        {
+          "field": "expirationInEpochSec",
+          "contract": "int32",
+          "go": "string"
+        },
+        {
           "field": "id",
-          "contract": "integer",
+          "contract": "int64",
+          "go": "string"
+        },
+        {
+          "field": "maxUsage",
+          "contract": "int32",
+          "go": "string"
+        },
+        {
+          "field": "microtenantId",
+          "contract": "int64",
+          "go": "string"
+        },
+        {
+          "field": "modifiedBy",
+          "contract": "int64",
+          "go": "string"
+        },
+        {
+          "field": "modifiedTime",
+          "contract": "int32",
           "go": "string"
         },
         {
           "field": "usageCount",
-          "contract": "integer",
+          "contract": "int32",
+          "go": "string"
+        },
+        {
+          "field": "zcomponentId",
+          "contract": "int64",
           "go": "string"
         }
       ],
       "required_drift": [
         {
-          "field": "name",
+          "field": "maxUsage",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
+        },
+        {
+          "field": "zcomponentId",
           "contract_required": false,
           "tf_required": true,
           "direction": "tf_stricter"
@@ -2794,21 +2957,41 @@
         },
         "presence": {
           "contract_unmatched_in_ansible": [
-            "cloudName",
-            "maxUsageCount",
-            "nonceAssociationType",
-            "nonceValue",
-            "scopeId",
-            "usageCount"
+            "creationTime",
+            "enabled",
+            "enrollmentCertId",
+            "enrollmentCertName",
+            "expirationInEpochSec",
+            "exportable",
+            "ipAcl",
+            "microtenantName",
+            "modifiedBy",
+            "modifiedTime",
+            "nameWithoutTrim",
+            "provisioningKey",
+            "readOnly",
+            "restrictionType",
+            "uiConfig",
+            "usageCount",
+            "zcomponentId",
+            "zcomponentName",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": [
             "componentId",
-            "keyType",
-            "maxUsage",
-            "microtenantId"
+            "keyType"
           ]
         },
-        "required_drift": [],
+        "required_drift": [
+          {
+            "field": "name",
+            "contract_required": true,
+            "ansible_required": false,
+            "direction": "contract_stricter",
+            "repo": "zpacloud-ansible",
+            "path": "vendor/zpacloud-ansible/plugins/modules/zpa_provisioning_key.py"
+          }
+        ],
         "enum": {
           "match": [],
           "value_conflict": [],
@@ -2833,24 +3016,18 @@
         },
         "presence": {
           "contract_unmatched_in_python": [
-            "cloudName",
-            "maxUsageCount",
-            "nonceAssociationType",
-            "nonceValue",
-            "scopeId"
+            "expirationInEpochSec",
+            "exportable",
+            "ipAcl",
+            "microtenantId",
+            "microtenantName",
+            "nameWithoutTrim",
+            "readOnly",
+            "restrictionType",
+            "uiConfig",
+            "zscalerManaged"
           ],
-          "python_only_vs_contract": [
-            "creationTime",
-            "enabled",
-            "enrollmentCertId",
-            "enrollmentCertName",
-            "maxUsage",
-            "modifiedBy",
-            "modifiedTime",
-            "provisioningKey",
-            "zcomponentId",
-            "zcomponentName"
-          ]
+          "python_only_vs_contract": []
         }
       },
       "mcp": {
@@ -2880,31 +3057,42 @@
         },
         "presence": {
           "contract_unmatched_in_mcp": [
-            "cloudName",
+            "creationTime",
+            "enabled",
+            "enrollmentCertName",
+            "expirationInEpochSec",
+            "exportable",
             "id",
-            "maxUsageCount",
-            "nonceAssociationType",
-            "nonceValue",
-            "scopeId",
-            "usageCount"
+            "ipAcl",
+            "microtenantId",
+            "microtenantName",
+            "modifiedBy",
+            "modifiedTime",
+            "nameWithoutTrim",
+            "provisioningKey",
+            "readOnly",
+            "restrictionType",
+            "uiConfig",
+            "usageCount",
+            "zcomponentId",
+            "zcomponentName",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": [
             "componentId",
             "description",
-            "enrollmentCertId",
-            "keyType",
-            "maxUsage"
+            "keyType"
           ]
         }
       }
     },
     {
       "resource": "service_edge_group",
-      "method": "GET",
-      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}",
-      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}",
+      "method": "POST",
+      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup",
+      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup",
       "counts": {
-        "contract": 33,
+        "contract": 40,
         "go": 41,
         "tf": 27
       },
@@ -2913,25 +3101,20 @@
           "zpa/private-service-edge-group-management/get-private-broker-group",
           "zpa/private-service-edge-group-management/add-private-broker-group"
         ],
-        "missing_operations": [
-          "zpa/private-service-edge-group-management/add-private-broker-group"
-        ],
-        "required_comparison": "unavailable"
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
-          "upgradePriority"
+          "privateCloudId",
+          "upgradePriority",
+          "version"
         ],
         "go_only_vs_contract": [
-          "enrollmentCertId",
-          "exclusiveForBusinessContinuity",
-          "nameWithoutTrim",
           "objectType",
-          "readOnly",
           "restrictedEntity",
-          "restrictionType",
           "scopeName",
-          "zscalerManaged"
+          "siteId"
         ],
         "contract_unmatched_in_tf": [
           "altCloud",
@@ -2940,19 +3123,26 @@
           "microtenantName",
           "modifiedBy",
           "modifiedTime",
-          "siteId",
+          "nameWithoutTrim",
+          "privateCloudId",
+          "readOnly",
+          "restrictionType",
           "siteName",
-          "upgradePriority"
+          "upgradePriority",
+          "version",
+          "zscalerManaged"
         ],
-        "tf_corroborates_surface_only": [
-          "enrollmentCertId",
-          "exclusiveForBusinessContinuity"
-        ]
+        "tf_corroborates_surface_only": []
       },
       "type_drift": [
         {
           "field": "creationTime",
           "contract": "int32",
+          "go": "string"
+        },
+        {
+          "field": "enrollmentCertId",
+          "contract": "int64",
           "go": "string"
         },
         {
@@ -2991,19 +3181,27 @@
           "go": "string"
         }
       ],
-      "required_drift": [],
-      "readonly": [
+      "required_drift": [
         {
-          "field": "versionProfileName",
-          "tf_computed": true,
-          "agree": true
+          "field": "latitude",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
         },
         {
-          "field": "versionProfileVisibilityScope",
-          "tf_computed": true,
-          "agree": true
+          "field": "location",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
+        },
+        {
+          "field": "longitude",
+          "contract_required": false,
+          "tf_required": true,
+          "direction": "tf_stricter"
         }
       ],
+      "readonly": [],
       "enum": {
         "match": [
           "graceDistanceValueUnit"
@@ -3052,17 +3250,24 @@
             "altCloud",
             "city",
             "creationTime",
+            "enrollmentCertId",
+            "exclusiveForBusinessContinuity",
             "geoLocationId",
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
+            "privateCloudId",
+            "readOnly",
+            "restrictionType",
             "serviceEdges",
-            "siteId",
             "siteName",
             "trustedNetworks",
             "upgradePriority",
+            "version",
             "versionProfileName",
-            "versionProfileVisibilityScope"
+            "versionProfileVisibilityScope",
+            "zscalerManaged"
           ],
           "ansible_only_vs_contract": [
             "trustedNetworkIds"
@@ -3118,13 +3323,22 @@
           "update_service_edge_group"
         ],
         "counts": {
-          "python": 32
+          "python": 33
         },
         "presence": {
           "contract_unmatched_in_python": [
-            "city"
+            "city",
+            "exclusiveForBusinessContinuity",
+            "nameWithoutTrim",
+            "privateCloudId",
+            "readOnly",
+            "restrictionType",
+            "version",
+            "zscalerManaged"
           ],
-          "python_only_vs_contract": []
+          "python_only_vs_contract": [
+            "siteId"
+          ]
         }
       },
       "mcp": {
@@ -3157,19 +3371,26 @@
             "altCloud",
             "city",
             "creationTime",
+            "enrollmentCertId",
+            "exclusiveForBusinessContinuity",
             "geoLocationId",
             "id",
             "microtenantId",
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "nameWithoutTrim",
+            "privateCloudId",
+            "readOnly",
+            "restrictionType",
             "serviceEdges",
-            "siteId",
             "siteName",
             "trustedNetworks",
             "upgradePriority",
             "useInDrMode",
-            "versionProfileVisibilityScope"
+            "version",
+            "versionProfileVisibilityScope",
+            "zscalerManaged"
           ],
           "mcp_only_vs_contract": [
             "serviceEdgeIds",
@@ -3180,28 +3401,28 @@
     }
   ],
   "totals": {
-    "type_drift": 84,
-    "required_drift": 20,
+    "type_drift": 94,
+    "required_drift": 28,
     "enum_match": 15,
     "enum_value_conflict": 3,
-    "enum_one_sided": 4,
-    "readonly_fields": 5,
+    "enum_one_sided": 5,
+    "readonly_fields": 2,
     "readonly_disagree": 0,
     "ansible_resources": 13,
     "ansible_no_surface": 3,
-    "ansible_required_drift": 2,
+    "ansible_required_drift": 4,
     "ansible_enum_match": 6,
     "ansible_enum_value_conflict": 2,
-    "ansible_enum_one_sided": 6,
+    "ansible_enum_one_sided": 7,
     "python_resources": 16,
     "python_no_surface": 0,
-    "python_contract_unmatched": 37,
-    "python_only": 42,
+    "python_contract_unmatched": 67,
+    "python_only": 13,
     "mcp_resources": 12,
     "mcp_no_surface": 4,
     "mcp_field_resources": 10,
-    "mcp_contract_unmatched": 166,
-    "mcp_only": 17,
-    "missing_contract_operations": 3
+    "mcp_contract_unmatched": 216,
+    "mcp_only": 14,
+    "missing_contract_operations": 0
   }
 }

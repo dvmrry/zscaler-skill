@@ -5,12 +5,12 @@
   "source": {
     "url": "https://help.zscaler.com/legacy-apis/dlp-incidents-workflow-automation-api",
     "node": "1451946",
-    "revision": "3242202",
-    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/public_swagger_10_01_2026.json?VersionId=UvIKEb.jVctANLjf4AS.EyTHR98bIpXa",
-    "updated": "2026-10-05",
+    "revision": "3260716",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/DLP%20Incidents_37.json?VersionId=EUCDf0lwDVJXX5IAD8dQzPro1Gw3ZkRu",
+    "updated": "2026-11-26",
     "updated_basis": "file-last-modified"
   },
-  "captured_at": "2026-10-18",
+  "captured_at": "2026-11-27",
   "spec": {
     "openapi": "3.0.1",
     "info": {
@@ -30,575 +30,9 @@
     "tags": [
       {
         "name": "DLP Incidents"
-      },
-      {
-        "name": "API Authentication"
-      },
-      {
-        "name": "Audit Logs"
-      },
-      {
-        "name": "CSV User Attributes"
-      },
-      {
-        "name": "Email Quarantine"
       }
     ],
     "paths": {
-      "/dlp/v1/incidents/{dlpIncidentId}/quarantine/release": {
-        "post": {
-          "tags": [
-            "Email Quarantine"
-          ],
-          "operationId": "releaseQuarantinedEmail",
-          "description": "Releases quarantined emails to specified recipients or all recipients for the DLP incident. This endpoint accepts a release request and processes it asynchronously and can mark an incident as a false positive if applicable.",
-          "parameters": [
-            {
-              "name": "dlpIncidentId",
-              "in": "path",
-              "required": true,
-              "description": "The DLP incident ID for which the quarantined email is released",
-              "schema": {
-                "type": "string"
-              },
-              "example": "INC-12345"
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ZSDLPIncidentQuarantineReleaseRequest"
-                },
-                "examples": {
-                  "releaseAll": {
-                    "value": {
-                      "releaseToAll": true,
-                      "justificationReason": "False positive - approved by manager",
-                      "markAsFalsePositive": true
-                    }
-                  },
-                  "releaseSpecific": {
-                    "value": {
-                      "recipients": [
-                        "user1@example.com",
-                        "user2@example.com"
-                      ],
-                      "releaseToAll": false,
-                      "justificationReason": "Approved by security team",
-                      "markAsFalsePositive": false
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "security": [
-            {
-              "bearerAuth": []
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ZSRecipientStatusResponse"
-                  },
-                  "examples": {
-                    "success": {
-                      "summary": "Successful release request",
-                      "value": {
-                        "incidentId": "INC-12345",
-                        "status": "In Progress",
-                        "releaseToAll": false,
-                        "message": "Request is accepted and processing",
-                        "recipients": [
-                          "user1@example.com",
-                          "user2@example.com"
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad Request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "examples": {
-                    "invalidRequest": {
-                      "value": {
-                        "internalMessage": "Recipients not found in original incident: [user3@example.com]"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Authorization failure"
-            },
-            "404": {
-              "description": "Resource does not exist",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "examples": {
-                    "notFound": {
-                      "value": {
-                        "reason": "DLP Incident not found or no recipient status available"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Failed to process the request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "examples": {
-                    "serverError": {
-                      "summary": "Server error",
-                      "value": {
-                        "reason": "Something went wrong"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/dlp/v1/incidents/{dlpIncidentId}/quarantine/status": {
-        "get": {
-          "tags": [
-            "Email Quarantine"
-          ],
-          "operationId": "getRecipientStatus",
-          "description": "Fetches the status of quarantined email release process for the recipients of the DLP incident. Returns detailed information about each recipient's quarantined email status.",
-          "parameters": [
-            {
-              "name": "dlpIncidentId",
-              "in": "path",
-              "required": true,
-              "description": "The ID of the DLP incident",
-              "schema": {
-                "type": "string"
-              },
-              "example": "INC-12345"
-            },
-            {
-              "name": "operationType",
-              "in": "query",
-              "required": true,
-              "description": "The operation type for getting the status",
-              "schema": {
-                "type": "string",
-                "enum": [
-                  "RELEASE"
-                ]
-              },
-              "example": "RELEASE"
-            }
-          ],
-          "security": [
-            {
-              "bearerAuth": []
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ZSDLPIncidentQuarantineReleaseResponse"
-                  },
-                  "examples": {
-                    "allSuccess": {
-                      "value": {
-                        "incidentId": "INC-12345",
-                        "status": "success",
-                        "message": "All emails released successfully",
-                        "totalRecipients": 3,
-                        "successCount": 3,
-                        "failedCount": 0,
-                        "inProgressCount": 0,
-                        "releaseToAll": true,
-                        "recipientStatuses": [
-                          {
-                            "emailId": "user1@example.com",
-                            "status": "SUCCESS",
-                            "message": null
-                          },
-                          {
-                            "emailId": "user2@example.com",
-                            "status": "SUCCESS",
-                            "message": null
-                          },
-                          {
-                            "emailId": "user3@example.com",
-                            "status": "SUCCESS",
-                            "message": null
-                          }
-                        ]
-                      }
-                    },
-                    "partialSuccess": {
-                      "value": {
-                        "incidentId": "INC-12345",
-                        "status": "partial",
-                        "message": "Some emails released successfully, some failed",
-                        "totalRecipients": 3,
-                        "successCount": 2,
-                        "failedCount": 1,
-                        "inProgressCount": 0,
-                        "releaseToAll": true,
-                        "recipientStatuses": [
-                          {
-                            "emailId": "user1@example.com",
-                            "status": "SUCCESS",
-                            "message": null
-                          },
-                          {
-                            "emailId": "user2@example.com",
-                            "status": "SUCCESS",
-                            "message": null
-                          },
-                          {
-                            "emailId": "user3@example.com",
-                            "status": "FAILED",
-                            "message": "Failed to release email - recipient not found"
-                          }
-                        ]
-                      }
-                    },
-                    "inProgress": {
-                      "value": {
-                        "incidentId": "INC-12345",
-                        "status": "pending",
-                        "message": "Email release is in progress",
-                        "totalRecipients": 3,
-                        "successCount": 0,
-                        "failedCount": 0,
-                        "inProgressCount": 3,
-                        "releaseToAll": true,
-                        "recipientStatuses": []
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad Request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "examples": {
-                    "invalidOperationType": {
-                      "value": {
-                        "internalMessage": "Invalid operation type"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Authorization failure"
-            },
-            "404": {
-              "description": "Resource does not exist",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "examples": {
-                    "notFound": {
-                      "value": {
-                        "reason": "DLP Incident not found or no recipient status available"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Failed to process the request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "examples": {
-                    "serverError": {
-                      "summary": "Server error",
-                      "value": {
-                        "code": "1847",
-                        "reason": "Failed to fetch recipient status"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/dlp/v1/csv-user-data/{csv_user_data_uuid}/download": {
-        "get": {
-          "tags": [
-            "CSV User Attributes"
-          ],
-          "operationId": "getCsvUserDataDownloadUrl",
-          "description": "Fetches a pre-signed AWS S3 bucket link to download your previously uploaded CSV file and the validation error file, depending on the parameter type.",
-          "parameters": [
-            {
-              "name": "csv_user_data_uuid",
-              "in": "path",
-              "required": true,
-              "description": "The unique identifier (UUID) used to identify a specific user in the CSV file.",
-              "schema": {
-                "type": "string",
-                "format": "uuid"
-              }
-            },
-            {
-              "name": "type",
-              "in": "query",
-              "required": false,
-              "description": "The type of the file that is downloaded",
-              "schema": {
-                "type": "string",
-                "default": "userData"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/DownloadUrlResponse"
-                  },
-                  "examples": {
-                    "success": {
-                      "value": {
-                        "url": "https://signed-url.example.com/file.csv"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  },
-                  "examples": {
-                    "badRequest": {
-                      "value": {
-                        "message": "Invalid request"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Authorization failure"
-            },
-            "404": {
-              "description": "Resource does not exist",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  },
-                  "examples": {
-                    "notFound": {
-                      "value": {
-                        "message": "File url not found"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Failed to process the request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  },
-                  "examples": {
-                    "error": {
-                      "value": {
-                        "message": "Something went wrong"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/dlp/v1/csv-user-data/import": {
-        "post": {
-          "tags": [
-            "CSV User Attributes"
-          ],
-          "operationId": "importCsvUserData",
-          "description": "Imports the end user attributes as a CSV file. Only a valid CSV file that is constructed based on one of the CSV template versions and the CSV template instructions can be imported.",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "multipart/form-data": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "version",
-                    "csvUserDataFile"
-                  ],
-                  "properties": {
-                    "version": {
-                      "type": "string",
-                      "description": "The template version to validate the imported CSV file",
-                      "example": "v1"
-                    },
-                    "csvUserDataFile": {
-                      "type": "string",
-                      "format": "binary",
-                      "description": "The CSV file containing user data"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "202": {
-              "description": "Request accepted. The request has been received and processing.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ImportCsvUserDataAcceptedResponse"
-                  },
-                  "examples": {
-                    "accepted": {
-                      "value": {
-                        "message": "User attribute report is accepted and it is getting processed",
-                        "csvUserDataActivityId": "123e4567-e89b-12d3-a456-426614174000"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/CsvValidationDetails"
-                  },
-                  "examples": {
-                    "validationFailure": {
-                      "value": {
-                        "csvUserDataActivityId": "123e4567-e89b-12d3-a456-426614174000",
-                        "csvFileName": "users.csv",
-                        "csvFileSize": "1024",
-                        "totalRecords": 25,
-                        "globalError": true,
-                        "errorMessage": "CSV validation failed"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Authorization failure"
-            },
-            "500": {
-              "description": "Failed to process the request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  },
-                  "examples": {
-                    "error": {
-                      "value": {
-                        "message": "Something went wrong"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/auth/api-key/token": {
-        "post": {
-          "tags": [
-            "API Authentication"
-          ],
-          "description": "Authenticate using the <code>key_id</code> and the <code>key_secret</code>. The response returns a session token in the header called <code>Bearer Token</code> that must be used in subsequent requests.",
-          "operationId": "getPublicAPISessionTokenForAPIKey",
-          "requestBody": {
-            "description": "Authorize with the <code>key_id</code> and <code>key_secret</code> for a short term session token.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ZSDLPGetSessionTokenRequest"
-                }
-              }
-            },
-            "required": true
-          },
-          "responses": {
-            "201": {
-              "description": "Successful operation. A new authorization token is created.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ZSDLPGetSessionTokenResponse"
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Authorization failure"
-            }
-          }
-        }
-      },
       "/dlp/v1/incidents/transactions/{transactionId}": {
         "get": {
           "tags": [
@@ -943,13 +377,22 @@
               }
             },
             "400": {
-              "description": "Bad request"
+              "description": "Invalid request"
             },
             "401": {
               "description": "Authorization failure"
             },
+            "403": {
+              "description": "Access forbidden"
+            },
             "404": {
               "description": "Resource does not exist"
+            },
+            "409": {
+              "description": "Conflict - Request could not be processed"
+            },
+            "500": {
+              "description": "Failed to process the request"
             }
           },
           "security": [
@@ -1086,7 +529,7 @@
             {
               "name": "page",
               "in": "query",
-              "description": "Specifies the page number of the incident in a multi-paginated response. This field is not required if page ID field is used.",
+              "description": "Specifies the page number of the incident in a multi-paginated response. Because the page numbering starts from 0, the maximum page number is the total number of pages minus 1 (i.e., total pages - 1). This field is optional if the page ID field is used.",
               "required": false,
               "schema": {
                 "type": "integer",
@@ -1316,547 +759,10 @@
             }
           ]
         }
-      },
-      "/dlp/v1/customer/audit": {
-        "post": {
-          "tags": [
-            "Audit Logs"
-          ],
-          "description": "Filters audit logs based on the specified time period and field values. The result includes audit information for every action made by the admins in the Workflow Automation Admin Portal and the actions made through APIs. The supported field values are:<ul> <li>Action</li> <li>Resource</li> <li>Admin</li> <li>Module</li></ul> The supported time range values are:<ul> <li>Start date and time</li> <li>End date and time</li></ul>",
-          "operationId": "searchAuditLogs",
-          "parameters": [
-            {
-              "name": "page",
-              "in": "query",
-              "description": "Specifies the page number of the incident in a multi-paginated response. This field is not required if page ID field is used.",
-              "required": false,
-              "schema": {
-                "type": "integer",
-                "minimum": 0,
-                "default": 0
-              }
-            },
-            {
-              "name": "pageSize",
-              "in": "query",
-              "description": "Specifies the page size (i.e., number of incidents per page).",
-              "required": false,
-              "schema": {
-                "type": "integer",
-                "minimum": 1,
-                "default": 10
-              }
-            },
-            {
-              "name": "pageId",
-              "in": "query",
-              "description": "Specifies the page ID of the incident in a multi-paginated response. It is a unique identifier returned in the first search request. You can use the page ID instead of the page number in subsequent search requests for faster and more efficient results.",
-              "required": false,
-              "schema": {
-                "type": "string",
-                "format": "string",
-                "default": "0"
-              }
-            }
-          ],
-          "requestBody": {
-            "description": "Search request filters for the workflow Automation aduit logs based on the field value (exact match) or the time range (start and end time).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchRequestFilters"
-                }
-              }
-            },
-            "required": false
-          },
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ZSAuditLogResponseList"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad request"
-            },
-            "401": {
-              "description": "Authorization failure"
-            },
-            "500": {
-              "description": "Failed to process the request"
-            }
-          },
-          "security": [
-            {
-              "bearerAuth": []
-            }
-          ]
-        }
       }
     },
     "components": {
       "schemas": {
-        "ZSDLPIncidentQuarantineReleaseRequest": {
-          "type": "object",
-          "properties": {
-            "recipients": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "format": "email"
-              },
-              "description": "The list of recipient email addresses to release the quarantined emails. This is required only if <code>releaseToAll</code> is set to false. All recipients must be part of the original DLP incident.",
-              "example": [
-                "user1@example.com",
-                "user2@example.com"
-              ]
-            },
-            "releaseToAll": {
-              "type": "boolean",
-              "description": "If true, releases to all quarantined recipients. If false, uses the recipients list. This is a required field.",
-              "example": false
-            },
-            "justificationReason": {
-              "type": "string",
-              "description": "The eason for releasing the quarantined emails",
-              "example": "False positive - approved by manager"
-            },
-            "markAsFalsePositive": {
-              "type": "boolean",
-              "description": "The DLP incident is marked as a false positive. This field updates the DLP incident status.",
-              "example": true
-            }
-          },
-          "required": [
-            "releaseToAll"
-          ]
-        },
-        "ZSRecipientStatusResponse": {
-          "type": "object",
-          "properties": {
-            "incidentId": {
-              "type": "string",
-              "description": "The DLP incident ID",
-              "example": "INC-12345"
-            },
-            "status": {
-              "type": "string",
-              "description": "The status of the quarantined email release request",
-              "enum": [
-                "In Progress",
-                "Success",
-                "Failed",
-                "Partial"
-              ],
-              "example": "In Progress"
-            },
-            "releaseToAll": {
-              "type": "boolean",
-              "description": "If true, releases quarantined email to all recipients",
-              "example": false
-            },
-            "message": {
-              "type": "string",
-              "description": "The reason for the quarantined email release status",
-              "example": "Request is accepted and processing"
-            },
-            "recipients": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "format": "email"
-              },
-              "description": "The recipients affected by the quarantined email release request",
-              "example": [
-                "user1@example.com",
-                "user2@example.com"
-              ]
-            }
-          },
-          "required": [
-            "incidentId",
-            "status",
-            "releaseToAll",
-            "message"
-          ]
-        },
-        "ZSDLPIncidentQuarantineReleaseResponse": {
-          "type": "object",
-          "properties": {
-            "incidentId": {
-              "type": "string",
-              "description": "The DLP incident ID",
-              "example": "INC-12345"
-            },
-            "status": {
-              "type": "string",
-              "description": "The overall status of the request",
-              "enum": [
-                "success",
-                "partial",
-                "failed",
-                "pending"
-              ],
-              "example": "success"
-            },
-            "message": {
-              "type": "string",
-              "description": "The status message for the final result",
-              "example": "All emails released successfully"
-            },
-            "totalRecipients": {
-              "type": "integer",
-              "description": "The total number of recipients in the DLP incident",
-              "example": 3
-            },
-            "successCount": {
-              "type": "integer",
-              "description": "The number of successful email releases",
-              "example": 3
-            },
-            "failedCount": {
-              "type": "integer",
-              "description": "The number of failed email releases",
-              "example": 0
-            },
-            "inProgressCount": {
-              "type": "integer",
-              "description": "The number of email releases still in progress",
-              "example": 0
-            },
-            "releaseToAll": {
-              "type": "boolean",
-              "description": "If true, releases quarantined email to all recipients",
-              "example": true
-            },
-            "recipientStatuses": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ZSEmailRecipientStatus"
-              },
-              "description": "The detailed status for each recipient"
-            }
-          },
-          "required": [
-            "incidentId",
-            "status",
-            "message",
-            "totalRecipients",
-            "successCount",
-            "failedCount",
-            "inProgressCount",
-            "releaseToAll"
-          ]
-        },
-        "ZSEmailRecipientStatus": {
-          "type": "object",
-          "properties": {
-            "emailId": {
-              "type": "string",
-              "format": "email",
-              "description": "The email address of the recipient",
-              "example": "user1@example.com"
-            },
-            "status": {
-              "type": "string",
-              "description": "The status of the release process for the recipient",
-              "enum": [
-                "SUCCESS",
-                "FAILED",
-                "IN_PROGRESS",
-                "PENDING"
-              ],
-              "example": "SUCCESS"
-            },
-            "message": {
-              "type": "string",
-              "nullable": true,
-              "description": "The status message or error details for the recipient",
-              "example": "Email released successfully"
-            }
-          },
-          "required": [
-            "emailId",
-            "status"
-          ]
-        },
-        "ErrorResponse": {
-          "type": "object",
-          "properties": {
-            "internalMessage": {
-              "type": "string",
-              "nullable": true,
-              "description": "An internal error message with additional technical details",
-              "example": "Recipients not found in original incident: [user3@example.com]"
-            }
-          }
-        },
-        "DownloadUrlResponse": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string",
-              "description": "The pre-signed AWS S3 link to download the requested file",
-              "example": "https://signed-url.example.com/file.csv"
-            }
-          }
-        },
-        "MessageResponse": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "string",
-              "description": "The response message for downloading the CSV validation error file",
-              "example": "Something went wrong"
-            }
-          }
-        },
-        "ImportCsvUserDataAcceptedResponse": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "string",
-              "description": "The CSV file import status message",
-              "example": "User attribute report is accepted and its getting processed"
-            },
-            "csvUserDataActivityId": {
-              "type": "string",
-              "format": "uuid",
-              "description": "The unique identifier for the import activity",
-              "example": "123e4567-e89b-12d3-a456-426614174000"
-            }
-          }
-        },
-        "CsvValidationDetails": {
-          "type": "object",
-          "properties": {
-            "csvUserDataActivityId": {
-              "type": "string",
-              "nullable": true,
-              "description": "The unique identifier for the import activity",
-              "example": "123e4567-e89b-12d3-a456-426614174000"
-            },
-            "csvFileName": {
-              "type": "string",
-              "nullable": true,
-              "description": "The original name of the uploaded CSV file",
-              "example": "users.csv"
-            },
-            "csvFileSize": {
-              "type": "string",
-              "nullable": true,
-              "description": "The size of the uploaded CSV file",
-              "example": "1024"
-            },
-            "totalRecords": {
-              "type": "integer",
-              "nullable": true,
-              "description": "The total number of records found in the CSV file",
-              "example": 25
-            },
-            "globalError": {
-              "type": "boolean",
-              "nullable": true,
-              "description": "Displays the value <code>true</code> when a file-level error occurrs (e.g., wrong format, missing headers, ect.,)",
-              "example": true
-            },
-            "errorMessage": {
-              "type": "string",
-              "nullable": true,
-              "description": "Displays the reason of the global error",
-              "example": "CSV validation failed"
-            }
-          }
-        },
-        "ZSDLPIncidentChangeHistory": {
-          "type": "object",
-          "properties": {
-            "incidentId": {
-              "type": "string",
-              "description": "The ID of the incident"
-            },
-            "startDate": {
-              "type": "string",
-              "description": "The start date and time of an update to the incident",
-              "format": "date-time"
-            },
-            "endDate": {
-              "type": "string",
-              "description": "The end date and time of the update",
-              "format": "date-time"
-            },
-            "changeHistory": {
-              "type": "array",
-              "description": "The details of the updates made to the incident",
-              "items": {
-                "$ref": "#/components/schemas/ZSDLPIncidentChange"
-              }
-            }
-          }
-        },
-        "ZSDLPIncidentChange": {
-          "type": "object",
-          "properties": {
-            "changeType": {
-              "$ref": "#/components/schemas/ZSDLPIncidentChangeType"
-            },
-            "changedAt": {
-              "type": "string",
-              "description": "The date and time an update occurred to the incident",
-              "format": "date-time"
-            },
-            "changedByName": {
-              "type": "string",
-              "description": "The name of the user who updated the incident"
-            },
-            "changeData": {
-              "$ref": "#/components/schemas/ZSDLPIncidentChangeData"
-            },
-            "comment": {
-              "type": "string",
-              "description": "Comments or additional information about the incident"
-            }
-          },
-          "required": [
-            "changeType",
-            "changedAt",
-            "changedBy",
-            "changedByName",
-            "changeData",
-            "comment"
-          ]
-        },
-        "ZSDLPIncidentSearchableFields": {
-          "description": "The field values that you can use to filter and search an incident",
-          "type": "string",
-          "enum": [
-            "severity",
-            "priority",
-            "transactionId",
-            "status",
-            "sourceDLPType",
-            "labels",
-            "incidentGroupIds",
-            "engine"
-          ]
-        },
-        "ZSDLPIncidentChangeData": {
-          "type": "object",
-          "properties": {
-            "before": {
-              "type": "string",
-              "description": "The status of the incident before the update"
-            },
-            "after": {
-              "type": "string",
-              "description": "The status of the incident after the update (i.e., the latest status)"
-            }
-          },
-          "required": [
-            "before",
-            "after"
-          ]
-        },
-        "ZSDLPIncidentTicketList": {
-          "type": "object",
-          "properties": {
-            "cursor": {
-              "$ref": "#/components/schemas/Cursor"
-            },
-            "tickets": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ZSDLPIncidentTicket"
-              }
-            }
-          }
-        },
-        "ZSDLPIncidentTicket": {
-          "type": "object",
-          "properties": {
-            "ticketType": {
-              "$ref": "#/components/schemas/ZSDLPTicketType"
-            },
-            "ticketingSystemName": {
-              "type": "string",
-              "description": "The ticketing system name"
-            },
-            "projectId": {
-              "type": "string",
-              "description": "The ID of the project"
-            },
-            "projectName": {
-              "type": "string",
-              "description": "The name of the project"
-            },
-            "ticketInfo": {
-              "$ref": "#/components/schemas/ZSDLPTicketInfo"
-            }
-          },
-          "required": [
-            "ticketType",
-            "ticketingSystemName",
-            "ticketInfo"
-          ]
-        },
-        "ZSDLPTicketInfo": {
-          "type": "object",
-          "properties": {
-            "ticketId": {
-              "type": "string",
-              "description": "The ID of the ticket"
-            },
-            "ticketUrl": {
-              "type": "string",
-              "description": "The URL of the ticket"
-            },
-            "state": {
-              "type": "string",
-              "description": "The status of the ticket"
-            }
-          },
-          "required": [
-            "ticketId",
-            "ticketUrl",
-            "state"
-          ]
-        },
-        "Cursor": {
-          "required": [
-            "currentPageNumber",
-            "totalPages",
-            "currentPageSize",
-            "pageId"
-          ],
-          "type": "object",
-          "properties": {
-            "totalPages": {
-              "type": "integer",
-              "description": "The total number of pages"
-            },
-            "currentPageNumber": {
-              "type": "integer",
-              "description": "The current page number"
-            },
-            "currentPageSize": {
-              "type": "integer",
-              "description": "The current page size"
-            },
-            "pageId": {
-              "type": "string",
-              "description": "The page ID of the incident"
-            },
-            "totalElements": {
-              "type": "integer",
-              "description": "The total number of elements"
-            }
-          }
-        },
         "ZSDLPIncidentList": {
           "required": [
             "cursor",
@@ -2097,131 +1003,187 @@
             }
           }
         },
-        "ZSDLPIncidentNote": {
+        "ZSDLPIncidentChangeHistory": {
           "type": "object",
           "properties": {
-            "body": {
+            "incidentId": {
               "type": "string",
-              "description": "Notes about the progress of the incident"
+              "description": "The ID of the incident"
             },
-            "createdAt": {
-              "$ref": "#/components/schemas/ZSDLPIncidentDate"
-            },
-            "lastUpdatedAt": {
-              "$ref": "#/components/schemas/ZSDLPIncidentDate"
-            },
-            "createdBy": {
-              "type": "integer",
-              "description": "The ID of the user who added the note"
-            },
-            "lastUpdatedBy": {
-              "type": "integer",
-              "description": "The ID of the user who modified the note last"
-            }
-          },
-          "required": [
-            "body",
-            "createdAt",
-            "lastUpdatedAt",
-            "createdBy",
-            "lastUpdatedBy"
-          ]
-        },
-        "ZSDLPIncidentLabel": {
-          "type": "object",
-          "properties": {
-            "key": {
+            "startDate": {
               "type": "string",
-              "description": "The name of the label assigned to the incident. The label name must be created on the <b>Labels</b> page of the Workflow Automation Admin Portal (legacy)."
+              "description": "The start date and time of an update to the incident",
+              "format": "date-time"
             },
-            "value": {
+            "endDate": {
               "type": "string",
-              "description": "The value of the label assigned to the incident. The label value is valid only if it is allocated to the label available on the <b>Labels</b> page of the Workflow Automation Admin Portal."
-            }
-          },
-          "required": [
-            "key"
-          ]
-        },
-        "ZSAuditLogResponseList": {
-          "type": "object",
-          "title": "ZSAuditLogResponseList",
-          "properties": {
-            "cursor": {
-              "$ref": "#/components/schemas/Cursor"
+              "description": "The end date and time of the update",
+              "format": "date-time"
             },
-            "logs": {
+            "changeHistory": {
               "type": "array",
+              "description": "The details of the updates made to the incident",
               "items": {
-                "$ref": "#/components/schemas/ZSAuditLogResponse"
+                "$ref": "#/components/schemas/ZSDLPIncidentChange"
               }
             }
           }
         },
-        "ZSAuditLogResponse": {
+        "ZSDLPIncidentTicketList": {
           "type": "object",
           "properties": {
-            "action": {
-              "$ref": "#/components/schemas/ZSAuditAction"
+            "cursor": {
+              "$ref": "#/components/schemas/Cursor"
             },
-            "module": {
-              "type": "string",
-              "description": "The module where the action was performed"
-            },
-            "resource": {
-              "type": "string",
-              "description": "The audited entity within the module"
-            },
-            "changedAt": {
-              "$ref": "#/components/schemas/ZSDLPIncidentDate"
-            },
-            "changedBy": {
-              "type": "string",
-              "description": "The admin who performed the action"
-            },
-            "oldRowJson": {
-              "type": "object",
-              "description": "The previous value of the audited entity"
-            },
-            "newRowJson": {
-              "type": "object",
-              "description": "The current or the updated value of the audited entity"
-            },
-            "changeNote": {
-              "type": "string",
-              "description": "The metadata of the configuration changes that occurred"
-            }
-          },
-          "required": [
-            "action",
-            "module",
-            "resource",
-            "changedAt"
-          ]
-        },
-        "ZSAuditAction": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string",
-              "description": "The action performed by the admin or APIs",
-              "enum": [
-                "INSERT",
-                "UPDATE",
-                "DELETE",
-                "CHECKPOINT",
-                "UNDEFINED"
-              ]
+            "tickets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSDLPIncidentTicket"
+              }
             }
           }
         },
-        "ZSDLPTicketType": {
-          "type": "string",
-          "description": "The type of the ticket",
-          "enum": [
-            "JIRA",
-            "SERVICE_NOW"
+        "ZSDLPIncidentGroupInfoRequest": {
+          "type": "object",
+          "properties": {
+            "incidentGroupIds": {
+              "type": "array",
+              "description": "The ID of the incident group",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "ZSDLPIncidentGroupInfoList": {
+          "required": [
+            "incidentGroups"
+          ],
+          "type": "object",
+          "properties": {
+            "incidentGroups": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSDLPIncidentGroupInfo"
+              }
+            }
+          }
+        },
+        "ZSDLPIncidentCloseRequest": {
+          "type": "object",
+          "properties": {
+            "resolutionLabel": {
+              "$ref": "#/components/schemas/ZSDLPIncidentLabel"
+            },
+            "resolutionCode": {
+              "$ref": "#/components/schemas/ZSDLPIncidentResolution"
+            },
+            "notes": {
+              "type": "string",
+              "description": "Additional information about the incident"
+            }
+          }
+        },
+        "ZSDLPIncidentAddNoteRequest": {
+          "type": "object",
+          "properties": {
+            "notes": {
+              "type": "string",
+              "description": "The notes added by the DLP admin to the incident"
+            }
+          }
+        },
+        "ZSDLPIncidentAddLabelsRequest": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSDLPIncidentLabel"
+              }
+            }
+          }
+        },
+        "SearchRequestFilters": {
+          "type": "object",
+          "x-nullable": true,
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSDLPIncidentSearchFieldValue"
+              }
+            },
+            "timeRange": {
+              "$ref": "#/components/schemas/ZSDLPIncidentSearchTimeRange"
+            }
+          }
+        },
+        "ZSDLPIncidentTriggerData": {
+          "type": "object",
+          "description": "The trigger data of the incident",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "ZSDLPIncidentEvidenceInfo": {
+          "description": "DLP Incident evidence metadata",
+          "type": "object",
+          "properties": {
+            "fileName": {
+              "type": "string",
+              "description": "The name of the file"
+            },
+            "fileType": {
+              "type": "string",
+              "description": "The type or extension of the file"
+            },
+            "additionalInfo": {
+              "type": "object",
+              "description": "Any additional information about the incident"
+            },
+            "evidenceURL": {
+              "type": "string",
+              "description": "The evidence URL of the incident"
+            }
+          },
+          "required": [
+            "fileName"
           ]
+        },
+        "Cursor": {
+          "required": [
+            "currentPageNumber",
+            "totalPages",
+            "currentPageSize",
+            "pageId"
+          ],
+          "type": "object",
+          "properties": {
+            "totalPages": {
+              "type": "integer",
+              "description": "The total number of pages"
+            },
+            "currentPageNumber": {
+              "type": "integer",
+              "description": "The current page number"
+            },
+            "currentPageSize": {
+              "type": "integer",
+              "description": "The current page size"
+            },
+            "pageId": {
+              "type": "string",
+              "description": "The page ID of the incident"
+            },
+            "totalElements": {
+              "type": "integer",
+              "description": "The total number of elements"
+            }
+          }
         },
         "ZSDLPIncidentSeverity": {
           "type": "string",
@@ -2483,86 +1445,34 @@
             "FALSE_POSITIVE"
           ]
         },
-        "ZSDLPIncidentCloseRequest": {
+        "ZSDLPIncidentNote": {
           "type": "object",
           "properties": {
-            "resolutionLabel": {
-              "$ref": "#/components/schemas/ZSDLPIncidentLabel"
-            },
-            "resolutionCode": {
-              "$ref": "#/components/schemas/ZSDLPIncidentResolution"
-            },
-            "notes": {
+            "body": {
               "type": "string",
-              "description": "Additional information about the incident"
-            }
-          }
-        },
-        "ZSDLPIncidentAddNoteRequest": {
-          "type": "object",
-          "properties": {
-            "notes": {
-              "type": "string",
-              "description": "The notes added by the DLP admin to the incident"
-            }
-          }
-        },
-        "ZSDLPIncidentAddLabelsRequest": {
-          "type": "object",
-          "properties": {
-            "labels": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ZSDLPIncidentLabel"
-              }
-            }
-          }
-        },
-        "ZSDLPIncidentTriggerData": {
-          "type": "object",
-          "description": "The trigger data of the incident",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "ZSDLPIncidentTriggersResponse": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
-            }
-          }
-        },
-        "ZSDLPIncidentEvidenceInfo": {
-          "description": "DLP Incident evidence metadata",
-          "type": "object",
-          "properties": {
-            "fileName": {
-              "type": "string",
-              "description": "The name of the file"
+              "description": "Notes about the progress of the incident"
             },
-            "fileType": {
-              "type": "string",
-              "description": "The type or extension of the file"
+            "createdAt": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
             },
-            "additionalInfo": {
-              "type": "object",
-              "description": "Any additional information about the incident"
+            "lastUpdatedAt": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
             },
-            "evidenceURL": {
-              "type": "string",
-              "description": "The evidence URL of the incident"
+            "createdBy": {
+              "type": "integer",
+              "description": "The ID of the user who added the note"
+            },
+            "lastUpdatedBy": {
+              "type": "integer",
+              "description": "The ID of the user who modified the note last"
             }
           },
           "required": [
-            "fileName"
+            "body",
+            "createdAt",
+            "lastUpdatedAt",
+            "createdBy",
+            "lastUpdatedBy"
           ]
         },
         "ZSDLPIncidentDate": {
@@ -2570,46 +1480,132 @@
           "description": "The associated date and time",
           "format": "date-time"
         },
-        "ZSDLPIncidentSearchTimeRange": {
+        "ZSDLPIncidentGroupInfoShort": {
           "type": "object",
           "properties": {
-            "startTime": {
-              "$ref": "#/components/schemas/ZSDLPIncidentDate"
+            "id": {
+              "type": "integer",
+              "description": "The ID of the incident group"
             },
-            "endTime": {
-              "$ref": "#/components/schemas/ZSDLPIncidentDate"
-            }
-          }
-        },
-        "SearchRequestFilters": {
-          "type": "object",
-          "x-nullable": true,
-          "properties": {
-            "fields": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ZSDLPIncidentSearchFieldValue"
-              }
-            },
-            "timeRange": {
-              "$ref": "#/components/schemas/ZSDLPIncidentSearchTimeRange"
-            }
-          }
-        },
-        "ZSDLPIncidentSearchFieldValue": {
-          "type": "object",
-          "properties": {
             "name": {
-              "$ref": "#/components/schemas/ZSDLPIncidentSearchableFields"
+              "type": "string",
+              "description": "The name of the incident group"
+            },
+            "description": {
+              "type": "string",
+              "description": "A short description about the incident group"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        "ZSDLPIncidentTicket": {
+          "type": "object",
+          "properties": {
+            "ticketType": {
+              "$ref": "#/components/schemas/ZSDLPTicketType"
+            },
+            "ticketingSystemName": {
+              "type": "string",
+              "description": "The ticketing system name"
+            },
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project"
+            },
+            "projectName": {
+              "type": "string",
+              "description": "The name of the project"
+            },
+            "ticketInfo": {
+              "$ref": "#/components/schemas/ZSDLPTicketInfo"
+            }
+          },
+          "required": [
+            "ticketType",
+            "ticketingSystemName",
+            "ticketInfo"
+          ]
+        },
+        "ZSDLPTicketType": {
+          "type": "string",
+          "description": "The type of the ticket",
+          "enum": [
+            "JIRA",
+            "SERVICE_NOW"
+          ]
+        },
+        "ZSDLPTicketInfo": {
+          "type": "object",
+          "properties": {
+            "ticketId": {
+              "type": "string",
+              "description": "The ID of the ticket"
+            },
+            "ticketUrl": {
+              "type": "string",
+              "description": "The URL of the ticket"
+            },
+            "state": {
+              "type": "string",
+              "description": "The status of the ticket"
+            }
+          },
+          "required": [
+            "ticketId",
+            "ticketUrl",
+            "state"
+          ]
+        },
+        "ZSDLPIncidentLabel": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string",
+              "description": "The name of the label assigned to the incident. The label name must be created on the <b>Labels</b> page of the Workflow Automation Admin Portal (legacy)."
             },
             "value": {
-              "type": "array",
-              "description": "The field values used to filter and search an incident",
-              "items": {
-                "type": "string"
-              }
+              "type": "string",
+              "description": "The value of the label assigned to the incident. The label value is valid only if it is allocated to the label available on the <b>Labels</b> page of the Workflow Automation Admin Portal."
             }
-          }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        "ZSDLPIncidentChange": {
+          "type": "object",
+          "properties": {
+            "changeType": {
+              "$ref": "#/components/schemas/ZSDLPIncidentChangeType"
+            },
+            "changedAt": {
+              "type": "string",
+              "description": "The date and time an update occurred to the incident",
+              "format": "date-time"
+            },
+            "changedByName": {
+              "type": "string",
+              "description": "The name of the user who updated the incident"
+            },
+            "changeData": {
+              "$ref": "#/components/schemas/ZSDLPIncidentChangeData"
+            },
+            "comment": {
+              "type": "string",
+              "description": "Comments or additional information about the incident"
+            }
+          },
+          "required": [
+            "changeType",
+            "changedAt",
+            "changedBy",
+            "changedByName",
+            "changeData",
+            "comment"
+          ]
         },
         "ZSDLPIncidentChangeType": {
           "type": "string",
@@ -2639,81 +1635,21 @@
             "SYNC_TICKET"
           ]
         },
-        "ZSDLPGetSessionTokenRequest": {
+        "ZSDLPIncidentChangeData": {
           "type": "object",
           "properties": {
-            "key_id": {
+            "before": {
               "type": "string",
-              "description": "The key ID"
+              "description": "The status of the incident before the update"
             },
-            "key_secret": {
+            "after": {
               "type": "string",
-              "description": "The key secret"
-            }
-          }
-        },
-        "ZSDLPGetSessionTokenResponse": {
-          "type": "object",
-          "properties": {
-            "token": {
-              "type": "string",
-              "description": "The session token"
-            },
-            "token_type": {
-              "type": "string",
-              "description": "The type of the session token"
-            },
-            "expires_in": {
-              "type": "integer",
-              "description": "The expiration time of the session token"
-            }
-          }
-        },
-        "ZSDLPIncidentGroupInfoRequest": {
-          "type": "object",
-          "properties": {
-            "incidentGroupIds": {
-              "type": "array",
-              "description": "The ID of the incident group",
-              "items": {
-                "type": "integer"
-              }
-            }
-          }
-        },
-        "ZSDLPIncidentGroupInfoList": {
-          "required": [
-            "incidentGroups"
-          ],
-          "type": "object",
-          "properties": {
-            "incidentGroups": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ZSDLPIncidentGroupInfo"
-              }
-            }
-          }
-        },
-        "ZSDLPIncidentGroupInfoShort": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer",
-              "description": "The ID of the incident group"
-            },
-            "name": {
-              "type": "string",
-              "description": "The name of the incident group"
-            },
-            "description": {
-              "type": "string",
-              "description": "A short description about the incident group"
+              "description": "The status of the incident after the update (i.e., the latest status)"
             }
           },
           "required": [
-            "id",
-            "name"
+            "before",
+            "after"
           ]
         },
         "ZSDLPIncidentGroupInfo": {
@@ -2762,13 +1698,46 @@
             "isDLPIncidentGroupAlreadyMapped",
             "isDLPAdminConfigAlreadyMapped"
           ]
-        }
-      },
-      "securitySchemes": {
-        "bearerAuth": {
-          "type": "apiKey",
-          "name": "Authorization",
-          "in": "header"
+        },
+        "ZSDLPIncidentSearchFieldValue": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/components/schemas/ZSDLPIncidentSearchableFields"
+            },
+            "value": {
+              "type": "array",
+              "description": "The field values used to filter and search an incident",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ZSDLPIncidentSearchableFields": {
+          "description": "The field values that you can use to filter and search an incident",
+          "type": "string",
+          "enum": [
+            "severity",
+            "priority",
+            "transactionId",
+            "status",
+            "sourceDLPType",
+            "labels",
+            "incidentGroupIds",
+            "engine"
+          ]
+        },
+        "ZSDLPIncidentSearchTimeRange": {
+          "type": "object",
+          "properties": {
+            "startTime": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
+            },
+            "endTime": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
+            }
+          }
         }
       }
     }

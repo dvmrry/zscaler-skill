@@ -5,17 +5,17 @@
   "source": {
     "url": "https://help.zscaler.com/uvm/configuring-azure-devops-outegration",
     "node": "1532592",
-    "revision": "3255537",
-    "updated": "2026-11-12",
+    "revision": "3260556",
+    "updated": "2026-11-25",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-13",
+  "captured_at": "2026-11-26",
   "blocks": [
     {
-      "text": "The Azure DevOps outegration is used to dispatch tickets from the Agentic Security Operations Platform platform applications (e.g., Unified Vulnerability Management (UVM)) to your Azure DevOps project, enabling you to track and assign tickets to a specific team for analysis and remediation."
+      "text": "The Azure DevOps outegration is used to dispatch tickets from Agentic Security Operations Platform (Agentic SecOps Platform) applications to your Azure DevOps project, enabling you to track and assign tickets to a specific team for analysis and remediation."
     },
     {
-      "text": "This article is a step-by-step guide to configuring the Azure DevOps work management outegration."
+      "text": "This article is a step-by-step guide to configuring the Azure DevOps outegration."
     },
     {
       "text": "Each Azure DevOps ticket type (e.g., Bug, Task, Feature) requires a separate outegration configuration."
@@ -25,10 +25,18 @@
       "level": 1
     },
     {
-      "text": "Before configuring the outegration, ensure that you complete the authentication and retrieve the Client ID, Client Secret, Tenant ID, organization name, and project name."
+      "text": "To configure the Azure DevOps outegration, you need to register and configure an application with the correct permissions and authentication. You also need the source authentication configuration, including the client ID, tenant ID, client secret, organization name, and project name. Retrieve the required authentication parameters and enter them in the corresponding fields during the Connect step of the outegration setup wizard."
     },
     {
-      "item": "Authentication Workflow",
+      "item": "Register and Configure an Application",
+      "depth": 0
+    },
+    {
+      "item": "Register and configure an application with the correct permissions and authentication.",
+      "depth": 0
+    },
+    {
+      "item": "To create a new application:",
       "depth": 0
     },
     {
@@ -52,14 +60,9 @@
       "depth": 1
     },
     {
-      "item": "Create a new application.",
-      "depth": 1,
-      "number": 3
-    },
-    {
       "item": "On the Register an application page, enter a name for the application.",
-      "depth": 2,
-      "number": 1,
+      "depth": 1,
+      "number": 3,
       "strong": [
         [
           7,
@@ -69,8 +72,8 @@
     },
     {
       "item": "Select Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant).",
-      "depth": 2,
-      "number": 2,
+      "depth": 1,
+      "number": 4,
       "strong": [
         [
           7,
@@ -80,8 +83,8 @@
     },
     {
       "item": "Click Register.",
-      "depth": 2,
-      "number": 3,
+      "depth": 1,
+      "number": 5,
       "strong": [
         [
           6,
@@ -91,7 +94,7 @@
     },
     {
       "item": "See image.",
-      "depth": 2
+      "depth": 1
     },
     {
       "item": "The Overview page appears when the application is created.",
@@ -104,32 +107,13 @@
       ]
     },
     {
-      "item": "If you have already registered an application, then proceed to create the client secret.",
-      "depth": 1
-    },
-    {
-      "item": "Copy and save the Application (client) ID and Directory (tenant) ID.",
-      "depth": 1,
-      "number": 4,
-      "strong": [
-        [
-          18,
-          41
-        ],
-        [
-          46,
-          67
-        ]
-      ]
-    },
-    {
-      "item": "See image.",
-      "depth": 1
+      "item": "To configure application authentication:",
+      "depth": 0
     },
     {
       "item": "In the left-side navigation, go to Manage > Authentication.",
       "depth": 1,
-      "number": 5,
+      "number": 1,
       "strong": [
         [
           35,
@@ -144,7 +128,7 @@
     {
       "item": "Click Add a Platform and select Web.",
       "depth": 1,
-      "number": 6,
+      "number": 2,
       "strong": [
         [
           6,
@@ -159,7 +143,7 @@
     {
       "item": "Under Configure Web, enter https://app.avalor.io/oauth as the application's redirect URI.",
       "depth": 1,
-      "number": 7,
+      "number": 3,
       "strong": [
         [
           6,
@@ -174,7 +158,7 @@
     {
       "item": "Click Configure.",
       "depth": 1,
-      "number": 8,
+      "number": 4,
       "strong": [
         [
           6,
@@ -183,9 +167,13 @@
       ]
     },
     {
+      "item": "To grant application API permissions:",
+      "depth": 0
+    },
+    {
       "item": "In the left-side navigation, go to Manage > API Permissions.",
       "depth": 1,
-      "number": 9,
+      "number": 1,
       "strong": [
         [
           35,
@@ -200,7 +188,7 @@
     {
       "item": "Click Add a permission and add the following permissions:",
       "depth": 1,
-      "number": 10,
+      "number": 2,
       "strong": [
         [
           6,
@@ -229,9 +217,17 @@
       "depth": 2
     },
     {
+      "item": "Generate a Client Secret",
+      "depth": 0
+    },
+    {
+      "item": "To generate a client secret:",
+      "depth": 0
+    },
+    {
       "item": "In the left-side navigation, go to Manage > Certificates & Secrets.",
       "depth": 1,
-      "number": 11,
+      "number": 1,
       "strong": [
         [
           35,
@@ -246,56 +242,70 @@
     {
       "item": "Create a new client secret, select an expiration time, and save the value.",
       "depth": 1,
-      "number": 12
+      "number": 2
     },
     {
       "item": "See image.",
       "depth": 1
     },
     {
-      "item": "Enter all the retrieved credentials (client ID, tenant ID, and client secret) in the Authentication section on the Create Azure DevOps Outegration page.",
+      "item": "Generate Refresh and Access Tokens (Optional)",
+      "depth": 0
+    },
+    {
+      "item": "The Agentic SecOps Platform generates the refresh and access token when you save the outegration.",
+      "depth": 0
+    },
+    {
+      "item": "Use the client secret to retrieve an authorization code that you can exchange for a refresh token. The refresh token ensures the Azure DevOps outegration authentication renews when the client secret expires.",
+      "depth": 0
+    },
+    {
+      "item": "For step-by-step instructions, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Retrieve Azure DevOps Authentication Details",
+      "depth": 0
+    },
+    {
+      "item": "To configure and authenticate the outegration, locate the client ID, tenant ID, organization name, and project name:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the application Overview page, and locate the Application (client) ID and Directory (tenant) ID fields.",
       "depth": 1,
-      "number": 13,
+      "number": 1,
       "strong": [
         [
-          85,
-          99
+          22,
+          30
+        ],
+        [
+          52,
+          75
+        ],
+        [
+          80,
+          101
         ]
       ]
     },
     {
-      "item": "A unique Authentication ID is generated when the authentication is successful.",
+      "item": "On the Azure DevOps dashboard, locate your organization's name displayed at the top of the left-side navigation.",
       "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Go to the Projects page, and locate the project name.",
+      "depth": 1,
+      "number": 3,
       "strong": [
         [
-          9,
-          26
+          10,
+          18
         ]
       ]
-    },
-    {
-      "item": "See image.",
-      "depth": 1
-    },
-    {
-      "item": "On the Azure DevOps dashboard, copy your organization's name displayed at the top of the left-side navigation.",
-      "depth": 1,
-      "number": 14
-    },
-    {
-      "item": "On the Projects tab, copy the project name.",
-      "depth": 1,
-      "number": 15,
-      "strong": [
-        [
-          7,
-          15
-        ]
-      ]
-    },
-    {
-      "item": "See image.",
-      "depth": 1
     },
     {
       "heading": "Configuring the Azure DevOps Outegration",
@@ -309,7 +319,11 @@
       "depth": 0
     },
     {
-      "item": "To establish a secure connection with the Azure DevOps project, you need to authenticate with the client ID, tenant ID, and client secret you previously saved.",
+      "item": "The first step in setting up your Azure DevOps outegration is to authenticate using valid credentials to establish a secure connection with your Azure DevOps instance. With the required parameters retrieved in the Prerequisites, you can begin the Azure DevOps outegration setup in the Agentic SecOps Platform.",
+      "depth": 0
+    },
+    {
+      "item": "To create an outegration:",
       "depth": 0
     },
     {
@@ -356,17 +370,17 @@
       ]
     },
     {
-      "item": "On the Connect a New Outegration page, select Azure DevOps.",
+      "item": "On the Connect a New Outegration page, search for and select Azure DevOps.",
       "depth": 1,
       "number": 4,
       "strong": [
         [
           7,
-          37
+          32
         ],
         [
-          46,
-          58
+          61,
+          73
         ]
       ]
     },
@@ -400,7 +414,7 @@
       ]
     },
     {
-      "item": "Display Name: Enter a name for your outegration from the Azure DevOps dashboard.",
+      "item": "Display Name: Enter a name for your outegration.",
       "depth": 2,
       "number": 1,
       "strong": [
@@ -422,7 +436,7 @@
       ]
     },
     {
-      "item": "Project: Enter the name of the project.",
+      "item": "Project: Enter the name of the project from the Azure DevOps dashboard.",
       "depth": 2,
       "number": 3,
       "strong": [
@@ -433,7 +447,7 @@
       ]
     },
     {
-      "item": "Authentication: Select an existing authentication ID, or click Create New to set up a new authentication and enter the required parameters you retrieved earlier into the corresponding fields.",
+      "item": "Authentication: Select an existing authentication, or click Create New to set up a new authentication, and enter the required parameters you retrieved earlier into the corresponding fields.",
       "depth": 2,
       "number": 4,
       "strong": [
@@ -442,8 +456,8 @@
           14
         ],
         [
-          63,
-          73
+          60,
+          70
         ]
       ]
     },
@@ -452,17 +466,13 @@
       "depth": 2
     },
     {
-      "item": "(Optional) Refresh Token and Access Token: Enter the values if required.",
+      "item": "Active: Enable to activate the outegration.",
       "depth": 2,
       "number": 5,
       "strong": [
         [
-          11,
-          24
-        ],
-        [
-          29,
-          41
+          0,
+          6
         ]
       ]
     },
@@ -471,7 +481,7 @@
       "depth": 1
     },
     {
-      "item": "Click Test to verify the connection. If the credentials are invalid, an error message is displayed along with the remediation steps to resolve the issue.",
+      "item": "Click Test to verify the connection. Invalid credentials trigger error messages to assist with troubleshooting connectivity issues.",
       "depth": 1,
       "number": 6,
       "strong": [
@@ -482,198 +492,19 @@
       ]
     },
     {
-      "item": "After the test passes, click Next to advance to the Settings step.",
+      "item": "After the test passes, click Next.",
       "depth": 1,
       "number": 7,
       "strong": [
         [
           29,
           33
-        ],
-        [
-          52,
-          60
         ]
       ]
     },
     {
       "item": "Step 2: Configure the Outegration Visibility and Behavior (Settings)",
       "depth": 0
-    },
-    {
-      "item": "In this step, you need to set the Agentic SecOps Platform entity that triggers the Azure DevOps ticket dispatch, the Azure DevOps ticket type that the Agentic SecOps Platform ticket should be dispatched to, and when the Create Azure DevOps Ticket button should appear in the application. The Create Azure DevOps Ticket button allows users with access to Agentic SecOps Platform tickets to dispatch these tickets to an Azure DevOps project directly from the Agentic SecOps Platform ticket drawer or from the Agentic SecOps Platform tickets page.",
-      "depth": 0
-    },
-    {
-      "item": "In the Advanced Settings section:",
-      "depth": 1,
-      "number": 1,
-      "strong": [
-        [
-          7,
-          24
-        ]
-      ]
-    },
-    {
-      "item": "Create Azure DevOps item from: Select the entity that you want to configure the outegration for. This selection affects the view you configure in the View step (e.g., selecting Ticket displays the Tickets View setting).",
-      "depth": 2,
-      "number": 1,
-      "strong": [
-        [
-          0,
-          29
-        ],
-        [
-          150,
-          154
-        ]
-      ]
-    },
-    {
-      "item": "UVM: Select Ticket.",
-      "depth": 3,
-      "strong": [
-        [
-          0,
-          3
-        ],
-        [
-          12,
-          18
-        ]
-      ]
-    },
-    {
-      "item": "AEM: Select Policy Violation or Violation Ticket.",
-      "depth": 3,
-      "strong": [
-        [
-          0,
-          3
-        ],
-        [
-          12,
-          28
-        ],
-        [
-          32,
-          48
-        ]
-      ]
-    },
-    {
-      "item": "Other entity types might be visible depending on the applications enabled in your account.",
-      "depth": 2
-    },
-    {
-      "item": "See image.",
-      "depth": 2
-    },
-    {
-      "item": "Work Item Type: Select the work item. The schema associated with the selected work item is retrieved from your Azure DevOps project and made available for mapping in the Mapping step.",
-      "depth": 2,
-      "number": 2,
-      "strong": [
-        [
-          0,
-          14
-        ]
-      ]
-    },
-    {
-      "item": "See image.",
-      "depth": 2
-    },
-    {
-      "item": "In the View section, select how the Agentic SecOps Platform ticket should display the Create Azure DevOps button. This setting can be modified at any time.",
-      "depth": 1,
-      "number": 2,
-      "strong": [
-        [
-          7,
-          11
-        ],
-        [
-          86,
-          105
-        ]
-      ]
-    },
-    {
-      "item": "Always: Select to display the button on all tickets, allowing users to dispatch all tickets to an Azure DevOps issue.",
-      "depth": 2,
-      "strong": [
-        [
-          0,
-          6
-        ]
-      ]
-    },
-    {
-      "item": "Never: Select to hide the button on all tickets. This is useful during the outegration setup process to hide the button from users while still keeping the outegration active.",
-      "depth": 2,
-      "strong": [
-        [
-          0,
-          5
-        ]
-      ]
-    },
-    {
-      "item": "For specific tickets: Display the button for specific tickets. For example, if your organization uses multiple ticketing systems, you can display the button only to users who work with Azure DevOps, while excluding those using other ticketing systems (e.g., ServiceNow).",
-      "depth": 2,
-      "strong": [
-        [
-          0,
-          20
-        ]
-      ]
-    },
-    {
-      "item": "See image.",
-      "depth": 1
-    },
-    {
-      "item": "The Create Azure DevOps Ticket button appears at two locations:",
-      "depth": 1,
-      "strong": [
-        [
-          4,
-          30
-        ]
-      ]
-    },
-    {
-      "item": "In the individual entity drawer (e.g., in the UVM ticket drawer, in the AEM violation ticket drawer).",
-      "depth": 2
-    },
-    {
-      "item": "See image.",
-      "depth": 2
-    },
-    {
-      "item": "On the entity page in the relevant application (e.g., on the Tickets page in UVM, on the Violation Tickets page in AEM).",
-      "depth": 2
-    },
-    {
-      "item": "See image.",
-      "depth": 2
-    },
-    {
-      "item": "Click Map to proceed to the Mapping step.",
-      "depth": 1,
-      "number": 3,
-      "strong": [
-        [
-          6,
-          9
-        ],
-        [
-          28,
-          35
-        ]
-      ]
     },
     {
       "item": "Step 3: Map the Outegration Fields (Mapping)",
@@ -697,15 +528,33 @@
     },
     {
       "item": "Tickets initially dispatched to Azure DevOps: Map Agentic SecOps Platform ticket fields (left) to Azure DevOps fields (right) for the initial dispatch of a ticket to an Azure DevOps issue. You can also add an attachment to your Azure DevOps issue. Commonly mapped fields include Summary, Description, Assignee, Priority, Due Date, and Status.",
-      "depth": 1
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          44
+        ]
+      ]
     },
     {
-      "item": "(Optional) Sync from ticket to Azure DevOps: Map Agentic SecOps Platform ticket fields (left) to Azure DevOps fields (right) for syncing ticket updates to Azure DevOps, including configuring comments and adding an attachment to your Azure DevOps ticket. Commonly mapped fields include Status and Due Date.",
-      "depth": 1
+      "item": "Sync from ticket to Azure DevOps: (Optional) Map Agentic SecOps Platform ticket fields (left) to Azure DevOps fields (right) for syncing ticket updates to Azure DevOps, including configuring comments and adding an attachment to your Azure DevOps ticket. Commonly mapped fields include Status and Due Date.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
     },
     {
-      "item": "(Optional) Sync from Azure DevOps to ticket: Map Azure DevOps fields (left) to Agentic SecOps Platform ticket fields (right) for syncing Azure DevOps updates to tickets. This step also requires setting up an Azure DevOps webhook. Commonly mapped fields include Ticket Status and Ticket SLA.",
-      "depth": 1
+      "item": "Sync from Azure DevOps to ticket: (Optional) Map Azure DevOps fields (left) to Agentic SecOps Platform ticket fields (right) for syncing Azure DevOps updates to tickets. This step also requires setting up an Azure DevOps webhook. Commonly mapped fields include Ticket Status and Ticket SLA.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
     },
     {
       "item": "The initial Azure DevOps outegration mapping includes preconfigured default mappings for each part, based on common use cases and industry best practices. These defaults can be modified and customized as needed.",
@@ -770,6 +619,22 @@
       "depth": 2
     },
     {
+      "item": "The Required attribute is TRUE if a field is required by Azure DevOps. If a field is not required, the attribute is not displayed. A required Azure DevOps field is also indicated by a red asterisk (*) on the Azure DevOps field in the first mapping step.",
+      "depth": 1
+    },
+    {
+      "item": "Required Azure DevOps fields must be mapped before saving the outegration.",
+      "depth": 1
+    },
+    {
+      "item": "The Input Type specifies the data type of the Azure DevOps field, such as TEXT (e.g., Summary), DATE (e.g., Due Date), or NUMBER (e.g., Risk Score). This indicates the format that the selected source field must match to successfully map to the Azure DevOps field.",
+      "depth": 1
+    },
+    {
+      "item": "For Azure DevOps fields with fixed values, the Available Options column displays the available values. For example, if the Azure DevOps field Priority is configured to include the following fixed values—High, Low, Medium, Lowest, Highest—the corresponding values in the Ticket Severity field can be mapped to these values.",
+      "depth": 1
+    },
+    {
       "item": "Under Define How to populate field (left), click Add value.",
       "depth": 1,
       "number": 3,
@@ -818,6 +683,42 @@
       "depth": 2
     },
     {
+      "item": "Select a field on the left to populate the field on the right.",
+      "depth": 1
+    },
+    {
+      "item": "The field dictionary allows you to create mappings between specific values from the field on the right and values of the field on the left. To use the dictionary, you must first select a field on the right and a field to populate it with on the left.",
+      "depth": 1
+    },
+    {
+      "item": "For example, if your Azure DevOps Priority field includes the following fixed values—Highest, High, Medium, Low, Lowest—you can use the dictionary to map the corresponding Ticket Severity values to each of the Priority field values.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Configure the field value using free text, or create a template using a combination of free text and selected fields. This allows you to dynamically insert specific field values (e.g., Ticket SLA, Ticket Assignee, or Asset Name) into customized free text sentences or paragraphs.",
+      "depth": 1
+    },
+    {
+      "item": "To add a Smart Text field, enclose it in double curly brackets (e.g., {{Ticket Assignee}}). The field's display name automatically translates to its system name.",
+      "depth": 1
+    },
+    {
+      "item": "This option is commonly used to configure the value of fields like Ticket Title and Ticket Description.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For use cases that require more advanced configuration than either of the previous two methods, you can use Python scripts to configure the field value to be mapped to the target field.",
+      "depth": 1
+    },
+    {
       "item": "Click Save, then repeat the mapping process for any other fields you want to map.",
       "depth": 1,
       "number": 5,
@@ -852,22 +753,201 @@
       "depth": 1
     },
     {
-      "item": "(Optional) You can add attachments to the ticket dispatch to simplify the review and management of findings dispatched from a ticket:",
+      "item": "(Optional) You can create a file attachment that summarizes your ticket content and set the trigger to automatically add it to your Azure DevOps issue. Adding an attachment to your Azure DevOps issue simplifies the review and management of ticket findings.",
       "depth": 1,
       "number": 7
     },
     {
-      "item": "See instructions to add attachments to the ticket dispatch.",
+      "item": "See instructions.",
       "depth": 2
     },
     {
-      "item": "(Optional) You can configure comments synchronization to push comments to Azure DevOps or to set conditions to trigger a comment when specific fields are modified.",
+      "item": "You can configure file attachments in two of the mapping steps:",
+      "depth": 1
+    },
+    {
+      "item": "Initial ticket dispatch",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Sync from ticket to Azure DevOps",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "When configured in the ticket to the Azure DevOps sync section, the attachment is included in the Azure DevOps issue alongside existing attachments as a downloadable file in the selected format.",
+      "depth": 1
+    },
+    {
+      "item": "Use the File Format drop-down menu on the attachment page to select from the available formats.",
+      "depth": 1,
+      "strong": [
+        [
+          8,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To provide your Azure DevOps remediation teams with a comprehensive view of the findings in the ticket, consider including the following fields in your attachment:",
+      "depth": 1
+    },
+    {
+      "item": "Finding Severity",
+      "depth": 2
+    },
+    {
+      "item": "Finding Title",
+      "depth": 2
+    },
+    {
+      "item": "Finding CVE",
+      "depth": 2
+    },
+    {
+      "item": "Component Name",
+      "depth": 2
+    },
+    {
+      "item": "Asset Name",
+      "depth": 2
+    },
+    {
+      "item": "Asset Operating System",
+      "depth": 2
+    },
+    {
+      "item": "Finding Optimal Fix",
+      "depth": 2
+    },
+    {
+      "item": "Finding Description",
+      "depth": 2
+    },
+    {
+      "item": "Finding Sources",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) You can push comments to Azure DevOps, or set conditions to trigger a comment when specific fields are modified.",
       "depth": 1,
       "number": 8
     },
     {
-      "item": "See instructions to configure comments synchronization.",
+      "item": "See instructions.",
       "depth": 2
+    },
+    {
+      "item": "In the Ticket to Azure DevOps sync step, click Comment Sync.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          47,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Manage comments sync window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Enable Sync Comments to automatically push comments from the ticket's Comments tab to the corresponding Azure DevOps issue.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enable Sync Trigger Comments and set conditions to trigger a comment when specific fields are modified. Syncing trigger comments is useful when you want to be notified of important changes to tickets without updating the corresponding Azure DevOps issue. For example, you can configure a trigger to post a comment in Azure DevOps when the Ticket Severity changes from Medium to Critical.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the field you want to monitor (e.g., Severity).",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Set the value change that should trigger the comment:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "From: Select the original value.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "To: Select the updated value.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "When the specified change occurs in the ticket, a comment is automatically created and added to the Azure DevOps issue. The following is an example of a trigger comment:",
+      "depth": 1
+    },
+    {
+      "item": "Linked UVM ticket updated: Ticket severity changed from: MEDIUM to: CRITICAL <URL to ticket>",
+      "depth": 1
     },
     {
       "item": "(Optional) Click Preview to review the Azure DevOps mapping. You can select, filter, or search tickets and preview the mapping to their corresponding Azure DevOps ticket. You can also open the Agentic SecOps Platform incident in a new tab for a more in-depth review.",
@@ -896,6 +976,177 @@
       ]
     },
     {
+      "item": "In this step, you need to set the Agentic SecOps Platform entity that triggers the Azure DevOps ticket dispatch, the Azure DevOps ticket type that the Agentic SecOps Platform ticket should be dispatched to, and when the Create Azure DevOps Ticket button should appear in the application. The Create Azure DevOps Ticket button allows users with access to Agentic SecOps Platform tickets to dispatch these tickets to an Azure DevOps project directly from the Agentic SecOps Platform ticket drawer or from the Agentic SecOps Platform tickets page.",
+      "depth": 0
+    },
+    {
+      "item": "In the Advanced Settings section:",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Create Azure DevOps item from: Select the entity that you want to configure the outegration for. This selection affects the view you configure in the View step (e.g., selecting Ticket displays the Tickets View setting).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          150,
+          154
+        ],
+        [
+          177,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "For UVM: Select Ticket.",
+      "depth": 3,
+      "strong": [
+        [
+          16,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "For AEM: Select Policy Violation or Violation Ticket.",
+      "depth": 3,
+      "strong": [
+        [
+          16,
+          32
+        ],
+        [
+          36,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Other entity types might be visible depending on the applications enabled in your account.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Work Item Type: Select the work item. The schema associated with the selected work item is retrieved from your Azure DevOps project and made available for mapping in the Mapping step.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the View section, select how the Agentic SecOps Platform ticket should display the Create Azure DevOps button. This setting can be modified at any time.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          86,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "Always: Select to display the button on all tickets, allowing users to dispatch all tickets to an Azure DevOps issue.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Never: Select to hide the button on all tickets. This is useful during the outegration setup process to hide the button from users while still keeping the outegration active.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "For specific tickets: Select to display the button for specific tickets. For example, if your organization uses multiple ticketing systems, you can display the button only to users who work with Azure DevOps, while excluding those using other ticketing systems (e.g., ServiceNow).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Create Azure DevOps Ticket button appears in two locations:",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the individual entity drawer (e.g., in the UVM ticket drawer, in the AEM violation ticket drawer).",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the entity page in the relevant application (e.g., on the Tickets page in UVM, on the Violation Tickets page in AEM).",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Map to proceed to the Mapping step.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          28,
+          35
+        ]
+      ]
+    },
+    {
       "heading": "Common Mapping Examples",
       "level": 2
     },
@@ -918,6 +1169,317 @@
     {
       "item": "Azure DevOps to Ticket Status Sync",
       "depth": 1
+    },
+    {
+      "item": "To illustrate the mapping process, consider the mapping of the required Azure DevOps Summary field. The final result of the mapping process should show the Summary field on the right, and the Ticket Title field on the left.",
+      "depth": 0
+    },
+    {
+      "item": "To map the Ticket Title field to the Summary field:",
+      "depth": 0
+    },
+    {
+      "item": "Select Summary as the Azure DevOps field on the right.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Selecting the Azure DevOps Summary field opens the field's details in the schema. The schema specifies that the field is required and thus must be mapped before the outegration can be saved, and that the field expects a TEXT input type. Therefore, the field for which a value is being configured must also be of TEXT type.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the Ticket Title field on the left:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "On the Field tab, select the Ticket Title field, which is the equivalent to the Azure DevOps Summary field.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          93,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When dispatching tickets to Azure DevOps, map the Azure DevOps Description field with a summary of the Ticket content to provide remediation teams with a brief overview of the ticket.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Ticket to Azure DevOps Description mapping:",
+      "depth": 0
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Description as the field on the right.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value on the left.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "On the Smart Text tab, enter a ticket description, including dynamic fields (e.g., {{SLA}}).",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Tickets dispatched to Azure DevOps will now include the configured description.",
+      "depth": 0
+    },
+    {
+      "item": "In the Ticket to Azure DevOps sync, map the Azure DevOps Due Date field to keep timelines in sync with Ticket SLA changes.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Ticket SLA to Azure DevOps Due Date mapping:",
+      "depth": 0
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Due Date as the field on the right.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value on the left.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "On the Field tab, select the Ticket SLA field.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          29,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Ticket SLA changes will now automatically update Azure DevOps issue due dates.",
+      "depth": 0
+    },
+    {
+      "item": "In the Azure DevOps to Ticket sync, map the Ticket Status field to ensure it's updated when remediation teams change the Azure DevOps Issue Status.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Azure DevOps to Ticket Status mapping:",
+      "depth": 0
+    },
+    {
+      "item": "Click Mapping.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Ticket Status as the field on the right.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Value on the left.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Field Editor appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "On the Field, select the Status field.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Click Dictionary to map your Azure DevOps Status types to Ticket Status types.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          42,
+          48
+        ],
+        [
+          58,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Azure DevOps issue Status changes will now automatically update the Ticket Status.",
+      "depth": 0
     },
     {
       "item": "Step 4: Configure the Azure DevOps Webhook",

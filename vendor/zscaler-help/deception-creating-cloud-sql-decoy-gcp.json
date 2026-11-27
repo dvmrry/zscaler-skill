@@ -4,29 +4,121 @@
   "title": "Creating a Cloud SQL Decoy in GCP",
   "source": {
     "url": "https://help.zscaler.com/deception/creating-cloud-sql-decoy-gcp",
-    "node": "1542587",
-    "revision": "3221527",
-    "updated": "2026-09-22",
+    "node": "1545991",
+    "revision": "3260333",
+    "updated": "2026-11-24",
     "updated_basis": "pdf-last-modified"
   },
-  "captured_at": "2026-11-03",
+  "captured_at": "2026-11-25",
   "blocks": [
     {
-      "text": "The cloud SQL in Google Cloud Platform (GCP) is a service that allows you to set up and host relational databases (MySQL or PostgreSQL). You can create cloud SQL decoy databases (public or private) based on MySQL or PostgreSQL to lure adversaries that are looking for databases to disrupt services or steal data. Optionally, the credentials of the master user (or root) of the database along with the URL can be added to a landmine policy as a lure. You can view and analyze the attack details from the Zscaler Deception dashboard."
+      "text": "The Cloud SQL in Google Cloud Platform (GCP) is a service that allows you to set up and host relational databases (MySQL or PostgreSQL). You can create Cloud SQL decoy databases (public or private) based on MySQL or PostgreSQL to lure adversaries that are looking for databases to disrupt services or steal data. Optionally, the credentials of the master user (or root) of the database along with the URL can be added to a landmine policy as a lure. You can view and analyze the attack details from the Zscaler Deception dashboard."
     },
     {
       "heading": "Prerequisites",
       "level": 1
     },
     {
-      "text": "Before creating a cloud SQL decoy in GCP, ensure that you have configured the integration between GCP and Deception."
+      "text": "Before creating a Cloud SQL decoy in GCP, ensure that you have:"
+    },
+    {
+      "item": "Configured the integration between GCP and Deception.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Configured Private Services Access in your GCP project if you want to create a Cloud SQL decoy with a private IP address.",
+      "depth": 0
+    },
+    {
+      "item": "See instructions.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy a Cloud SQL decoy with a private IP address, you must configure Private Services Access in your GCP project before deploying the decoy. The Terraform deployment does not create the Virtual Private Cloud (VPC) network, allocate the IP address range, or configure the required network peering.",
+      "depth": 0
+    },
+    {
+      "item": "If your organization restricts Private Services Access, you cannot deploy Cloud SQL decoys with private IP addresses. Use a Cloud SQL decoy with a public IP address instead.",
+      "depth": 0
+    },
+    {
+      "item": "Before configuring Private Services Access, ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "Access to a GCP project where you want to deploy the Cloud SQL decoy.",
+      "depth": 1
+    },
+    {
+      "item": "The following IAM roles or equivalent permissions:",
+      "depth": 1
+    },
+    {
+      "item": "roles/compute.networkAdmin",
+      "depth": 2
+    },
+    {
+      "item": "roles/servicenetworking.networksAdmin",
+      "depth": 2
+    },
+    {
+      "item": "Enabled the Service Networking API (servicenetworking.googleapis.com) in your GCP project.",
+      "depth": 1
+    },
+    {
+      "item": "To configure Private Services Access:",
+      "depth": 0
+    },
+    {
+      "item": "Open the terminal and run the following command to specify your GCP project ID:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "PROJECT=<customer-project-id>",
+      "depth": 1
+    },
+    {
+      "item": "Replace <customer-project-id> with your GCP project ID.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create a VPC network:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "gcloud compute networks create zsd-decoy-vpc \\ --project=$PROJECT \\ --subnet-mode=custom",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to allocate an IP address range for private services:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "gcloud compute addresses create zsd-psa-range \\ --project=$PROJECT \\ --global \\ --purpose=VPC_PEERING \\ --prefix-length=24 \\ --network=zsd-decoy-vpc \\ --addresses=xx.xx.xx.xx",
+      "depth": 1
+    },
+    {
+      "item": "Replace xx.xx.xx.xx with the starting IP address of a non-overlapping /24 range approved by your network administrator.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to configure Private Services Access peering:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "gcloud services vpc-peerings connect \\ --project=$PROJECT \\ --service=servicenetworking.googleapis.com \\ --ranges=zsd-psa-range \\ --network=zsd-decoy-vpc",
+      "depth": 1
     },
     {
       "heading": "Creating a Cloud SQL Decoy",
       "level": 1
     },
     {
-      "text": "To create a cloud SQL decoy:"
+      "text": "To create a Cloud SQL decoy:"
     },
     {
       "item": "Go to Deceive > Cloud Deception > GCP > Cloud SQL.",
@@ -99,7 +191,7 @@
       ]
     },
     {
-      "item": "Name: Enter a name for the cloud SQL database decoy.",
+      "item": "Name: Enter a name for the Cloud SQL database decoy.",
       "depth": 1,
       "number": 2,
       "strong": [
@@ -110,7 +202,7 @@
       ]
     },
     {
-      "item": "Description: Enter a description for the cloud SQL database decoy.",
+      "item": "Description: Enter a description for the Cloud SQL database decoy.",
       "depth": 1,
       "number": 3,
       "strong": [
@@ -132,7 +224,7 @@
       ]
     },
     {
-      "item": "ACL: Choose your preferred access control list for the cloud SQL database decoy:",
+      "item": "ACL: Choose your preferred access control list for the Cloud SQL database decoy:",
       "depth": 1,
       "number": 5,
       "strong": [
@@ -143,7 +235,7 @@
       ]
     },
     {
-      "item": "Select Public if you want the cloud SQL database decoy to be accessible to anyone.",
+      "item": "Select Public if you want the Cloud SQL database decoy to be accessible to anyone.",
       "depth": 2,
       "strong": [
         [
@@ -153,7 +245,7 @@
       ]
     },
     {
-      "item": "Select Private if you want the cloud SQL database decoy to be accessible only to internal adversaries.",
+      "item": "Select Private if you want the Cloud SQL database decoy to be accessible only to internal adversaries. Ensure that Private Services Access is configured in your GCP project before deploying the decoy.",
       "depth": 2,
       "strong": [
         [
@@ -161,6 +253,10 @@
           14
         ]
       ]
+    },
+    {
+      "item": "If your organization restricts Private Services Access, you cannot deploy Cloud SQL decoys with private IP addresses. Use a Cloud SQL decoy with a public IP address instead.",
+      "depth": 2
     },
     {
       "item": "Region: Select the GCP region in which you want to deploy the decoy.",
@@ -185,7 +281,7 @@
       ]
     },
     {
-      "item": "VPC Network Name: Enter the name of the network in the VPC where you want to place the decoy. This option appears only if the ACL value is set to Private.",
+      "item": "VPC Network Name: Enter the name of the network in the VPC where you want to place the decoy. This option appears only if ACL is set to Private. The Terraform deployment provisions the Cloud SQL decoy instance with a private IP address from the configured private services range.",
       "depth": 1,
       "number": 8,
       "strong": [
@@ -194,12 +290,12 @@
           16
         ],
         [
-          126,
-          129
+          122,
+          125
         ],
         [
-          146,
-          153
+          136,
+          143
         ]
       ]
     },
@@ -219,7 +315,7 @@
       ]
     },
     {
-      "item": "If you want to add multiple cloud SQL decoys to GCP, repeat the previous steps for each decoy and then deploy all decoys simultaneously.",
+      "item": "If you want to add multiple Cloud SQL decoys to GCP, repeat the previous steps for each decoy and then deploy all decoys simultaneously.",
       "depth": 0
     },
     {
@@ -383,8 +479,28 @@
       "number": 16
     },
     {
-      "item": "Upon successful execution of the script, the cloud SQL database decoy is added to GCP. The deployment status is indicated by the icon next to the name of the decoy in the cloud SQL decoys table (Deceive > Cloud Deception > GCP > Cloud SQL) within the Deception Admin Portal. To learn how to configure lures using cloud SQL database decoys, see Configuring Lures Using GCP Decoys.",
+      "item": "Upon successful execution of the script, the Cloud SQL database decoy is added to GCP. The deployment status is indicated by the icon next to the name of the decoy in the Cloud SQL decoys table (Deceive > Cloud Deception > GCP > Cloud SQL) within the Deception Admin Portal. To learn how to configure lures using Cloud SQL database decoys, see Configuring Lures Using GCP Decoys.",
       "depth": 0
+    },
+    {
+      "item": "If you configured Cloud SQL decoys with a private IP address, verify that the decoy is reachable:",
+      "depth": 0,
+      "number": 17
+    },
+    {
+      "item": "Ensure that the networks from which attackers might access the decoy have connectivity to the VPC network.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Verify that the applicable network controls permit TCP port 5432 (PostgreSQL) traffic to the private services range.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Determine the required firewall configuration.",
+      "depth": 1,
+      "number": 3
     },
     {
       "heading": "Troubleshooting",
